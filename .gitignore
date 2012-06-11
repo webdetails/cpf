@@ -1,0 +1,6 @@
+dist/
+bin/
+lib/
+nbproject/private/
+/override.properties
+*~
