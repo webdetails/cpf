@@ -5,8 +5,9 @@
 
   <configurations>
     <conf name="default"/>
-   <conf name="test" visibility="private"/>
+    <conf name="test" visibility="private"/>
     <conf name="sources"/>
+    <conf name="legacy"/>
   </configurations>
 
 
@@ -18,10 +19,10 @@
   <dependencies defaultconf="default->default">
 
     <!--  common dependencies -->
-    <dependency org="commons-logging" name="commons-logging" rev="1.1.1" transitive="false" />
+<!--    <dependency org="commons-logging" name="commons-logging" rev="1.1.1" transitive="false" />
     <dependency org="dom4j" name="dom4j" rev="1.6.1" transitive="false"/>
     <dependency org="commons-lang" name="commons-lang" rev="2.2"/>
-    <dependency org="commons-io" name="commons-io" rev="2.2"/>
+    <dependency org="commons-io" name="commons-io" rev="2.2"/>-->
     <!--  pentaho dependencies -->
     <dependency org="pentaho" name="pentaho-bi-platform-plugin-services"
                 rev="${dependency.bi-platform.revision}" changing="true" transitive="false" />
@@ -32,9 +33,18 @@
     <dependency org="pentaho-reporting-engine" name="pentaho-reporting-engine-classic-core-platform-plugin" 
                 rev="${dependency.pentaho-reporting-engine-classic-core-platform-plugin.revision}" changing="true" transitive="false"/>-->
     <!-- orient db (persistence) -->
-    <dependency org="com.orientechnologies" name="orient-commons" rev="1.0.1" transitive="false"/>
-    <dependency org="com.orientechnologies" name="orientdb-core" rev="1.0.1" transitive="false" />
-    <dependency org="com.orientechnologies" name="orientdb-server" rev="1.0.1" transitive="false" />
+<!--    <dependency org="com.orientechnologies" name="orient-commons" rev="1.0.1" transitive="false" conf="legacy->default;default->default"/>
+    <dependency org="com.orientechnologies" name="orientdb-core" rev="1.0.1" transitive="false" conf="legacy->default;default->default"/>
+    <dependency org="com.orientechnologies" name="orientdb-server" rev="1.0.1" transitive="false" conf="legacy->default;default->default" />-->
+    
+    <!-- legacy -->
+    <dependency org="pentaho" name="pentaho-bi-platform-plugin-services"
+      rev="3.6.0-stable" changing="true" transitive="false" conf="legacy->default" />
+    <dependency org="pentaho" name="pentaho-bi-platform-plugin-actions"
+      rev="3.6.0-stable" changing="true" transitive="true" conf="legacy->default" />
+    <dependency org="pentaho" name="pentaho-bi-platform-web-servlet"
+      rev="3.6.0-stable" transitive="false"  changing="true" conf="legacy->default" />
+
 
   </dependencies>
 

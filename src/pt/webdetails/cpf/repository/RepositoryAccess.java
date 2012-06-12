@@ -238,6 +238,9 @@ public class RepositoryAccess {
     return PentahoSystem.getApplicationContext().getSolutionPath(path);
   }
   
+  /**
+   * 
+   */
   public static class ExtensionFilter implements IFileFilter {
 
     private List<String> extensions;
@@ -245,6 +248,13 @@ public class RepositoryAccess {
     private ISolutionRepository solutionRepository;
     FileAccess access = FileAccess.READ;
     
+    /**
+     * 
+     * @param extensions list of file extensions to accept
+     * @param includeDirs if folders are to be included
+     * @param repository
+     * @param fileAccess
+     */
     public ExtensionFilter(List<String> extensions, boolean includeDirs, RepositoryAccess repository, FileAccess fileAccess){
       
       this.includeDirs = includeDirs;
