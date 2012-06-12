@@ -69,7 +69,7 @@
 
   <echo>distribution.version = ${distribution.version}</echo>
 
-  <target name="dist" depends="clean,resolve,jar,dist-plugin"/>
+  <target name="dist" depends="clean,resolve,jar,source.jar,dist-plugin"/>
   <target name="dist-compile" depends="jar,dist-plugin"/>
 
   <property name="plugin.artifact.id" value="${plugin.name}"/>
@@ -102,7 +102,15 @@
     <sonar:sonar key="pt.webdetails:CPF" version="${distribution.version}" xmlns:sonar="antlib:org.sonar.ant"/>
   </target>
 
-
+  <!-- ================ 
+        Legacy Compat
+       ================ --> 
+  <target name="resolve-legacy" depends="resolve-init">
+    <ivy:resolve file="ivy.xml" conf="legacy" />
+    <ivy:retrieve conf="legacy" pattern="${lib.dir}/[module]-[revision](-[classifier]).[ext]" />
+  </target>
+  <target name="dist-legacy" depends="clean,resolve-legacy,jar,dist-plugin"/>
+  <!-- ================= --> 
 
   <!--=======================================================================
               dist
