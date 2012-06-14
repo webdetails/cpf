@@ -16,6 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
+import org.pentaho.platform.api.engine.IAclSolutionFile;
 import org.pentaho.platform.api.engine.IFileFilter;
 import org.pentaho.platform.api.engine.IPentahoAclEntry;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -26,6 +27,7 @@ import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.api.repository.ISolutionRepositoryService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.security.SecurityHelper;
 
 import pt.webdetails.cpf.PluginSettings;
 
@@ -163,7 +165,23 @@ public class RepositoryAccess {
   }
   
   public boolean hasAccess(String filePath, FileAccess access){
-    return getSolutionRepository().getSolutionFile(filePath, access.toResourceAction()) != null;
+    ISolutionFile file = getSolutionRepository().getSolutionFile(filePath, access.toResourceAction());
+    if(file == null) {
+      return false;
+    }
+    else if (!SecurityHelper.canHaveACLS(file)){
+      logger.warn(file.getExtension() + " not in acl-files.");
+      //not declared in pentaho.xml:/pentaho-system/acl-files, try parent dir
+      ISolutionFile parent = file.retrieveParent();
+      if(parent instanceof IAclSolutionFile){
+        return SecurityHelper.hasAccess((IAclSolutionFile) parent, access.toResourceAction(), userSession);
+      }
+      else {
+        logger.error("Unable to check access control for " + filePath);
+      }
+    }
+    
+    return true;
   }
   
   private ISolutionRepository getSolutionRepository() {
