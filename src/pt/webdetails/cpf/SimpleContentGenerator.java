@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -24,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.json.JSONException;
 import org.pentaho.platform.api.engine.IParameterProvider;
+import org.pentaho.platform.api.repository.IContentItem;
 
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.security.SecurityHelper;
@@ -213,10 +213,15 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
      return new Class<?>[]{ OutputStream.class };
     }
     
+    @SuppressWarnings("deprecation")
     protected OutputStream getResponseOutputStream(final String mimeType) throws IOException {
-      ServletResponse resp = getResponse();
-      resp.setContentType(mimeType);
-      return resp.getOutputStream();
+      IContentItem contentItem = outputHandler.getOutputContentItem("response", "content", "", instanceId, mimeType);
+      return contentItem.getOutputStream(null);
+//
+//      
+//      ServletResponse resp = getResponse();
+//      resp.setContentType(mimeType);
+//      return resp.getOutputStream();
     }
 
     protected HttpServletRequest getRequest(){
