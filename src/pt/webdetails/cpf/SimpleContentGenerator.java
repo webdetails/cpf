@@ -276,7 +276,8 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
     }
 
     
-    protected boolean invokeMethod(final OutputStream out, final String methodName, final Method method) throws InvocationTargetException, IllegalArgumentException, IllegalAccessException {
+    protected boolean invokeMethod(final OutputStream out, final String methodName, final Method method) 
+        throws InvocationTargetException, IllegalArgumentException, IllegalAccessException, IOException {
       
       if(canAccessMethod(method)){
         
@@ -293,8 +294,9 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
         
         return true;
       }
-      logger.error("Method " + methodName + " not exposed or user does not have required permissions.");
-      getResponse().setStatus(HttpServletResponse.SC_FORBIDDEN);
+      String msg = "Method " + methodName + " not exposed or user does not have required permissions."; 
+      logger.error(msg);
+      getResponse().sendError(HttpServletResponse.SC_FORBIDDEN, msg);
       return false;
     }
     

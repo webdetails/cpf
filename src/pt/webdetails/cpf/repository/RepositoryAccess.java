@@ -164,24 +164,43 @@ public class RepositoryAccess {
     }
   }
   
-  public boolean hasAccess(String filePath, FileAccess access){
+  public boolean hasAccess(String filePath, FileAccess access) {
     ISolutionFile file = getSolutionRepository().getSolutionFile(filePath, access.toResourceAction());
-    if(file == null) {
+    if (file == null) {
       return false;
+    } else if (SecurityHelper.canHaveACLS(file) && !StringUtils.startsWith(file.getSolutionPath(), "system")) {
+      // has been checked
+      return true;
     }
-    else if (!SecurityHelper.canHaveACLS(file)){
-      logger.warn(file.getExtension() + " not in acl-files.");
-      //not declared in pentaho.xml:/pentaho-system/acl-files, try parent dir
-      ISolutionFile parent = file.retrieveParent();
-      if(parent instanceof IAclSolutionFile){
-        return SecurityHelper.hasAccess((IAclSolutionFile) parent, access.toResourceAction(), userSession);
+
+    else {
+      if (!SecurityHelper.canHaveACLS(file)) {
+        logger.warn("hasAccess: " + file.getExtension() + " extension not in acl-files.");
+        //not declared in pentaho.xml:/pentaho-system/acl-files
+        //try parent: folders have acl enabled unless in system
+        ISolutionFile parent = file.retrieveParent();
+        if (parent instanceof IAclSolutionFile) {
+          return SecurityHelper.hasAccess((IAclSolutionFile) parent, access.toResourceAction(), userSession);
+        }
       }
-      else {
-        logger.error("Unable to check access control for " + filePath);
+      // for(ISolutionFile parent = file.retrieveParent(); parent != null; parent = parent.retrieveParent()){
+      //    if(parent instanceof IAclSolutionFile){
+      //        return SecurityHelper.hasAccess((IAclSolutionFile) parent,
+      //        access.toResourceAction(), userSession);
+      //    }
+      // }
+      logger.warn("hasAccess: Unable to check access control for " + filePath + " using default access settings.");
+      // disallow potentially destructive accesses
+      // TODO: better than before but far from ideal
+      switch (access) {
+        case NONE:
+        case EXECUTE:
+        case READ:
+          return true;
+        default:
+          return SecurityHelper.isPentahoAdministrator(userSession);
       }
     }
-    
-    return true;
   }
   
   private ISolutionRepository getSolutionRepository() {
