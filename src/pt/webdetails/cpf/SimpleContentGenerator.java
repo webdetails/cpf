@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.json.JSONException;
+import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.repository.IContentItem;
 
@@ -136,16 +137,16 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
   
           } catch (NoSuchMethodException e) {
             logger.warn("couldn't locate method: " + methodName);
-//          } catch (InvocationTargetException e) {
-//            // get to the cause and log properly
-//            Throwable cause = e.getCause();
-//            if (!e.equals(cause)) // just in case
-//            {// get to the real cause
-//              while (cause != null && cause instanceof InvocationTargetException) {
-//                cause = ((InvocationTargetException) cause).getCause();
-//              }
-//            }
-//            logger.error(InvocationTargetException.class.getName(), cause);
+          } catch (InvocationTargetException e) {
+            // get to the cause and log properly
+            Throwable cause = e.getCause();
+            if (!e.equals(cause)) // just in case
+            {// get to the real cause
+              while (cause != null && cause instanceof InvocationTargetException) {
+                cause = ((InvocationTargetException) cause).getCause();
+              }
+            }
+            logger.error(InvocationTargetException.class.getName(), cause);
 //  
           } catch (IllegalAccessException e) {
             logger.warn(e.toString());
@@ -215,7 +216,7 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
     
     @SuppressWarnings("deprecation")
     protected OutputStream getResponseOutputStream(final String mimeType) throws IOException {
-      IContentItem contentItem = outputHandler.getOutputContentItem("response", "content", "", instanceId, mimeType);
+      IContentItem contentItem = outputHandler.getOutputContentItem(IOutputHandler.RESPONSE, IOutputHandler.CONTENT, "", instanceId, mimeType);
       return contentItem.getOutputStream(null);
 //
 //      
