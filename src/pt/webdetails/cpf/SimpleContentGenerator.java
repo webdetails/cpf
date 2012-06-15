@@ -140,12 +140,13 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
           } catch (InvocationTargetException e) {
             // get to the cause and log properly
             Throwable cause = e.getCause();
-            if (!e.equals(cause)) // just in case
-            {// get to the real cause
-              while (cause != null && cause instanceof InvocationTargetException) {
-                cause = ((InvocationTargetException) cause).getCause();
-              }
-            }
+            if(cause == null) cause = e;
+//            if (!e.equals(cause)) // just in case
+//            {// get to the real cause
+//              while (cause != null && cause instanceof InvocationTargetException) {
+//                cause = ((InvocationTargetException) cause).getCause();
+//              }
+//            }
             logger.error(InvocationTargetException.class.getName(), cause);
 //  
           } catch (IllegalAccessException e) {
