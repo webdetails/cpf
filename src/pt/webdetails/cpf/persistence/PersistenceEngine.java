@@ -31,9 +31,9 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import pt.webdetails.cpf.InvalidOperationException;
-import pt.webdetails.cpf.Settings;
+import pt.webdetails.cpf.CpfProperties;
 import pt.webdetails.cpf.Util;
-import pt.webdetails.cpf.repository.RepositoryUtils;
+import pt.webdetails.cpf.repository.RepositoryAccess;
 
 /**
  *
@@ -44,7 +44,7 @@ public class PersistenceEngine {
     private static final Log logger = LogFactory.getLog(PersistenceEngine.class);
     private static PersistenceEngine _instance;
     private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-    private static final Settings SETTINGS = Settings.getInstance();
+    private static final CpfProperties SETTINGS = CpfProperties.getInstance();
     private static final String DBURL = SETTINGS.getProperty("ORIENT.DBURL");
     private static final String DBUSERNAME = SETTINGS.getProperty("ORIENT.USER");
     private static final String DBPASSWORD = SETTINGS.getProperty("ORIENT.PASSWORD");
@@ -339,7 +339,7 @@ public class PersistenceEngine {
         System.setProperty("ORIENTDB_HOME", ".");
         InputStream conf;
         try {
-            conf = RepositoryUtils.readSolutionFileAsStream("solution/cpf/orient.xml");
+            conf = RepositoryAccess.getRepository().getResourceInputStream("solution/cpf/orient.xml");
         } catch (Exception e) {
             logger.warn("Falling back to built-in config");
             conf = getClass().getResourceAsStream("orient.xml");
