@@ -6,6 +6,9 @@
   <configurations>
     <conf name="default"/>
     <conf name="test" visibility="private"/>
+    <conf name="runtime" visibility="private"/>
+    <conf name="dev" visibility="private"/>
+    <conf name="codegen" visibility="private"/>
     <conf name="sources"/>
     <conf name="legacy"/>
   </configurations>
@@ -45,7 +48,9 @@
     <dependency org="pentaho" name="pentaho-bi-platform-web-servlet"
       rev="3.6.0-stable" transitive="false"  changing="true" conf="legacy->default" />
 
-
+	<dependency org="com.orientechnologies" name="orient-commons" conf="runtime->default" rev="1.0.1"/>
+	<dependency org="com.orientechnologies" name="orientdb-core" conf="runtime->default" rev="1.0.1"/>
+	<dependency org="com.orientechnologies" name="orientdb-server" conf="runtime->default" rev="1.0.1"/>
   </dependencies>
 
 </ivy-module>
