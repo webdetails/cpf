@@ -10,7 +10,6 @@ import org.json.JSONObject;
 
 import pt.webdetails.cpf.InterPluginCall;
 import pt.webdetails.cpf.JsonPluginCall;
-import pt.webdetails.cpf.RestRequestHandler.HttpMethod;
 import pt.webdetails.cpf.messaging.PluginEvent;
 
 /**
