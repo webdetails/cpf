@@ -102,9 +102,15 @@
     <sonar:sonar key="pt.webdetails:CPF" version="${distribution.version}" xmlns:sonar="antlib:org.sonar.ant"/>
   </target>
 
+
+
+  <target name="resolve"
+          depends="resolve-default, resolve-test, resolve-runtime, ivy.check-releasable"
+          description="Retrieves all the dependent libraries" />
+
   <!-- ================ 
         Legacy Compat
-       ================ --> 
+       ================ -->
   <target name="resolve-legacy" depends="resolve-init">
     <ivy:resolve file="ivy.xml" conf="legacy" />
     <ivy:retrieve conf="legacy" pattern="${lib.dir}/[module]-[revision](-[classifier]).[ext]" />
