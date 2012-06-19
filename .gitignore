@@ -4,3 +4,4 @@ lib/
 nbproject/private/
 /override.properties
 *~
+.DS_Store
