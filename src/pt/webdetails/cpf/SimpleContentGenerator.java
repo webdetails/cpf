@@ -10,6 +10,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
@@ -29,6 +30,7 @@ import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.engine.services.solution.BaseContentGenerator;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.GrantedAuthorityImpl;
 
 import pt.webdetails.cpf.annotations.AccessLevel;
@@ -137,26 +139,21 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
   
           } catch (NoSuchMethodException e) {
             logger.warn("couldn't locate method: " + methodName);
+            
           } catch (InvocationTargetException e) {
             // get to the cause and log properly
             Throwable cause = e.getCause();
             if(cause == null) cause = e;
-//            if (!e.equals(cause)) // just in case
-//            {// get to the real cause
-//              while (cause != null && cause instanceof InvocationTargetException) {
-//                cause = ((InvocationTargetException) cause).getCause();
-//              }
-//            }
-            logger.error(InvocationTargetException.class.getName(), cause);
-//  
+            logger.error(methodName, cause);  
+            
           } catch (IllegalAccessException e) {
-            logger.warn(e.toString());
+            logger.warn(methodName + ": " + e.toString());
   
           } catch (IllegalArgumentException e) {
-            logger.error(e.toString());
+            logger.error(methodName + ": " + e.toString());
           }
           catch(Exception e){
-            logger.error(e);
+            logger.error(methodName, e);
           }
   
         }
@@ -225,6 +222,8 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
 //      resp.setContentType(mimeType);
 //      return resp.getOutputStream();
     }
+    
+    
 
     protected HttpServletRequest getRequest(){
       return (HttpServletRequest) parameterProviders.get("path").getParameter("httprequest");
@@ -335,5 +334,14 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
     @Override
     public Log getLogger() {
         return logger;
+    }
+    
+    protected void copyParametersFromProvider(Map<String, Object> params, IParameterProvider provider){
+      @SuppressWarnings("unchecked")
+      Iterator<String> paramNames = provider.getParameterNames();
+      while(paramNames.hasNext()){
+        String paramName = paramNames.next();
+        params.put(paramName, provider.getParameter(paramName));
+      }
     }
 }
