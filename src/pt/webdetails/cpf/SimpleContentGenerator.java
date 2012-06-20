@@ -30,7 +30,6 @@ import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.engine.services.solution.BaseContentGenerator;
-import org.springframework.context.ApplicationContext;
 import org.springframework.security.GrantedAuthorityImpl;
 
 import pt.webdetails.cpf.annotations.AccessLevel;

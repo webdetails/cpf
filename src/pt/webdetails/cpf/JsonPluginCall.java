@@ -1,15 +1,11 @@
 package pt.webdetails.cpf;
 
-import java.util.Enumeration;
-import java.util.Iterator;
-
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import pt.webdetails.cpf.InterPluginCall.Plugin;
 
-public class JsonPluginCall {//extends InterPluginCall
+public class JsonPluginCall {
   
   InterPluginCall internal;
   
@@ -19,38 +15,29 @@ public class JsonPluginCall {//extends InterPluginCall
   
   public JSONObject call(JSONObject request) throws JSONException {
     internal.setOutputStream(null);
-    internal.putParameter("payload", request);
+    internal.putParameter(JsonRequestHandler.JSON_REQUEST_PARAM, request);
     String result = internal.call();
     return new JSONObject(result);
   }
   
-//  public JSONObject call(JSONObject request, HttpMethod method) throws JSONException {
-//    internal.setOutputStream(null);
-//    internal.putParameter("payload", request);
-////    internal.setRequest(new BogusRequest(method, new HashMap<String, Object>()));// createBogusRequest(method, new HashMap<String, Object>()));
+//  public static class EnumerationOfIterator<T> implements Enumeration<T>{
 //    
-//    String result = internal.call();
-//    return new JSONObject(result);
+//    private Iterator<T> iterator;
+//    
+//    public EnumerationOfIterator(Iterator<T> iterator){
+//      this.iterator = iterator;
+//    }
+//
+//    @Override
+//    public boolean hasMoreElements() {
+//      return iterator.hasNext();
+//    }
+//
+//    @Override
+//    public T nextElement() {
+//      return iterator.next();
+//    }
 //  }
-  
-  public static class EnumerationOfIterator<T> implements Enumeration<T>{
-    
-    private Iterator<T> iterator;
-    
-    public EnumerationOfIterator(Iterator<T> iterator){
-      this.iterator = iterator;
-    }
-
-    @Override
-    public boolean hasMoreElements() {
-      return iterator.hasNext();
-    }
-
-    @Override
-    public T nextElement() {
-      return iterator.next();
-    }
-  }
 //  
 //  public static class BogusRequest implements HttpServletRequest {
 //

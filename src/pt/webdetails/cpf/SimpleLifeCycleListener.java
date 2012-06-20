@@ -16,10 +16,9 @@ public class SimpleLifeCycleListener implements IPluginLifecycleListener {
 
     @Override
     public void init() throws PluginLifecycleException {
-        CpfProperties settings = CpfProperties.getInstance();
-        if (settings.getProperty("USE_PERSISTENCE","false").toLowerCase().equals("true")) {
-            PersistenceEngine.getInstance();
-        }
+      if (CpfProperties.getInstance().getBooleanProperty("USE_PERSISTENCE",false)) {
+          PersistenceEngine.getInstance();
+      }
     }
 
     @Override

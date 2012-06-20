@@ -10,6 +10,7 @@ import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginClassLoader;
+import org.pentaho.reporting.libraries.base.util.StringUtils;
 
 import pt.webdetails.cpf.repository.RepositoryAccess;
 import pt.webdetails.cpf.repository.RepositoryAccess.FileAccess;
@@ -47,6 +48,40 @@ public class CpfProperties extends Properties {
       instance = new CpfProperties();
     }
     return instance;
+  }
+  
+  public boolean getBooleanProperty(String property, boolean defaultValue){
+    String propertyValue = getProperty(property, null);
+    if(!StringUtils.isEmpty(propertyValue)){
+      return Boolean.parseBoolean(propertyValue);
+    }
+    return defaultValue;
+  }
+  
+  public int getIntProperty(String property, int defaultValue){
+    String propertyValue = getProperty(property, null);
+    if(!StringUtils.isEmpty(propertyValue)){
+      try{
+        return Integer.parseInt(propertyValue);
+      }
+      catch (NumberFormatException e){
+        logger.error("getIntProperty: " + property + " is not a valid int value.");
+      }
+    }
+    return defaultValue;
+  }
+  
+  public long getLongProperty(String property, long defaultValue){
+    String propertyValue = getProperty(property, null);
+    if(!StringUtils.isEmpty(property)){
+      try{
+        return Long.parseLong(propertyValue);
+      }
+      catch (NumberFormatException e){
+        logger.error("getLongProperty: " + property + " is not a valid long value.");
+      }
+    }
+    return defaultValue;
   }
 
   private InputStream getSettingsStream() {
