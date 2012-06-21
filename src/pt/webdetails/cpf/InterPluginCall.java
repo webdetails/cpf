@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,6 +26,7 @@ import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.web.http.request.HttpRequestParameterProvider;
 
 
 /**
@@ -34,9 +36,11 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 public class InterPluginCall implements Runnable, Callable<String> {
 
   public final static Plugin CDA = new Plugin("cda");
-  public final static Plugin CDE = new Plugin("pentaho-cdf-dd");
+  public final static Plugin CDB = new Plugin("cdb");
   public final static Plugin CDC = new Plugin("cdc");
+  public final static Plugin CDE = new Plugin("pentaho-cdf-dd");
   public final static Plugin CDF = new Plugin("pentaho-cdf");
+  public final static Plugin CDV = new Plugin("cdv");
   
   private final static String DEFAULT_ENCODING = "UTF-8";
   
@@ -70,8 +74,11 @@ public class InterPluginCall implements Runnable, Callable<String> {
   private Plugin plugin;
   private String method;
   
+
+
   private Map<String, Object> requestParameters;
   private ServletResponse response;
+  private HttpServletRequest request;
   
   private OutputStream output;
   private IPentahoSession session;
@@ -102,6 +109,27 @@ public class InterPluginCall implements Runnable, Callable<String> {
     this.method = method;
     
     this.requestParameters.putAll(params);
+  }
+  
+  protected String getMethod() {
+    return method;
+  }
+
+  protected void setMethod(String method) {
+    this.method = method;
+  }
+  
+  
+  protected HttpServletRequest getRequest() {
+    return request;
+  }
+
+  protected void setRequest(HttpServletRequest request) {
+    this.request = request;
+  }
+
+  public boolean pluginExists(){
+    return getContentGenerator() != null;
   }
   
   /**
@@ -206,7 +234,14 @@ public class InterPluginCall implements Runnable, Callable<String> {
   }
   
   protected IParameterProvider getRequestParameterProvider(){
-    return new SimpleParameterProvider(requestParameters);
+    SimpleParameterProvider provider = null;
+    if(request != null){
+       provider = new HttpRequestParameterProvider(request);
+      provider.setParameters(requestParameters);
+    } else {
+      provider = new SimpleParameterProvider(requestParameters);
+    }
+    return provider;
   }
   
   protected ClassLoaderAwareCaller getClassLoaderCaller(){
@@ -234,17 +269,20 @@ public class InterPluginCall implements Runnable, Callable<String> {
   }
  
 
-  private IParameterProvider getPathParameterProvider() {
+  protected IParameterProvider getPathParameterProvider() {
     Map<String, Object> pathMap = new HashMap<String, Object>();
     pathMap.put("path", "/" + method);
     if (response != null) {
       pathMap.put("httpresponse", response);
     }
+    if(getRequest() != null){
+      pathMap.put("httprequest", getRequest());
+    }
     IParameterProvider pathParams = new SimpleParameterProvider(pathMap);
     return pathParams;
   }
   
-  private Map<String,IParameterProvider> getParameterProviders(){
+  protected Map<String,IParameterProvider> getParameterProviders(){
     IParameterProvider requestParams = getRequestParameterProvider();
     IParameterProvider pathParams = getPathParameterProvider();
     Map<String, IParameterProvider> paramProvider = new HashMap<String, IParameterProvider>();
@@ -253,9 +291,9 @@ public class InterPluginCall implements Runnable, Callable<String> {
     return paramProvider;
   }
 
- private String getEncoding(){
-   return DEFAULT_ENCODING;
- }
+   protected String getEncoding(){
+     return DEFAULT_ENCODING;
+   }
   
 
 }

@@ -168,7 +168,7 @@ public class RepositoryAccess {
     ISolutionFile file = getSolutionRepository().getSolutionFile(filePath, access.toResourceAction());
     if (file == null) {
       return false;
-    } else if (SecurityHelper.canHaveACLS(file) && !StringUtils.startsWith(file.getSolutionPath(), "system")) {
+    } else if (SecurityHelper.canHaveACLS(file) && (file.retrieveParent() != null && !StringUtils.startsWith(file.getSolutionPath(), "system"))) {
       // has been checked
       return true;
     }

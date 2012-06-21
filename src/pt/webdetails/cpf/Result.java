@@ -41,6 +41,18 @@ public class Result implements JsonSerializable {
     }
     
   }
+  
+  public Result(JSONObject json) {
+    this.json = json;
+  }
+  
+  public Status getStatus(){
+    try {
+      return Status.valueOf(json.getString("status"));
+    } catch (Exception e) {
+      return Status.ERROR;
+    }
+  }
 
   public static Result getFromException(Exception e)
   {  
