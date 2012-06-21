@@ -260,75 +260,89 @@ public class PersistenceEngine {
         }
     }
 
-    public JSONObject store(String id, String className, String inputData) throws JSONException {
+    public JSONObject store(Persistable obj) {
+        JSONObject key = obj.getKey();
+        return null;
+    }
+
+    public JSONObject store(String id, String className, JSONObject data) {
         JSONObject json = new JSONObject();
-        ODatabaseDocumentTx db = null;
-        String user = PentahoSessionHolder.getSession().getName();
         try {
+            ODatabaseDocumentTx db = null;
+            String user = PentahoSessionHolder.getSession().getName();
+            try {
 
-            json.put("result", Boolean.TRUE);
+                json.put("result", Boolean.TRUE);
 
-            JSONObject data = new JSONObject(inputData);
-            db = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
-            ODocument doc;
 
-            if (id == null || id.length() == 0) {
-                doc = new ODocument(db, className);
-                doc.field("userid", user);
-            } else {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("id", id);
-                List<ODocument> result = executeQuery("select * from Query where @rid = :id", params);
-                if (result.size() == 1) {
-                    doc = result.get(0);
-                    if (!doc.field("userid").toString().equals(user)) {
+                db = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
+                ODocument doc;
+
+                if (id == null || id.length() == 0) {
+                    doc = new ODocument(db, className);
+                    doc.field("userid", user);
+                } else {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("id", id);
+                    List<ODocument> result = executeQuery("select * from Query where @rid = :id", params);
+                    if (result.size() == 1) {
+                        doc = result.get(0);
+                        if (!doc.field("userid").toString().equals(user)) {
+                            json.put("result", Boolean.FALSE);
+                            json.put("errorMessage", "Object id " + id + " belongs to another user");
+                            return json;
+                        }
+                    } else if (result.size() == 0) {
                         json.put("result", Boolean.FALSE);
-                        json.put("errorMessage", "Object id " + id + " belongs to another user");
+                        json.put("errorMessage", "No " + className + " found with id " + id);
+                        return json;
+                    } else {
+                        json.put("result", Boolean.FALSE);
+                        json.put("errorMessage", "Multiple " + className + " found with id " + id);
                         return json;
                     }
-                } else if (result.size() == 0) {
+                }
+
+                // CREATE A NEW DOCUMENT AND FILL IT
+                Iterator keyIterator = data.keys();
+                while (keyIterator.hasNext()) {
+                    String key = (String) keyIterator.next();
+                    doc.field(key, data.getString(key));
+                }
+
+                // SAVE THE DOCUMENT
+                doc.save();
+
+                if (id == null || id.length() == 0) {
+                    ORID newId = doc.getIdentity();
+                    json.put("id", newId.toString());
+                }
+
+                return json;
+            } catch (ODatabaseException orne) {
+
+                if (orne.getCause().getClass() == ORecordNotFoundException.class) {
+                    logger.error("Record with id " + id + " not found");
                     json.put("result", Boolean.FALSE);
                     json.put("errorMessage", "No " + className + " found with id " + id);
                     return json;
-                } else {
-                    json.put("result", Boolean.FALSE);
-                    json.put("errorMessage", "Multiple " + className + " found with id " + id);
-                    return json;
+                }
+
+                logger.error(getExceptionDescription(orne));
+                throw orne;
+            } finally {
+                if (db != null) {
+                    db.close();
                 }
             }
-
-            // CREATE A NEW DOCUMENT AND FILL IT
-            Iterator keyIterator = data.keys();
-            while (keyIterator.hasNext()) {
-                String key = (String) keyIterator.next();
-                doc.field(key, data.getString(key));
-            }
-
-            // SAVE THE DOCUMENT
-            doc.save();
-
-            if (id == null || id.length() == 0) {
-                ORID newId = doc.getIdentity();
-                json.put("id", newId.toString());
-            }
-
+        } catch (JSONException e) {
             return json;
-        } catch (ODatabaseException orne) {
-
-            if (orne.getCause().getClass() == ORecordNotFoundException.class) {
-                logger.error("Record with id " + id + " not found");
-                json.put("result", Boolean.FALSE);
-                json.put("errorMessage", "No " + className + " found with id " + id);
-                return json;
-            }
-
-            logger.error(getExceptionDescription(orne));
-            throw orne;
-        } finally {
-            if (db != null) {
-                db.close();
-            }
         }
+    }
+
+    public JSONObject store(String id, String className, String inputData) throws JSONException {
+        JSONObject data = new JSONObject(inputData);
+        return store(id, className, data);
     }
 
     private String getExceptionDescription(Exception ex) {
