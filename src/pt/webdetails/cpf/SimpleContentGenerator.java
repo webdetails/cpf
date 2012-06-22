@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.json.JSONException;
+import org.pentaho.platform.api.engine.IMimeTypeListener;
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.repository.IContentItem;
@@ -64,6 +65,7 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
       public static final String PNG = "mage/png";
       public static final String GIF = "image/gif";
       public static final String BMP = "image/bmp";
+      public static final String JSON = "application/json";
     }
     
     protected static final EnumMap<FileType, String> mimeTypes = new EnumMap<FileType, String>(FileType.class);
@@ -114,7 +116,7 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
   
       try {
   
-        final OutputStream out = getResponseOutputStream(MimeType.HTML);
+//        final OutputStream out = getResponseOutputStream(MimeType.HTML);
 
         String path = pathParams.getStringParameter("path", null);
         String[] pathSections = StringUtils.split(path, "/");
@@ -134,7 +136,7 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
           try {
             
             final Method method = getMethod(methodName);
-            invokeMethod(out, methodName, method);
+            invokeMethod(methodName, method);
   
           } catch (NoSuchMethodException e) {
             logger.warn("couldn't locate method: " + methodName);
@@ -143,24 +145,25 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
             // get to the cause and log properly
             Throwable cause = e.getCause();
             if(cause == null) cause = e;
-            logger.error(methodName, cause);  
-            
-          } catch (IllegalAccessException e) {
+            logger.error(methodName, cause);    
+          } 
+          catch (IllegalAccessException e) {
             logger.warn(methodName + ": " + e.toString());
-  
-          } catch (IllegalArgumentException e) {
+          } 
+          catch (IllegalArgumentException e) {
             logger.error(methodName + ": " + e.toString());
+          } 
+          catch (IOException e) {
+            logger.error(e.toString());
           }
-          catch(Exception e){
+          catch(Exception e) {
             logger.error(methodName, e);
           }
   
         }
       } catch (SecurityException e) {
         logger.warn(e.toString());
-      } catch (IOException e) {
-        logger.error(e.toString());
-      }
+      } 
     }
 
     /**
@@ -215,14 +218,7 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
     protected OutputStream getResponseOutputStream(final String mimeType) throws IOException {
       IContentItem contentItem = outputHandler.getOutputContentItem(IOutputHandler.RESPONSE, IOutputHandler.CONTENT, "", instanceId, mimeType);
       return contentItem.getOutputStream(null);
-//
-//      
-//      ServletResponse resp = getResponse();
-//      resp.setContentType(mimeType);
-//      return resp.getOutputStream();
     }
-    
-    
 
     protected HttpServletRequest getRequest(){
       return (HttpServletRequest) parameterProviders.get("path").getParameter("httprequest");
@@ -243,8 +239,7 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
       return null;
     }
     
-    protected boolean canAccessMethod(Method method){
-      Exposed exposed = method.getAnnotation(Exposed.class);
+    private boolean canAccessMethod(Method method, Exposed exposed){
       if (exposed != null) {
         
         AccessLevel accessLevel = exposed.accessLevel();
@@ -276,10 +271,12 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
     }
 
     
-    protected boolean invokeMethod(final OutputStream out, final String methodName, final Method method) 
+    protected boolean invokeMethod(final String methodName, final Method method) 
         throws InvocationTargetException, IllegalArgumentException, IllegalAccessException, IOException {
       
-      if(canAccessMethod(method)){
+      Exposed exposed = method.getAnnotation(Exposed.class);
+      
+      if(canAccessMethod(method, exposed)){
         
         Audited audited = method.getAnnotation(Audited.class);
         UUID uuid = null;
@@ -287,6 +284,8 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
         if(audited != null){
           uuid = CpfAuditHelper.startAudit(getPluginName(), audited.action(), getObjectName(), userSession, this, getRequestParameters());
         }
+        final OutputStream out = getResponseOutputStream(exposed.outputType());
+        setResponseHeaders(exposed.outputType());
         method.invoke(this, out);
         if(audited != null){//TODO: use finally?..
           CpfAuditHelper.endAudit(getPluginName(), audited.action(), getObjectName(), userSession, this, start, uuid, System.currentTimeMillis());
@@ -333,6 +332,49 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
     @Override
     public Log getLogger() {
         return logger;
+    }
+    
+    protected void setResponseHeaders(final String mimeType){
+      setResponseHeaders(mimeType, 0, null);
+    }
+    
+    protected void setResponseHeaders(final String mimeType, final String attachmentName){
+      setResponseHeaders(mimeType, 0, attachmentName);
+    }
+    
+    protected void setResponseHeaders(final String mimeType, final int cacheDuration, final String attachmentName)
+    {
+      // Make sure we have the correct mime type
+      
+      final IMimeTypeListener mimeTypeListener = outputHandler.getMimeTypeListener();
+      if (mimeTypeListener != null)
+      {
+        mimeTypeListener.setMimeType(mimeType);
+      }
+      
+      final HttpServletResponse response = getResponse();
+
+      if (response == null)
+      {
+        logger.error("Parameter 'httpresponse' not found!");
+        return;
+      }
+
+      response.setHeader("Content-Type", mimeType);
+
+      if (attachmentName != null)
+      {
+        response.setHeader("content-disposition", "attachment; filename=" + attachmentName);
+      } // Cache?
+
+      if (cacheDuration > 0)
+      {
+        response.setHeader("Cache-Control", "max-age=" + cacheDuration);
+      }
+      else
+      {
+        response.setHeader("Cache-Control", "max-age=0, no-store");
+      }
     }
     
     protected void copyParametersFromProvider(Map<String, Object> params, IParameterProvider provider){

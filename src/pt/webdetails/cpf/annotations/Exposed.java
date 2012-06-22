@@ -9,6 +9,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import pt.webdetails.cpf.SimpleContentGenerator.MimeType;
+
 /**
  *
  * @author pdpi
@@ -17,8 +19,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface Exposed {
     
-    AccessLevel accessLevel();
+    AccessLevel accessLevel() default AccessLevel.PUBLIC;
     
     String role() default "";
     
+    String outputType() default MimeType.HTML;
 }
