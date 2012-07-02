@@ -74,7 +74,7 @@ public class CpfProperties extends Properties {
   
   public long getLongProperty(String property, long defaultValue){
     String propertyValue = getProperty(property, null);
-    if(!StringUtils.isEmpty(property)){
+    if(!StringUtils.isEmpty(propertyValue)){
       try{
         return Long.parseLong(propertyValue);
       }
