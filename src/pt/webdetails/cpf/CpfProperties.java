@@ -7,10 +7,11 @@ package pt.webdetails.cpf;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginClassLoader;
-import org.pentaho.reporting.libraries.base.util.StringUtils;
 
 import pt.webdetails.cpf.repository.RepositoryAccess;
 import pt.webdetails.cpf.repository.RepositoryAccess.FileAccess;
