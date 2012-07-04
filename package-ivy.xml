@@ -8,7 +8,7 @@
   </configurations>
   
   <publications>
-    <artifact name="%artifact-name%" type="zip" />
+    <artifact name="%artifact-name%" type="jar" />
   </publications>
   
   <dependencies defaultconf="default->default">
