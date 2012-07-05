@@ -294,7 +294,7 @@ public class PersistenceEngine {
             Map<String, String> params = new HashMap<String, String>();
             params.put("id", id);
             params.put("user", user);
-            List<ODocument> result = executeQuery("select * from Query where @rid = :id and userid = :user", params);
+            List<ODocument> result = executeQuery("select * from Query where @rid = :id", params);
             ODocument doc;
 
             if (result.size() == 1) {
