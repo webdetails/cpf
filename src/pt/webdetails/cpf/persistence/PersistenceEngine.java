@@ -159,7 +159,9 @@ public class PersistenceEngine {
     public synchronized int deleteAll(String classTable) {
         ODatabaseDocumentTx db = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
         int counter = 0;
-        for (ODocument doc : db.browseClass(classTable)) {
+        try {
+            counter = 0;
+            for (ODocument doc : db.browseClass(classTable)) {
 
 //        for(Object inner: doc.fieldValues()){//nah...
 //          if(inner instanceof ODocument){
@@ -167,8 +169,16 @@ public class PersistenceEngine {
 //          }
 //        }
 
-            doc.delete();
-            counter++;
+                doc.delete();
+                counter++;
+            }
+        } catch (Exception e) {
+            logger.error(e);
+            return counter;
+        } finally {
+            if (db != null) {
+                db.close();
+            }
         }
         return counter;
     }
