@@ -113,8 +113,8 @@ public class PersistenceEngine {
         }
     }
 
-        //TODO: changed temporarily from private
-    public List<ODocument> executeCommand(String query, Map<String, String> params) {
+    //TODO: changed temporarily from private
+    public Object executeCommand(String query, Map<String, String> params) {
         ODatabaseDocumentTx db = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
         try {
             OCommandSQL preparedQuery = new OCommandSQL(query);
@@ -133,7 +133,7 @@ public class PersistenceEngine {
         }
 
     }
-    
+
     //TODO: changed temporarily from private
     public List<ODocument> executeQuery(String query, Map<String, String> params) {
         ODatabaseDocumentTx db = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
@@ -261,6 +261,26 @@ public class PersistenceEngine {
         return json;
     }
 
+    public JSONObject command(String query, Map<String, String> params) throws JSONException {
+        JSONObject json = new JSONObject();
+
+        try {
+
+
+            Object result = executeCommand(query, params);
+            if (result != null) {
+                json.put("result", Boolean.TRUE);
+            } else {
+            }
+        } catch (ODatabaseException ode) {
+            json.put("result", Boolean.FALSE);
+            json.put("errorMessage", "DatabaseException: Review query");
+            logger.error(getExceptionDescription(ode));
+
+        }
+        return json;
+    }
+
     private JSONObject get(IParameterProvider requestParams, IPentahoSession userSession) throws JSONException {
         final String id = requestParams.getStringParameter("rid", "");
         return get(id);
@@ -311,8 +331,9 @@ public class PersistenceEngine {
 
         JSONObject json = new JSONObject();
         String user = PentahoSessionHolder.getSession().getName();
+        ODatabaseDocumentTx db = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
         try {
-            ODatabaseDocumentTx db = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
+
             ODocument doc = db.getRecord(new com.orientechnologies.orient.core.id.ORecordId(id));
 
             if (doc == null) {
@@ -331,6 +352,10 @@ public class PersistenceEngine {
             } else {
                 logger.error(getExceptionDescription(orne));
                 throw orne;
+            }
+        } finally {
+            if (db != null) {
+                db.close();
             }
         }
         return json;
