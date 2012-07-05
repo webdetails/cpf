@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 package pt.webdetails.cpf.persistence;
 
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentPool;
@@ -10,6 +9,7 @@ import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.text.SimpleDateFormat;
 import org.apache.commons.logging.Log;
@@ -26,7 +26,6 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mozilla.javascript.NativeObject;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -114,11 +113,11 @@ public class PersistenceEngine {
         }
     }
 
-    //TODO: changed temporarily from private
-    public List<ODocument> executeQuery(String query, Map<String, String> params) {
+        //TODO: changed temporarily from private
+    public List<ODocument> executeCommand(String query, Map<String, String> params) {
         ODatabaseDocumentTx db = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
         try {
-            OSQLSynchQuery<ODocument> preparedQuery = new OSQLSynchQuery<ODocument>(query); 
+            OCommandSQL preparedQuery = new OCommandSQL(query);
             if (params == null) {
                 return db.command(preparedQuery).execute();
             } else {
@@ -135,89 +134,110 @@ public class PersistenceEngine {
 
     }
     
+    //TODO: changed temporarily from private
+    public List<ODocument> executeQuery(String query, Map<String, String> params) {
+        ODatabaseDocumentTx db = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
+        try {
+            OSQLSynchQuery<ODocument> preparedQuery = new OSQLSynchQuery<ODocument>(query);
+            if (params == null) {
+                return db.command(preparedQuery).execute();
+            } else {
+                return db.command(preparedQuery).execute(params);
+            }
+        } catch (Exception e) {
+            logger.error(e);
+            return null;
+        } finally {
+            if (db != null) {
+                db.close();
+            }
+        }
+
+    }
+
     //TODO: delete inner stuff
-    public synchronized int deleteAll(String classTable){
-      ODatabaseDocumentTx db = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
-      int counter = 0;
-      for(ODocument doc : db.browseClass(classTable)){
-        
+    public synchronized int deleteAll(String classTable) {
+        ODatabaseDocumentTx db = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
+        int counter = 0;
+        for (ODocument doc : db.browseClass(classTable)) {
+
 //        for(Object inner: doc.fieldValues()){//nah...
 //          if(inner instanceof ODocument){
 //            ((ODocument)inner).delete();
 //          }
 //        }
-        
-        doc.delete();
-        counter++;
-      }
-      return counter;
+
+            doc.delete();
+            counter++;
+        }
+        return counter;
     }
-    
+
     //TODO:adapt
     public ODocument createDocument(String baseClass, String json) {
         ODocument doc = new ODocument(baseClass);
         doc.fromJSON(json);
         return doc;
     }
-    
-    public ODocument createDocument(String baseClass, JSONObject json){
-      ODocument doc = new ODocument(baseClass);
-      @SuppressWarnings("unchecked")
-      Iterator<String> fields = json.keys();
-      while(fields.hasNext()){
-        String field = fields.next();
-        if(field.equals("key")) continue;
-        
-        try {
-          Object value = json.get(field);
-          if(value instanceof JSONObject){
-            
-            doc.field(field, createDocument(baseClass + "_" + field, (JSONObject) value ));
-            
-            JSONObject obj = json.getJSONObject(field);
-            logger.debug("obj:" + obj.toString(2));
-          }
-          else {
-            doc.field(field, value);
-          }
-          
-        } catch (JSONException e) {
-          logger.error(e);
+
+    public ODocument createDocument(String baseClass, JSONObject json) {
+        ODocument doc = new ODocument(baseClass);
+        @SuppressWarnings("unchecked")
+        Iterator<String> fields = json.keys();
+        while (fields.hasNext()) {
+            String field = fields.next();
+            if (field.equals("key")) {
+                continue;
+            }
+
+            try {
+                Object value = json.get(field);
+                if (value instanceof JSONObject) {
+
+                    doc.field(field, createDocument(baseClass + "_" + field, (JSONObject) value));
+
+                    JSONObject obj = json.getJSONObject(field);
+                    logger.debug("obj:" + obj.toString(2));
+                } else {
+                    doc.field(field, value);
+                }
+
+            } catch (JSONException e) {
+                logger.error(e);
+            }
         }
-      }
-      
-      return doc;
+
+        return doc;
     }
-    
+
     //TODO: adapt
     private JSONObject createJson(ODocument doc) {
-      JSONObject json = new JSONObject();
-      
-      for(String field : doc.fieldNames()){
-        try{
-        Object value = doc.field(field); //doc.<Object>field(field)
-        if(value instanceof ODocument){
-          ODocument docVal = (ODocument) value;
-          logger.debug("obj odoc:" + docVal.toJSON());
-          json.put(field, createJson(docVal));
+        JSONObject json = new JSONObject();
+
+        for (String field : doc.fieldNames()) {
+            try {
+                Object value = doc.field(field); //doc.<Object>field(field)
+                if (value instanceof ODocument) {
+                    ODocument docVal = (ODocument) value;
+                    logger.debug("obj odoc:" + docVal.toJSON());
+                    json.put(field, createJson(docVal));
+                } else if (value != null) {
+                    logger.debug(value.getClass());
+                    json.put(field, value);
+                }
+            } catch (JSONException e) {
+                logger.error(e);
+            }
         }
-        else if(value != null) {
-          logger.debug(value.getClass());
-          json.put(field, value);
-        }
-        } catch(JSONException e){
-          logger.error(e);
-        }
-      }
-      
-      return json;
+
+        return json;
     }
 
     private JSONObject query(IParameterProvider requestParams, IPentahoSession userSession) throws JSONException {
         final String queryString = requestParams.getStringParameter("query", "");
         return query(queryString, (Map) null);
     }
-    
+
     public JSONObject query(String query, Map<String, String> params) throws JSONException {
         JSONObject json = new JSONObject();
 
@@ -225,11 +245,13 @@ public class PersistenceEngine {
             json.put("result", Boolean.TRUE);
 
             List<ODocument> result = executeQuery(query, params);
-            JSONArray arr = new JSONArray();
-            for (ODocument resDoc : result) {
-                arr.put(new JSONObject(resDoc.toJSON()));
+            if (result != null) {
+                JSONArray arr = new JSONArray();
+                for (ODocument resDoc : result) {
+                    arr.put(new JSONObject(resDoc.toJSON()));
+                }
+                json.put("object", arr);
             }
-            json.put("object", arr);
         } catch (ODatabaseException ode) {
             json.put("result", Boolean.FALSE);
             json.put("errorMessage", "DatabaseException: Review query");
@@ -286,31 +308,20 @@ public class PersistenceEngine {
 
     public JSONObject deleteRecord(String id) throws JSONException {
 
+
         JSONObject json = new JSONObject();
         String user = PentahoSessionHolder.getSession().getName();
         try {
-            json.put("result", Boolean.TRUE);
+            ODatabaseDocumentTx db = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
+            ODocument doc = db.getRecord(new com.orientechnologies.orient.core.id.ORecordId(id));
 
-            Map<String, String> params = new HashMap<String, String>();
-            params.put("id", id);
-            params.put("user", user);
-            List<ODocument> result = executeQuery("select * from Query where @rid = :id", params);
-            ODocument doc;
-
-            if (result.size() == 1) {
-                doc = result.get(0);
-            } else if (result.size() == 0) {
+            if (doc == null) {
                 json.put("result", Boolean.FALSE);
                 json.put("errorMessage", "No element found with id " + id);
                 return json;
-            } else {
-                json.put("result", Boolean.FALSE);
-                json.put("errorMessage", "Multiple elements found with id " + id);
-                return json;
             }
-
-
             doc.delete();
+            json.put("result", Boolean.TRUE);
         } catch (ODatabaseException orne) {
 
             if (orne.getCause().getClass() == ORecordNotFoundException.class) {
@@ -346,9 +357,9 @@ public class PersistenceEngine {
         JSONObject key = obj.getKey();
         return null;
     }
-    
-    public JSONObject store(String id, String className, JSONObject data){
-      return store(id, className, data, null);
+
+    public JSONObject store(String id, String className, JSONObject data) {
+        return store(id, className, data, null);
     }
 
     public synchronized JSONObject store(String id, String className, JSONObject data, ODocument doc) {
@@ -362,32 +373,31 @@ public class PersistenceEngine {
 
 
                 db = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
-                
-                
-                if(!StringUtils.isEmpty(id)){
-                  
-                  Map<String, String> params = new HashMap<String, String>();
-                  params.put("id", id);
-                  List<ODocument> result = executeQuery("select * from Query where @rid = :id", params);
-                  if (result.size() == 1) {
-                      doc = result.get(0);
-                      if (!doc.field("userid").toString().equals(user)) {
-                          json.put("result", Boolean.FALSE);
-                          json.put("errorMessage", "Object id " + id + " belongs to another user");
-                          return json;
-                      }
-                  } else if (result.size() == 0) {
-                      json.put("result", Boolean.FALSE);
-                      json.put("errorMessage", "No " + className + " found with id " + id);
-                      return json;
-                  } else {
-                      json.put("result", Boolean.FALSE);
-                      json.put("errorMessage", "Multiple " + className + " found with id " + id);
-                      return json;
-                  }
-                }
-                else if(doc == null) {
-                  doc = createDocument(id, className, data, json, db, user);
+
+
+                if (!StringUtils.isEmpty(id)) {
+
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("id", id);
+                    List<ODocument> result = executeQuery("select * from Query where @rid = :id", params);
+                    if (result.size() == 1) {
+                        doc = result.get(0);
+                        if (!doc.field("userid").toString().equals(user)) {
+                            json.put("result", Boolean.FALSE);
+                            json.put("errorMessage", "Object id " + id + " belongs to another user");
+                            return json;
+                        }
+                    } else if (result.size() == 0) {
+                        json.put("result", Boolean.FALSE);
+                        json.put("errorMessage", "No " + className + " found with id " + id);
+                        return json;
+                    } else {
+                        json.put("result", Boolean.FALSE);
+                        json.put("errorMessage", "Multiple " + className + " found with id " + id);
+                        return json;
+                    }
+                } else if (doc == null) {
+                    doc = createDocument(id, className, data, json, db, user);
                 }
                 // SAVE THE DOCUMENT
                 doc.save();
@@ -423,16 +433,16 @@ public class PersistenceEngine {
      * generic json to document
      */
     private ODocument createDocument(String id, String className, JSONObject data, JSONObject json, ODatabaseDocumentTx db, String user) throws JSONException {
-      ODocument doc = new ODocument(db, className);
-      doc.field("userid", user);
+        ODocument doc = new ODocument(db, className);
+        doc.field("userid", user);
 
-      // CREATE A NEW DOCUMENT AND FILL IT
-      Iterator keyIterator = data.keys();
-      while (keyIterator.hasNext()) {
-          String key = (String) keyIterator.next();
-          doc.field(key, data.getString(key));
-      }
-      return doc;
+        // CREATE A NEW DOCUMENT AND FILL IT
+        Iterator keyIterator = data.keys();
+        while (keyIterator.hasNext()) {
+            String key = (String) keyIterator.next();
+            doc.field(key, data.getString(key));
+        }
+        return doc;
     }
 
     public JSONObject store(String id, String className, String inputData) throws JSONException {
