@@ -26,6 +26,7 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mozilla.javascript.NativeObject;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -153,9 +154,14 @@ public class PersistenceEngine {
     }
     
     //TODO:adapt
-    private ODocument createDocument(String baseClass, JSONObject json){
+    public ODocument createDocument(String baseClass, String json) {
+        ODocument doc = new ODocument(baseClass);
+        doc.fromJSON(json);
+        return doc;
+    }
+    
+    public ODocument createDocument(String baseClass, JSONObject json){
       ODocument doc = new ODocument(baseClass);
-      
       @SuppressWarnings("unchecked")
       Iterator<String> fields = json.keys();
       while(fields.hasNext()){
@@ -209,9 +215,9 @@ public class PersistenceEngine {
 
     private JSONObject query(IParameterProvider requestParams, IPentahoSession userSession) throws JSONException {
         final String queryString = requestParams.getStringParameter("query", "");
-        return query(queryString, null);
+        return query(queryString, (Map) null);
     }
-
+    
     public JSONObject query(String query, Map<String, String> params) throws JSONException {
         JSONObject json = new JSONObject();
 
