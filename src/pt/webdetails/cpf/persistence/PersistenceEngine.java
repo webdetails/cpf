@@ -87,7 +87,7 @@ public class PersistenceEngine {
             Method mthd = Method.valueOf(methodString.toUpperCase());
             switch (mthd) {
                 case DELETE:
-                    reply = delete(requestParams, userSession);
+                    reply = deleteRecord(requestParams, userSession);
                     break;
                 case GET:
                     reply = get(requestParams, userSession);
@@ -117,7 +117,7 @@ public class PersistenceEngine {
     public List<ODocument> executeQuery(String query, Map<String, String> params) {
         ODatabaseDocumentTx db = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
         try {
-            OSQLSynchQuery<ODocument> preparedQuery = new OSQLSynchQuery<ODocument>(query);
+            OSQLSynchQuery<ODocument> preparedQuery = new OSQLSynchQuery<ODocument>(query); 
             if (params == null) {
                 return db.command(preparedQuery).execute();
             } else {
@@ -273,12 +273,12 @@ public class PersistenceEngine {
         return json;
     }
 
-    private JSONObject delete(IParameterProvider requestParams, IPentahoSession userSession) throws JSONException {
+    private JSONObject deleteRecord(IParameterProvider requestParams, IPentahoSession userSession) throws JSONException {
         final String id = requestParams.getStringParameter("rid", "");
-        return delete(id);
+        return deleteRecord(id);
     }
 
-    public JSONObject delete(String id) throws JSONException {
+    public JSONObject deleteRecord(String id) throws JSONException {
 
         JSONObject json = new JSONObject();
         String user = PentahoSessionHolder.getSession().getName();
