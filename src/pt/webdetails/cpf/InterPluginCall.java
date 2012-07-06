@@ -109,7 +109,7 @@ public class InterPluginCall implements Runnable, Callable<String> {
     this.plugin = plugin;
     this.method = method;
     
-    this.requestParameters.putAll(params);
+    this.requestParameters.putAll(params!=null?params:new HashMap<String, Object>());
   }
   
   protected String getMethod() {

@@ -30,7 +30,7 @@ public class PluginEvent implements Persistable {
     public PluginEvent(JSONObject json) throws JSONException {
         setTimeStamp(json.getLong(Fields.TIMESTAMP));
         setPlugin(json.getString(Fields.PLUGIN));
-        setName(json.getString(Fields.PLUGIN));
+        setName(json.getString(Fields.NAME));
         setEventType(json.getString(Fields.EVENT_TYPE));
         setKey(json.getJSONObject(Fields.KEY));
 //    try{
