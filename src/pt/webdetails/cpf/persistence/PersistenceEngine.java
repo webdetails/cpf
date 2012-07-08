@@ -114,7 +114,7 @@ public class PersistenceEngine {
     }
 
     //TODO: changed temporarily from private
-    public Object executeCommand(String query, Map<String, String> params) {
+    public Object executeCommand(String query, Map<String, Object> params) {
         ODatabaseDocumentTx db = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
         try {
             OCommandSQL preparedQuery = new OCommandSQL(query);
@@ -135,7 +135,7 @@ public class PersistenceEngine {
     }
 
     //TODO: changed temporarily from private
-    public List<ODocument> executeQuery(String query, Map<String, String> params) {
+    public List<ODocument> executeQuery(String query, Map<String, Object> params) {
         ODatabaseDocumentTx db = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
         try {
             OSQLSynchQuery<ODocument> preparedQuery = new OSQLSynchQuery<ODocument>(query);
@@ -248,7 +248,7 @@ public class PersistenceEngine {
         return query(queryString, (Map) null);
     }
 
-    public JSONObject query(String query, Map<String, String> params) throws JSONException {
+    public JSONObject query(String query, Map<String, Object> params) throws JSONException {
         JSONObject json = new JSONObject();
 
         try {
@@ -271,7 +271,7 @@ public class PersistenceEngine {
         return json;
     }
 
-    public JSONObject command(String query, Map<String, String> params) throws JSONException {
+    public JSONObject command(String query, Map<String, Object> params) throws JSONException {
         JSONObject json = new JSONObject();
 
         try {
@@ -303,7 +303,7 @@ public class PersistenceEngine {
         try {
             json.put("result", Boolean.TRUE);
             String user = PentahoSessionHolder.getSession().getName();
-            Map<String, String> params = new HashMap<String, String>();
+            Map<String, Object> params = new HashMap<String, Object>();
             params.put("id", id);
             params.put("user", user);
             List<ODocument> result = executeQuery("select * from Query where @rid = :id and userid = :user", params);
@@ -412,7 +412,7 @@ public class PersistenceEngine {
 
                 if (!StringUtils.isEmpty(id)) {
 
-                    Map<String, String> params = new HashMap<String, String>();
+                    Map<String, Object> params = new HashMap<String, Object>();
                     params.put("id", id);
                     List<ODocument> result = executeQuery("select * from Query where @rid = :id", params);
                     if (result.size() == 1) {
