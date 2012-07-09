@@ -503,12 +503,17 @@ public class PersistenceEngine {
          * of that here, to decide whether we need to start
          * up the server
          */
+        ODatabaseDocumentTx db = null;
         try {
-            ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
+            db = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
         } catch (Exception e) {
             OServer server = OServerMain.create();
             server.startup(conf);
             server.activate();
+        } finally {
+            if (db != null) {
+                db.close();
+            }
         }
     }
 }
