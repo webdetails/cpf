@@ -143,7 +143,7 @@ public class RepositoryAccess {
   }
   
   public boolean createFolder(String solutionFolderPath) throws IOException {
-    solutionFolderPath = FilenameUtils.getFullPathNoEndSeparator(solutionFolderPath);//strip trailing / if there
+    solutionFolderPath = StringUtils.chomp(solutionFolderPath,"/");//strip trailing / if there
     String folderName = FilenameUtils.getBaseName(solutionFolderPath);
     String folderPath = solutionFolderPath.substring(0, StringUtils.lastIndexOf(solutionFolderPath, folderName));
     return getSolutionRepositoryService().createFolder(userSession, "", folderPath, folderName, "");
