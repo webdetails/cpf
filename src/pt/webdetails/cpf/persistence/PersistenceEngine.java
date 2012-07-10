@@ -18,6 +18,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.orientechnologies.orient.server.OServerMain;
 import com.orientechnologies.orient.server.OServer;
+import java.io.File;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -29,6 +30,7 @@ import org.json.JSONObject;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.reporting.libraries.base.util.StringUtils;
 
@@ -76,10 +78,21 @@ public class PersistenceEngine {
     }
 
     private void initialize() throws Exception {
-        System.setProperty("ORIENTDB_HOME", ".");
-        startOrient();
+
+      //Ensure .orient folder exists on system
+      String orientPath = PentahoSystem.getApplicationContext().getSolutionPath("system/.orient");
+      File dirPath = new File(orientPath);
+      if(!dirPath.exists()){
+        dirPath.mkdir();
+      }      
+      
+      System.setProperty("ORIENTDB_HOME", orientPath);
+      System.setProperty("ORIENT_HOME", orientPath);
+      startOrient();
     }
 
+        
+    
     public String process(IParameterProvider requestParams, IPentahoSession userSession) throws InvalidOperationException {
         String methodString = requestParams.getStringParameter("method", "none");
         JSONObject reply = null;
@@ -379,12 +392,18 @@ public class PersistenceEngine {
     }
 
     public boolean initializeClass(String className) {
-        ODatabaseDocumentTx database = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
-        if (database.getMetadata().getSchema().getClass(className) != null) {
-            return false;
-        } else {
-            database.getMetadata().getSchema().createClass(className);
-            return true;
+        ODatabaseDocumentTx database = null;
+        try {
+          database = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
+          if (database.getMetadata().getSchema().getClass(className) != null) {
+              return false;
+          } else {
+              database.getMetadata().getSchema().createClass(className);
+              return true;
+          }
+        } finally {
+          if (database != null)
+            database.close();
         }
     }
 
@@ -490,7 +509,6 @@ public class PersistenceEngine {
     }
 
     public void startOrient() throws Exception {
-        System.setProperty("ORIENTDB_HOME", ".");
         InputStream conf;
         try {
             conf = RepositoryAccess.getRepository().getResourceInputStream("solution/cpf/orient.xml");
