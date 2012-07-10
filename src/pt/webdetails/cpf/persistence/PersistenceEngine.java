@@ -18,12 +18,15 @@ import org.apache.commons.logging.LogFactory;
 
 import com.orientechnologies.orient.server.OServerMain;
 import com.orientechnologies.orient.server.OServer;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -77,17 +80,19 @@ public class PersistenceEngine {
 
     }
 
+    
+    private String getOrientPath() {      
+      return PentahoSystem.getApplicationContext().getSolutionPath("system/.orient");
+    }
+    
     private void initialize() throws Exception {
 
       //Ensure .orient folder exists on system
-      String orientPath = PentahoSystem.getApplicationContext().getSolutionPath("system/.orient");
+      String orientPath = getOrientPath();
       File dirPath = new File(orientPath);
       if(!dirPath.exists()){
         dirPath.mkdir();
-      }      
-      
-      System.setProperty("ORIENTDB_HOME", orientPath);
-      System.setProperty("ORIENT_HOME", orientPath);
+      }            
       startOrient();
     }
 
@@ -514,8 +519,12 @@ public class PersistenceEngine {
             conf = RepositoryAccess.getRepository().getResourceInputStream("solution/cpf/orient.xml");
         } catch (Exception e) {
             logger.warn("Falling back to built-in config");
-            conf = getClass().getResourceAsStream("orient.xml");
+            conf = getClass().getResourceAsStream("orient.xml");                       
         }
+        
+
+
+
         /* Acquiring a database connection will throw an
          * exception if the db isn't up. We take advantage
          * of that here, to decide whether we need to start
@@ -524,14 +533,22 @@ public class PersistenceEngine {
         ODatabaseDocumentTx db = null;
         try {
             db = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
-        } catch (Exception e) {
-            OServer server = OServerMain.create();
-            server.startup(conf);
-            server.activate();
+        } catch (Exception e) {                    
+            
+          //Change the default database location to orientPath
+          String confAsString = IOUtils.toString(conf, "UTF-8");            
+          confAsString = confAsString.replaceAll(Matcher.quoteReplacement("$PATH$"), getOrientPath() + "/");                       
+          conf.close();
+          conf = new ByteArrayInputStream(confAsString.getBytes("UTF-8"));
+
+          OServer server = OServerMain.create();
+          server.startup(conf);
+          server.activate();
         } finally {
             if (db != null) {
                 db.close();
             }
+            conf.close();
         }
     }
 }
