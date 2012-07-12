@@ -62,7 +62,7 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
       public static final String HTML = "text/html";
       public static final String XML = "text/xml";
       public static final String JPEG = "img/jpeg";
-      public static final String PNG = "mage/png";
+      public static final String PNG = "image/png";
       public static final String GIF = "image/gif";
       public static final String BMP = "image/bmp";
       public static final String JSON = "application/json";
