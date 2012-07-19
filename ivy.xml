@@ -50,9 +50,12 @@
       rev="3.6.0-stable" transitive="false"  changing="true" conf="legacy->default" />
     <dependency org="pentaho" name="pentaho-bi-platform-web"
       rev="3.6.0-stable" transitive="false"  changing="true" conf="legacy->default" />
-	<dependency org="com.orientechnologies" name="orient-commons" conf="runtime->default" rev="1.0.1"/>
-	<dependency org="com.orientechnologies" name="orientdb-core" conf="runtime->default" rev="1.0.1"/>
-	<dependency org="com.orientechnologies" name="orientdb-server" conf="runtime->default" rev="1.0.1"/>
+
+
+	<dependency org="com.orientechnologies" name="orient-commons" conf="runtime->default" rev="1.1.0-SNAPSHOT"/>
+	<dependency org="com.orientechnologies" name="orientdb-core" conf="runtime->default" rev="1.1.0-SNAPSHOT"/>
+	<dependency org="com.orientechnologies" name="orientdb-server" conf="runtime->default" rev="1.1.0-SNAPSHOT"/>
+
   </dependencies>
 
 </ivy-module>
