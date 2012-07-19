@@ -592,7 +592,7 @@ TYPICAL TARGET SEQUENCE
 	    
 	    Downloads the IVY jar file for use by ant.
 	    ====================================================================-->
-  <target name="ivy.download"> <!-- unless="ivy.available"-->
+  <target name="ivy.download" unless="ivy.available">
     <mkdir dir="${ivy.build.cache.dir}" />
     <get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar"
          dest="${ivy.jar.file}"
