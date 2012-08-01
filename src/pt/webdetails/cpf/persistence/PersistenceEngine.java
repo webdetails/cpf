@@ -3,6 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpf.persistence;
 
+import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentPool;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -524,9 +525,6 @@ public class PersistenceEngine {
             logger.warn("Falling back to built-in config");
             conf = getClass().getResourceAsStream("orient.xml");
         }
-
-
-
 
         /* Acquiring a database connection will throw an
          * exception if the db isn't up. We take advantage
