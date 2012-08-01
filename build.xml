@@ -108,6 +108,13 @@
           depends="resolve-default, resolve-test, resolve-runtime, ivy.check-releasable"
           description="Retrieves all the dependent libraries" />
 
+
+  <target name="resolve-runtime" depends="resolve-init">
+    <ivy:resolve file="ivy.xml" conf="runtime" />
+    <ivy:retrieve conf="runtime" pattern="runtime-lib/[module]-[revision](-[classifier]).[ext]" />
+  </target>
+
+
   <!-- ================ 
         Legacy Compat
        ================ -->

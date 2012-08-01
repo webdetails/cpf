@@ -21,7 +21,7 @@
     </network>
     <storages>
         <storage name="temp" path="memory:temp" userName="admin" userPassword="admin" loaded-at-startup="true"/>
-        <storage name="webdetails" path="local:webdetails.db" userName="admin" userPassword="admin" loaded-at-startup="true"/>
+        <storage name="webdetails" path="local:$PATH$webdetails.db" userName="admin" userPassword="admin" loaded-at-startup="true"/>
     </storages>
     <users>
         <user name="root" password="root" resources="*"/>

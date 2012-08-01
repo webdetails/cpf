@@ -18,17 +18,22 @@ import org.apache.commons.logging.LogFactory;
 
 import com.orientechnologies.orient.server.OServerMain;
 import com.orientechnologies.orient.server.OServer;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.reporting.libraries.base.util.StringUtils;
 
@@ -75,8 +80,18 @@ public class PersistenceEngine {
 
     }
 
+    private String getOrientPath() {
+        return PentahoSystem.getApplicationContext().getSolutionPath("system/.orient");
+    }
+
     private void initialize() throws Exception {
-        System.setProperty("ORIENTDB_HOME", ".");
+
+        //Ensure .orient folder exists on system
+        String orientPath = getOrientPath();
+        File dirPath = new File(orientPath);
+        if (!dirPath.exists()) {
+            dirPath.mkdir();
+        }
         startOrient();
     }
 
@@ -379,12 +394,19 @@ public class PersistenceEngine {
     }
 
     public boolean initializeClass(String className) {
-        ODatabaseDocumentTx database = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
-        if (database.getMetadata().getSchema().getClass(className) != null) {
-            return false;
-        } else {
-            database.getMetadata().getSchema().createClass(className);
-            return true;
+        ODatabaseDocumentTx database = null;
+        try {
+            database = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
+            if (database.getMetadata().getSchema().getClass(className) != null) {
+                return false;
+            } else {
+                database.getMetadata().getSchema().createClass(className);
+                return true;
+            }
+        } finally {
+            if (database != null) {
+                database.close();
+            }
         }
     }
 
@@ -422,6 +444,9 @@ public class PersistenceEngine {
                             json.put("errorMessage", "Object id " + id + " belongs to another user");
                             return json;
                         }
+                        
+                        fillDocument(doc, data);
+                        
                     } else if (result.size() == 0) {
                         json.put("result", Boolean.FALSE);
                         json.put("errorMessage", "No " + className + " found with id " + id);
@@ -470,14 +495,16 @@ public class PersistenceEngine {
     private ODocument createDocument(String id, String className, JSONObject data, JSONObject json, ODatabaseDocumentTx db, String user) throws JSONException {
         ODocument doc = new ODocument(db, className);
         doc.field("userid", user);
+        fillDocument(doc, data);
+        return doc;
+    }
 
-        // CREATE A NEW DOCUMENT AND FILL IT
+    private void fillDocument(ODocument doc, JSONObject data) throws JSONException {
         Iterator keyIterator = data.keys();
         while (keyIterator.hasNext()) {
             String key = (String) keyIterator.next();
             doc.field(key, data.getString(key));
         }
-        return doc;
     }
 
     public JSONObject store(String id, String className, String inputData) throws JSONException {
@@ -490,7 +517,6 @@ public class PersistenceEngine {
     }
 
     public void startOrient() throws Exception {
-        System.setProperty("ORIENTDB_HOME", ".");
         InputStream conf;
         try {
             conf = RepositoryAccess.getRepository().getResourceInputStream("solution/cpf/orient.xml");
@@ -498,6 +524,10 @@ public class PersistenceEngine {
             logger.warn("Falling back to built-in config");
             conf = getClass().getResourceAsStream("orient.xml");
         }
+
+
+
+
         /* Acquiring a database connection will throw an
          * exception if the db isn't up. We take advantage
          * of that here, to decide whether we need to start
@@ -508,6 +538,13 @@ public class PersistenceEngine {
         try {
             tx = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
         } catch (Exception e) {
+
+            //Change the default database location to orientPath
+            String confAsString = IOUtils.toString(conf, "UTF-8");
+            confAsString = confAsString.replaceAll(Matcher.quoteReplacement("$PATH$"), getOrientPath() + "/");
+            conf.close();
+            conf = new ByteArrayInputStream(confAsString.getBytes("UTF-8"));
+
             OServer server = OServerMain.create();
             server.startup(conf);
             server.activate();
@@ -515,6 +552,7 @@ public class PersistenceEngine {
             if (tx != null) {
                 tx.close();
             }
+            conf.close();
         }
     }
 }
