@@ -79,22 +79,25 @@ public class PersistenceEngine {
         }
 
     }
-
-    private String getOrientPath() {
-        return PentahoSystem.getApplicationContext().getSolutionPath("system/.orient");
+    
+    
+    private String getOrientPath() {      
+      return PentahoSystem.getApplicationContext().getSolutionPath("system/.orient");
     }
-
+    
     private void initialize() throws Exception {
 
-        //Ensure .orient folder exists on system
-        String orientPath = getOrientPath();
-        File dirPath = new File(orientPath);
-        if (!dirPath.exists()) {
-            dirPath.mkdir();
-        }
-        startOrient();
+      //Ensure .orient folder exists on system
+      String orientPath = getOrientPath();
+      File dirPath = new File(orientPath);
+      if(!dirPath.exists()){
+        dirPath.mkdir();
+      }            
+      startOrient();
     }
 
+        
+    
     public String process(IParameterProvider requestParams, IPentahoSession userSession) throws InvalidOperationException {
         String methodString = requestParams.getStringParameter("method", "none");
         JSONObject reply = null;
@@ -411,7 +414,7 @@ public class PersistenceEngine {
     }
 
     public JSONObject store(Persistable obj) {
-        JSONObject key = obj.getKey();
+        JSONObject ke    y = obj.getKey();
         return null;
     }
 
@@ -522,7 +525,7 @@ public class PersistenceEngine {
             conf = RepositoryAccess.getRepository().getResourceInputStream("solution/cpf/orient.xml");
         } catch (Exception e) {
             logger.warn("Falling back to built-in config");
-            conf = getClass().getResourceAsStream("orient.xml");
+            conf = getClass().getResourceAsStream("orient.xml");                       
         }
 
 
@@ -548,6 +551,7 @@ public class PersistenceEngine {
             OServer server = OServerMain.create();
             server.startup(conf);
             server.activate();
+
         } finally {
             if (tx != null) {
                 tx.close();
