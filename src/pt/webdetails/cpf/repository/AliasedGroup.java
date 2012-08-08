@@ -6,6 +6,7 @@ package pt.webdetails.cpf.repository;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,6 +18,7 @@ public class AliasedGroup {
     List<Resolver> resolverList;
 
     public AliasedGroup() {
+        resolverList = new ArrayList<Resolver>();
     }
 
     public void addClass(Class klass) {
@@ -56,7 +58,8 @@ class ClassResolver implements Resolver {
     }
 
     public InputStream getStream(String file) {
-        return klass.getClassLoader().getResourceAsStream(file);
+        String path = klass.getPackage().getName().replaceAll("\\.", "/") + "/";
+        return klass.getClassLoader().getResourceAsStream(path + file);
     }
 }
 
