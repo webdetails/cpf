@@ -33,7 +33,7 @@ public class CpfProperties extends Properties {
       logger.warn("Failed to read CPF base settings");
     }
     try {
-      load(RepositoryAccess.getRepository().getResourceInputStream("solution/cpf/config.properties", FileAccess.NONE));
+      load(RepositoryAccess.getRepository().getResourceInputStream("/cpf/config.properties", FileAccess.NONE));
     } catch (Exception ioe) {
       logger.info("Failed to read global CPF settings");
     }
