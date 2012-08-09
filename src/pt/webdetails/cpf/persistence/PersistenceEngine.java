@@ -523,7 +523,7 @@ public class PersistenceEngine {
     public void startOrient() throws Exception {
         InputStream conf;
         try {
-            conf = RepositoryAccess.getRepository().getResourceInputStream("solution/cpf/orient.xml");
+            conf = RepositoryAccess.getRepository().getResourceInputStream("/cpf/orient.xml");
         } catch (Exception e) {
             logger.warn("Falling back to built-in config");
             conf = getClass().getResourceAsStream("orient.xml");                       
