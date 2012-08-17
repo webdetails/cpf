@@ -356,7 +356,7 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
 
       if (response == null)
       {
-        logger.error("Parameter 'httpresponse' not found!");
+        logger.warn("Parameter 'httpresponse' not found!");
         return;
       }
 
