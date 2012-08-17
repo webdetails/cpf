@@ -1,7 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 package pt.webdetails.cpf.repository;
 
 import java.io.FileNotFoundException;
@@ -21,7 +21,7 @@ public class AliasedGroup {
         resolverList = new ArrayList<Resolver>();
     }
 
-    public void addClass(Class klass) {
+    public void addClass(Class<?> klass) {
         resolverList.add(new ClassResolver(klass));
     }
 
@@ -51,9 +51,9 @@ interface Resolver {
 
 class ClassResolver implements Resolver {
 
-    private Class klass;
+    private Class<?> klass;
 
-    public ClassResolver(Class klass) {
+    public ClassResolver(Class<?> klass) {
         this.klass = klass;
     }
 
