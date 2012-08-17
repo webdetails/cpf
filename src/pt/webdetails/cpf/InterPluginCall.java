@@ -15,6 +15,8 @@ import java.util.concurrent.Callable;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
+import mondrian.tui.MockHttpServletResponse;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IContentGenerator;
@@ -202,6 +204,10 @@ public class InterPluginCall implements Runnable, Callable<String> {
   }
 
   public ServletResponse getResponse() {
+    if(response == null){
+      response = new MockHttpServletResponse();
+    }
+    
     return response;
   }
 
