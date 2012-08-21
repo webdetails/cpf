@@ -37,6 +37,7 @@ import pt.webdetails.cpf.annotations.AccessLevel;
 import pt.webdetails.cpf.annotations.Audited;
 import pt.webdetails.cpf.annotations.Exposed;
 import pt.webdetails.cpf.audit.CpfAuditHelper;
+import pt.webdetails.cpf.repository.RepositoryAccess;
 
 /**
  *
@@ -52,7 +53,12 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
     
     public enum FileType
     {
-      JPG, JPEG, PNG, GIF, BMP, JS, CSS, HTML, HTM, XML
+      JPG, JPEG, PNG, GIF, BMP, JS, CSS, HTML, HTM, XML,
+      SVG, PDF;
+      
+      public static FileType parse(String value){
+        return valueOf(StringUtils.upperCase(value));
+      }
     }
     
     public static class MimeType {
@@ -183,6 +189,13 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
     public abstract String getPluginName();
     
     /**
+     * @return this plugin's path
+     */
+    public String getPluginPath(){
+      return RepositoryAccess.getSystemDir() + "/" + getPluginName();
+    }
+    
+    /**
      * Get a map of all public methods with the Exposed annotation.
      * Map is not thread-safe and should be used read-only.
      * @param classe Class where to find methods
@@ -286,9 +299,13 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
         }
         final OutputStream out = getResponseOutputStream(exposed.outputType());
         setResponseHeaders(exposed.outputType());
-        method.invoke(this, out);
-        if(audited != null){//TODO: use finally?..
-          CpfAuditHelper.endAudit(getPluginName(), audited.action(), getObjectName(), userSession, this, start, uuid, System.currentTimeMillis());
+        try{
+          method.invoke(this, out);
+        }
+        finally {
+          if(audited != null){
+            CpfAuditHelper.endAudit(getPluginName(), audited.action(), getObjectName(), userSession, this, start, uuid, System.currentTimeMillis());
+          }
         }
         
         return true;
