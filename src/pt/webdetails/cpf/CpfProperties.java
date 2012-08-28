@@ -4,10 +4,13 @@
 
 package pt.webdetails.cpf;
 
-import java.io.FileInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,20 +30,34 @@ public class CpfProperties extends Properties {
   private static final Log logger = LogFactory.getLog(CpfProperties.class);
 
   private CpfProperties() {
+    
+    RepositoryAccess repository = RepositoryAccess.getRepository();
+    
     try {
-      load(getClass().getResourceAsStream("config.properties"));
-    } catch (Exception ioe) {
+      loadAndClose(getClass().getResourceAsStream("config.properties"));
+    } catch (IOException ioe) {
       logger.warn("Failed to read CPF base settings");
     }
     try {
-      load(RepositoryAccess.getRepository().getResourceInputStream("/cpf/config.properties", FileAccess.NONE));
-    } catch (Exception ioe) {
-      logger.info("Failed to read global CPF settings");
+      if(repository.resourceExists("/cpf/config.properties")) {
+        loadAndClose(repository.getResourceInputStream("/cpf/config.properties", FileAccess.NONE));
+      }
+      else {
+        logger.info("No global CPF settings.");
+      }
+    } catch (IOException ioe) {
+      logger.error("Failed to read global CPF settings");
     }
     try {
-      load(getSettingsStream());
-    } catch (Exception ioe) {
-      logger.info("Failed to read plugin-specific CPF base settings");
+      File pluginCpfSettings = new File(getPluginPath() + "/cpf.properties");
+      if(pluginCpfSettings.exists()){
+        loadAndClose(FileUtils.openInputStream(pluginCpfSettings));
+      }
+      else {
+        logger.info("No plugin-specific CPF settings.");
+      }
+    } catch (IOException ioe) {
+      logger.error("Failed to read plugin-specific CPF base settings");
     }
   }
 
@@ -84,15 +101,19 @@ public class CpfProperties extends Properties {
     }
     return defaultValue;
   }
-
-  private InputStream getSettingsStream() {
-    ClassLoader cl = this.getClass().getClassLoader();
-    try {
-      String settingsPath = ((PluginClassLoader) cl).getPluginDir().getPath() + "/cpf.properties";
-      return new FileInputStream(settingsPath);
-
-    } catch (Exception e) {
-      return null;
+  
+  private void loadAndClose(InputStream input) throws IOException{
+    try{
+      load(input);
+    }
+    finally {
+      IOUtils.closeQuietly(input);
     }
   }
+
+  private String getPluginPath(){
+    ClassLoader cl = this.getClass().getClassLoader();
+    return ((PluginClassLoader) cl).getPluginDir().getPath(); 
+  }
+
 }
