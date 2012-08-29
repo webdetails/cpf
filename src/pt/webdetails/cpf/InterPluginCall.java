@@ -205,6 +205,7 @@ public class InterPluginCall implements Runnable, Callable<String> {
 
   public ServletResponse getResponse() {
     if(response == null){
+      logger.debug("No response passed to method " + this.method + ", adding mock response.");
       response = new MockHttpServletResponse();
     }
     
@@ -283,9 +284,9 @@ public class InterPluginCall implements Runnable, Callable<String> {
   protected IParameterProvider getPathParameterProvider() {
     Map<String, Object> pathMap = new HashMap<String, Object>();
     pathMap.put("path", "/" + method);
-    if (response != null) {
-      pathMap.put("httpresponse", response);
-    }
+//    if (response != null) {
+      pathMap.put("httpresponse", getResponse());
+//    }
     if(getRequest() != null){
       pathMap.put("httprequest", getRequest());
     }
