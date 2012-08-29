@@ -21,6 +21,8 @@ import org.pentaho.platform.api.engine.ISystemSettings;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
+import pt.webdetails.cpf.repository.RepositoryAccess;
+
 
 public abstract class PluginSettings {
   
@@ -37,6 +39,10 @@ public abstract class PluginSettings {
   
   protected static final String SETTINGS_FILE = "settings.xml"; 
   
+  protected String getStringSetting(String section, String defaultValue){
+    return (String) getPluginManager().getPluginSetting(getPluginName(), section, defaultValue);
+  }
+  
   private static IPluginManager getPluginManager(){
     if(pluginManager == null){
       pluginManager = PentahoSystem.get(IPluginManager.class);
@@ -51,10 +57,7 @@ public abstract class PluginSettings {
     }
     return nullValue;
   }
-  
-  protected String getStringSetting(String section, String defaultValue){
-    return (String) getPluginManager().getPluginSetting(getPluginName(), section, defaultValue);
-  }
+
 
   protected static String getSolutionPath(String path){
     return PentahoSystem.getApplicationContext().getSolutionPath(path);
@@ -69,11 +72,14 @@ public abstract class PluginSettings {
    * @return whether value was written
    */
   protected boolean writeSetting(String section, String value){
-    Document settings = null;
-    String settingsFilePath = PentahoSystem.getApplicationContext().getSolutionPath("system/" + getPluginSystemDir() + SETTINGS_FILE);
+    String settingsFilePath = RepositoryAccess.getSolutionPath("system/" + getPluginSystemDir() + SETTINGS_FILE);
+    return writeSetting(section, value, settingsFilePath);    
+  }
+
+  protected boolean writeSetting(String section, String value, String settingsFilePath) {
     File settingsFile = new File(settingsFilePath); 
     String nodePath = "settings/" + section;
-    
+    Document settings = null;
     try {
       settings = XmlDom4JHelper.getDocFromFile(settingsFile, null);
     } catch (DocumentException e) {
@@ -109,7 +115,7 @@ public abstract class PluginSettings {
     else {
       logger.error("Unable to open " + settingsFilePath);
     }
-    return false;    
+    return false;
   }
 
   @SuppressWarnings("unchecked")
