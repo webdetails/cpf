@@ -54,7 +54,7 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
     public enum FileType
     {
       JPG, JPEG, PNG, GIF, BMP, JS, CSS, HTML, HTM, XML,
-      SVG, PDF;
+      SVG, PDF, TXT;
       
       public static FileType parse(String value){
         return valueOf(StringUtils.upperCase(value));
@@ -96,6 +96,7 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
       mimeTypes.put(FileType.HTML, MimeType.HTML);
       mimeTypes.put(FileType.CSS, MimeType.CSS);
       mimeTypes.put(FileType.XML, MimeType.XML);
+      mimeTypes.put(FileType.TXT, MimeType.PLAIN_TEXT);
     }
     
     protected String getMimeType(String fileName){
