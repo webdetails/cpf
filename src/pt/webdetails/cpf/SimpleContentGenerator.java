@@ -105,7 +105,7 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
         return getMimeType(FileType.valueOf(fileNameSplit[fileNameSplit.length - 1].toUpperCase()));
       }
       catch(Exception e){
-        logger.error("Unrecognized extension for file name " + fileName);
+        logger.warn("Unrecognized extension for file name " + fileName);
         return "";
       }
     }
