@@ -4,6 +4,7 @@
 
 package pt.webdetails.cpf.persistence;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import pt.webdetails.cpf.JsonSerializable;
 
@@ -13,6 +14,7 @@ import pt.webdetails.cpf.JsonSerializable;
  */
 public interface Persistable extends JsonSerializable{
 
-    public JSONObject getKey();
-    public String getPersistenceClass();
+    public void setKey(String  key);
+    public String getKey();
+    public void fromJSON(JSONObject json) throws JSONException;
 }

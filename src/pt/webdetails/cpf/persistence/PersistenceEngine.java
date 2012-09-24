@@ -3,7 +3,6 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpf.persistence;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentPool;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -80,25 +79,22 @@ public class PersistenceEngine {
         }
 
     }
-    
-    
-    private String getOrientPath() {      
-      return PentahoSystem.getApplicationContext().getSolutionPath("system/.orient");
+
+    private String getOrientPath() {
+        return PentahoSystem.getApplicationContext().getSolutionPath("system/.orient");
     }
-    
+
     private void initialize() throws Exception {
 
-      //Ensure .orient folder exists on system
-      String orientPath = getOrientPath();
-      File dirPath = new File(orientPath);
-      if(!dirPath.exists()){
-        dirPath.mkdir();
-      }            
-      startOrient();
+        //Ensure .orient folder exists on system
+        String orientPath = getOrientPath();
+        File dirPath = new File(orientPath);
+        if (!dirPath.exists()) {
+            dirPath.mkdir();
+        }
+        startOrient();
     }
 
-        
-    
     public String process(IParameterProvider requestParams, IPentahoSession userSession) throws InvalidOperationException {
         String methodString = requestParams.getStringParameter("method", "none");
         JSONObject reply = null;
@@ -415,8 +411,16 @@ public class PersistenceEngine {
     }
 
     public JSONObject store(Persistable obj) {
-        JSONObject key = obj.getKey();
-        return null;
+        String key = obj.getKey();
+        String className = obj.getClass().getName();
+        try {
+            JSONObject json = obj.toJSON();
+            JSONObject ret = store(key, className, json);
+            obj.setKey(ret.getString("id"));
+            return ret;
+        } catch (JSONException e) {
+            return null;
+        }
     }
 
     public JSONObject store(String id, String className, JSONObject data) {
@@ -440,7 +444,7 @@ public class PersistenceEngine {
 
                     Map<String, Object> params = new HashMap<String, Object>();
                     params.put("id", id);
-                    List<ODocument> result = executeQuery("select * from Query where @rid = :id", params);
+                    List<ODocument> result = executeQuery("select * from " + className +" where @rid = :id", params);
                     if (result.size() == 1) {
                         doc = result.get(0);
                         if (!doc.field("userid").toString().equals(user)) {
@@ -448,9 +452,9 @@ public class PersistenceEngine {
                             json.put("errorMessage", "Object id " + id + " belongs to another user");
                             return json;
                         }
-                        
+
                         fillDocument(doc, data);
-                        
+
                     } else if (result.size() == 0) {
                         json.put("result", Boolean.FALSE);
                         json.put("errorMessage", "No " + className + " found with id " + id);
@@ -504,11 +508,13 @@ public class PersistenceEngine {
     }
 
     private void fillDocument(ODocument doc, JSONObject data) throws JSONException {
+        doc.fromJSON(data.toString(2));
+        /*
         Iterator keyIterator = data.keys();
         while (keyIterator.hasNext()) {
             String key = (String) keyIterator.next();
             doc.field(key, data.getString(key));
-        }
+        }*/
     }
 
     public JSONObject store(String id, String className, String inputData) throws JSONException {
@@ -526,7 +532,7 @@ public class PersistenceEngine {
             conf = RepositoryAccess.getRepository().getResourceInputStream("/cpf/orient.xml");
         } catch (Exception e) {
             logger.warn("Falling back to built-in config");
-            conf = getClass().getResourceAsStream("orient.xml");                       
+            conf = getClass().getResourceAsStream("orient.xml");
         }
 
         /* Acquiring a database connection will throw an
