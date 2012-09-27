@@ -68,13 +68,29 @@ public class SimplePersistence {
             if (filter != null) {
                 query += " where " + filter.toString();
             }
-            JSONObject json = pe.query(query, null);
+            JSONObject json;
+            try {
+                json = pe.query(query, null);
+            } catch (RuntimeException e) {
+                /* This query can fail if the class isn' initialized in OrientDB,
+                 * so if it does fail, we'll just try checking whether the class
+                 * exists. If it doesn', we can safely initialise it and run the
+                 * query normally (yielding 0 results, presumably)
+                 */
+                if (!pe.classExists(klass.getName())) {
+                    pe.initializeClass(klass.getName());
+                    json = pe.query(query, null);
+                } else {
+                    json = null;
+                }
+            }
             JSONArray arr = json.getJSONArray("object");
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject o = arr.getJSONObject(i);
                 T inst = klass.newInstance();
                 try {
                     inst.fromJSON(o);
+                    inst.setKey(o.getString("@rid"));
                     list.add(inst);
                 } catch (JSONException e) {
                 }

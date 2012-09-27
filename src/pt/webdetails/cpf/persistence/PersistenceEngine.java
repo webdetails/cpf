@@ -159,9 +159,9 @@ public class PersistenceEngine {
             } else {
                 return db.command(preparedQuery).execute(params);
             }
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             logger.error(e);
-            return null;
+            throw e;
         } finally {
             if (db != null) {
                 db.close();
@@ -410,6 +410,18 @@ public class PersistenceEngine {
         }
     }
 
+    public boolean classExists(String className) {
+        ODatabaseDocumentTx database = null;
+        try {
+            database = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
+            return database.getMetadata().getSchema().getClass(className) != null;
+        } finally {
+            if (database != null) {
+                database.close();
+            }
+        }
+    }
+
     public JSONObject store(Persistable obj) {
         String key = obj.getKey();
         String className = obj.getClass().getName();
@@ -444,7 +456,7 @@ public class PersistenceEngine {
 
                     Map<String, Object> params = new HashMap<String, Object>();
                     params.put("id", id);
-                    List<ODocument> result = executeQuery("select * from " + className +" where @rid = :id", params);
+                    List<ODocument> result = executeQuery("select * from " + className + " where @rid = :id", params);
                     if (result.size() == 1) {
                         doc = result.get(0);
                         if (!doc.field("userid").toString().equals(user)) {
@@ -510,11 +522,11 @@ public class PersistenceEngine {
     private void fillDocument(ODocument doc, JSONObject data) throws JSONException {
         doc.fromJSON(data.toString(2));
         /*
-        Iterator keyIterator = data.keys();
-        while (keyIterator.hasNext()) {
-            String key = (String) keyIterator.next();
-            doc.field(key, data.getString(key));
-        }*/
+         Iterator keyIterator = data.keys();
+         while (keyIterator.hasNext()) {
+         String key = (String) keyIterator.next();
+         doc.field(key, data.getString(key));
+         }*/
     }
 
     public JSONObject store(String id, String className, String inputData) throws JSONException {
