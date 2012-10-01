@@ -459,7 +459,7 @@ public class PersistenceEngine {
                     List<ODocument> result = executeQuery("select * from " + className + " where @rid = :id", params);
                     if (result.size() == 1) {
                         doc = result.get(0);
-                        if (!doc.field("userid").toString().equals(user)) {
+                        if (doc.field("userid") != null && !doc.field("userid").toString().equals(user)) {
                             json.put("result", Boolean.FALSE);
                             json.put("errorMessage", "Object id " + id + " belongs to another user");
                             return json;
