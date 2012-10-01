@@ -2,7 +2,6 @@ package pt.webdetails.cpf.messaging;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import pt.webdetails.cpf.persistence.Persistable;
 
 public class PluginEvent implements Persistable {
@@ -21,24 +20,15 @@ public class PluginEvent implements Persistable {
     private String plugin;
     private String name;
 //  private JSONObject event;
-    private JSONObject key;
+    private String key;
 
-    protected void setKey(JSONObject key) {
+    @Override
+    public void setKey(String key) {
         this.key = key;
     }
 
     public PluginEvent(JSONObject json) throws JSONException {
-        setTimeStamp(json.getLong(Fields.TIMESTAMP));
-        setPlugin(json.getString(Fields.PLUGIN));
-        setName(json.getString(Fields.NAME));
-        setEventType(json.getString(Fields.EVENT_TYPE));
-        setKey(json.getJSONObject(Fields.KEY));
-//    try{
-//      setEvent(json.getJSONObject(Fields.EVENT));
-//    }
-//    catch(JSONException e){
-//      setEvent(new JSONObject(json.getString(Fields.EVENT)));
-//    }
+        this.fromJSON(json);
     }
 
     public PluginEvent(String plugin, String eventType, String name) throws JSONException {
@@ -96,7 +86,6 @@ public class PluginEvent implements Persistable {
         obj.put(Fields.PLUGIN, getPlugin());
         obj.put(Fields.NAME, getName());
         obj.put(Fields.TIMESTAMP, getTimeStamp());
-        obj.put(Fields.KEY, getKey());
         return obj;
     }
 
@@ -110,12 +99,20 @@ public class PluginEvent implements Persistable {
     }
 
     @Override
-    public JSONObject getKey() {
+    public String getKey() {
         return key;
     }
 
     @Override
-    public String getPersistenceClass() {
-        return plugin + "_" + eventType;
+    public void fromJSON(JSONObject json) throws JSONException {
+        setTimeStamp(json.getLong(Fields.TIMESTAMP));
+        setPlugin(json.getString(Fields.PLUGIN));
+        setName(json.getString(Fields.NAME));
+        setEventType(json.getString(Fields.EVENT_TYPE));
+        try {
+            setKey(json.getString(Fields.KEY));
+        } catch (JSONException jse) {
+            setKey(null);
+        }
     }
 }
