@@ -76,7 +76,7 @@ public abstract class VersionChecker {
     } catch (Exception e) {
       String msg = "Error attempting to read version.xml";
       logger.error(msg, e);
-      return new CheckVersionResponse(CheckVersionResponse.Type.ERROR, msg);
+      return new CheckVersionResponse(CheckVersionResponse.Type.ERROR, msg, null);
     }
 
     String url = getVersionCheckUrl(installed.getBranch());
@@ -84,7 +84,19 @@ public abstract class VersionChecker {
     if(url == null){
       String msg ="No URL found for this version."; 
       logger.info(msg);
-      return new CheckVersionResponse(CheckVersionResponse.Type.INCONCLUSIVE, msg);
+      
+      Version latest = null;
+      try {
+        SAXReader reader = new SAXReader();
+        Document versionXml = reader.read(getVersionCheckUrl(Branch.STABLE));
+        latest = new Version(versionXml);
+      }
+      catch(DocumentException e){
+        msg = "Could not parse remote file "; 
+        logger.info(msg, e);
+        return new CheckVersionResponse(CheckVersionResponse.Type.ERROR, msg, null);
+      }
+      return new CheckVersionResponse(CheckVersionResponse.Type.INCONCLUSIVE, msg, latest.downloadUrl);
     }
     
     Version latest = null;
@@ -94,16 +106,16 @@ public abstract class VersionChecker {
       latest = new Version(versionXml);
     }
     catch(DocumentException e){
-      String msg = "Could not parse remote file " + url; 
+      String msg = "Could not parse remote file "; 
       logger.info(msg, e);
-      return new CheckVersionResponse(CheckVersionResponse.Type.ERROR, msg);
+      return new CheckVersionResponse(CheckVersionResponse.Type.ERROR, msg, null);
     }
 
     if(installed.isSuperceededBy(latest)){
-      return new CheckVersionResponse(CheckVersionResponse.Type.UPDATE, latest.downloadUrl);
+      return new CheckVersionResponse(CheckVersionResponse.Type.UPDATE, null, latest.downloadUrl);
     }
     else {
-      return new CheckVersionResponse(CheckVersionResponse.Type.LATEST, null);
+      return new CheckVersionResponse(CheckVersionResponse.Type.LATEST, null, null);
     }
     
   }
@@ -127,9 +139,10 @@ public abstract class VersionChecker {
   public static class CheckVersionResponse implements JsonSerializable {
     
     
-    public CheckVersionResponse(Type responseType, String message){
+    public CheckVersionResponse(Type responseType, String message, String downloadUrl){
       type = responseType;
       msg = message;
+      url = downloadUrl;
     }
     
     public enum Type {
@@ -141,6 +154,7 @@ public abstract class VersionChecker {
     
     private Type type;
     private String msg;
+    private String url;
     
     public String getMessage() { return msg; }
     public Type getType(){return type;}
@@ -151,12 +165,15 @@ public abstract class VersionChecker {
       obj.put("result", type.toString().toLowerCase());
       switch(type){
         case LATEST:
-        case INCONCLUSIVE:
         case ERROR:
           obj.put("msg", msg);
           break;
+        case INCONCLUSIVE:
+          obj.put("msg", msg);
+          obj.put("downloadUrl", url);
+          break;
         case UPDATE:
-          obj.put("downloadUrl",msg);
+          obj.put("downloadUrl", msg);
           break;
       }
       
