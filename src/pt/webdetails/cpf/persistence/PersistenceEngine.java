@@ -52,9 +52,6 @@ public class PersistenceEngine {
     private static PersistenceEngine _instance;
     private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
     private static final CpfProperties SETTINGS = CpfProperties.getInstance();
-    private static final String DBURL = SETTINGS.getProperty("ORIENT.DBURL");
-    private static final String DBUSERNAME = SETTINGS.getProperty("ORIENT.USER");
-    private static final String DBPASSWORD = SETTINGS.getProperty("ORIENT.PASSWORD");
     private static final int JSON_INDENT = 2;
 
     public static synchronized PersistenceEngine getInstance() {
@@ -81,7 +78,7 @@ public class PersistenceEngine {
     }
 
     private String getOrientPath() {
-        return PentahoSystem.getApplicationContext().getSolutionPath("system/.orient");
+        return Util.isPlugin() ? PentahoSystem.getApplicationContext().getSolutionPath("system/.orient") : ".";
     }
 
     private void initialize() throws Exception {
@@ -128,9 +125,18 @@ public class PersistenceEngine {
         }
     }
 
+    private ODatabaseDocumentTx getConnection() {
+
+        final String url = SETTINGS.getProperty("ORIENT.DBURL");
+        final String user = SETTINGS.getProperty("ORIENT.USER");
+        final String password = SETTINGS.getProperty("ORIENT.PASSWORD");
+
+        return ODatabaseDocumentPool.global().acquire(url, user, password);
+    }
     //TODO: changed temporarily from private
+
     public Object executeCommand(String query, Map<String, Object> params) {
-        ODatabaseDocumentTx db = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
+        ODatabaseDocumentTx db = getConnection();
         try {
             OCommandSQL preparedQuery = new OCommandSQL(query);
             if (params == null) {
@@ -151,7 +157,7 @@ public class PersistenceEngine {
 
     //TODO: changed temporarily from private
     public List<ODocument> executeQuery(String query, Map<String, Object> params) {
-        ODatabaseDocumentTx db = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
+        ODatabaseDocumentTx db = getConnection();
         try {
             OSQLSynchQuery<ODocument> preparedQuery = new OSQLSynchQuery<ODocument>(query);
             if (params == null) {
@@ -172,7 +178,7 @@ public class PersistenceEngine {
 
     //TODO: delete inner stuff
     public synchronized int deleteAll(String classTable) {
-        ODatabaseDocumentTx db = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
+        ODatabaseDocumentTx db = getConnection();
         int counter = 0;
         try {
             counter = 0;
@@ -330,13 +336,18 @@ public class PersistenceEngine {
             } else {
                 json.put("result", Boolean.FALSE);
                 json.put("errorMessage", "Multiple elements found with id " + id);
+
+
             }
         } catch (ODatabaseException orne) {
 
             if (orne.getCause().getClass() == ORecordNotFoundException.class) {
-                logger.error("Record with id " + id + " not found");
-                json.put("result", Boolean.FALSE);
-                json.put("errorMessage", "No record found with id " + id);
+                logger.error(
+                        "Record with id " + id + " not found");
+                json.put(
+                        "result", Boolean.FALSE);
+                json.put(
+                        "errorMessage", "No record found with id " + id);
             } else {
                 logger.error(getExceptionDescription(orne));
                 throw orne;
@@ -356,7 +367,7 @@ public class PersistenceEngine {
 
         JSONObject json = new JSONObject();
         String user = PentahoSessionHolder.getSession().getName();
-        ODatabaseDocumentTx db = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
+        ODatabaseDocumentTx db = getConnection();
         try {
 
             ODocument doc = db.getRecord(new com.orientechnologies.orient.core.id.ORecordId(id));
@@ -368,12 +379,17 @@ public class PersistenceEngine {
             }
             doc.delete();
             json.put("result", Boolean.TRUE);
+
+
         } catch (ODatabaseException orne) {
 
             if (orne.getCause().getClass() == ORecordNotFoundException.class) {
-                logger.error("Record with id " + id + " not found");
-                json.put("result", Boolean.FALSE);
-                json.put("errorMessage", "No record found with id " + id);
+                logger.error(
+                        "Record with id " + id + " not found");
+                json.put(
+                        "result", Boolean.FALSE);
+                json.put(
+                        "errorMessage", "No record found with id " + id);
             } else {
                 logger.error(getExceptionDescription(orne));
                 throw orne;
@@ -396,8 +412,8 @@ public class PersistenceEngine {
     public boolean initializeClass(String className) {
         ODatabaseDocumentTx database = null;
         try {
-            database = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
-            if (database.getMetadata().getSchema().getClass(className) != null) {
+            database = getConnection();
+            if (classExists(className, database)) {
                 return false;
             } else {
                 database.getMetadata().getSchema().createClass(className);
@@ -410,16 +426,37 @@ public class PersistenceEngine {
         }
     }
 
-    public boolean classExists(String className) {
+    public boolean dropClass(String className) {
         ODatabaseDocumentTx database = null;
         try {
-            database = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
-            return database.getMetadata().getSchema().getClass(className) != null;
+            database = getConnection();
+            if (!classExists(className, database)) {
+                return false;
+            } else {
+                database.getMetadata().getSchema().dropClass(className);
+                return true;
+            }
         } finally {
             if (database != null) {
                 database.close();
             }
         }
+    }
+
+    public boolean classExists(String className) {
+        ODatabaseDocumentTx database = null;
+        try {
+            database = getConnection();
+            return classExists(className, database);
+        } finally {
+            if (database != null) {
+                database.close();
+            }
+        }
+    }
+
+    public boolean classExists(String className, ODatabaseDocumentTx database) {
+        return database.getMetadata().getSchema().getClass(className) != null;
     }
 
     public JSONObject store(Persistable obj) {
@@ -443,13 +480,12 @@ public class PersistenceEngine {
         JSONObject json = new JSONObject();
         try {
             ODatabaseDocumentTx db = null;
-            String user = PentahoSessionHolder.getSession().getName();
             try {
 
                 json.put("result", Boolean.TRUE);
 
 
-                db = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
+                db = getConnection();
 
 
                 if (!StringUtils.isEmpty(id)) {
@@ -459,10 +495,13 @@ public class PersistenceEngine {
                     List<ODocument> result = executeQuery("select * from " + className + " where @rid = :id", params);
                     if (result.size() == 1) {
                         doc = result.get(0);
-                        if (doc.field("userid") != null && !doc.field("userid").toString().equals(user)) {
-                            json.put("result", Boolean.FALSE);
-                            json.put("errorMessage", "Object id " + id + " belongs to another user");
-                            return json;
+                        if (Util.isPlugin()) {
+                            String user = PentahoSessionHolder.getSession().getName();
+                            if (doc.field("userid") != null && !doc.field("userid").toString().equals(user)) {
+                                json.put("result", Boolean.FALSE);
+                                json.put("errorMessage", "Object id " + id + " belongs to another user");
+                                return json;
+                            }
                         }
 
                         fillDocument(doc, data);
@@ -477,7 +516,7 @@ public class PersistenceEngine {
                         return json;
                     }
                 } else if (doc == null) {
-                    doc = createDocument(id, className, data, json, db, user);
+                    doc = createDocument(id, className, data, json, db);
                 }
                 // SAVE THE DOCUMENT
                 doc.save();
@@ -488,15 +527,19 @@ public class PersistenceEngine {
                 }
 
                 return json;
+
+
             } catch (ODatabaseException orne) {
 
                 if (orne.getCause().getClass() == ORecordNotFoundException.class) {
-                    logger.error("Record with id " + id + " not found");
-                    json.put("result", Boolean.FALSE);
-                    json.put("errorMessage", "No " + className + " found with id " + id);
+                    logger.error(
+                            "Record with id " + id + " not found");
+                    json.put(
+                            "result", Boolean.FALSE);
+                    json.put(
+                            "errorMessage", "No " + className + " found with id " + id);
                     return json;
                 }
-
                 logger.error(getExceptionDescription(orne));
                 throw orne;
             } finally {
@@ -512,10 +555,14 @@ public class PersistenceEngine {
     /**
      * generic json to document
      */
-    private ODocument createDocument(String id, String className, JSONObject data, JSONObject json, ODatabaseDocumentTx db, String user) throws JSONException {
+    private ODocument createDocument(String id, String className, JSONObject data, JSONObject json, ODatabaseDocumentTx db) throws JSONException {
+
         ODocument doc = new ODocument(db, className);
-        doc.field("userid", user);
         fillDocument(doc, data);
+        if (Util.isPlugin()) {
+            String user = PentahoSessionHolder.getSession().getName();
+            doc.field("userid", user);
+        }
         return doc;
     }
 
@@ -555,7 +602,7 @@ public class PersistenceEngine {
 
         ODatabaseDocumentTx tx = null;
         try {
-            tx = ODatabaseDocumentPool.global().acquire(DBURL, DBUSERNAME, DBPASSWORD);
+            tx = getConnection();
         } catch (Exception e) {
 
             //Change the default database location to orientPath

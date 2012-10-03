@@ -52,9 +52,11 @@
       rev="3.6.0-stable" transitive="false"  changing="true" conf="legacy->default" />
 
 
-  <dependency org="com.orientechnologies" name="orient-commons" conf="runtime->default" rev="1.1.0"/>
-  <dependency org="com.orientechnologies" name="orientdb-core" conf="runtime->default" rev="1.1.0"/>
-  <dependency org="com.orientechnologies" name="orientdb-server" conf="runtime->default" rev="1.1.0"/>
+  <dependency org="com.orientechnologies" name="orient-commons" conf="runtime->default" rev="1.2.0-SNAPSHOT"/>
+  <dependency org="com.orientechnologies" name="orientdb-core" conf="runtime->default" rev="1.2.0-SNAPSHOT"/>
+  <dependency org="com.orientechnologies" name="orientdb-server" conf="runtime->default" rev="1.2.0-SNAPSHOT"/>
+
+  <dependency org="junit" name="junit" conf="test->default" rev='4.10'/>
 
   </dependencies>
 
