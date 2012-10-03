@@ -128,6 +128,9 @@ TYPICAL TARGET SEQUENCE
   <property name="devlib.dir"
             value="${basedir}/dev-lib"
             description="Directory for developer to place development Jar files (not affected by clean targets)" />
+  <property name="runtimelib.dir"
+            value="${basedir}/runtime-lib"
+            description="Directory for developer to place development Jar files (not affected by clean targets)" />
 
   <!-- Compiler properties (passed directly to javac ant target) -->
   <property name="javac.debug"
@@ -307,7 +310,7 @@ TYPICAL TARGET SEQUENCE
     <fileset dir="${devlib.dir}">
       <include name="*.jar" />
     </fileset>
-    <fileset dir="runtime-lib">
+    <fileset dir="${runtimelib.dir}">
       <include name="*.jar" />
     </fileset>
     
@@ -315,6 +318,9 @@ TYPICAL TARGET SEQUENCE
 
   <!-- Setup the classpath used for testing -->
   <path id="test.classpath">
+    <fileset dir="${runtimelib.dir}">
+      <include name="*.jar" />
+    </fileset>
     <fileset dir="${lib.dir}">
       <include name="*.jar" />
     </fileset>
