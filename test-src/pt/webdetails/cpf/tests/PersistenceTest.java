@@ -45,7 +45,6 @@ public class PersistenceTest extends TestCase {
     }
 
     public void testJSONMarshalling() throws Exception {
-
         InputStream jsonStream = this.getClass().getResourceAsStream("samples/sample.json");
         String json = IOUtils.toString(jsonStream, "utf-8");
         PersistenceEngine pe = PersistenceEngine.getInstance();
