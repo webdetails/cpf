@@ -366,7 +366,6 @@ public class PersistenceEngine {
 
 
         JSONObject json = new JSONObject();
-        String user = PentahoSessionHolder.getSession().getName();
         ODatabaseDocumentTx db = getConnection();
         try {
 
