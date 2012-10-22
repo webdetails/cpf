@@ -1280,6 +1280,7 @@ TYPICAL TARGET SEQUENCE
           <include name="**/Test*.java" />
           <include name="**/*Test.java" />
         </fileset>
+        <formatter type="xml"/>
       </batchtest>
     </junit>
   </target>
