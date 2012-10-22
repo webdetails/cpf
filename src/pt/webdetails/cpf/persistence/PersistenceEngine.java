@@ -78,7 +78,7 @@ public class PersistenceEngine {
     }
 
     private String getOrientPath() {
-        return Util.isPlugin() ? PentahoSystem.getApplicationContext().getSolutionPath("system/.orient") : ".";
+        return Util.isPlugin() ? PentahoSystem.getApplicationContext().getSolutionPath("/system/.orient") : ".";
     }
 
     private void initialize() throws Exception {
