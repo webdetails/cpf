@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
@@ -203,6 +204,10 @@ public class RepositoryAccess {
     }
   }
   
+  
+
+  
+  
   private ISolutionRepository getSolutionRepository() {
     return PentahoSystem.get(ISolutionRepository.class, userSession);
   }
@@ -312,6 +317,23 @@ public class RepositoryAccess {
       return include && solutionRepository.hasAccess(file, access.toResourceAction());
     }
     
+  }
+  
+  public ISolutionFile[] getFileList(String dir, final String fileExtensions, String access, IPentahoSession userSession) {
+	  
+    ArrayList<String> extensionsList = new ArrayList<String>();
+    String[] extensions = StringUtils.split(fileExtensions, ".");
+    if(extensions != null){
+        for(String extension : extensions){
+          // For some reason, in 4.5 filebased rep started to report a leading dot in extensions
+          // Adding both just to be sure we don't break stuff
+          extensionsList.add("." + extension);
+          extensionsList.add(extension);
+        }
+    }
+    FileAccess fileAccess = FileAccess.parse(access);
+    if(fileAccess == null) fileAccess = FileAccess.READ;
+    return RepositoryAccess.getRepository(userSession).listSolutionFiles(dir, fileAccess, true, extensionsList);
   }
   
 }
