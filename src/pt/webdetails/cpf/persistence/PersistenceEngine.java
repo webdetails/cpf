@@ -101,9 +101,9 @@ public class PersistenceEngine {
                 case DELETE:
                     reply = deleteRecord(requestParams, userSession);
                     break;
-                case GET:
-                    reply = get(requestParams, userSession);
-                    break;
+                case GET: 
+                    logger.error("get requests to PersistenceEngine are no longer supported. please use the SimplePersistence API.");
+                    return "{'result': false}";
                 case STORE:
                     reply = store(requestParams, userSession);
                     break;
@@ -312,6 +312,8 @@ public class PersistenceEngine {
         return json;
     }
 
+    
+    /*
     private JSONObject get(IParameterProvider requestParams, IPentahoSession userSession) throws JSONException {
         final String id = requestParams.getStringParameter("rid", "");
         return get(id);
@@ -356,7 +358,8 @@ public class PersistenceEngine {
 
         return json;
     }
-
+*/
+    
     private JSONObject deleteRecord(IParameterProvider requestParams, IPentahoSession userSession) throws JSONException {
         final String id = requestParams.getStringParameter("rid", "");
         return deleteRecord(id);
