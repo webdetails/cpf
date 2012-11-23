@@ -133,7 +133,7 @@ public class InterPluginCall implements Runnable, Callable<String> {
 
   public boolean pluginExists(){
     try {
-      return getPluginManager().getContentGenerator(plugin.getName(), getSession()) != null;
+      return getPluginManager().getContentGeneratorForType(plugin.getName(), getSession()) != null;
     } catch (ObjectFactoryException e) {
       return false;
     }
@@ -269,7 +269,7 @@ public class InterPluginCall implements Runnable, Callable<String> {
 
   protected IContentGenerator getContentGenerator(){
     try {
-      IContentGenerator contentGenerator = getPluginManager().getContentGenerator(plugin.getName(), getSession());
+      IContentGenerator contentGenerator = getPluginManager().getContentGeneratorForType(plugin.getName(), getSession());
       if(contentGenerator == null){
         logger.error("ContentGenerator for " + plugin.getName() + " could not be fetched.");
       }

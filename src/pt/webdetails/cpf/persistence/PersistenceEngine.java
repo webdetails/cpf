@@ -108,7 +108,7 @@ public class PersistenceEngine {
                     reply = store(requestParams, userSession);
                     break;
                 case QUERY:
-                    if (!SecurityHelper.isPentahoAdministrator(PentahoSessionHolder.getSession())) {
+                    if (!SecurityHelper.getInstance().isPentahoAdministrator(PentahoSessionHolder.getSession())) {
                         throw new SecurityException("Arbitrary querying is only available to admins");
                     }
                     reply = query(requestParams, userSession);

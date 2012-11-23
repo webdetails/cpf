@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -23,18 +24,24 @@ import org.pentaho.platform.api.engine.IPentahoAclEntry;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISolutionFile;
 import org.pentaho.platform.api.engine.ISolutionFilter;
+import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.repository.ISolutionRepository;
-import org.pentaho.platform.api.repository.ISolutionRepositoryService;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.repository2.unified.RepositoryUtils;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
+
+import org.pentaho.platform.engine.services.actionsequence.ActionSequenceResource;
+import org.pentaho.platform.util.messages.LocaleHelper;
 
 import pt.webdetails.cpf.PluginSettings;
 
 /**
  * Attempt to centralize CTools repository access
- * Facilitate transtion to a post-ISolutionRepository world
+ * Facilitate transaction to a post-ISolutionRepository world
  */
 @SuppressWarnings("deprecation")
 public class RepositoryAccess {
@@ -144,10 +151,16 @@ public class RepositoryAccess {
   }
   
   public boolean createFolder(String solutionFolderPath) throws IOException {
-    solutionFolderPath = StringUtils.chomp(solutionFolderPath,"/");//strip trailing / if there
+    final RepositoryUtils repositoryUtils = new RepositoryUtils(getUnifiedRepository());
+    
+    RepositoryFile folder = repositoryUtils.getFolder(solutionFolderPath, true, true, "");
+    return folder.isFolder();
+    
+   /* solutionFolderPath = StringUtils.chomp(solutionFolderPath,"/");//strip trailing / if there
     String folderName = FilenameUtils.getBaseName(solutionFolderPath);
     String folderPath = solutionFolderPath.substring(0, StringUtils.lastIndexOf(solutionFolderPath, folderName));
-    return getSolutionRepositoryService().createFolder(userSession, "", folderPath, folderName, "");
+    RepositoryUtil
+    return getUnifiedRepository().createFolder(userSession, "", folderPath, folderName, "");*/
   }
   
   public boolean canWrite(String filePath){
@@ -169,19 +182,19 @@ public class RepositoryAccess {
     ISolutionFile file = getSolutionRepository().getSolutionFile(filePath, access.toResourceAction());
     if (file == null) {
       return false;
-    } else if (SecurityHelper.canHaveACLS(file) && (file.retrieveParent() != null && !StringUtils.startsWith(file.getSolutionPath(), "system"))) {
+    } else if (SecurityHelper.getInstance().canHaveACLS(file) && (file.retrieveParent() != null && !StringUtils.startsWith(file.getSolutionPath(), "system"))) {
       // has been checked
       return true;
     }
 
     else {
-      if (!SecurityHelper.canHaveACLS(file)) {
+      if (!SecurityHelper.getInstance().canHaveACLS(file)) {
         logger.warn("hasAccess: " + file.getExtension() + " extension not in acl-files.");
         //not declared in pentaho.xml:/pentaho-system/acl-files
         //try parent: folders have acl enabled unless in system
         ISolutionFile parent = file.retrieveParent();
         if (parent instanceof IAclSolutionFile) {
-          return SecurityHelper.hasAccess((IAclSolutionFile) parent, access.toResourceAction(), userSession);
+          return SecurityHelper.getInstance().hasAccess((IAclSolutionFile) parent, access.toResourceAction(), userSession);
         }
       }
       // for(ISolutionFile parent = file.retrieveParent(); parent != null; parent = parent.retrieveParent()){
@@ -199,7 +212,7 @@ public class RepositoryAccess {
         case READ:
           return true;
         default:
-          return SecurityHelper.isPentahoAdministrator(userSession);
+          return SecurityHelper.getInstance().isPentahoAdministrator(userSession);
       }
     }
   }
@@ -212,9 +225,10 @@ public class RepositoryAccess {
     return PentahoSystem.get(ISolutionRepository.class, userSession);
   }
   
-  private ISolutionRepositoryService getSolutionRepositoryService(){
-    return PentahoSystem.get(ISolutionRepositoryService.class, userSession);
+  private IUnifiedRepository getUnifiedRepository(){
+    return PentahoSystem.get(IUnifiedRepository.class, userSession);
   }
+
   
   public InputStream getResourceInputStream(String filePath) throws FileNotFoundException {
     return getResourceInputStream(filePath, FileAccess.READ);
@@ -225,15 +239,18 @@ public class RepositoryAccess {
   }
   
   public InputStream getResourceInputStream(String filePath, FileAccess fileAccess, boolean getLocalizedResource) throws FileNotFoundException{
-    return getSolutionRepository().getResourceInputStream(filePath,getLocalizedResource, fileAccess.toResourceAction());
+      return ActionSequenceResource.getInputStream(filePath, LocaleHelper.getLocale());
+    //return getSolutionRepository().getResourceInputStream(filePath,getLocalizedResource, fileAccess.toResourceAction());
   }
 
   public Document getResourceAsDocument(String solutionPath) throws IOException {
-    return getResourceAsDocument(solutionPath, FileAccess.READ);
+      return null;
+    //return getResourceAsDocument(solutionPath, FileAccess.READ);
   }
   
   public Document getResourceAsDocument(String solutionPath, FileAccess fileAccess) throws IOException {
-    return getSolutionRepository().getResourceAsDocument(solutionPath, fileAccess.toResourceAction());
+      return null;
+    //return ActionSequenceResource.getInputStream(solutionPath, LocaleHelper.getLocale());
   }
   
   public Document getFullSolutionTree(FileAccess access, ISolutionFilter filter ){
@@ -241,11 +258,15 @@ public class RepositoryAccess {
   }
 
   public String getResourceAsString(String solutionPath) throws IOException {
-   return getResourceAsString(solutionPath, FileAccess.READ);
+      return null;
+      //return getResourceAsString(solutionPath, FileAccess.READ);
   }
   
+ 
   public String getResourceAsString(String solutionPath, FileAccess fileAccess) throws IOException {
-    return getSolutionRepository().getResourceAsString(solutionPath, fileAccess.toResourceAction());
+      return null;
+      //return ActionSequenceResource.getInputStream(solutionPath, LocaleHelper.getLocale());
+    //return getSolutionRepository().getResourceAsString(solutionPath, fileAccess.toResourceAction());
   }
 
   public ISolutionFile getSolutionFile(String solutionPath, FileAccess access) {

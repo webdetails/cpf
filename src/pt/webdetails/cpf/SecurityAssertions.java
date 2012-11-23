@@ -8,16 +8,17 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.springframework.security.GrantedAuthorityImpl;
 
+
 public final class SecurityAssertions {
 
   public static void assertIsAdmin(){
-    if(!SecurityHelper.isPentahoAdministrator(PentahoSessionHolder.getSession())){
+    if(!SecurityHelper.getInstance().isPentahoAdministrator(PentahoSessionHolder.getSession())){
       throw new RuntimeException("Administrator privileges required.");
     }
   }
   
   public static void assertHasRole(String role){
-    if(!SecurityHelper.isGranted(PentahoSessionHolder.getSession(), new GrantedAuthorityImpl(role))){
+    if(!SecurityHelper.getInstance().isGranted(PentahoSessionHolder.getSession(), new GrantedAuthorityImpl(role))){
       throw new RuntimeException(role + " privileges required.");
     }
   }

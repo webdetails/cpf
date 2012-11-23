@@ -230,7 +230,7 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
     
     @SuppressWarnings("deprecation")
     protected OutputStream getResponseOutputStream(final String mimeType) throws IOException {
-      IContentItem contentItem = outputHandler.getOutputContentItem(IOutputHandler.RESPONSE, IOutputHandler.CONTENT, "", instanceId, mimeType);
+      IContentItem contentItem = outputHandler.getOutputContentItem(IOutputHandler.RESPONSE, IOutputHandler.CONTENT, instanceId, mimeType);
       return contentItem.getOutputStream(null);
     }
 
@@ -262,12 +262,12 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
           boolean accessible = false;
           switch (accessLevel) {
             case ADMIN:
-              accessible = SecurityHelper.isPentahoAdministrator(PentahoSessionHolder.getSession());
+              accessible = SecurityHelper.getInstance().isPentahoAdministrator(PentahoSessionHolder.getSession());
               break;
             case ROLE:
               String role = exposed.role();
               if (!StringUtils.isEmpty(role)) {
-                accessible = SecurityHelper.isGranted(PentahoSessionHolder.getSession(), new GrantedAuthorityImpl(role));
+                accessible = SecurityHelper.getInstance().isGranted(PentahoSessionHolder.getSession(), new GrantedAuthorityImpl(role));
               }
               break;
             case PUBLIC:

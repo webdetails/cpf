@@ -28,7 +28,7 @@ import mondrian.rolap.RolapMember;
 import mondrian.rolap.RolapMemberBase;
 import mondrian.rolap.RolapResult;
 import org.json.JSONException;
-import org.pentaho.platform.api.data.IDatasourceService;
+import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -263,7 +263,7 @@ public class OlapUtils {
       String dataSourceName = properties.get(RolapConnectionProperties.DataSource.name());
 
       if (dataSourceName != null) {
-        IDatasourceService datasourceService = PentahoSystem.getObjectFactory().get(IDatasourceService.class, null);
+        IDBDatasourceService datasourceService = PentahoSystem.getObjectFactory().get(IDBDatasourceService.class, null);
         DataSource dataSourceImpl = datasourceService.getDataSource(dataSourceName);
         if (dataSourceImpl != null) {
           properties.remove(RolapConnectionProperties.DataSource.name());
