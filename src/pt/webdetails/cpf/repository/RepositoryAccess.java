@@ -4,13 +4,17 @@
 
 package pt.webdetails.cpf.repository;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
-import java.util.Locale;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -18,30 +22,33 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.pentaho.platform.api.engine.IAclSolutionFile;
 import org.pentaho.platform.api.engine.IFileFilter;
 import org.pentaho.platform.api.engine.IPentahoAclEntry;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISolutionFile;
 import org.pentaho.platform.api.engine.ISolutionFilter;
-import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
-import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository.IRepositoryFile;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.repository2.unified.RepositoryUtils;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
-
-import org.pentaho.platform.engine.services.actionsequence.ActionSequenceResource;
-import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
+import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
 import pt.webdetails.cpf.PluginSettings;
 
 /**
  * Attempt to centralize CTools repository access
- * Facilitate transaction to a post-ISolutionRepository world
+ * Facilitate transtion to a post-ISolutionRepository world
  */
 @SuppressWarnings("deprecation")
 public class RepositoryAccess {
@@ -121,25 +128,30 @@ public class RepositoryAccess {
   
   public SaveFileStatus publishFile(String baseUrl, String path, String fileName, byte[] data, boolean overwrite) {
     try {
-      int status = getSolutionRepository().publish(baseUrl, path, fileName, data, overwrite);
-      switch(status){
-        case ISolutionRepository.FILE_ADD_SUCCESSFUL:
-          return SaveFileStatus.OK;
-        case ISolutionRepository.FILE_ADD_FAILED:
-        case ISolutionRepository.FILE_ADD_INVALID_PUBLISH_PASSWORD:
-        case ISolutionRepository.FILE_ADD_INVALID_USER_CREDENTIALS:
-        default:
-          return SaveFileStatus.FAIL;
-        
+      final SimpleRepositoryFileData content = new SimpleRepositoryFileData(new ByteArrayInputStream(data), "UTF-8","text/plain"); //$NON-NLS-1$ //$NON-NLS-2$
+      RepositoryFile parentFolder = getUnifiedRepository().getFile(path);
+      RepositoryFile newFile = getUnifiedRepository().createFile(parentFolder.getId(), new RepositoryFile.Builder(fileName)
+          .hidden(true).build(), content, null);
+      if(newFile != null) {
+        return SaveFileStatus.OK;
+      } else {
+        return SaveFileStatus.FAIL;
       }
-    } catch (PentahoAccessControlException e) {
+    } catch (Exception e) {
       logger.error(e);
       return SaveFileStatus.FAIL;
     }
   }
   
   public boolean removeFile(String solutionPath){
-     return getSolutionRepository().removeSolutionFile(solutionPath);
+     try {
+       RepositoryFile repositoryFile = getUnifiedRepository().getFile(solutionPath);
+       getUnifiedRepository().deleteFile(repositoryFile.getId(), "deleting a file");
+       return true;
+     } catch(Exception e) {
+       e.printStackTrace();
+       return false;
+     }
   }
   
   public boolean removeFileIfExists(String solutionPath){
@@ -147,88 +159,87 @@ public class RepositoryAccess {
   }
   
   public boolean resourceExists(String solutionPath){
-    return getSolutionRepository().resourceExists(solutionPath, ISolutionRepository.ACTION_EXECUTE);
+    try {
+      RepositoryFile repositoryFile = getUnifiedRepository().getFile(solutionPath);
+      return repositoryFile != null;
+    } catch(Exception e) {
+      e.printStackTrace();
+      return false;
+    }
   }
   
   public boolean createFolder(String solutionFolderPath) throws IOException {
-    final RepositoryUtils repositoryUtils = new RepositoryUtils(getUnifiedRepository());
-    
-    RepositoryFile folder = repositoryUtils.getFolder(solutionFolderPath, true, true, "");
-    return folder.isFolder();
-    
-   /* solutionFolderPath = StringUtils.chomp(solutionFolderPath,"/");//strip trailing / if there
-    String folderName = FilenameUtils.getBaseName(solutionFolderPath);
-    String folderPath = solutionFolderPath.substring(0, StringUtils.lastIndexOf(solutionFolderPath, folderName));
-    RepositoryUtil
-    return getUnifiedRepository().createFolder(userSession, "", folderPath, folderName, "");*/
+    try {
+      solutionFolderPath = StringUtils.chomp(solutionFolderPath,"/");//strip trailing / if there
+      String folderName = FilenameUtils.getBaseName(solutionFolderPath);
+      String folderPath = solutionFolderPath.substring(0, StringUtils.lastIndexOf(solutionFolderPath, folderName));
+      RepositoryFile parentFolder = getUnifiedRepository().getFile(folderPath);
+      getUnifiedRepository().createFolder(parentFolder.getId(), new RepositoryFile.Builder(folderName).folder(true).build() , "");
+      return true;
+    } catch(Exception e) {
+      e.printStackTrace();
+      return false;
+    }
   }
   
   public boolean canWrite(String filePath){
-    ISolutionRepository solutionRepository = getSolutionRepository();
-    //first check read permission
-    ISolutionFile file = solutionRepository.getSolutionFile(filePath, ISolutionRepository.ACTION_EXECUTE);
-    
-    if(resourceExists(filePath))
-    {
-      return solutionRepository.hasAccess(file,ISolutionRepository.ACTION_UPDATE);
-    }
-    else 
-    {
-      return solutionRepository.hasAccess(file,ISolutionRepository.ACTION_CREATE);
+    try {
+      RepositoryFile repositoryFile  = getUnifiedRepository().getFile(filePath);
+      RepositoryFileAcl acl = getUnifiedRepository().getAcl(repositoryFile.getId());
+      List<RepositoryFileAce> aces =  acl.getAces();
+      for(RepositoryFileAce ace:aces) {
+        EnumSet<RepositoryFilePermission>  permissions = ace.getPermissions();
+        if(permissions.contains(RepositoryFilePermission.WRITE) && permissions.contains(RepositoryFilePermission.WRITE_ACL)) {
+          return true;
+        } 
+      }
+      return false;
+    } catch(Exception e) {
+      e.printStackTrace();
+      return false;
     }
   }
   
   public boolean hasAccess(String filePath, FileAccess access) {
-    ISolutionFile file = getSolutionRepository().getSolutionFile(filePath, access.toResourceAction());
-    if (file == null) {
-      return false;
-    } else if (SecurityHelper.getInstance().canHaveACLS(file) && (file.retrieveParent() != null && !StringUtils.startsWith(file.getSolutionPath(), "system"))) {
-      // has been checked
-      return true;
-    }
-
-    else {
-      if (!SecurityHelper.getInstance().canHaveACLS(file)) {
-        logger.warn("hasAccess: " + file.getExtension() + " extension not in acl-files.");
-        //not declared in pentaho.xml:/pentaho-system/acl-files
-        //try parent: folders have acl enabled unless in system
-        ISolutionFile parent = file.retrieveParent();
-        if (parent instanceof IAclSolutionFile) {
-          return SecurityHelper.getInstance().hasAccess((IAclSolutionFile) parent, access.toResourceAction(), userSession);
-        }
-      }
-      // for(ISolutionFile parent = file.retrieveParent(); parent != null; parent = parent.retrieveParent()){
-      //    if(parent instanceof IAclSolutionFile){
-      //        return SecurityHelper.hasAccess((IAclSolutionFile) parent,
-      //        access.toResourceAction(), userSession);
-      //    }
-      // }
-      logger.warn("hasAccess: Unable to check access control for " + filePath + " using default access settings.");
-      // disallow potentially destructive accesses
-      // TODO: better than before but far from ideal
-      switch (access) {
-        case NONE:
+    try {
+      RepositoryFile repositoryFile  = getUnifiedRepository().getFile(filePath);
+      RepositoryFileAcl acl = getUnifiedRepository().getAcl(repositoryFile.getId());
+      List<RepositoryFileAce> aces =  acl.getAces();
+      switch (access)  {
+        case CREATE:
+        case DELETE:
+        case EDIT: 
+          for(RepositoryFileAce ace:aces) {
+            EnumSet<RepositoryFilePermission>  permissions = ace.getPermissions();
+            if(permissions.contains(RepositoryFilePermission.WRITE) && permissions.contains(RepositoryFilePermission.WRITE_ACL)) {
+              return true;
+            } 
+          }
+          break;
         case EXECUTE:
         case READ:
-          return true;
-        default:
-          return SecurityHelper.getInstance().isPentahoAdministrator(userSession);
+          for(RepositoryFileAce ace:aces) {
+            EnumSet<RepositoryFilePermission>  permissions = ace.getPermissions();
+            if(permissions.contains(RepositoryFilePermission.READ) && permissions.contains(RepositoryFilePermission.READ_ACL)) {
+              return true;
+            } 
+          }
+          break;          
       }
+      
+      return false;
+    } catch(Exception e) {
+      e.printStackTrace();
+      return false;
     }
+
   }
   
   
 
-  
-  
-  private ISolutionRepository getSolutionRepository() {
-    return PentahoSystem.get(ISolutionRepository.class, userSession);
-  }
-  
-  private IUnifiedRepository getUnifiedRepository(){
+  private IUnifiedRepository getUnifiedRepository() {
     return PentahoSystem.get(IUnifiedRepository.class, userSession);
   }
-
   
   public InputStream getResourceInputStream(String filePath) throws FileNotFoundException {
     return getResourceInputStream(filePath, FileAccess.READ);
@@ -239,47 +250,65 @@ public class RepositoryAccess {
   }
   
   public InputStream getResourceInputStream(String filePath, FileAccess fileAccess, boolean getLocalizedResource) throws FileNotFoundException{
-      return ActionSequenceResource.getInputStream(filePath, LocaleHelper.getLocale());
-    //return getSolutionRepository().getResourceInputStream(filePath,getLocalizedResource, fileAccess.toResourceAction());
+    return new RepositoryFileInputStream(getUnifiedRepository().getFile(filePath));
   }
 
   public Document getResourceAsDocument(String solutionPath) throws IOException {
-      return null;
-    //return getResourceAsDocument(solutionPath, FileAccess.READ);
+    return getResourceAsDocument(solutionPath, null);
   }
   
   public Document getResourceAsDocument(String solutionPath, FileAccess fileAccess) throws IOException {
+    try {
+      return XmlDom4JHelper.getDocFromStream(getResourceInputStream(solutionPath, fileAccess), null);
+    } catch (DocumentException e) {
+      e.printStackTrace();
       return null;
-    //return ActionSequenceResource.getInputStream(solutionPath, LocaleHelper.getLocale());
+    }
   }
   
-  public Document getFullSolutionTree(FileAccess access, ISolutionFilter filter ){
-    return getSolutionRepository().getFullSolutionTree(access.toResourceAction(), filter);
+  public RepositoryFileTree getFullSolutionTree(FileAccess access, List<String> extensions, boolean showHidden ){
+    String list = new String();
+    for(String s:extensions){
+      list.concat(s);
+      list.concat("|");
+    }
+    RepositoryFileTree repositoryFileTree = getUnifiedRepository().getTree("/", -1, list.substring(0, list.length()-2), showHidden);
+    return repositoryFileTree;
   }
 
   public String getResourceAsString(String solutionPath) throws IOException {
-      return null;
-      //return getResourceAsString(solutionPath, FileAccess.READ);
+   return getResourceAsString(solutionPath, FileAccess.READ);
   }
   
- 
   public String getResourceAsString(String solutionPath, FileAccess fileAccess) throws IOException {
-      return null;
-      //return ActionSequenceResource.getInputStream(solutionPath, LocaleHelper.getLocale());
-    //return getSolutionRepository().getResourceAsString(solutionPath, fileAccess.toResourceAction());
+    InputStream is = getResourceInputStream(solutionPath, fileAccess);
+    StringWriter writer = new StringWriter();
+    IOUtils.copy(is, writer);
+    return writer.toString();
   }
 
-  public ISolutionFile getSolutionFile(String solutionPath, FileAccess access) {
-    return getSolutionRepository().getSolutionFile(solutionPath, access.toResourceAction());
+  public RepositoryFile getRepositoryFile(String solutionPath, FileAccess access) {
+    return getUnifiedRepository().getFile(solutionPath);
+  }
+
+  public RepositoryFileTree getRepositoryFileTree(String path, int depth, boolean showHiddenFiles, String filter) {
+    return getUnifiedRepository().getTree(path, depth, filter, showHiddenFiles);
   }
   
-  public ISolutionFile[] listSolutionFiles(String solutionPath, FileAccess access, boolean includeDirs, List<String> extensions) {
-    return listSolutionFiles(solutionPath, new ExtensionFilter(extensions, includeDirs, this, access));
+  public List<RepositoryFile> listSolutionFiles(String solutionPath, FileAccess access, boolean includeDirs, List<String> extensions) {
+      String list = new String();
+      for(String s:extensions){
+          list.concat(s);
+          list.concat("|");
+      }
+      
+      return listSolutionFiles(solutionPath,list.substring(0, list.length()-2));
   }
   
-  public ISolutionFile[] listSolutionFiles(String solutionPath, IFileFilter fileFilter) {
-    ISolutionFile baseDir = getSolutionFile(solutionPath, FileAccess.READ);
-    return baseDir.listFiles(fileFilter);
+  public List<RepositoryFile> listSolutionFiles(String solutionPath, String fileFilter) {
+    List<RepositoryFile> files = getUnifiedRepository().getChildren(solutionPath);
+    
+    return files;
   }
   
   public SaveFileStatus copySolutionFile(String fromFilePath, String toFilePath) throws IOException {
@@ -308,7 +337,7 @@ public class RepositoryAccess {
 
     private List<String> extensions;
     private boolean includeDirs = true;
-    private ISolutionRepository solutionRepository;
+    //private ISolutionRepository solutionRepository;
     FileAccess access = FileAccess.READ;
     
     /**
@@ -324,23 +353,24 @@ public class RepositoryAccess {
       if(extensions != null && extensions.size() > 0) {
         this.extensions = extensions;
       }
-      solutionRepository = repository.getSolutionRepository();
+      //solutionRepository = repository.getSolutionRepository();
       access = fileAccess;
     }
 
     @Override
     public boolean accept(ISolutionFile file) {
       
-      boolean include = file.isDirectory()? 
+     /* boolean include = file.isDirectory()? 
                         includeDirs && Boolean.parseBoolean(solutionRepository.getLocalizedFileProperty(file, "visible", access.toResourceAction())):
                         extensions == null || extensions.contains(file.getExtension());
       
-      return include && solutionRepository.hasAccess(file, access.toResourceAction());
+      return include && solutionRepository.hasAccess(file, access.toResourceAction());*/
+        return true;
     }
     
   }
   
-  public ISolutionFile[] getFileList(String dir, final String fileExtensions, String access, IPentahoSession userSession) {
+  public List<RepositoryFile> getFileList(String dir, final String fileExtensions, String access, IPentahoSession userSession) {
 	  
     ArrayList<String> extensionsList = new ArrayList<String>();
     String[] extensions = StringUtils.split(fileExtensions, ".");
