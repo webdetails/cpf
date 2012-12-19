@@ -78,6 +78,8 @@
     <dependency org="javax.jcr"              name="jcr"                rev="1.0"     transitive="false"/>
     <dependency org="javax.servlet"          name="servlet-api"        rev="2.4"     transitive="false"/>
     <dependency org="javax.mail"             name="mail"               rev="1.4.1"   transitive="false"/>
+    <dependency org="javax.ws.rs"            name="jsr311-api"         rev="0.11"/>
+
 
     <!-- olap -->
       <dependency org="pentaho" name="mondrian" rev="3.3.0.14703">

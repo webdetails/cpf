@@ -128,15 +128,27 @@ public class RepositoryAccess {
   
   public SaveFileStatus publishFile(String baseUrl, String path, String fileName, byte[] data, boolean overwrite) {
     try {
-      final SimpleRepositoryFileData content = new SimpleRepositoryFileData(new ByteArrayInputStream(data), "UTF-8","text/plain"); //$NON-NLS-1$ //$NON-NLS-2$
-      RepositoryFile parentFolder = getUnifiedRepository().getFile(path);
-      RepositoryFile newFile = getUnifiedRepository().createFile(parentFolder.getId(), new RepositoryFile.Builder(fileName)
-          .hidden(true).build(), content, null);
-      if(newFile != null) {
-        return SaveFileStatus.OK;
+      if(resourceExists(path+fileName)){
+        final SimpleRepositoryFileData content = new SimpleRepositoryFileData(new ByteArrayInputStream(data), "UTF-8","text/plain");
+        RepositoryFile file = getUnifiedRepository().getFile(path+fileName);
+        
+        file = getUnifiedRepository().updateFile(file, content, null);  
+        if(file != null) {
+            return SaveFileStatus.OK;
+        } else {
+            return SaveFileStatus.FAIL;
+        }
       } else {
-        return SaveFileStatus.FAIL;
-      }
+        final SimpleRepositoryFileData content = new SimpleRepositoryFileData(new ByteArrayInputStream(data), "UTF-8","text/plain"); //$NON-NLS-1$ //$NON-NLS-2$
+        RepositoryFile parentFolder = getUnifiedRepository().getFile(path);
+        RepositoryFile newFile = getUnifiedRepository().createFile(parentFolder.getId(), new RepositoryFile.Builder(fileName)
+          .hidden(true).build(), content, null);
+        if(newFile != null) {
+            return SaveFileStatus.OK;
+        } else {
+            return SaveFileStatus.FAIL;
+        }  
+      }      
     } catch (Exception e) {
       logger.error(e);
       return SaveFileStatus.FAIL;

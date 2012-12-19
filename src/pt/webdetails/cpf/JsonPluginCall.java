@@ -14,7 +14,7 @@ public class JsonPluginCall {
   }
   
   public JSONObject call(JSONObject request) throws JSONException {
-    internal.setOutputStream(null);
+    //internal.setOutputStream(null);
     internal.putParameter(JsonRequestHandler.JSON_REQUEST_PARAM, request);
     String result = internal.call();
     return new JSONObject(result);
