@@ -277,16 +277,6 @@ public class RepositoryAccess {
       return null;
     }
   }
-  
-  public RepositoryFileTree getFullSolutionTree(FileAccess access, List<String> extensions, boolean showHidden ){
-    String list = new String();
-    for(String s:extensions){
-      list.concat(s);
-      list.concat("|");
-    }
-    RepositoryFileTree repositoryFileTree = getUnifiedRepository().getTree("/", -1, list.substring(0, list.length()-2), showHidden);
-    return repositoryFileTree;
-  }
 
   public String getResourceAsString(String solutionPath) throws IOException {
    return getResourceAsString(solutionPath, FileAccess.READ);
@@ -307,20 +297,42 @@ public class RepositoryAccess {
     return getUnifiedRepository().getTree(path, depth, filter, showHiddenFiles);
   }
   
-  public List<RepositoryFile> listSolutionFiles(String solutionPath, FileAccess access, boolean includeDirs, List<String> extensions) {
-      String list = new String();
-      for(String s:extensions){
-          list.concat(s);
-          list.concat("|");
+  public List<RepositoryFile> listSolutionFiles(String solutionPath, boolean includeDirs, List<String> extensions, boolean showHiddenFiles, final List<RepositoryFile> output) {
+      RepositoryFileTree tree = getUnifiedRepository().getTree(solutionPath, -1, null, showHiddenFiles);
+      RepositoryFile root = tree.getFile();
+      
+      if(showHiddenFiles || !root.isHidden()){
+        if(tree.getChildren().size() > 0){
+          for(RepositoryFileTree element : tree.getChildren()){
+            listSolutionFiles(element.getFile().getPath(), includeDirs, extensions, showHiddenFiles, output);
+          } 
+        } else if(root.isFolder() && includeDirs){
+          output.add(root);
+        } else if(!root.isFolder()){ //is a folder
+          String name = root.getName();
+          String extension = name.substring(root.getTitle().length()+1);
+          
+          if(extensions.contains(extension)){
+            if(showHiddenFiles){
+                output.add(root);
+            } else if(!root.isHidden()){
+                output.add(root);
+            }
+          }  
+        }
       }
       
-      return listSolutionFiles(solutionPath,list.substring(0, list.length()-2));
+      return output;
   }
   
   public List<RepositoryFile> listSolutionFiles(String solutionPath, String fileFilter) {
-    List<RepositoryFile> files = getUnifiedRepository().getChildren(solutionPath);
-    
-    return files;
+    return listSolutionFiles(solutionPath, true, null, true, null);
+  }
+  
+  
+  public RepositoryFileTree getFullSolutionTree(boolean showHidden ){
+    RepositoryFileTree repositoryFileTree = getUnifiedRepository().getTree("/", -1, null, showHidden);
+    return repositoryFileTree;
   }
   
   public SaveFileStatus copySolutionFile(String fromFilePath, String toFilePath) throws IOException {
@@ -396,7 +408,7 @@ public class RepositoryAccess {
     }
     FileAccess fileAccess = FileAccess.parse(access);
     if(fileAccess == null) fileAccess = FileAccess.READ;
-    return RepositoryAccess.getRepository(userSession).listSolutionFiles(dir, fileAccess, true, extensionsList);
+    return RepositoryAccess.getRepository(userSession).listSolutionFiles(dir, fileExtensions);
   }
   
 }
