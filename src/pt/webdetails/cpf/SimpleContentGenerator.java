@@ -54,7 +54,7 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
     public enum FileType
     {
       JPG, JPEG, PNG, GIF, BMP, JS, CSS, HTML, HTM, XML,
-      SVG, PDF, TXT;
+      SVG, PDF, TXT, DOC, DOCX, XLS, XLSX, PPT, PPTX;
       
       public static FileType parse(String value){
         return valueOf(StringUtils.upperCase(value));
@@ -72,6 +72,16 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
       public static final String GIF = "image/gif";
       public static final String BMP = "image/bmp";
       public static final String JSON = "application/json";
+      public static final String PDF = "application/pdf";
+
+      public static final String DOC = "application/msword";
+      public static final String DOCX = "application/msword";
+      
+      public static final String XLS = "application/msexcel";      
+      public static final String XLSX = "application/msexcel";
+      
+      public static final String PPT = "application/mspowerpoint";
+      public static final String PPTX = "application/mspowerpoint";
     }
     
     protected static final EnumMap<FileType, String> mimeTypes = new EnumMap<FileType, String>(FileType.class);

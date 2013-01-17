@@ -132,7 +132,9 @@ public class RepositoryAccess {
   }
   
   public boolean removeFile(String solutionPath){
+    if (hasAccess(solutionPath, FileAccess.DELETE))
      return getSolutionRepository().removeSolutionFile(solutionPath);
+    return false;
   }
   
   public boolean removeFileIfExists(String solutionPath){
