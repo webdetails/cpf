@@ -76,8 +76,6 @@ public class InterPluginCall implements Runnable, Callable<String> {
 
   private Plugin plugin;
   private String method;
-  
-
 
   private Map<String, Object> requestParameters;
   private ServletResponse response;
@@ -111,7 +109,10 @@ public class InterPluginCall implements Runnable, Callable<String> {
     this.plugin = plugin;
     this.method = method;
     
-    this.requestParameters.putAll(params!=null?params:new HashMap<String, Object>());
+    this.requestParameters.putAll(
+      params != null ?
+          params :
+          new HashMap<String, Object>());
   }
   
   protected String getMethod() {
@@ -121,8 +122,7 @@ public class InterPluginCall implements Runnable, Callable<String> {
   protected void setMethod(String method) {
     this.method = method;
   }
-  
-  
+
   protected HttpServletRequest getRequest() {
     return request;
   }
@@ -284,9 +284,7 @@ public class InterPluginCall implements Runnable, Callable<String> {
   protected IParameterProvider getPathParameterProvider() {
     Map<String, Object> pathMap = new HashMap<String, Object>();
     pathMap.put("path", "/" + method);
-//    if (response != null) {
-      pathMap.put("httpresponse", getResponse());
-//    }
+    pathMap.put("httpresponse", getResponse());
     if(getRequest() != null){
       pathMap.put("httprequest", getRequest());
     }

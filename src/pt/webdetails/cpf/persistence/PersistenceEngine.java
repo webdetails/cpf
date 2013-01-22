@@ -11,7 +11,6 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import java.text.SimpleDateFormat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -50,7 +49,6 @@ public class PersistenceEngine {
 
     private static final Log logger = LogFactory.getLog(PersistenceEngine.class);
     private static PersistenceEngine _instance;
-    private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
     private static final CpfProperties SETTINGS = CpfProperties.getInstance();
     private static final int JSON_INDENT = 2;
 
@@ -266,7 +264,7 @@ public class PersistenceEngine {
 
     private JSONObject query(IParameterProvider requestParams, IPentahoSession userSession) throws JSONException {
         final String queryString = requestParams.getStringParameter("query", "");
-        return query(queryString, (Map) null);
+        return query(queryString, null);
     }
 
     public JSONObject query(String query, Map<String, Object> params) throws JSONException {
@@ -518,7 +516,7 @@ public class PersistenceEngine {
                         return json;
                     }
                 } else if (doc == null) {
-                    doc = createDocument(id, className, data, json, db);
+                    doc = createDocument(id, className, data, json);
                 }
                 // SAVE THE DOCUMENT
                 doc.save();
@@ -557,9 +555,9 @@ public class PersistenceEngine {
     /**
      * generic json to document
      */
-    private ODocument createDocument(String id, String className, JSONObject data, JSONObject json, ODatabaseDocumentTx db) throws JSONException {
+    private ODocument createDocument(String id, String className, JSONObject data, JSONObject json) throws JSONException {
 
-        ODocument doc = new ODocument(db, className);
+        ODocument doc = new ODocument(className);
         fillDocument(doc, data);
         if (Util.isPlugin()) {
             String user = PentahoSessionHolder.getSession().getName();
