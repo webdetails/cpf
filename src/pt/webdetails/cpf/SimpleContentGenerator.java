@@ -132,8 +132,6 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
       IParameterProvider pathParams = getPathParameters();// parameterProviders.get("path");
   
       try {
-  
-//        final OutputStream out = getResponseOutputStream(MimeType.HTML);
 
         String path = pathParams.getStringParameter("path", null);
         String[] pathSections = StringUtils.split(path, "/");
@@ -156,25 +154,22 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
             invokeMethod(methodName, method);
   
           } catch (NoSuchMethodException e) {
-            logger.warn("couldn't locate method: " + methodName);
-            
+            String msg = "couldn't locate method: " + methodName;
+            logger.warn(msg);
+            getResponse().sendError(HttpServletResponse.SC_NOT_FOUND, msg);
           } catch (InvocationTargetException e) {
             // get to the cause and log properly
             Throwable cause = e.getCause();
             if(cause == null) cause = e;
-            logger.error(methodName, cause);    
-          } 
-          catch (IllegalAccessException e) {
-            logger.warn(methodName + ": " + e.toString());
-          } 
-          catch (IllegalArgumentException e) {
-            logger.error(methodName + ": " + e.toString());
-          } 
-          catch (IOException e) {
-            logger.error(e.toString());
-          }
-          catch(Exception e) {
+            logger.error(methodName, cause);
+            getResponse().sendError(
+                HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                cause.getLocalizedMessage());
+          } catch(Exception e) {
             logger.error(methodName, e);
+            getResponse().sendError(
+                HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                e.getLocalizedMessage());
           }
   
         }
