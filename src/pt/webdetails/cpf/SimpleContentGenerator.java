@@ -13,9 +13,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import mondrian.olap.QueryTimeoutException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -161,21 +164,33 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
             // get to the cause and log properly
             Throwable cause = e.getCause();
             if(cause == null) cause = e;
-            logger.error(methodName, cause);
-            getResponse().sendError(
-                HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                cause.getLocalizedMessage());
+            handleError(methodName, cause);
           } catch(Exception e) {
-            logger.error(methodName, e);
-            getResponse().sendError(
-                HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                e.getLocalizedMessage());
+            handleError(methodName, e);
           }
   
         }
       } catch (SecurityException e) {
         logger.warn(e.toString());
       } 
+    }
+
+    private void handleError(final String methodName, Throwable e) throws IOException {
+
+      logger.error(methodName + ": " + e.getMessage(), e);
+
+      String msg = e.getLocalizedMessage();
+      if (e instanceof QueryTimeoutException ||
+          e instanceof TimeoutException) 
+//          ||
+//          (e instanceof RuntimeException &&
+//              StringUtils.containsIgnoreCase(e.getClass().getName(), "timeout"))) 
+      {
+        getResponse().sendError(HttpServletResponse.SC_REQUEST_TIMEOUT, msg);
+      }
+      else {// default to 500
+        getResponse().sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, msg);
+      }
     }
 
     /**

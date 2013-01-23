@@ -115,19 +115,19 @@ public class InterPluginCall implements Runnable, Callable<String> {
           new HashMap<String, Object>());
   }
   
-  protected String getMethod() {
+  public String getMethod() {
     return method;
   }
 
-  protected void setMethod(String method) {
+  public void setMethod(String method) {
     this.method = method;
   }
 
-  protected HttpServletRequest getRequest() {
+  public HttpServletRequest getRequest() {
     return request;
   }
 
-  protected void setRequest(HttpServletRequest request) {
+  public void setRequest(HttpServletRequest request) {
     this.request = request;
   }
 
