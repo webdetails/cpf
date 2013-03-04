@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cpk>
+    <elementTypes>
+        <elementType name="Dashboard" class="pt.webdetails.cpk.elements.impl.DashboardElementType">
+            <elementLocations>
+                <elementLocation path="dashboards/" isRecursive="false" pattern=".*\.wcdf"/>
+            </elementLocations>
+        </elementType>
+        <elementType name="Kettle" class="pt.webdetails.cpk.elements.impl.KettleElementType">
+            <elementLocations>
+                <elementLocation path="endpoints/kettle/" isRecursive="true" pattern=".*\.ktr"/>
+            </elementLocations>
+        </elementType>
+    </elementTypes> 
+</cpk> 
