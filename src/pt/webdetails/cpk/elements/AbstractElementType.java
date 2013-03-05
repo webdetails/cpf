@@ -4,15 +4,12 @@
 package pt.webdetails.cpk.elements;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.dom4j.DocumentException;
 import org.dom4j.Node;
 import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -36,6 +33,9 @@ public abstract class AbstractElementType implements IElementType {
     @Override
     public List<IElement> scanElements(Node node) {
 
+        // Initialize container
+        ArrayList<IElement> iElements = new ArrayList<IElement>();
+
         // Grab resource loader
         IPluginResourceLoader resLoader = PentahoSystem.get(IPluginResourceLoader.class, null);
 
@@ -54,20 +54,61 @@ public abstract class AbstractElementType implements IElementType {
             Collection<File> elements = PluginUtils.getInstance().getPluginResources(elementPath, isRecursive, pattern);
 
             // Found the list we need. Processing it!
-            logger.debug("Found " + elements.size() + " elements. Filtering...");
-            
-            logger.warn("WORK IN PROGRESSSSSSS");
+            for (File elementFile : elements) {
 
+                IElement iElement = this.registerElement(elementFile.getAbsolutePath());
+                if (iElement != null) {
+
+                    iElements.add(iElement);
+                    logger.debug("Registred element " + iElement.toString());
+
+                }
+            }
         }
 
-
-        logger.info("TODO");
-        return null;
+        return iElements;
 
     }
 
+    /**
+     * Basic registerElement code. This can be overriden by the implementation
+     * classes for the specifics
+     *
+     * @param elementLocation
+     * @return the initialized element
+     */
     @Override
-    public abstract IElement registerElement(String elementLocation);
+    public IElement registerElement(String elementLocation) {
+
+        // 
+        // classes
+
+        AbstractElement element = new AbstractElement();
+        initBaseProperties(element, elementLocation);
+
+        return element;
+
+
+
+    }
+
+    /**
+     * Main shared initialization code. This assigns the id, location and name
+     * properties
+     *
+     * @param element
+     * @param elementLocation
+     * @return
+     */
+    public void initBaseProperties(AbstractElement element, String elementLocation) {
+
+        element.setLocation(elementLocation);
+        element.setId(FilenameUtils.getBaseName(elementLocation));
+        element.setElementType(this.getType());
+        element.setName(element.getId());
+
+
+    }
 
     @Override
     public abstract void processRequest();

@@ -4,7 +4,6 @@
 package pt.webdetails.cpk;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -15,12 +14,8 @@ import java.util.Map;
 import javax.servlet.ServletRequest;
 
 import org.apache.commons.lang.StringUtils;
-import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.pentaho.platform.api.engine.IParameterProvider;
-import org.pentaho.platform.api.engine.IPluginResourceLoader;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
 
 import pt.webdetails.cpf.InterPluginCall;
@@ -30,7 +25,6 @@ import pt.webdetails.cpf.Router;
 import pt.webdetails.cpf.annotations.AccessLevel;
 import pt.webdetails.cpf.annotations.Exposed;
 import pt.webdetails.cpf.utils.PluginUtils;
-import pt.webdetails.cpk.elements.ElementEngine;
 
 /**
  *
@@ -41,62 +35,57 @@ public class CpkContentGenerator extends RestContentGenerator {
     private static final long serialVersionUID = 1L;
     public static final String CDW_EXTENSION = ".cdw";
     public static final String PLUGIN_NAME = "cpk";
-    
-    private boolean isInitialized = false;
-    private ElementEngine elementEngine;
-    
-    
+    private CpkEngine cpkEngine;
+
     @Override
     public void createContent() throws Exception {
 
-        if (!isInitialized) {
-            initialize();
-        }
+        // Make sure we have the engine running
+        cpkEngine = CpkEngine.getInstance();
+
 
         debug("Creating content");
 
         super.createContent();
     }
 
-    private synchronized void initialize() throws DocumentException, IOException {
-
-        // Start by forcing initialization of PluginUtils
-        PluginUtils.getInstance();
-
-        logger.info("Initializing CPK Plugin " + PluginUtils.getInstance().getPluginName().toUpperCase());
+    @Exposed(accessLevel = AccessLevel.PUBLIC)
+    public void reload(OutputStream out) throws DocumentException, IOException {
         
-        // Get EngineManager and load it
-        elementEngine = ElementEngine.getInstance();
-        elementEngine.reload();
-        
-        
-        // Find plugin name
+        // alias to refresh
+        return refresh(out);
+    }
 
-        IPluginResourceLoader resLoader = PentahoSystem.get(IPluginResourceLoader.class, null);
-        InputStream is = resLoader.getResourceAsStream(this.getClass(), "plugin.xml");
-        Document pluginDoc = XmlDom4JHelper.getDocFromStream(is);
+    @Exposed(accessLevel = AccessLevel.PUBLIC)
+    public void refresh(OutputStream out) throws DocumentException, IOException {
 
-        String pluginName  = XmlDom4JHelper.getNodeText("/plugin[@title]", pluginDoc, "");
-        //resLoader.findResources(this.getClass(), "dashboards/*")
-        // List files
+        logger.info("Refreshing CPK plugin " + getPluginName());
+
+        cpkEngine.reload();
+        status(out);
 
 
-        // InputStream in = resLoader.getResourceAsStream(Foo.class, "resources/config/foo.properties");
+    }
 
+    @Exposed(accessLevel = AccessLevel.PUBLIC)
+    public void status(OutputStream out) throws DocumentException, IOException {
 
+        logger.info("Showing status for CPK plugin " + getPluginName());
 
-        isInitialized = true;
+        setResponseHeaders("text/plain");
+        out.write(cpkEngine.getStatus().getBytes("UTF-8"));
+
+    }
+
+    @Exposed(accessLevel = AccessLevel.PUBLIC)
+    public void home(OutputStream out) throws UnsupportedEncodingException, IOException {
+        callCDE("validations.wcdf", out);
     }
 
     @Override
     public String getPluginName() {
 
-        //Plugin
-        return PLUGIN_NAME;
-    }
-
-    @Exposed(accessLevel = AccessLevel.PUBLIC)
-    public void refresh(OutputStream out) {
+        return PluginUtils.getInstance().getPluginName();
     }
 
     private void callCDE(String file, OutputStream out) throws UnsupportedEncodingException, IOException {

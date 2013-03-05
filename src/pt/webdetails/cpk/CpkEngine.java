@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
-package pt.webdetails.cpk.elements;
+package pt.webdetails.cpk;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -17,32 +17,42 @@ import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import pt.webdetails.cpf.Util;
+import pt.webdetails.cpf.utils.PluginUtils;
+import pt.webdetails.cpk.elements.IElement;
+import pt.webdetails.cpk.elements.IElementType;
 
 /**
  *
  * @author Pedro Alves<pedro.alves@webdetails.pt>
  */
-public class ElementEngine {
+public class CpkEngine {
 
-    private static ElementEngine instance;
+    private static CpkEngine instance;
     protected Log logger = LogFactory.getLog(this.getClass());
     private Document cpkDoc;
     private HashMap<String, IElement> elementsMap;
+    private HashMap<String, IElementType> elementTypesMap;
 
-    public ElementEngine() {
+    public CpkEngine() {
 
         // Starting elementEngine
         logger.debug("Starting ElementEngine");
         elementsMap = new HashMap<String, IElement>();
+        elementTypesMap = new HashMap<String, IElementType>();
 
+        try {
+            this.initialize();
+        } catch (Exception ex) {
+            logger.fatal("Error initializing CpkEngine: " + Util.getExceptionDescription(ex));
+        }
 
     }
 
-    public static ElementEngine getInstance() {
+    public static CpkEngine getInstance() {
 
         if (instance == null) {
 
-            instance = new ElementEngine();
+            instance = new CpkEngine();
 
         }
 
@@ -50,9 +60,14 @@ public class ElementEngine {
 
     }
 
-    public String getInfo() {
+    private synchronized void initialize() throws DocumentException, IOException {
 
-        return "TODO";
+        // Start by forcing initialization of PluginUtils
+        PluginUtils.getInstance();
+
+        logger.info("Initializing CPK Plugin " + PluginUtils.getInstance().getPluginName().toUpperCase());
+        reload();
+
 
     }
 
@@ -65,7 +80,7 @@ public class ElementEngine {
 
         // Clean the types
         elementsMap.clear();
-
+        elementTypesMap.clear();
 
         IPluginResourceLoader resLoader = PentahoSystem.get(IPluginResourceLoader.class, null);
         InputStream is = resLoader.getResourceAsStream(this.getClass(), "cpk.xml");
@@ -85,6 +100,10 @@ public class ElementEngine {
             IElementType elementType;
             try {
                 elementType = (IElementType) Class.forName(clazz).newInstance();
+
+                // Store it
+                elementTypesMap.put(elementType.getType(), elementType);
+
             } catch (Exception ex) {
                 logger.error("Error initializing element type " + clazz + ": " + Util.getExceptionDescription(ex));
                 continue;
@@ -95,7 +114,7 @@ public class ElementEngine {
 
             // Register them in the map
             for (IElement element : elements) {
-                elementsMap.put(elementType.getType().toLowerCase()+"/"+element.getId().toLowerCase(), element);
+                elementsMap.put(elementType.getType().toLowerCase() + "/" + element.getId().toLowerCase(), element);
             }
 
 
@@ -120,5 +139,42 @@ public class ElementEngine {
 
     public HashMap<String, IElement> getElementsMap() {
         return elementsMap;
+    }
+
+    public IElementType getElementType(String type) {
+        return elementTypesMap.get(type);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getStatus() {
+
+        StringBuffer out = new StringBuffer();
+
+        out.append("--------------------------------\n");
+        out.append("   " + PluginUtils.getInstance().getPluginName() + " Status\n");
+        out.append("--------------------------------\n");
+        out.append("\n");
+
+        // Show the different entities
+
+        out.append(elementTypesMap.size() + " registred entity types\n");
+        out.append("\n");
+        out.append("End Points\n");
+
+        for (String key : elementsMap.keySet()) {
+
+            IElement iElement = elementsMap.get(key);
+            out.append("   " + key + ": \t" + iElement.toString() +" \n");
+
+        }
+
+
+        return out.toString();
+
+
+
     }
 }

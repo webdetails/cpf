@@ -26,13 +26,10 @@ public class KettleElementType extends AbstractElementType {
     }
 
 
-    @Override
-    public IElement registerElement(String elementLocation) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
     public void processRequest() {
+        logger.warn("Kettle's endpoint - not done yet, but it's good to be here!");
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

@@ -13,6 +13,8 @@ public interface IElement {
     
     public String getName();
     
-    public AbstractElementType getElementType();
+    public String getLocation();
+    
+    public String getElementType();
     
 }
