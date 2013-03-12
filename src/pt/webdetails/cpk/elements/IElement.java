@@ -3,6 +3,9 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpk.elements;
 
+import java.util.Map;
+import org.pentaho.platform.api.engine.IParameterProvider;
+
 /**
  *
  * @author Pedro Alves<pedro.alves@webdetails.pt>
@@ -16,5 +19,9 @@ public interface IElement {
     public String getLocation();
     
     public String getElementType();
+ 
+    public void processRequest(Map<String, IParameterProvider> parameterProviders);
+    
+    public ElementInfo getElementInfo();
     
 }

@@ -5,11 +5,17 @@ package pt.webdetails.cpf.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URL;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -18,6 +24,8 @@ import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.DocumentException;
+import org.pentaho.platform.api.engine.IMimeTypeListener;
+import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import pt.webdetails.cpf.Util;
@@ -59,7 +67,7 @@ public class PluginUtils {
 
     }
 
-    public static PluginUtils getInstance(){
+    public static PluginUtils getInstance() {
 
         if (_instance == null) {
             _instance = new PluginUtils();
@@ -108,16 +116,16 @@ public class PluginUtils {
         }
 
         IOFileFilter dirFilter = recursive.equals(Boolean.TRUE) ? TrueFileFilter.TRUE : null;
-        
+
         // Get directory name. We need to make sure we're not allowing this to fetch other resources
         String basePath = FilenameUtils.normalize(getPluginDirectory().getAbsolutePath());
         String elementFullPath = FilenameUtils.normalize(basePath + File.separator + elementPath);
-        
-        if(!elementFullPath.startsWith(basePath)){
+
+        if (!elementFullPath.startsWith(basePath)) {
             logger.warn("PluginUtils.getPluginResources is trying to access a parent path - denied : " + elementFullPath);
             return null;
         }
-        
+
         return FileUtils.listFiles(new File(elementFullPath), fileFilter, dirFilter);
 
 
@@ -144,5 +152,98 @@ public class PluginUtils {
      */
     public Collection<File> getPluginResources(String elementPath, String pattern) {
         return getPluginResources(elementPath, false, pattern);
+    }
+
+    public void setResponseHeaders(Map<String, IParameterProvider> parameterProviders, final String mimeType) {
+        setResponseHeaders(parameterProviders, mimeType, 0, null);
+    }
+
+    public void setResponseHeaders(Map<String, IParameterProvider> parameterProviders, final String mimeType, final String attachmentName) {
+        setResponseHeaders(parameterProviders, mimeType, 0, attachmentName);
+    }
+
+    public void setResponseHeaders(Map<String, IParameterProvider> parameterProviders, final String mimeType, final int cacheDuration, final String attachmentName) {
+        // Make sure we have the correct mime type
+
+        /* 
+         * This code is part of the content generator. Since we want to simplify,
+         * I'll remove this from here and directly set the Content-Type header on the response
+         * 
+         final IMimeTypeListener mimeTypeListener = outputHandler.getMimeTypeListener();
+         if (mimeTypeListener != null) {
+         mimeTypeListener.setMimeType(mimeType);
+         }
+         */
+
+
+        final HttpServletResponse response = PluginUtils.getInstance().getResponse(parameterProviders);
+
+        if (response == null) {
+            logger.warn("Parameter 'httpresponse' not found!");
+            return;
+        }
+
+        response.setHeader("Content-Type", mimeType);
+
+        if (attachmentName != null) {
+            response.setHeader("content-disposition", "attachment; filename=" + attachmentName);
+        } // Cache?
+
+        if (cacheDuration > 0) {
+            response.setHeader("Cache-Control", "max-age=" + cacheDuration);
+        } else {
+            response.setHeader("Cache-Control", "max-age=0, no-store");
+        }
+    }
+
+    /**
+     * Copies the parameters from the IParameterProvider to a Map
+     *
+     * @param params
+     * @param provider
+     */
+    public void copyParametersFromProvider(Map<String, Object> params, IParameterProvider provider) {
+        @SuppressWarnings("unchecked")
+        Iterator<String> paramNames = provider.getParameterNames();
+        while (paramNames.hasNext()) {
+            String paramName = paramNames.next();
+            params.put(paramName, provider.getParameter(paramName));
+        }
+    }
+
+    public void redirect(Map<String, IParameterProvider> parameterProviders, String url) {
+
+        final HttpServletResponse response = getResponse(parameterProviders);
+
+        if (response == null) {
+            logger.error("response not found");
+            return;
+        }
+        try {
+            response.sendRedirect(url);
+        } catch (IOException e) {
+            logger.error("could not redirect", e);
+        }
+    }
+
+    public HttpServletRequest getRequest(Map<String, IParameterProvider> parameterProviders) {
+        return (HttpServletRequest) parameterProviders.get("path").getParameter("httprequest");
+    }
+
+    public HttpServletResponse getResponse(Map<String, IParameterProvider> parameterProviders) {
+        return (HttpServletResponse) parameterProviders.get("path").getParameter("httpresponse");
+    }
+
+    public IParameterProvider getRequestParameters(Map<String, IParameterProvider> parameterProviders) {
+        return parameterProviders.get("request");
+    }
+
+    public IParameterProvider getPathParameters(Map<String, IParameterProvider> parameterProviders) {
+        return parameterProviders.get("path");
+    }
+
+    public OutputStream getResponseOutputStream(Map<String, IParameterProvider> parameterProviders) throws IOException {
+
+        return getResponse(parameterProviders).getOutputStream();
     }
 }

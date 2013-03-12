@@ -145,6 +145,16 @@ public class CpkEngine {
         return elementTypesMap.get(type);
     }
 
+    
+    /**
+     * Gets the element corresponding to the registred key
+     * @param key
+     * @return 
+     */
+    IElement getElement(String key) {
+        return this.elementsMap.get(key);
+    }
+    
     /**
      *
      * @return
@@ -177,4 +187,5 @@ public class CpkEngine {
 
 
     }
+
 }

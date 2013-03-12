@@ -4,9 +4,13 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpk.elements.impl;
 
+import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.engine.IParameterProvider;
+import pt.webdetails.cpf.SimpleContentGenerator;
 import pt.webdetails.cpk.elements.AbstractElementType;
+import pt.webdetails.cpk.elements.ElementInfo;
 import pt.webdetails.cpk.elements.IElement;
 
 /**
@@ -26,10 +30,14 @@ public class KettleElementType extends AbstractElementType {
     }
 
 
+    @Override
+    public void processRequest(Map<String, IParameterProvider> parameterProviders, IElement element) {
+        logger.warn("Kettle's endpoint - not done yet, but it's good to be here!");
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 
     @Override
-    public void processRequest() {
-        logger.warn("Kettle's endpoint - not done yet, but it's good to be here!");
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    protected ElementInfo createElementInfo() {
+        return new ElementInfo(SimpleContentGenerator.MimeType.JSON, 0);
     }
 }

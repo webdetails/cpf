@@ -3,6 +3,10 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpk.elements;
 
+import java.util.Map;
+import org.pentaho.platform.api.engine.IParameterProvider;
+import pt.webdetails.cpk.CpkEngine;
+
 /**
  *
  * @author Pedro Alves<pedro.alves@webdetails.pt>
@@ -13,7 +17,10 @@ public class AbstractElement implements IElement {
     private String name;
     private String elementType;
     private String location;
+    private ElementInfo elementInfo;
 
+    
+    
     @Override
     public String getId() {
         return id;
@@ -50,12 +57,10 @@ public class AbstractElement implements IElement {
         this.elementType = elementType;
     }
 
-    
     @Override
     public String toString() {
         return "AbstractElement{" + "id=" + id + ", name=" + name + ", elementType=" + elementType + ", location=" + location + '}';
     }
-    
 
     @Override
     public int hashCode() {
@@ -86,8 +91,25 @@ public class AbstractElement implements IElement {
         }
         return true;
     }
-    
-    
-    
+
+    @Override
+    /**
+     * Processes the request
+     */
+    public void processRequest(Map<String, IParameterProvider> parameterProviders) {
+
+        // Get the elementType and process it
+
+        CpkEngine.getInstance().getElementType(this.getElementType()).processRequest(parameterProviders, this);
+
+    }
+
+    public ElementInfo getElementInfo() {
+        return elementInfo;
+    }
+
+    public void setElementInfo(ElementInfo elementInfo) {
+        this.elementInfo = elementInfo;
+    }
     
 }

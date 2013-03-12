@@ -7,10 +7,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Node;
+import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import pt.webdetails.cpf.utils.PluginUtils;
@@ -106,10 +108,13 @@ public abstract class AbstractElementType implements IElementType {
         element.setId(FilenameUtils.getBaseName(elementLocation));
         element.setElementType(this.getType());
         element.setName(element.getId());
-
+        element.setElementInfo(createElementInfo());
+        
 
     }
 
     @Override
-    public abstract void processRequest();
+    public abstract void processRequest(Map<String, IParameterProvider> parameterProviders, IElement element);
+    
+    protected abstract ElementInfo createElementInfo();
 }

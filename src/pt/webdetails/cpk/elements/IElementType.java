@@ -4,7 +4,9 @@
 package pt.webdetails.cpk.elements;
 
 import java.util.List;
+import java.util.Map;
 import org.dom4j.Node;
+import org.pentaho.platform.api.engine.IParameterProvider;
 
 /**
  *
@@ -18,5 +20,5 @@ public interface IElementType {
     
     public IElement registerElement(String elementLocation);
     
-    public void processRequest();
+    public void processRequest(Map<String, IParameterProvider> parameterProviders, IElement element);
 }
