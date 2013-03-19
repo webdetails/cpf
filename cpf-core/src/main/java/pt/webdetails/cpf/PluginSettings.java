@@ -120,4 +120,17 @@ public abstract class PluginSettings {
         } 
         return new ArrayList<Element>();  
     }
+
+    @SuppressWarnings("unchecked")
+    public List<String> getTagValue(String tag) {
+        List<Element> pathElements = getSettingsXmlSection(tag);
+        if (pathElements != null) {
+            ArrayList<String> solutionPaths = new ArrayList<String>(pathElements.size());
+            for (Element pathElement : pathElements) {
+                solutionPaths.add(pathElement.getText());
+            }
+            return solutionPaths;
+        }
+        return new ArrayList<String>(0);
+    }
 }
