@@ -6,6 +6,7 @@ package pt.webdetails.cpk;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import org.apache.commons.logging.Log;
@@ -33,6 +34,9 @@ public class CpkEngine {
     private HashMap<String, IElement> elementsMap;
     private HashMap<String, IElementType> elementTypesMap;
 
+    private static List reserverdWords = Arrays.asList("refresh", "status","reload");
+    
+    
     public CpkEngine() {
 
         // Starting elementEngine
@@ -112,9 +116,25 @@ public class CpkEngine {
             // Now that we have the class, scan the elements
             List<IElement> elements = elementType.scanElements(getCpkDoc().selectSingleNode("/cpk/elementTypes/elementType[@class='" + clazz + "']"));
 
-            // Register them in the map
+            // Register them in the map. We don't support duplicates, and we don't allow some reserved names
             for (IElement element : elements) {
-                elementsMap.put(elementType.getType().toLowerCase() + "/" + element.getId().toLowerCase(), element);
+
+                String key = element.getId().toLowerCase();
+
+                if (elementsMap.containsKey(key)) {
+                    
+                    logger.warn("Found duplicate key " + key + " in element " + element.toString());
+                    
+                } else if (reserverdWords.contains(key)) {
+
+                    logger.warn("Element with reserved work '" + key + "' can't be registred: " + element.toString());
+
+                } else {
+                    // All ok
+
+                    elementsMap.put(element.getId().toLowerCase(), element);
+                }
+
             }
 
 
@@ -145,16 +165,16 @@ public class CpkEngine {
         return elementTypesMap.get(type);
     }
 
-    
     /**
      * Gets the element corresponding to the registred key
+     *
      * @param key
-     * @return 
+     * @return
      */
     IElement getElement(String key) {
         return this.elementsMap.get(key);
     }
-    
+
     /**
      *
      * @return
@@ -177,7 +197,7 @@ public class CpkEngine {
         for (String key : elementsMap.keySet()) {
 
             IElement iElement = elementsMap.get(key);
-            out.append("   " + key + ": \t" + iElement.toString() +" \n");
+            out.append("   " + key + ": \t" + iElement.toString() + " \n");
 
         }
 

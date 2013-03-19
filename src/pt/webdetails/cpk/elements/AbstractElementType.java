@@ -61,6 +61,8 @@ public abstract class AbstractElementType implements IElementType {
                 IElement iElement = this.registerElement(elementFile.getAbsolutePath());
                 if (iElement != null) {
 
+                    // Now - there are some reserved words for the id
+                    
                     iElements.add(iElement);
                     logger.debug("Registred element " + iElement.toString());
 

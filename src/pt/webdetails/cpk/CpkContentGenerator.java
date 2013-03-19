@@ -36,7 +36,7 @@ public class CpkContentGenerator extends RestContentGenerator {
        
         // Get the path, remove leading slash
         String path = pluginUtils.getPathParameters(parameterProviders).getStringParameter("path", null).substring(1);
-        IElement element = cpkEngine.getElement(path);
+        IElement element = cpkEngine.getElement(path.toLowerCase());
         
         
         

@@ -44,17 +44,20 @@ public class DashboardElementType extends AbstractElementType {
     public void processRequest(Map<String, IParameterProvider> parameterProviders, IElement element) {
         try {
             // element = (DashboardElement) element;
-            callCDE(parameterProviders, element.getLocation());
+            callCDE(parameterProviders, element);
         } catch (Exception ex) {
             logger.error("Error whie calling CDE: "+ Util.getExceptionDescription(ex));
         }
     
     }
 
-    protected void callCDE(Map<String, IParameterProvider> parameterProviders, String file) throws UnsupportedEncodingException, IOException {
+    protected void callCDE(Map<String, IParameterProvider> parameterProviders, IElement element) throws UnsupportedEncodingException, IOException {
 
         PluginUtils pluginUtils = PluginUtils.getInstance();
 
+        
+        String path = pluginUtils.getPluginRelativeDirectory(element.getLocation(), true);
+        
         ServletRequest wrapper = pluginUtils.getRequest(parameterProviders);
         OutputStream out = pluginUtils.getResponseOutputStream(parameterProviders);
 
@@ -62,8 +65,8 @@ public class DashboardElementType extends AbstractElementType {
 
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("solution", "system");
-        params.put("path", "cdv/presentation/");
-        params.put("file", file);
+        params.put("path", path);
+        params.put("file", element.getId() + ".wcdf");
         params.put("absolute", "true");
         params.put("inferScheme", "false");
         params.put("root", root);

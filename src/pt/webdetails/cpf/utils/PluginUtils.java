@@ -4,6 +4,7 @@
 package pt.webdetails.cpf.utils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
@@ -131,6 +132,35 @@ public class PluginUtils {
 
     }
 
+    /**
+     * From a full path, returns the relative path
+     * 
+     * @param fullPath
+     * @param includePluginDir
+     * @return The relative path
+     */
+    public String getPluginRelativeDirectory(String fullPath, boolean includePluginDir) throws FileNotFoundException {
+
+
+        // Get directory name. We need to make sure we're not allowing this to fetch other resources
+        File pluginDir = getPluginDirectory();
+        if (includePluginDir){
+            pluginDir = pluginDir.getParentFile();
+        }
+        
+        String basePath = FilenameUtils.normalize(pluginDir.getAbsolutePath());
+        String elementFullPath = FilenameUtils.getFullPath(FilenameUtils.normalize(fullPath));
+        
+        if(elementFullPath.indexOf(basePath) <0 ){
+            throw new FileNotFoundException("Can't extract relative path from file " + fullPath);
+        }
+        
+        return elementFullPath.substring(basePath.length());
+        
+
+    }    
+    
+    
     /**
      * Calls out for resources in the plugin, on the specified path
      *
