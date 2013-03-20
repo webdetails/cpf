@@ -51,16 +51,20 @@ public class KettleElementType extends AbstractElementType {
         String kettlePath = element.getLocation();
         String kettleFilename = element.getName();
         String extension = new String();
+        String operation = new String();
+        
         Result result = new Result();
         
         logger.info("Kettle file path: "+kettlePath);
         
         String fileTypeInfo = "Kettle file type is: ";
         if(kettlePath.endsWith(".ktr")){
-            logger.info(fileTypeInfo+"Transformation");
+            operation = "Transformation";
+            logger.info(fileTypeInfo+operation);
             extension = ".ktr";
         }else if(kettlePath.endsWith(".kjb")){
-            logger.info(fileTypeInfo+"Job");
+            operation = "Job";
+            logger.info(fileTypeInfo+operation);
             extension = ".kjb";
         }else{
             logger.warn("File extension unknown!");
@@ -69,33 +73,36 @@ public class KettleElementType extends AbstractElementType {
         //Just going to return a default transformation result for now (if there is one!)
        
         
-        
-        try {
-            TransMeta transformationMeta = new TransMeta();
-            Trans transformation = new Trans(transformationMeta);
-            
-            
-            transformation.execute(null);
-            transformation.waitUntilFinished();
-            result = transformation.getResult();
-            
-            
-            
-            
-          }
-          catch ( KettleException e ) {
-            // TODO Put your exception-handling code here.
-            logger.warn(""+e);
-            
-            if(e.toString().contains("Premature end of file")){
-                result.setLogText("The file ended prematurely. Please check the "+kettleFilename+extension+" file.");
-            }else{
-                throw new UnsupportedOperationException(e.toString());
-            }
-          }
+        if(operation.equalsIgnoreCase("tranformation")){
+            try {
+                logger.info("Starting Kettle "+operation.toLowerCase()+"...");
+
+                TransMeta transformationMeta = new TransMeta(kettlePath);
+                Trans transformation = new Trans(transformationMeta);
+
+
+                transformation.execute(null);
+                transformation.waitUntilFinished();
+                result = transformation.getResult();
+
+
+
+                logger.info(operation+" complete");
+              }
+              catch ( KettleException e ) {
+                // TODO Put your exception-handling code here.
+                logger.warn(""+e);
+
+                if(e.toString().contains("Premature end of file")){
+                    result.setLogText("The file ended prematurely. Please check the "+kettleFilename+extension+" file.");
+                }else{
+                    throw new UnsupportedOperationException(e.toString());
+                }
+              }
+        }
         
         //Will use this to show the logText for now (Test purposes)
-        //throw new UnsupportedOperationException(result.getLogText());
+        throw new UnsupportedOperationException("Result "+result);
         
     }
 
