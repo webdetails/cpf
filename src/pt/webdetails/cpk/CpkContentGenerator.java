@@ -6,6 +6,7 @@ package pt.webdetails.cpk;
 import java.io.IOException;
 import java.io.OutputStream;
 import org.dom4j.DocumentException;
+import org.pentaho.platform.api.engine.IParameterProvider;
 import pt.webdetails.cpf.RestContentGenerator;
 import pt.webdetails.cpf.RestRequestHandler;
 import pt.webdetails.cpf.Router;
@@ -37,7 +38,6 @@ public class CpkContentGenerator extends RestContentGenerator {
         // Get the path, remove leading slash
         String path = pluginUtils.getPathParameters(parameterProviders).getStringParameter("path", null).substring(1);
         IElement element = cpkEngine.getElement(path.toLowerCase());
-        
         
         
         if(element != null){

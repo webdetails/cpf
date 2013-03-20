@@ -9,6 +9,7 @@
         <elementType name="Kettle" class="pt.webdetails.cpk.elements.impl.KettleElementType">
             <elementLocations>
                 <elementLocation path="endpoints/kettle/" isRecursive="true" pattern=".*\.ktr"/>
+                <elementLocation path="endpoints/kettle/" isRecursive="true" pattern=".*\.kjb"/>
             </elementLocations>
         </elementType>
     </elementTypes> 

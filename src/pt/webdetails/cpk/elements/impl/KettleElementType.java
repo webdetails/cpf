@@ -4,6 +4,8 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpk.elements.impl;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,6 +14,7 @@ import net.sf.saxon.functions.Trace;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.di.core.exception.KettleTransException;
+import org.pentaho.di.core.exception.KettleXMLException;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import pt.webdetails.cpf.SimpleContentGenerator;
 import pt.webdetails.cpk.elements.AbstractElementType;
@@ -19,19 +22,20 @@ import pt.webdetails.cpk.elements.ElementInfo;
 import pt.webdetails.cpk.elements.IElement;
 import org.pentaho.di.core.Result;
 import org.pentaho.di.core.exception.KettleException;
+import org.pentaho.di.core.exception.KettleJobException;
 import org.pentaho.di.core.util.EnvUtil;
 import org.pentaho.di.job.Job;
 import org.pentaho.di.job.JobMeta;
 import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import pt.webdetails.cpf.utils.PluginUtils;
 /**
  *
  * @author Pedro Alves<pedro.alves@webdetails.pt>
  */
 public class KettleElementType extends AbstractElementType {
     
-    final String PLUGIN_NAME = "cvb";
 
     protected Log logger = LogFactory.getLog(this.getClass());
 
@@ -47,15 +51,35 @@ public class KettleElementType extends AbstractElementType {
     @Override
     public void processRequest(Map<String, IParameterProvider> parameterProviders, IElement element) {
         
-
+        
         String kettlePath = element.getLocation();
         String kettleFilename = element.getName();
         String extension = new String();
         String operation = new String();
+        String stepName = "OUTPUT";//Value by default
         
         Result result = new Result();
         
         logger.info("Kettle file path: "+kettlePath);
+        
+        //This gets all the params inserted in the URL
+        Iterator getCustomParams = parameterProviders.get("request").getParameterNames();
+        HashMap<String,String> customParams = new HashMap<String,String>();
+        String key = new String();
+        String value = new String();
+        String paramPrefix = "param";
+        
+        while(getCustomParams.hasNext()){
+            key = getCustomParams.next().toString();
+            if(key.startsWith(paramPrefix)){
+                value = parameterProviders.get("request").getParameter(key).toString();
+                customParams.put(key, value);
+                logger.info("Argument '"+key+"' with value '"+value+"' stored on the map.");
+            }else{
+                logger.info("The parameter provided does not have a valid prefix. Try 'param"+key+"'.");
+            }
+        }
+        
         
         String fileTypeInfo = "Kettle file type is: ";
         if(kettlePath.endsWith(".ktr")){
@@ -69,10 +93,8 @@ public class KettleElementType extends AbstractElementType {
         }else{
             logger.warn("File extension unknown!");
         }
-        
-        //Just going to return a default transformation result for now (if there is one!)
        
-        
+        //These conditions will treat the different types of kettle operations
         if(operation.equalsIgnoreCase("tranformation")){
             try {
                 logger.info("Starting Kettle "+operation.toLowerCase()+"...");
@@ -99,10 +121,29 @@ public class KettleElementType extends AbstractElementType {
                     throw new UnsupportedOperationException(e.toString());
                 }
               }
+        }else if (operation.equalsIgnoreCase("job")){
+            try {
+                logger.info("Starting Kettle "+operation.toLowerCase()+"...");
+                
+                JobMeta jobMeta = new JobMeta(kettlePath, null);
+                Job job = new Job(null, jobMeta);
+                
+                job.start();
+                job.waitUntilFinished();
+                result = job.getResult();
+                
+                logger.info(operation+" complete");
+            } catch (KettleXMLException ex) {
+                Logger.getLogger(KettleElementType.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         
-        //Will use this to show the logText for now (Test purposes)
-        throw new UnsupportedOperationException("Result "+result);
+        //Will use this to show the result (Tests)
+        String resultMessage = new String();
+        
+        resultMessage = operation+" status:"+result;
+        
+        throw new UnsupportedOperationException(resultMessage);
         
     }
 
