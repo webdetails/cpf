@@ -7,6 +7,7 @@ package pt.webdetails.cpk.elements.impl;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import net.sf.saxon.functions.Trace;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,22 +47,35 @@ public class KettleElementType extends AbstractElementType {
     @Override
     public void processRequest(Map<String, IParameterProvider> parameterProviders, IElement element) {
         
-        String kettlePath = PentahoSystem.getApplicationContext().getSolutionPath("system/" + PLUGIN_NAME + "/endpoints/kettle/");
-        String kettleFilename = "file";
-        String extension = ".ktr";
+
+        String kettlePath = element.getLocation();
+        String kettleFilename = element.getName();
+        String extension = new String();
         Result result = new Result();
         
-        //TODO: Verify if it is a Transformation or a Job
+        logger.info("Kettle file path: "+kettlePath);
+        
+        String fileTypeInfo = "Kettle file type is: ";
+        if(kettlePath.endsWith(".ktr")){
+            logger.info(fileTypeInfo+"Transformation");
+            extension = ".ktr";
+        }else if(kettlePath.endsWith(".kjb")){
+            logger.info(fileTypeInfo+"Job");
+            extension = ".kjb";
+        }else{
+            logger.warn("File extension unknown!");
+        }
+        
         //Just going to return a default transformation result for now (if there is one!)
-        
-        
+       
         
         
         try {
-            TransMeta transformationMeta = new TransMeta(kettlePath+kettleFilename+extension);
+            TransMeta transformationMeta = new TransMeta();
             Trans transformation = new Trans(transformationMeta);
             
-            transformation.beginProcessing();
+            
+            transformation.execute(null);
             transformation.waitUntilFinished();
             result = transformation.getResult();
             
@@ -71,15 +85,17 @@ public class KettleElementType extends AbstractElementType {
           }
           catch ( KettleException e ) {
             // TODO Put your exception-handling code here.
-            logger.warn(e);
+            logger.warn(""+e);
             
             if(e.toString().contains("Premature end of file")){
                 result.setLogText("The file ended prematurely. Please check the "+kettleFilename+extension+" file.");
+            }else{
+                throw new UnsupportedOperationException(e.toString());
             }
           }
         
         //Will use this to show the logText for now (Test purposes)
-        throw new UnsupportedOperationException(result.getLogText());
+        //throw new UnsupportedOperationException(result.getLogText());
         
     }
 
