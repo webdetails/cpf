@@ -73,10 +73,11 @@ public class KettleElementType extends AbstractElementType {
             key = getCustomParams.next().toString();
             if(key.startsWith(paramPrefix)){
                 value = parameterProviders.get("request").getParameter(key).toString();
-                customParams.put(key, value);
-                logger.info("Argument '"+key+"' with value '"+value+"' stored on the map.");
+                customParams.put(key.substring(5), value);
+                logger.info("Argument '"+key.substring(5) +"' with value '"+value+"' stored on the map.");
             }else{
-                logger.info("The parameter provided does not have a valid prefix. Try 'param"+key+"'.");
+                logger.info("The parameter provided does not have a valid prefix. Try 'param"+key+"'.\n"
+                        + "The '"+key+" parameter will be stored without the 'param' prefix as it is just a signature.");
             }
         }
         
@@ -95,14 +96,30 @@ public class KettleElementType extends AbstractElementType {
         }
        
         //These conditions will treat the different types of kettle operations
-        if(operation.equalsIgnoreCase("tranformation")){
+        if(operation.equalsIgnoreCase("transformation")){
             try {
                 logger.info("Starting Kettle "+operation.toLowerCase()+"...");
 
                 TransMeta transformationMeta = new TransMeta(kettlePath);
                 Trans transformation = new Trans(transformationMeta);
 
-
+                /*
+                 * Loading parameters, if there are any.
+                 */
+                boolean parametersExist = false;
+                for(String arg : customParams.keySet()){
+                    parametersExist = true;
+                    transformation.setParameterValue(arg, customParams.get(arg));
+                    logger.info("'"+arg+"' with value '"+customParams.get(arg)+"' loaded into "+operation+" parameters.");
+                }
+                if(parametersExist){
+                    transformation.activateParameters();
+                    logger.info(operation+" parameters loaded with success!");
+                }else{
+                    logger.info("No parameters found for "+operation+".");
+                }
+                
+                
                 transformation.execute(null);
                 transformation.waitUntilFinished();
                 result = transformation.getResult();
@@ -128,12 +145,29 @@ public class KettleElementType extends AbstractElementType {
                 JobMeta jobMeta = new JobMeta(kettlePath, null);
                 Job job = new Job(null, jobMeta);
                 
+                /*
+                 * Loading parameters, if there are any.
+                 */
+                boolean parametersExist = false;
+                for(String arg : customParams.keySet()){
+                    parametersExist = true;
+                    job.setParameterValue(arg, customParams.get(arg));
+                    logger.info("'"+arg+"' with value '"+customParams.get(arg)+"' loaded into "+operation+" parameters.");
+                }
+                if(parametersExist){
+                    job.activateParameters();
+                    logger.info(operation+" parameters loaded with success!");
+                }else{
+                    logger.info("No parameters found for "+operation+".");
+                }
+                
+
                 job.start();
                 job.waitUntilFinished();
                 result = job.getResult();
                 
                 logger.info(operation+" complete");
-            } catch (KettleXMLException ex) {
+            } catch (KettleException ex) {
                 Logger.getLogger(KettleElementType.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
