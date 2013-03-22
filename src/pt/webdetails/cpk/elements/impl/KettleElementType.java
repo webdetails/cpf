@@ -5,11 +5,13 @@
 package pt.webdetails.cpk.elements.impl;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IParameterProvider;
@@ -33,6 +35,7 @@ import pt.webdetails.cpf.Util;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.JsonMappingException;
+import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.CpkContentGenerator;
 import pt.webdetails.cpk.CpkEngine;
 
@@ -47,12 +50,10 @@ public class KettleElementType extends AbstractElementType {
     private String stepName = "OUTPUT";//Value by default
     private ConcurrentHashMap<String, TransMeta> transMetaStorage = new ConcurrentHashMap<String, TransMeta>();//Stores the metadata of the ktr files. [Key=path]&[Value=transMeta]
     private ConcurrentHashMap<String, JobMeta> jobMetaStorage = new ConcurrentHashMap<String, JobMeta>();//Stores the metadata of the kjb files. [Key=path]&[Value=jobMeta]
-    private ConcurrentHashMap<String, KettleOutput> kettleOutputStorage = new ConcurrentHashMap<String, KettleOutput>();//Stores the kettle outputs for each of the kettle files ran. [Key=path]&[Value=kettleOutput]
 
     public KettleElementType() {
         transMetaStorage = new ConcurrentHashMap<String, TransMeta>();//Stores the metadata of the ktr files. [Key=path]&[Value=transMeta]
         jobMetaStorage = new ConcurrentHashMap<String, JobMeta>();//Stores the metadata of the kjb files. [Key=path]&[Value=jobMeta]
-        kettleOutputStorage = new ConcurrentHashMap<String, KettleOutput>();//Stores the kettle outputs for each of the kettle files ran. [Key=path]&[Value=kettleOutput]
     }
 
 
@@ -62,13 +63,13 @@ public class KettleElementType extends AbstractElementType {
     }
 
     @Override
-    public String processRequest(Map<String, IParameterProvider> parameterProviders, IElement element) {
+    public void processRequest(Map<String, IParameterProvider> parameterProviders, IElement element) {
 
 
         String kettlePath = element.getLocation();
         String kettleFilename = element.getName();
-        String extension;
-        String operation;
+        String extension = null;
+        String operation = null;
 
 
 
@@ -100,16 +101,16 @@ public class KettleElementType extends AbstractElementType {
             extension = ".kjb";
         } else {
             logger.warn("File extension unknown: " + kettlePath);
-            return null;
         }
 
         Result result = null;
 
         //These conditions will treat the different types of kettle operations
-
+        KettleOutput kettleOutput = null;
         try {
             if (operation.equalsIgnoreCase("transformation")) {
-                result = executeTransformation(kettlePath, customParams);
+                kettleOutput = new KettleOutput();
+                result = executeTransformation(kettlePath, customParams, kettleOutput);
             } else {
                 result = executeJob(kettlePath, customParams);
             }
@@ -129,9 +130,16 @@ public class KettleElementType extends AbstractElementType {
         logger.info(operation + " " + kettlePath + " complete: " + result);
 
 
-        KettleOutput output = kettleOutputStorage.get(kettlePath);
+
+        if (kettleOutput != null) {
+            try {
+                OutputStream out = PluginUtils.getInstance().getResponseOutputStream(parameterProviders);
+                IOUtils.write(kettleOutput.getRowsJSON(), out, "UTF-8");
+            } catch (IOException ioe) {
+                logger.error("Error writing result to output stream.", ioe);
+            }
+        }
         
-        return output.getRowsJSON();
         
     }
 
@@ -145,11 +153,10 @@ public class KettleElementType extends AbstractElementType {
      * @throws UnknownParamException
      * @throws KettleException
      */
-    private Result executeTransformation(final String kettlePath, HashMap<String, String> customParams) throws KettleXMLException, UnknownParamException, KettleException {
+    private Result executeTransformation(final String kettlePath, HashMap<String, String> customParams, final KettleOutput kettleOutput) throws KettleXMLException, UnknownParamException, KettleException {
 
 
-        KettleOutput kettleOutput = new KettleOutput();
-        kettleOutputStorage.put(kettlePath, kettleOutput);
+       
 
 
         TransMeta transformationMeta = new TransMeta();
@@ -192,7 +199,7 @@ public class KettleElementType extends AbstractElementType {
 
             @Override
             public void rowReadEvent(RowMetaInterface rowMeta, Object[] row) throws KettleStepException {
-                kettleOutputStorage.get(kettlePath).storeRow(row);
+                kettleOutput.storeRow(row);
             }
 
             @Override
@@ -286,6 +293,7 @@ public class KettleElementType extends AbstractElementType {
         public ArrayList<RowMetaInterface> getRowsMeta() {
             return rowsMeta;
         }
+
 
         public String getRowsJSON() {
             ObjectMapper mapper = new ObjectMapper();

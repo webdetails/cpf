@@ -20,6 +20,6 @@ public interface IElementType {
     
     public IElement registerElement(String elementLocation);
     
-    public String processRequest(Map<String, IParameterProvider> parameterProviders, IElement element);
+    public void processRequest(Map<String, IParameterProvider> parameterProviders, IElement element);
         
 }

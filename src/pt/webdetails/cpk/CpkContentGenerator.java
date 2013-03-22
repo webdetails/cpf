@@ -37,8 +37,7 @@ public class CpkContentGenerator extends RestContentGenerator {
         
         
         if(element != null){
-            String result = element.processRequest(parameterProviders);        
-            getResponseOutputStream(MimeType.JSON).write(result.getBytes(ENCODING));
+            element.processRequest(parameterProviders);                    
         }
         else{
             super.createContent();
