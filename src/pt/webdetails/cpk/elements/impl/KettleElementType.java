@@ -38,13 +38,19 @@ public class KettleElementType extends AbstractElementType {
     protected Log logger = LogFactory.getLog(this.getClass());
     private static final String PARAM_PREFIX = "param";
     private String stepName = "OUTPUT";//Value by default
-    public static ConcurrentHashMap<String,TransMeta> transMetaStorage = new ConcurrentHashMap<String, TransMeta>();//Stores the metadata of the ktr files.
-    public static ConcurrentHashMap<String, JobMeta> jobMetaStorage = new ConcurrentHashMap<String, JobMeta>();//Stores the metadata of the kjb files.
+    private static ConcurrentHashMap<String,TransMeta> transMetaStorage = new ConcurrentHashMap<String, TransMeta>();//Stores the metadata of the ktr files.
+    private static ConcurrentHashMap<String, JobMeta> jobMetaStorage = new ConcurrentHashMap<String, JobMeta>();//Stores the metadata of the kjb files.
 
     public KettleElementType() {
-        
     }
 
+    
+    public static void wipeMetadata() {
+        transMetaStorage.clear();
+        jobMetaStorage.clear();
+    }
+    
+    
     @Override
     public String getType() {
         return "Kettle";

@@ -6,7 +6,6 @@ package pt.webdetails.cpk;
 import java.io.IOException;
 import java.io.OutputStream;
 import org.dom4j.DocumentException;
-import org.pentaho.platform.api.engine.IParameterProvider;
 import pt.webdetails.cpf.RestContentGenerator;
 import pt.webdetails.cpf.RestRequestHandler;
 import pt.webdetails.cpf.Router;
@@ -14,6 +13,7 @@ import pt.webdetails.cpf.annotations.AccessLevel;
 import pt.webdetails.cpf.annotations.Exposed;
 import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.IElement;
+import pt.webdetails.cpk.elements.impl.KettleElementType;
 
 /**
  *
@@ -61,7 +61,7 @@ public class CpkContentGenerator extends RestContentGenerator {
     public void refresh(OutputStream out) throws DocumentException, IOException {
 
         logger.info("Refreshing CPK plugin " + getPluginName());
-
+        wipeMetaStorages();
         cpkEngine.reload();
         status(out);
 
@@ -76,6 +76,10 @@ public class CpkContentGenerator extends RestContentGenerator {
         PluginUtils.getInstance().setResponseHeaders(parameterProviders, "text/plain");
         out.write(cpkEngine.getStatus().getBytes("UTF-8"));
 
+    }
+    
+    private void wipeMetaStorages(){
+        KettleElementType.wipeMetadata();
     }
 
 
