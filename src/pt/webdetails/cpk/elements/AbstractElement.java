@@ -96,12 +96,13 @@ public class AbstractElement implements IElement {
     /**
      * Processes the request
      */
-    public void processRequest(Map<String, IParameterProvider> parameterProviders) {
+    public String processRequest(Map<String, IParameterProvider> parameterProviders) {
 
         // Get the elementType and process it
 
-        CpkEngine.getInstance().getElementType(this.getElementType()).processRequest(parameterProviders, this);
+        return CpkEngine.getInstance().getElementType(this.getElementType()).processRequest(parameterProviders, this);
 
+        
     }
 
     public ElementInfo getElementInfo() {

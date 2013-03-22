@@ -41,13 +41,14 @@ public class DashboardElementType extends AbstractElementType {
     }
 
     @Override
-    public void processRequest(Map<String, IParameterProvider> parameterProviders, IElement element) {
+    public String processRequest(Map<String, IParameterProvider> parameterProviders, IElement element) {
         try {
             // element = (DashboardElement) element;
             callCDE(parameterProviders, element);
         } catch (Exception ex) {
             logger.error("Error whie calling CDE: "+ Util.getExceptionDescription(ex));
         }
+        return null;
     
     }
 

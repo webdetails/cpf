@@ -13,12 +13,8 @@ import pt.webdetails.cpf.annotations.AccessLevel;
 import pt.webdetails.cpf.annotations.Exposed;
 import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.IElement;
-import pt.webdetails.cpk.elements.impl.KettleElementType;
 
-/**
- *
- * @author pdpi
- */
+
 public class CpkContentGenerator extends RestContentGenerator {
 
     private static final long serialVersionUID = 1L;
@@ -41,7 +37,8 @@ public class CpkContentGenerator extends RestContentGenerator {
         
         
         if(element != null){
-            element.processRequest(parameterProviders);           
+            String result = element.processRequest(parameterProviders);        
+            getResponseOutputStream(MimeType.JSON).write(result.getBytes(ENCODING));
         }
         else{
             super.createContent();
@@ -61,7 +58,6 @@ public class CpkContentGenerator extends RestContentGenerator {
     public void refresh(OutputStream out) throws DocumentException, IOException {
 
         logger.info("Refreshing CPK plugin " + getPluginName());
-        wipeMetaStorages();
         cpkEngine.reload();
         status(out);
 
@@ -78,9 +74,6 @@ public class CpkContentGenerator extends RestContentGenerator {
 
     }
     
-    private void wipeMetaStorages(){
-        KettleElementType.wipeMetadata();
-    }
 
 
     @Override

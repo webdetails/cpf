@@ -20,7 +20,7 @@ public interface IElement {
     
     public String getElementType();
  
-    public void processRequest(Map<String, IParameterProvider> parameterProviders);
+    public String processRequest(Map<String, IParameterProvider> parameterProviders);
     
     public ElementInfo getElementInfo();
     

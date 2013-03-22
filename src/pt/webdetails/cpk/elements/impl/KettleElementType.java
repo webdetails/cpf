@@ -4,6 +4,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpk.elements.impl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -11,7 +12,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.json.JSONArray;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import pt.webdetails.cpf.SimpleContentGenerator;
 import pt.webdetails.cpk.elements.AbstractElementType;
@@ -23,7 +23,6 @@ import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.exception.KettleXMLException;
 import org.pentaho.di.core.parameters.UnknownParamException;
 import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.util.AddClosureArrayList;
 import org.pentaho.di.job.Job;
 import org.pentaho.di.job.JobMeta;
 import org.pentaho.di.trans.Trans;
@@ -31,6 +30,11 @@ import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.RowAdapter;
 import org.pentaho.di.trans.step.StepInterface;
 import pt.webdetails.cpf.Util;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.JsonMappingException;
+import pt.webdetails.cpk.CpkContentGenerator;
+import pt.webdetails.cpk.CpkEngine;
 
 /**
  *
@@ -41,27 +45,24 @@ public class KettleElementType extends AbstractElementType {
     protected Log logger = LogFactory.getLog(this.getClass());
     private static final String PARAM_PREFIX = "param";
     private String stepName = "OUTPUT";//Value by default
-    private static ConcurrentHashMap<String,TransMeta> transMetaStorage = new ConcurrentHashMap<String, TransMeta>();//Stores the metadata of the ktr files. [Key=path]&[Value=transMeta]
-    private static ConcurrentHashMap<String, JobMeta> jobMetaStorage = new ConcurrentHashMap<String, JobMeta>();//Stores the metadata of the kjb files. [Key=path]&[Value=jobMeta]
-    private static ConcurrentHashMap<String, KettleOutput> kettleOutputStorage = new ConcurrentHashMap<String, KettleOutput>();//Stores the kettle outputs for each of the kettle files ran. [Key=path]&[Value=kettleOutput]
+    private ConcurrentHashMap<String, TransMeta> transMetaStorage = new ConcurrentHashMap<String, TransMeta>();//Stores the metadata of the ktr files. [Key=path]&[Value=transMeta]
+    private ConcurrentHashMap<String, JobMeta> jobMetaStorage = new ConcurrentHashMap<String, JobMeta>();//Stores the metadata of the kjb files. [Key=path]&[Value=jobMeta]
+    private ConcurrentHashMap<String, KettleOutput> kettleOutputStorage = new ConcurrentHashMap<String, KettleOutput>();//Stores the kettle outputs for each of the kettle files ran. [Key=path]&[Value=kettleOutput]
 
     public KettleElementType() {
+        transMetaStorage = new ConcurrentHashMap<String, TransMeta>();//Stores the metadata of the ktr files. [Key=path]&[Value=transMeta]
+        jobMetaStorage = new ConcurrentHashMap<String, JobMeta>();//Stores the metadata of the kjb files. [Key=path]&[Value=jobMeta]
+        kettleOutputStorage = new ConcurrentHashMap<String, KettleOutput>();//Stores the kettle outputs for each of the kettle files ran. [Key=path]&[Value=kettleOutput]
     }
 
-    
-    public static void wipeMetadata() {
-        transMetaStorage.clear();
-        jobMetaStorage.clear();
-    }
-    
-    
+
     @Override
     public String getType() {
         return "Kettle";
     }
 
     @Override
-    public void processRequest(Map<String, IParameterProvider> parameterProviders, IElement element) {
+    public String processRequest(Map<String, IParameterProvider> parameterProviders, IElement element) {
 
 
         String kettlePath = element.getLocation();
@@ -99,7 +100,7 @@ public class KettleElementType extends AbstractElementType {
             extension = ".kjb";
         } else {
             logger.warn("File extension unknown: " + kettlePath);
-            return;
+            return null;
         }
 
         Result result = null;
@@ -128,6 +129,10 @@ public class KettleElementType extends AbstractElementType {
         logger.info(operation + " " + kettlePath + " complete: " + result);
 
 
+        KettleOutput output = kettleOutputStorage.get(kettlePath);
+        
+        return output.getRowsJSON();
+        
     }
 
     /**
@@ -142,35 +147,35 @@ public class KettleElementType extends AbstractElementType {
      */
     private Result executeTransformation(final String kettlePath, HashMap<String, String> customParams) throws KettleXMLException, UnknownParamException, KettleException {
 
-        
+
         KettleOutput kettleOutput = new KettleOutput();
         kettleOutputStorage.put(kettlePath, kettleOutput);
-        
-        
+
+
         TransMeta transformationMeta = new TransMeta();
-        
-        if(transMetaStorage.containsKey(kettlePath)){
-            logger.debug("Existent metadata found for "+kettlePath);
+
+        if (transMetaStorage.containsKey(kettlePath)) {
+            logger.debug("Existent metadata found for " + kettlePath);
             transformationMeta = transMetaStorage.get(kettlePath);
-        }else{
-            logger.debug("No existent metadata found for "+kettlePath);
+        } else {
+            logger.debug("No existent metadata found for " + kettlePath);
             transformationMeta = new TransMeta(kettlePath);
-            transMetaStorage.put(kettlePath,transformationMeta);
+            transMetaStorage.put(kettlePath, transformationMeta);
             logger.debug("Added metadata to the storage.");
         }
-        
+
         Trans transformation = new Trans(transformationMeta);
-        
-        
+
+
         /*
          * Loading parameters, if there are any.
          */
         if (customParams.size() > 0) {
             for (String arg : customParams.keySet()) {
-                if(arg.equalsIgnoreCase("stepname")){
+                if (arg.equalsIgnoreCase("stepname")) {
                     stepName = customParams.get(arg);
-                    logger.debug("Step name changed from 'OUTPUT' to '"+stepName+"'");
-                }else{
+                    logger.debug("Step name changed from 'OUTPUT' to '" + stepName + "'");
+                } else {
                     transformation.setParameterValue(arg, customParams.get(arg));
                 }
             }
@@ -178,12 +183,13 @@ public class KettleElementType extends AbstractElementType {
 
         }
         transformation.prepareExecution(null);
-        
+
         StepInterface step = transformation.findRunThread(stepName);
         transformation.startThreads();
-        
-        
-        step.addRowListener(new RowAdapter(){
+
+
+        step.addRowListener(new RowAdapter() {
+
             @Override
             public void rowReadEvent(RowMetaInterface rowMeta, Object[] row) throws KettleStepException {
                 kettleOutputStorage.get(kettlePath).storeRow(row);
@@ -191,14 +197,14 @@ public class KettleElementType extends AbstractElementType {
 
             @Override
             public void rowWrittenEvent(RowMetaInterface rowMeta, Object[] row) throws KettleStepException {
-               // TODO
+                // TODO
             }
-        }
-        );
-       
-        
-        
+        });
+
         transformation.waitUntilFinished();
+        
+        
+        
         return transformation.getResult();
     }
 
@@ -216,18 +222,18 @@ public class KettleElementType extends AbstractElementType {
 
 
         JobMeta jobMeta = new JobMeta();
-        
-        
-        if(jobMetaStorage.containsKey(kettlePath)){
-            logger.debug("Existent metadata found for "+kettlePath);
+
+
+        if (jobMetaStorage.containsKey(kettlePath)) {
+            logger.debug("Existent metadata found for " + kettlePath);
             jobMeta = jobMetaStorage.get(kettlePath);
-        }else{
-            logger.debug("No existent metadata found for "+kettlePath);
+        } else {
+            logger.debug("No existent metadata found for " + kettlePath);
             jobMeta = new JobMeta(kettlePath, null);
-            jobMetaStorage.put(kettlePath,jobMeta);
+            jobMetaStorage.put(kettlePath, jobMeta);
             logger.debug("Added metadata to the storage.");
         }
-        
+
         Job job = new Job(null, jobMeta);
 
         /*
@@ -249,42 +255,47 @@ public class KettleElementType extends AbstractElementType {
     protected ElementInfo createElementInfo() {
         return new ElementInfo(SimpleContentGenerator.MimeType.JSON, 0);
     }
-    
-    private class KettleOutput{
+
+    private class KettleOutput {
+
         ArrayList<Object[]> rows;
         ArrayList<RowMetaInterface> rowsMeta;
-        
-        KettleOutput(){
+
+        KettleOutput() {
             init();
         }
-        
-        private void init(){
+
+        private void init() {
             rows = new ArrayList<Object[]>();
             rowsMeta = new ArrayList<RowMetaInterface>();
         }
-        
-        public void storeRow(Object[] row){
+
+        public void storeRow(Object[] row) {
             rows.add(row);
         }
-        
-        public void storeRow(Object[] row, RowMetaInterface rowMeta){
+
+        public void storeRow(Object[] row, RowMetaInterface rowMeta) {
             rows.add(row);
             rowsMeta.add(rowMeta);
         }
-        
-        public ArrayList<Object[]> getRows(){
+
+        public ArrayList<Object[]> getRows() {
             return rows;
         }
-        
-        public ArrayList<RowMetaInterface> getRowsMeta(){
+
+        public ArrayList<RowMetaInterface> getRowsMeta() {
             return rowsMeta;
         }
-        
-        public JSONArray getRowsJSON(){
-            return null;
+
+        public String getRowsJSON() {
+            ObjectMapper mapper = new ObjectMapper();
+            String json = new String();
+            try{
+                json = mapper.writeValueAsString(rows);
+            }catch(Exception e){}
+            
+            return json;
         }
-        
-        
         /*
          * To implement later on...
          * public void removeRow(){}

@@ -116,7 +116,7 @@ public abstract class AbstractElementType implements IElementType {
     }
 
     @Override
-    public abstract void processRequest(Map<String, IParameterProvider> parameterProviders, IElement element);
+    public abstract String processRequest(Map<String, IParameterProvider> parameterProviders, IElement element);
     
     protected abstract ElementInfo createElementInfo();
 }
