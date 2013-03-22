@@ -7,6 +7,7 @@ package pt.webdetails.cpk.elements.impl;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IParameterProvider;
@@ -16,12 +17,16 @@ import pt.webdetails.cpk.elements.ElementInfo;
 import pt.webdetails.cpk.elements.IElement;
 import org.pentaho.di.core.Result;
 import org.pentaho.di.core.exception.KettleException;
+import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.exception.KettleXMLException;
 import org.pentaho.di.core.parameters.UnknownParamException;
+import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.job.Job;
 import org.pentaho.di.job.JobMeta;
 import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransMeta;
+import org.pentaho.di.trans.step.RowAdapter;
+import org.pentaho.di.trans.step.StepInterface;
 import pt.webdetails.cpf.Util;
 
 /**
@@ -32,8 +37,12 @@ public class KettleElementType extends AbstractElementType {
 
     protected Log logger = LogFactory.getLog(this.getClass());
     private static final String PARAM_PREFIX = "param";
+    private String stepName = "OUTPUT";//Value by default
+    public static ConcurrentHashMap<String,TransMeta> transMetaStorage = new ConcurrentHashMap<String, TransMeta>();//Stores the metadata of the ktr files.
+    public static ConcurrentHashMap<String, JobMeta> jobMetaStorage = new ConcurrentHashMap<String, JobMeta>();//Stores the metadata of the kjb files.
 
     public KettleElementType() {
+        
     }
 
     @Override
@@ -49,7 +58,6 @@ public class KettleElementType extends AbstractElementType {
         String kettleFilename = element.getName();
         String extension;
         String operation;
-        String stepName = "OUTPUT";//Value by default
 
 
 
@@ -97,7 +105,7 @@ public class KettleElementType extends AbstractElementType {
 
         } catch (KettleException e) {
 
-            logger.warn(" Error executing kettle file " + kettleFilename + ": " + Util.getExceptionDescription(e));
+            logger.error(" Error executing kettle file " + kettleFilename + ": " + Util.getExceptionDescription(e));
 
             if (e.toString().contains("Premature end of file")) {
                 result.setLogText("The file ended prematurely. Please check the " + kettleFilename + extension + " file.");
@@ -124,25 +132,64 @@ public class KettleElementType extends AbstractElementType {
      */
     private Result executeTransformation(String kettlePath, HashMap<String, String> customParams) throws KettleXMLException, UnknownParamException, KettleException {
 
-        TransMeta transformationMeta = new TransMeta(kettlePath);
+        TransMeta transformationMeta = new TransMeta();
+        if(transMetaStorage.containsKey(kettlePath)){
+            logger.debug("Existent metadata found for "+kettlePath);
+            transformationMeta = transMetaStorage.get(kettlePath);
+        }else{
+            logger.debug("No existent metadata found for "+kettlePath);
+            transformationMeta = new TransMeta(kettlePath);
+            transMetaStorage.put(kettlePath,transformationMeta);
+            logger.debug("Added metadata to the storage.");
+        }
+        
         Trans transformation = new Trans(transformationMeta);
+        
+        
         /*
          * Loading parameters, if there are any.
          */
         if (customParams.size() > 0) {
             for (String arg : customParams.keySet()) {
-                transformation.setParameterValue(arg, customParams.get(arg));
+                if(arg.equalsIgnoreCase("stepname")){
+                    stepName = customParams.get(arg);
+                    logger.debug("Step name changed from 'OUTPUT' to '"+stepName+"'");
+                }else{
+                    transformation.setParameterValue(arg, customParams.get(arg));
+                }
             }
             transformation.activateParameters();
 
         }
-        transformation.execute(null);
+        transformation.prepareExecution(null);
+        
+        StepInterface step = transformation.findRunThread(stepName);
+        
+        if(transformation.getResult().getRows()!=null){
+            step.addRowListener(new RowAdapter(){
+                @Override
+                public void rowReadEvent(RowMetaInterface rowMeta, Object[] row) throws KettleStepException {
+                   // Here you get the rows as they are read by the step     
+                }
+
+                @Override
+                public void rowWrittenEvent(RowMetaInterface rowMeta, Object[] row) throws KettleStepException {
+                   // Here you get the rows as they are written by the step
+                }
+            }
+            );
+        }else{
+            
+        }
+        
+        transformation.startThreads();
         transformation.waitUntilFinished();
         return transformation.getResult();
     }
 
     /**
-     *
+     *Executes a Job
+     * 
      * @param kettlePath Path to the kjb
      * @param customParams parameters to be passed to the job
      * @return
@@ -153,7 +200,18 @@ public class KettleElementType extends AbstractElementType {
     private Result executeJob(String kettlePath, HashMap<String, String> customParams) throws UnknownParamException, KettleException, KettleXMLException {
 
 
-        JobMeta jobMeta = new JobMeta(kettlePath, null);
+        JobMeta jobMeta = new JobMeta();
+        
+        if(jobMetaStorage.containsKey(kettlePath)){
+            logger.debug("Existent metadata found for "+kettlePath);
+            jobMeta = jobMetaStorage.get(kettlePath);
+        }else{
+            logger.debug("No existent metadata found for "+kettlePath);
+            jobMeta = new JobMeta(kettlePath, null);
+            jobMetaStorage.put(kettlePath,jobMeta);
+            logger.debug("Added metadata to the storage.");
+        }
+        
         Job job = new Job(null, jobMeta);
 
         /*
