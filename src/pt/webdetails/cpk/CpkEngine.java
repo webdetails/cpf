@@ -4,16 +4,24 @@
 package pt.webdetails.cpk;
 
 import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Node;
+import org.json.simple.JSONObject;
 import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
@@ -206,6 +214,38 @@ public class CpkEngine {
 
 
 
+    }
+    
+    public JsonNode getSitemapJson() throws IOException{
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayList<String> json = new ArrayList<String>();
+        JSONObject jsonObj = null;
+        
+        JsonNode jnode=null;
+        
+        for(String key : elementsMap.keySet()){
+            IElement e = elementsMap.get(key);
+            
+            
+            String id = e.getLocation().split("/")[e.getLocation().split("/").length-1];
+            jsonObj = new JSONObject();
+            jsonObj.put("id", id);
+            jsonObj.put("name", e.getName());
+            
+            jsonObj.put("link", "/pentaho/content/"+PluginUtils.getInstance().getPluginName()+"/"+e.getId());
+            
+            jsonObj.put("sublink", "");
+            json.add(jsonObj.toJSONString());
+            
+        }
+        
+        try {
+            jnode = mapper.readTree(json.toString());
+        } catch (IOException ex) {
+            
+        } 
+        
+        return jnode;
     }
 
 }

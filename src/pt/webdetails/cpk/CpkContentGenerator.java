@@ -5,6 +5,7 @@ package pt.webdetails.cpk;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.dom4j.DocumentException;
 import pt.webdetails.cpf.RestContentGenerator;
 import pt.webdetails.cpf.RestRequestHandler;
@@ -13,6 +14,7 @@ import pt.webdetails.cpf.annotations.AccessLevel;
 import pt.webdetails.cpf.annotations.Exposed;
 import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.IElement;
+
 
 
 public class CpkContentGenerator extends RestContentGenerator {
@@ -71,6 +73,12 @@ public class CpkContentGenerator extends RestContentGenerator {
         PluginUtils.getInstance().setResponseHeaders(parameterProviders, "text/plain");
         out.write(cpkEngine.getStatus().getBytes("UTF-8"));
 
+    }
+    
+    @Exposed(accessLevel= AccessLevel.PUBLIC)
+    public void getSitemapJson(OutputStream out) throws IOException{
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.writeValue(out, cpkEngine.getSitemapJson());
     }
     
 
