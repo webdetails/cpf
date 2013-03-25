@@ -11,9 +11,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.commons.io.IOUtils;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.JsonProcessingException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.json.JSONException;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import pt.webdetails.cpf.SimpleContentGenerator;
 import pt.webdetails.cpk.elements.AbstractElementType;
@@ -32,12 +38,9 @@ import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.RowAdapter;
 import org.pentaho.di.trans.step.StepInterface;
 import pt.webdetails.cpf.Util;
-import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.JsonMappingException;
+import org.json.simple.JSONObject;
 import pt.webdetails.cpf.utils.PluginUtils;
-import pt.webdetails.cpk.CpkContentGenerator;
-import pt.webdetails.cpk.CpkEngine;
 
 /**
  *
@@ -47,7 +50,7 @@ public class KettleElementType extends AbstractElementType {
 
     protected Log logger = LogFactory.getLog(this.getClass());
     private static final String PARAM_PREFIX = "param";
-    private String stepName = "OUTPUT";//Value by default
+    private String stepName;
     private ConcurrentHashMap<String, TransMeta> transMetaStorage = new ConcurrentHashMap<String, TransMeta>();//Stores the metadata of the ktr files. [Key=path]&[Value=transMeta]
     private ConcurrentHashMap<String, JobMeta> jobMetaStorage = new ConcurrentHashMap<String, JobMeta>();//Stores the metadata of the kjb files. [Key=path]&[Value=jobMeta]
 
@@ -70,6 +73,7 @@ public class KettleElementType extends AbstractElementType {
         String kettleFilename = element.getName();
         String extension = null;
         String operation = null;
+        stepName = "OUTPUT";
 
 
 
@@ -83,10 +87,15 @@ public class KettleElementType extends AbstractElementType {
 
         while (getCustomParams.hasNext()) {
             key = getCustomParams.next().toString();
-            if (key.startsWith(PARAM_PREFIX)) {
+            if (key.startsWith(PARAM_PREFIX) && !key.contains("stepname")) {
                 value = parameterProviders.get("request").getParameter(key).toString();
                 customParams.put(key.substring(5), value);
                 logger.debug("Argument '" + key.substring(5) + "' with value '" + value + "' stored on the map.");
+            
+            } else if(key.startsWith("stepname")){
+                value = parameterProviders.get("request").getParameter(key).toString();
+                logger.debug("Step name changed from '"+stepName+"' to '"+value+"'");
+                stepName = value;
             } else {
                 // skip
             }
@@ -103,41 +112,35 @@ public class KettleElementType extends AbstractElementType {
             logger.warn("File extension unknown: " + kettlePath);
         }
 
-        Result result = null;
 
         //These conditions will treat the different types of kettle operations
         KettleOutput kettleOutput = null;
         try {
             if (operation.equalsIgnoreCase("transformation")) {
-                kettleOutput = new KettleOutput();
-                result = executeTransformation(kettlePath, customParams, kettleOutput);
-            } else {
-                result = executeJob(kettlePath, customParams);
+                kettleOutput = new KettleOutput(parameterProviders);
+                kettleOutput.setResult(executeTransformation(kettlePath, customParams, kettleOutput));
+            } else if(operation.equalsIgnoreCase("job")) {
+                kettleOutput = new KettleOutput(parameterProviders);
+                kettleOutput.setResult(executeJob(kettlePath, customParams));
             }
 
         } catch (KettleException e) {
 
             logger.error(" Error executing kettle file " + kettleFilename + ": " + Util.getExceptionDescription(e));
 
-            if (e.toString().contains("Premature end of file")) {
-                result.setLogText("The file ended prematurely. Please check the " + kettleFilename + extension + " file.");
-            } else {
-                throw new UnsupportedOperationException(e.toString());
-            }
         }
 
 
-        logger.info(operation + " " + kettlePath + " complete: " + result);
+        logger.info(operation + " " + kettlePath + " complete: " + kettleOutput.getResult());
 
 
 
         if (kettleOutput != null) {
-            try {
-                OutputStream out = PluginUtils.getInstance().getResponseOutputStream(parameterProviders);
-                IOUtils.write(kettleOutput.getRowsJSON(), out, "UTF-8");
-            } catch (IOException ioe) {
-                logger.error("Error writing result to output stream.", ioe);
-            }
+                if(operation.equalsIgnoreCase("Transformation")){
+                    kettleOutput.RowsJson(true);
+                }else if(operation.equalsIgnoreCase("Job")){
+                    kettleOutput.ResultStatusJson(true);
+                }
         }
         
         
@@ -181,7 +184,6 @@ public class KettleElementType extends AbstractElementType {
             for (String arg : customParams.keySet()) {
                 if (arg.equalsIgnoreCase("stepname")) {
                     stepName = customParams.get(arg);
-                    logger.debug("Step name changed from 'OUTPUT' to '" + stepName + "'");
                 } else {
                     transformation.setParameterValue(arg, customParams.get(arg));
                 }
@@ -267,14 +269,23 @@ public class KettleElementType extends AbstractElementType {
 
         ArrayList<Object[]> rows;
         ArrayList<RowMetaInterface> rowsMeta;
+        Result result = null;
+        ObjectMapper mapper;
+        OutputStream out;
 
-        KettleOutput() {
-            init();
+        KettleOutput(Map<String, IParameterProvider> parameterProviders) {
+            init(parameterProviders);
         }
 
-        private void init() {
+        private void init(Map<String, IParameterProvider> parameterProviders) {
             rows = new ArrayList<Object[]>();
             rowsMeta = new ArrayList<RowMetaInterface>();
+            mapper = new ObjectMapper();
+            try {
+                out = PluginUtils.getInstance().getResponseOutputStream(parameterProviders);
+            } catch (IOException ex) {
+                Logger.getLogger("Something went wrong on the KettleOutput class initialization.");
+            }
         }
 
         public void storeRow(Object[] row) {
@@ -293,17 +304,90 @@ public class KettleElementType extends AbstractElementType {
         public ArrayList<RowMetaInterface> getRowsMeta() {
             return rowsMeta;
         }
+        
+        public void setResult(Result r){
+            this.result = r;
+        }
+        
+        public Result getResult(){
+            return this.result;
+        }
+        
+        public String getObjectJSONString(Object o){
+            try {
+                return mapper.writeValueAsString(o);
+            } catch (IOException ex) {
+                Logger.getLogger(KettleElementType.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return null;
+        }
 
-
-        public String getRowsJSON() {
-            ObjectMapper mapper = new ObjectMapper();
-            String json = new String();
+        public JsonNode RowsJson(boolean writeToStream){
+            String jsonString=null;
+            JsonNode jsonNode=null;
             try{
-                json = mapper.writeValueAsString(rows);
-            }catch(Exception e){}
+            jsonString = getObjectJSONString(rows);
+            jsonNode = mapper.readTree(jsonString);
+            
+            }catch (IOException ioe){
+                logger.error(ioe);
+            }
+            if(writeToStream){
+                writeJsonToStream(jsonNode);
+            }
+            
+            return jsonNode;
+        }
+        
+        public JsonNode ResultJson(boolean writeToStream){
+            JsonNode jsonNode=null;
+            try {
+                String jsonString = mapper.writeValueAsString(result);
+                jsonNode = mapper.readTree(jsonString);
+                
+            } catch (IOException ex) {
+                Logger.getLogger(KettleElementType.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            if(writeToStream){
+                writeJsonToStream(jsonNode);
+            }
+            return jsonNode;
+        }
+        
+        public JSONObject ResultStatusJson(boolean writeToStream){
+            
+            JSONObject json = new JSONObject();
+            String jsonString=null;
+            JsonNode jsonNode = null;
+            
+            json.put("Entries",result.getEntryNr());
+            json.put("errors",result.getNrErrors());
+            json.put("exit_status",result.getExitStatus());
+            json.put("success", result.getResult());
+            json.put("log", result.getLogText());
+            
+            jsonString = json.toString();
+            try {
+                jsonNode = mapper.readTree(jsonString);
+            } catch (IOException ex) {
+                Logger.getLogger(KettleElementType.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            if(writeToStream){
+                writeJsonToStream(jsonNode);
+            }
             
             return json;
         }
+        
+        public void writeJsonToStream(JsonNode json){
+            try {
+                mapper.writeValue(out, json);
+            } catch (IOException ex) {
+                Logger.getLogger(KettleElementType.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
         /*
          * To implement later on...
          * public void removeRow(){}
