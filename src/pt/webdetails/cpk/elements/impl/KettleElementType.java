@@ -360,10 +360,10 @@ public class KettleElementType extends AbstractElementType {
             String jsonString=null;
             JsonNode jsonNode = null;
             
-            json.put("Entries",result.getEntryNr());
+            json.put("nr",result.getEntryNr());
             json.put("errors",result.getNrErrors());
             json.put("exit_status",result.getExitStatus());
-            json.put("success", result.getResult());
+            json.put("result", result.getResult());
             json.put("log", result.getLogText());
             
             jsonString = json.toString();
