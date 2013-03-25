@@ -3,7 +3,8 @@
     <elementTypes>
         <elementType name="Dashboard" class="pt.webdetails.cpk.elements.impl.DashboardElementType">
             <elementLocations>
-                <elementLocation path="dashboards/" isRecursive="false" pattern=".*\.wcdf"/>
+                <elementLocation path="dashboards/" isRecursive="true" pattern="^(?!admin).*\.wcdf"/>
+                <elementLocation path="dashboards/admin" isRecursive="true" pattern=".*\.wcdf" adminOnly="true"/>
             </elementLocations>
         </elementType>
         <elementType name="Kettle" class="pt.webdetails.cpk.elements.impl.KettleElementType">
