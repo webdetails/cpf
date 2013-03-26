@@ -5,6 +5,7 @@ package pt.webdetails.cpk;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,21 +15,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import ofc4j.model.elements.Element;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Node;
+import org.dom4j.io.SAXReader;
 import org.json.simple.JSONObject;
 import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+import ofc4j.model.elements.Element;
 import pt.webdetails.cpf.Util;
 import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.IElement;
 import pt.webdetails.cpk.elements.IElementType;
+import pt.webdetails.cpk.elements.impl.DashboardElementType;
 
 /**
  *
@@ -230,12 +236,21 @@ public class CpkEngine {
             String id = e.getLocation().split("/")[e.getLocation().split("/").length-1];
             jsonObj = new JSONObject();
             jsonObj.put("id", id);
-            jsonObj.put("name", e.getName());
+            
             
             jsonObj.put("link", "/pentaho/content/"+PluginUtils.getInstance().getPluginName()+"/"+e.getId());
             
             jsonObj.put("sublink", "");
+            
+            
+            if(e.getElementType().equalsIgnoreCase("dashboard")){
+                jsonObj.put("name",getTextFromWcdf(e.getLocation(), "description"));
+            }else if(e.getElementType().equalsIgnoreCase("kettle")){
+                jsonObj.put("name", e.getName());
+            }
+            
             json.add(jsonObj.toJSONString());
+
             
         }
         
@@ -246,6 +261,20 @@ public class CpkEngine {
         } 
         
         return jnode;
+    }
+    
+    public String getTextFromWcdf(String path,String text) throws IOException{
+        File xml = new File(path);
+        SAXReader reader = new SAXReader();
+        Document doc = null;
+        try {
+            doc = reader.read(xml);
+        } catch (DocumentException documentException) {
+        }
+        
+        org.dom4j.Element root = doc.getRootElement();
+
+       return root.elementText(text);
     }
 
 }
