@@ -4,20 +4,12 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpk.elements.impl;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.ServletRequest;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import pt.webdetails.cpf.InterPluginCall;
 import pt.webdetails.cpf.Util;
@@ -25,6 +17,10 @@ import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.AbstractElementType;
 import pt.webdetails.cpk.elements.ElementInfo;
 import pt.webdetails.cpk.elements.IElement;
+
+
+import java.io.*;
+import java.util.HashMap;
 
 /**
  *
