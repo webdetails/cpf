@@ -137,9 +137,9 @@ public class KettleElementType extends AbstractElementType {
 
         if (kettleOutput != null) {
                 if(operation.equalsIgnoreCase("Transformation")){
-                    kettleOutput.RowsJson(true);
+                    kettleOutput.RowsJson();
                 }else if(operation.equalsIgnoreCase("Job")){
-                    kettleOutput.ResultStatusJson(true);
+                    kettleOutput.ResultJson();
                 }
         }
         
@@ -201,7 +201,7 @@ public class KettleElementType extends AbstractElementType {
 
             @Override
             public void rowReadEvent(RowMetaInterface rowMeta, Object[] row) throws KettleStepException {
-                kettleOutput.storeRow(row);
+                kettleOutput.storeRow(row,rowMeta);
             }
 
             @Override
@@ -313,80 +313,36 @@ public class KettleElementType extends AbstractElementType {
             return this.result;
         }
         
-        public String getObjectJSONString(Object o){
-            try {
-                return mapper.writeValueAsString(o);
-            } catch (IOException ex) {
-                Logger.getLogger(KettleElementType.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            return null;
-        }
 
-        public JsonNode RowsJson(boolean writeToStream){
-            String jsonString=null;
-            JsonNode jsonNode=null;
-            try{
-            jsonString = getObjectJSONString(rows);
-            jsonNode = mapper.readTree(jsonString);
-            
-            }catch (IOException ioe){
-                logger.error(ioe);
-            }
-            if(writeToStream){
-                writeJsonToStream(jsonNode);
-            }
-            
-            return jsonNode;
-        }
-        
-        public JsonNode ResultJson(boolean writeToStream){
-            JsonNode jsonNode=null;
+        public void RowsJson(){
             try {
-                String jsonString = mapper.writeValueAsString(result);
-                jsonNode = mapper.readTree(jsonString);
-                
+//                mapper.writeValue(out, rows);
+                out.write("[".getBytes("UTF-8"));
+                for(Object row : rows) {
+                    out.write("[".getBytes("UTF-8"));
+                    Object[] rowAsArray = (Object[])row;
+                    for (int i=0; i < rowAsArray.length; i++) {
+                        Object cell =rowAsArray[i];
+                        out.write(cell.toString().getBytes("UTF-8"));
+                    }
+                    out.write("]".getBytes("UTF-8"));
+                }
+                out.write("]".getBytes("UTF-8"));
             } catch (IOException ex) {
                 Logger.getLogger(KettleElementType.class.getName()).log(Level.SEVERE, null, ex);
             }
-            if(writeToStream){
-                writeJsonToStream(jsonNode);
-            }
-            return jsonNode;
+
         }
         
-        public JSONObject ResultStatusJson(boolean writeToStream){
-            
-            JSONObject json = new JSONObject();
-            String jsonString=null;
-            JsonNode jsonNode = null;
-            
-            json.put("nr",result.getEntryNr());
-            json.put("errors",result.getNrErrors());
-            json.put("exit_status",result.getExitStatus());
-            json.put("result", result.getResult());
-            json.put("log", result.getLogText());
-            
-            jsonString = json.toString();
+        public void ResultJson(){
             try {
-                jsonNode = mapper.readTree(jsonString);
-            } catch (IOException ex) {
-                Logger.getLogger(KettleElementType.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            
-            if(writeToStream){
-                writeJsonToStream(jsonNode);
-            }
-            
-            return json;
-        }
-        
-        public void writeJsonToStream(JsonNode json){
-            try {
-                mapper.writeValue(out, json);
+                mapper.writeValue(out, result);
             } catch (IOException ex) {
                 Logger.getLogger(KettleElementType.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        
+
         
         /*
          * To implement later on...

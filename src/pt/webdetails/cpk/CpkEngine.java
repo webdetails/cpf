@@ -16,20 +16,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
-import org.json.simple.JSONObject;
 import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.services.pluginmgr.PluginUtil;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import pt.webdetails.cpf.Util;
 import pt.webdetails.cpf.utils.PluginUtils;
@@ -232,7 +227,7 @@ public class CpkEngine {
         private ArrayList<Link> dashboardLinks;
         private ArrayList<Link> kettleLinks;
         private Collection<IElement> elements;
-        private ObjectMapper mapper ;
+        
 
         public LinkGenerator(Collection<IElement> e) {
             elements = e;
@@ -242,7 +237,6 @@ public class CpkEngine {
         private void generateLinks(){
             dashboardLinks = new ArrayList<Link>();
             kettleLinks = new ArrayList<Link>();
-            mapper = new ObjectMapper();
             
             for(IElement e : elements){
                 Link link = new Link(e,false);
@@ -304,7 +298,7 @@ public class CpkEngine {
         }
         
         public JsonNode getLinksJson(){
-            
+            ObjectMapper mapper = new ObjectMapper();
             JsonNode jnode = null;
             ArrayList<String> json = new ArrayList<String>();
             
@@ -343,7 +337,6 @@ public class CpkEngine {
         private class Link{
             private String name, id, link;
             private IElement element;
-            private ObjectMapper mapper;
             private boolean isSublink;
             private List<Link> subLinks;
 
@@ -354,7 +347,6 @@ public class CpkEngine {
             private void init(IElement e, boolean sublnk){
                 this.element = e;
                 this.isSublink = sublnk;
-                mapper = new ObjectMapper();
                 subLinks = new ArrayList<Link>();
                 buildLink();
 
@@ -472,6 +464,7 @@ public class CpkEngine {
             
             @JsonIgnore
             public String getLinkJson(){
+                ObjectMapper mapper = new ObjectMapper();
                 try {
                     logger.info(mapper.writeValueAsString(this));
                     return mapper.writeValueAsString(this);
