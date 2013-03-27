@@ -9,11 +9,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.JsonProcessingException;
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -22,6 +29,7 @@ import org.dom4j.io.SAXReader;
 import org.json.simple.JSONObject;
 import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.pluginmgr.PluginUtil;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import pt.webdetails.cpf.Util;
 import pt.webdetails.cpf.utils.PluginUtils;
@@ -215,58 +223,267 @@ public class CpkEngine {
     }
     
     public JsonNode getSitemapJson() throws IOException{
-        ObjectMapper mapper = new ObjectMapper();
-        ArrayList<String> json = new ArrayList<String>();
-        JSONObject jsonObj = null;
-        
-        JsonNode jnode=null;
-        
-        for(String key : elementsMap.keySet()){
-            IElement e = elementsMap.get(key);
-            
-            
-            String id = e.getLocation().split("/")[e.getLocation().split("/").length-1];
-            jsonObj = new JSONObject();
-            jsonObj.put("id", id);
-            
-            
-            jsonObj.put("link", "/pentaho/content/"+PluginUtils.getInstance().getPluginName()+"/"+e.getId());
-            
-            jsonObj.put("sublink", "");
-            
-            
-            if(e.getElementType().equalsIgnoreCase("dashboard")){
-                jsonObj.put("name",getTextFromWcdf(e.getLocation(), "description"));
-            }else if(e.getElementType().equalsIgnoreCase("kettle")){
-                jsonObj.put("name", e.getName());
-            }
-            
-            json.add(jsonObj.toJSONString());
-
-            
-        }
-        
-        try {
-            jnode = mapper.readTree(json.toString());
-        } catch (IOException ex) {
-            
-        } 
-        
-        return jnode;
+        LinkGenerator linkGen = new LinkGenerator(elementsMap.values());
+        return linkGen.getLinksJson();
     }
     
-    public String getTextFromWcdf(String path,String text) throws IOException{
-        File xml = new File(path);
-        SAXReader reader = new SAXReader();
-        Document doc = null;
-        try {
-            doc = reader.read(xml);
-        } catch (DocumentException documentException) {
+    
+    private class LinkGenerator{
+        private ArrayList<Link> dashboardLinks;
+        private ArrayList<Link> kettleLinks;
+        private Collection<IElement> elements;
+        private ObjectMapper mapper ;
+
+        public LinkGenerator(Collection<IElement> e) {
+            elements = e;
+            generateLinks();
         }
         
-        org.dom4j.Element root = doc.getRootElement();
+        private void generateLinks(){
+            dashboardLinks = new ArrayList<Link>();
+            kettleLinks = new ArrayList<Link>();
+            mapper = new ObjectMapper();
+            
+            for(IElement e : elements){
+                Link link = new Link(e,false);
+                if(isDashboard(e)){
+                    if(!dashboardLinks.isEmpty()){
+                        if(!linkExists(dashboardLinks, link) && link.getName() != null){
+                            dashboardLinks.add(link);
+                            logger.info(link.getName()+"-------------------------");
+                            
+                        }else if(link.getName() == null){
+                            logger.error("There was a problem with a link creation. It's name is 'null'");
+                        }
+                        
+                    }else if(dashboardLinks.isEmpty() && link.getName() != null){
+                        dashboardLinks.add(link);
+                    }
+                }else if(isKettle(e)){
+                    kettleLinks.add(link);
+                }
+            }
+            
+        }
+        
+        private boolean linkExists(ArrayList<Link> lnks, Link lnk){
+            boolean exists = false;
+            
+            for(Link l : lnks){
+                try{
+                    if(l.getName() == null){
+                    }else if(l.getName().equals(lnk.getName())){
+                        exists=true;
+                    }
+                }catch(Exception e){
+                    exists = true;
+                }
+            }
+            
+            return exists;
+        }
+        
+        private ArrayList<IElement> getAllElementsOnFolder(String folderName){
+            
+            ArrayList<IElement> sublinkElements = new ArrayList<IElement>();
+            boolean has = false;
+            String primaryFolder = folderName;
+            String [] dirs;
+            int nrDirs;
+                
+            for(IElement e: elements){
+                dirs = e.getLocation().split("/");
+                nrDirs = dirs.length;
+               
+                if(dirs[nrDirs-2].equals(primaryFolder)){
+                    sublinkElements.add(e);
+                }
+            }
+            
+            return sublinkElements;
+        }
+        
+        public JsonNode getLinksJson(){
+            
+            JsonNode jnode = null;
+            ArrayList<String> json = new ArrayList<String>();
+            
+            for(Link l: dashboardLinks){
+                json.add(l.getLinkJson());
+            }
+            try {
+                jnode = mapper.readTree(json.toString());
+            } catch (IOException ex) {
+                Logger.getLogger(CpkEngine.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            return jnode;
+        }
+        
+        public boolean isDashboard(IElement e){
+            boolean is=false;
+            
+            if(e.getElementType().equalsIgnoreCase("dashboard")){
+                is = true;
+            }
+            
+            return is;
+        }
+        
+        public boolean isKettle(IElement e){
+            boolean is=false;
+            
+            if(e.getElementType().equalsIgnoreCase("kettle")){
+                is = true;
+            }
+            
+            return is;
+        }
+        
+        private class Link{
+            private String name, id, link;
+            private IElement element;
+            private ObjectMapper mapper;
+            private boolean isSublink;
+            private List<Link> subLinks;
 
-       return root.elementText(text);
+            Link(IElement e, boolean sublnk){
+                init(e,sublnk);
+            }
+
+            private void init(IElement e, boolean sublnk){
+                this.element = e;
+                this.isSublink = sublnk;
+                mapper = new ObjectMapper();
+                subLinks = new ArrayList<Link>();
+                buildLink();
+
+            }
+
+            public void buildLink(){
+                if(isDashboard(element) && !isSublink){
+                    if(hasSublink()){
+                        createSublinks();
+                    }else{
+                        this.name = getTextFromWcdf(element.getLocation(),"description");
+                        this.link = "/pentaho/content/"+PluginUtils.getInstance().getPluginName()+"/"+element.getId();
+                        this.id = element.getLocation().split("/")[element.getLocation().split("/").length-1];
+                        //this.sublink = null;
+                    }
+                    
+                }else if(isKettle(element) && !isSublink){
+                    if(hasSublink()){
+                        createSublinks();
+                    }else{
+                        this.name = element.getName();
+                        this.id = element.getLocation().split("/")[element.getLocation().split("/").length-1];
+                        //this.sublink = null;
+                        this.link = "/pentaho/content/"+PluginUtils.getInstance().getPluginName()+"/"+element.getId();
+                    }
+                    
+                    
+                }else if(isSublink){
+                    if(isDashboard(element)){
+                        this.name = getTextFromWcdf(element.getLocation(),"description");
+                        this.link = "/pentaho/content/"+PluginUtils.getInstance().getPluginName()+"/"+element.getId();
+                        this.id = element.getLocation().split("/")[element.getLocation().split("/").length-1];
+                        //this.sublink = null;
+                    }
+                    
+                }
+            }
+
+            public String getName(){
+                String n;
+                if(this.name==null){n="null";}
+                else {n = this.name;}
+                return n;
+            }
+            
+            public String getId(){
+                String i;
+                if(this.id==null){i="null";}
+                else {i = this.id;}
+                return i;
+            }
+            
+            public List<Link> getSubLinks() {
+                return subLinks;
+            }
+            
+            public String getLink(){
+                String l;
+                if(this.link==null){l="null";}
+                else {l = this.link;}
+                return l;
+            }
+            
+            private String getTextFromWcdf(String path,String text){
+                File xml = new File(path);
+                SAXReader reader = new SAXReader();
+                Document doc = null;
+                try {
+                    doc = reader.read(xml);
+                } catch (DocumentException documentException) {
+                }
+
+                org.dom4j.Element root = doc.getRootElement();
+
+                return root.elementText(text);
+            }
+            
+            private boolean hasSublink(){
+                boolean has = false;
+                String primaryDir = null;
+                String [] dirs = element.getLocation().split("/");
+                int nrDirs = dirs.length;
+                
+                if(isDashboard(element)){
+                    primaryDir = "dashboards";
+                    if(!dirs[nrDirs-2].equals(primaryDir)){
+                        has = true;
+                    }
+                    
+                }else if(isKettle(element)){
+                    primaryDir = "kettle";
+                    if(!dirs[nrDirs-2].equals(primaryDir)){
+                        has = true;
+                    }
+                    
+                }
+                return has;
+            }
+            
+            private void createSublinks(){
+                String [] dirs = element.getLocation().split("/");
+                int nrDirs = dirs.length;
+                               
+                
+                this.name = dirs[nrDirs-2];
+                this.link = "";
+                ArrayList<IElement> elements = getAllElementsOnFolder(name);
+                
+                for(IElement e: elements){
+                    Link l = new Link(e, true);
+                    subLinks.add(l);
+                }
+                
+            }
+            
+            @JsonIgnore
+            public String getLinkJson(){
+                try {
+                    logger.info(mapper.writeValueAsString(this));
+                    return mapper.writeValueAsString(this);
+                } catch (IOException ex) {
+                    Logger.getLogger(CpkEngine.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                return null;
+            }
+            
+            
+        }
     }
+    
 
 }
