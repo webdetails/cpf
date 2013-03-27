@@ -345,7 +345,7 @@ public class CpkEngine {
             private IElement element;
             private ObjectMapper mapper;
             private boolean isSublink;
-            private List<Link> sublink;
+            private List<Link> subLinks;
 
             Link(IElement e, boolean sublnk){
                 init(e,sublnk);
@@ -355,7 +355,7 @@ public class CpkEngine {
                 this.element = e;
                 this.isSublink = sublnk;
                 mapper = new ObjectMapper();
-                sublink = new ArrayList<Link>();
+                subLinks = new ArrayList<Link>();
                 buildLink();
 
             }
@@ -407,8 +407,8 @@ public class CpkEngine {
                 return i;
             }
             
-            public List<Link> getSubLinks() {
-                return sublink;
+            public List<Link> getSublinks() {
+                return subLinks;
             }
             
             public String getLink(){
@@ -465,7 +465,7 @@ public class CpkEngine {
                 
                 for(IElement e: elements){
                     Link l = new Link(e, true);
-                    sublink.add(l);
+                    subLinks.add(l);
                 }
                 
             }
