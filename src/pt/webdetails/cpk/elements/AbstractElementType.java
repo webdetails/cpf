@@ -55,6 +55,9 @@ public abstract class AbstractElementType implements IElementType {
 
             Collection<File> elements = PluginUtils.getInstance().getPluginResources(elementPath, isRecursive, pattern);
 
+            if (elements == null)
+                continue;
+            
             // Found the list we need. Processing it!
             for (File elementFile : elements) {
 
