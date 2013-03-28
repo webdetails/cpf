@@ -182,11 +182,9 @@ public class KettleElementType extends AbstractElementType {
          */
         if (customParams.size() > 0) {
             for (String arg : customParams.keySet()) {
-                if (arg.equalsIgnoreCase("stepname")) {
-                    stepName = customParams.get(arg);
-                } else {
-                    transformation.setParameterValue(arg, customParams.get(arg));
-                }
+                
+                transformation.setParameterValue(arg, customParams.get(arg));
+                
             }
             transformation.activateParameters();
 
