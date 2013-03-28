@@ -127,8 +127,13 @@ public class PluginUtils {
             return null;
         }
 
-        return FileUtils.listFiles(new File(elementFullPath), fileFilter, dirFilter);
-
+        File dir = new File(elementFullPath);
+        if(!dir.exists() || !dir.isDirectory()){
+            return null;
+        }
+        
+        return FileUtils.listFiles(dir, fileFilter, dirFilter);
+        
 
     }
 
