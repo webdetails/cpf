@@ -80,14 +80,14 @@ public class KettleElementType extends AbstractElementType {
         logger.info("Processing request for: " + kettlePath);
 
         //This gets all the params inserted in the URL
-        Iterator getCustomParams = parameterProviders.get("request").getParameterNames();
+        Iterator getParams = parameterProviders.get("request").getParameterNames();
         HashMap<String, String> customParams = new HashMap<String, String>();
         String key;
         String value;
 
-        while (getCustomParams.hasNext()) {
-            key = getCustomParams.next().toString();
-            if (key.startsWith(PARAM_PREFIX) && !key.contains("stepname")) {
+        while (getParams.hasNext()) {
+            key = getParams.next().toString();
+            if (key.startsWith(PARAM_PREFIX)) {
                 value = parameterProviders.get("request").getParameter(key).toString();
                 customParams.put(key.substring(5), value);
                 logger.debug("Argument '" + key.substring(5) + "' with value '" + value + "' stored on the map.");
