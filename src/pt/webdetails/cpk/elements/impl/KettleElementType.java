@@ -137,7 +137,7 @@ public class KettleElementType extends AbstractElementType {
 
         if (kettleOutput != null) {
                 if(operation.equalsIgnoreCase("Transformation")){
-                    kettleOutput.RowsJson();
+                    kettleOutput.RowsToStream();
                 }else if(operation.equalsIgnoreCase("Job")){
                     kettleOutput.ResultJson();
                 }
@@ -314,20 +314,19 @@ public class KettleElementType extends AbstractElementType {
         }
         
 
-        public void RowsJson(){
+        public void RowsToStream(){
             try {
-//                mapper.writeValue(out, rows);
-                out.write("[".getBytes("UTF-8"));
                 for(Object row : rows) {
-                    out.write("[".getBytes("UTF-8"));
                     Object[] rowAsArray = (Object[])row;
                     for (int i=0; i < rowAsArray.length; i++) {
-                        Object cell =rowAsArray[i];
-                        out.write(cell.toString().getBytes("UTF-8"));
+                        if(rowAsArray!=null){
+                            Object cell = rowAsArray[i];
+                            if(cell!=null){
+                                out.write(cell.toString().getBytes("UTF-8"));
+                            }
+                        }
                     }
-                    out.write("]".getBytes("UTF-8"));
                 }
-                out.write("]".getBytes("UTF-8"));
             } catch (IOException ex) {
                 Logger.getLogger(KettleElementType.class.getName()).log(Level.SEVERE, null, ex);
             }
