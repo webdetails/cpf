@@ -77,7 +77,7 @@ public class KettleElementType extends AbstractElementType {
 
         while (customParamsIter.hasNext()) {
             key = customParamsIter.next().toString();
-            if (key.startsWith(PARAM_PREFIX) && !key.contains("stepname")) {
+            if (key.startsWith(PARAM_PREFIX)) {
                 value = parameterProviders.get("request").getParameter(key).toString();
                 customParams.put(key.substring(5), value);
                 logger.debug("Argument '" + key.substring(5) + "' with value '" + value + "' stored on the map.");
@@ -194,11 +194,9 @@ public class KettleElementType extends AbstractElementType {
          */
         if (customParams.size() > 0) {
             for (String arg : customParams.keySet()) {
-                if (arg.equalsIgnoreCase("stepname")) {
-                    stepName = customParams.get(arg);
-                } else {
-                    transformation.setParameterValue(arg, customParams.get(arg));
-                }
+                
+                transformation.setParameterValue(arg, customParams.get(arg));
+                
             }
             transformation.activateParameters();
 
