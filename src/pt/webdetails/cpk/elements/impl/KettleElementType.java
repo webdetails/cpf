@@ -30,6 +30,7 @@ import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.RowAdapter;
 import org.pentaho.di.trans.step.StepInterface;
 import pt.webdetails.cpf.Util;
+import pt.webdetails.cpf.utils.MimeTypes;
 import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.impl.kettleOutputs.IKettleOutput;
 
@@ -264,9 +265,6 @@ public class KettleElementType extends AbstractElementType {
 
         }
         
-        /*
-         * Loading variables, if there are any.
-         */
         
         job.start();
         job.waitUntilFinished();
@@ -276,6 +274,6 @@ public class KettleElementType extends AbstractElementType {
 
     @Override
     protected ElementInfo createElementInfo() {
-        return new ElementInfo(SimpleContentGenerator.MimeType.JSON, 0);
+        return new ElementInfo(MimeTypes.JSON, 0);
     }
 }
