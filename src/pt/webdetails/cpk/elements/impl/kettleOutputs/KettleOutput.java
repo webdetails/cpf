@@ -132,17 +132,17 @@ public class KettleOutput implements IKettleOutput {
         }
         else if(filesList.size()==1){
             ResultFile file = filesList.get(0);
-            try {
-                IOUtils.copy(KettleVFS.getInputStream(file.getFile()),PluginUtils.getInstance().getResponseOutputStream(parameterProviders));
-            } catch (Exception ex) {
-                logger.warn("Failed to copy file to outputstream: " + Util.getExceptionDescription(ex));
-            }
             
             if(parameterProviders.get("request").hasParameter("download")){
                 String [] split = file.getFile().getName().toString().split("/");
                 int length = file.getFile().getName().toString().split("/").length;
                 String filename = split[length-1];
-                PluginUtils.getInstance().setResponseHeaders(parameterProviders, file.getTypeCode(), filename);
+                PluginUtils.getInstance().setResponseHeaders(parameterProviders, "", filename);
+            }
+            try {
+                IOUtils.copy(KettleVFS.getInputStream(file.getFile()),PluginUtils.getInstance().getResponseOutputStream(parameterProviders));
+            } catch (Exception ex) {
+                logger.warn("Failed to copy file to outputstream: " + Util.getExceptionDescription(ex));
             }
             
         }
@@ -217,11 +217,7 @@ public class KettleOutput implements IKettleOutput {
                 
             }
             
-            
         }
-        
-
-
     }
     
     
