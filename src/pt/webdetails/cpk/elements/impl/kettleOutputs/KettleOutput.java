@@ -118,7 +118,6 @@ public class KettleOutput implements IKettleOutput {
 
     public void processResultFiles() {
         
-        
         logger.warn("Process Result Files");
         
         // Singe file? Just write it to the outputstream
@@ -129,7 +128,6 @@ public class KettleOutput implements IKettleOutput {
             return;
         }
         else if(filesList.size()==1){
-            
             ResultFile file = filesList.get(0);
             try {
                 IOUtils.copy(KettleVFS.getInputStream(file.getFile()),PluginUtils.getInstance().getResponseOutputStream(parameterProviders));
@@ -137,8 +135,12 @@ public class KettleOutput implements IKettleOutput {
                 logger.warn("Failed to copy file to outputstream: " + Util.getExceptionDescription(ex));
             }
             
-            // Try to put the correct mimeType
-            // PluginUtils.getInstance().
+            if(parameterProviders.get("request").hasParameter("download")){
+                String [] split = file.getFile().getName().toString().split("/");
+                int length = file.getFile().getName().toString().split("/").length;
+                String filename = split[length-1];
+                PluginUtils.getInstance().setResponseHeaders(parameterProviders, file.getTypeCode(), filename);
+            }
             
         }
         else{
@@ -189,9 +191,7 @@ public class KettleOutput implements IKettleOutput {
         Result result = getResult();
         
         if(result.getResultFilesList().size()>0){
-            if(parameterProviders.get("request").hasParameter("download")){
-                PluginUtils.getInstance().setResponseHeaders(parameterProviders, "", "filenameHere");
-            }
+            
             processResultFiles();
         }else{
             

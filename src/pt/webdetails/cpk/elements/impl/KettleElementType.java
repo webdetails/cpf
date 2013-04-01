@@ -255,7 +255,7 @@ public class KettleElementType extends AbstractElementType {
 
         /*
          * Loading parameters, if there are any.
-         */
+         */        
         if (customParams.size() > 0) {
             for (String arg : customParams.keySet()) {
                 job.setParameterValue(arg, customParams.get(arg));
@@ -263,6 +263,11 @@ public class KettleElementType extends AbstractElementType {
             job.activateParameters();
 
         }
+        
+        /*
+         * Loading variables, if there are any.
+         */
+        
         job.start();
         job.waitUntilFinished();
         return job.getResult();
