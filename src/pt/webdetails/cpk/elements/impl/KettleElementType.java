@@ -117,7 +117,7 @@ public class KettleElementType extends AbstractElementType {
 
         //These conditions will treat the different types of kettle operations
 
-        IKettleOutput kettleOutput;
+        IKettleOutput kettleOutput = null;
         String clazz = PluginUtils.getInstance().getRequestParameters(parameterProviders).getStringParameter("kettleOutput", "Infered") + "KettleOutput";
 
         try {

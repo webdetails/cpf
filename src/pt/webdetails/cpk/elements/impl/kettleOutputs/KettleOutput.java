@@ -124,7 +124,7 @@ public class KettleOutput implements IKettleOutput {
         // Singe file? Just write it to the outputstream
         List<ResultFile> filesList = getResult().getResultFilesList();
         
-        if(filesList.size()==0){
+        if(filesList.isEmpty()){
             logger.warn("Processing result files but no files found");
             return;
         }
@@ -189,16 +189,14 @@ public class KettleOutput implements IKettleOutput {
         Result result = getResult();
         
         if(result.getResultFilesList().size()>0){
-            
+            if(parameterProviders.get("request").hasParameter("download")){
+                PluginUtils.getInstance().setResponseHeaders(parameterProviders, "", "filenameHere");
+            }
             processResultFiles();
-            
-        }
-        else{
+        }else{
             
             if(getKettleType() == KettleType.JOB){
-                
-                processResult();
-                
+                processResultOnly();                
             }
             else{
                 

@@ -81,6 +81,11 @@ public class CpkContentGenerator extends RestContentGenerator {
         mapper.writeValue(out, cpkEngine.getSitemapJson());
     }
     
+    @Exposed(accessLevel= AccessLevel.PUBLIC)
+    public void getStyle(OutputStream out) throws IOException{
+        out.write("Here is your style!".getBytes("UTF-8"));
+    }
+    
 
 
     @Override
@@ -94,4 +99,5 @@ public class CpkContentGenerator extends RestContentGenerator {
     public RestRequestHandler getRequestHandler() {
         return Router.getBaseRouter();
     }
+    
 }
