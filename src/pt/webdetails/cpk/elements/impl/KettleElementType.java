@@ -195,9 +195,10 @@ public class KettleElementType extends AbstractElementType {
         if (customParams.size() > 0) {
             for (String arg : customParams.keySet()) {
                 
-                transformation.setParameterValue(arg, customParams.get(arg));
+                transformation.getTransMeta().setParameterValue(arg, customParams.get(arg));
                 
             }
+            transformation.copyParametersFrom(transformation.getTransMeta());
             transformation.activateParameters();
 
         }
@@ -254,12 +255,13 @@ public class KettleElementType extends AbstractElementType {
         Job job = new Job(null, jobMeta);
 
         /*
-         * Loading parameters, if there are any.
+         * Loading parameters, if there are any. We'll pass them also as variables
          */        
         if (customParams.size() > 0) {
             for (String arg : customParams.keySet()) {
-                job.setParameterValue(arg, customParams.get(arg));
+                job.getJobMeta().setParameterValue(arg, customParams.get(arg));
             }
+            job.copyParametersFrom(job.getJobMeta());
             job.activateParameters();
 
         }

@@ -128,18 +128,18 @@ public class PluginUtils {
         }
 
         File dir = new File(elementFullPath);
-        if(!dir.exists() || !dir.isDirectory()){
+        if (!dir.exists() || !dir.isDirectory()) {
             return null;
         }
-        
+
         return FileUtils.listFiles(dir, fileFilter, dirFilter);
-        
+
 
     }
 
     /**
      * From a full path, returns the relative path
-     * 
+     *
      * @param fullPath
      * @param includePluginDir
      * @return The relative path
@@ -149,23 +149,22 @@ public class PluginUtils {
 
         // Get directory name. We need to make sure we're not allowing this to fetch other resources
         File pluginDir = getPluginDirectory();
-        if (includePluginDir){
+        if (includePluginDir) {
             pluginDir = pluginDir.getParentFile();
         }
-        
+
         String basePath = FilenameUtils.normalize(pluginDir.getAbsolutePath());
         String elementFullPath = FilenameUtils.getFullPath(FilenameUtils.normalize(fullPath));
-        
-        if(elementFullPath.indexOf(basePath) <0 ){
+
+        if (elementFullPath.indexOf(basePath) < 0) {
             throw new FileNotFoundException("Can't extract relative path from file " + fullPath);
         }
-        
-        return elementFullPath.substring(basePath.length());
-        
 
-    }    
-    
-    
+        return elementFullPath.substring(basePath.length());
+
+
+    }
+
     /**
      * Calls out for resources in the plugin, on the specified path
      *
@@ -218,7 +217,9 @@ public class PluginUtils {
             return;
         }
 
-        response.setHeader("Content-Type", mimeType);
+        if (mimeType != null) {
+            response.setHeader("Content-Type", mimeType);
+        }
 
         if (attachmentName != null) {
             response.setHeader("content-disposition", "attachment; filename=" + attachmentName);

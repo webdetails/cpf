@@ -134,10 +134,7 @@ public class KettleOutput implements IKettleOutput {
             ResultFile file = filesList.get(0);
             
             if(parameterProviders.get("request").hasParameter("download")){
-                String [] split = file.getFile().getName().toString().split("/");
-                int length = file.getFile().getName().toString().split("/").length;
-                String filename = split[length-1];
-                PluginUtils.getInstance().setResponseHeaders(parameterProviders, "", filename);
+                PluginUtils.getInstance().setResponseHeaders(parameterProviders, null, file.getFile().getName().getBaseName());
             }
             try {
                 IOUtils.copy(KettleVFS.getInputStream(file.getFile()),PluginUtils.getInstance().getResponseOutputStream(parameterProviders));
