@@ -14,6 +14,8 @@ import java.util.logging.Logger;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.pentaho.di.core.Result;
 import org.pentaho.di.core.ResultFile;
@@ -60,6 +62,7 @@ public class KettleOutput implements IKettleOutput {
 
     }
 
+    @Override
     public void storeRow(Object[] row, RowMetaInterface rowMeta) {
         rows.add(row);
         rowsMeta.add(rowMeta);
@@ -172,7 +175,12 @@ public class KettleOutput implements IKettleOutput {
     }
 
     public void processJson() {
-        logger.warn("Process Json");
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            mapper.writeValue(out, rows);
+        } catch (IOException ex) {
+            Logger.getLogger(KettleOutput.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public void processInfered() {
@@ -215,6 +223,8 @@ public class KettleOutput implements IKettleOutput {
 
 
     }
+    
+    
 
     @Override
     public boolean needsRowListener() {
