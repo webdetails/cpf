@@ -42,8 +42,7 @@ public class KettleOutput implements IKettleOutput {
     protected KettleType kettleType;
     private String outputStepName = "OUTPUT";
     private Map<String, IParameterProvider> parameterProviders;
-    
-    
+
     public KettleOutput(Map<String, IParameterProvider> parameterProviders) {
         init(parameterProviders);
     }
@@ -121,41 +120,49 @@ public class KettleOutput implements IKettleOutput {
     }
 
     public void processResultFiles() {
-        
-        logger.warn("Process Result Files");
-        
+
+        logger.debug("Process Result Files");
+
         // Singe file? Just write it to the outputstream
         List<ResultFile> filesList = getResult().getResultFilesList();
-        
-        if(filesList.isEmpty()){
+
+        if (filesList.isEmpty()) {
             logger.warn("Processing result files but no files found");
             return;
-        }
-        else if(filesList.size()==1){
+        } else if (filesList.size() == 1) {
             ResultFile file = filesList.get(0);
-            if(parameterProviders.get("request").hasParameter("download")){
-                PluginUtils.getInstance().setResponseHeaders(parameterProviders, null, file.getFile().getName().getBaseName());
+
+            // Do we know the mime type?
+            String mimeType = MimeTypes.getMimeType(file.getFile().getName().getExtension());
+
+            if (Boolean.parseBoolean(PluginUtils.getInstance().getRequestParameters(parameterProviders).getStringParameter("download", "false"))) {
+                PluginUtils.getInstance().setResponseHeaders(parameterProviders, mimeType, file.getFile().getName().getBaseName());
             }
+            else{
+                // set Mimetype only
+                PluginUtils.getInstance().setResponseHeaders(parameterProviders, mimeType);
+            }
+            
+            
             try {
-                IOUtils.copy(KettleVFS.getInputStream(file.getFile()),PluginUtils.getInstance().getResponseOutputStream(parameterProviders));
+                IOUtils.copy(KettleVFS.getInputStream(file.getFile()), PluginUtils.getInstance().getResponseOutputStream(parameterProviders));
             } catch (Exception ex) {
                 logger.warn("Failed to copy file to outputstream: " + Util.getExceptionDescription(ex));
             }
-            
-        }
-        else{
-            
+
+        } else {
             // Build a zip / tar and ship it over!
+            logger.warn("processResultFiles: Output multiple files not done yet!");
         }
     }
 
     public void processSingleCell() {
-        
-        
-        logger.warn("Process Single Cell - print it");
-        
+
+
+        logger.debug("Process Single Cell - print it");
+
         // TODO - make sure this is correct
-        
+
         try {
             PluginUtils.getInstance().getResponseOutputStream(parameterProviders).write(getRows().get(0)[0].toString().getBytes("UTF-8"));
         } catch (UnsupportedEncodingException ex) {
@@ -163,7 +170,7 @@ public class KettleOutput implements IKettleOutput {
         } catch (IOException ex) {
             Logger.getLogger(KettleOutput.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }
 
     public void processJson() {
@@ -189,30 +196,26 @@ public class KettleOutput implements IKettleOutput {
          *      * Regular resultset: Json
          */
         Result result = getResult();
-        
-        if(result.getResultFilesList().size()>0){
-            
+
+        if (result.getResultFilesList().size() > 0) {
+
             processResultFiles();
-        }else{
-            
-            if(getKettleType() == KettleType.JOB){
-                processResultOnly();                
-            }
-            else{
-                
-                if(getRows().size()== 1 && getRowsMeta().size()==1){
+        } else {
+
+            if (getKettleType() == KettleType.JOB) {
+                processResultOnly();
+            } else {
+
+                if (getRows().size() == 1 && getRowsMeta().size() == 1) {
                     processSingleCell();
-                }
-                else{
+                } else {
                     processJson();
                 }
-                
+
             }
-            
+
         }
     }
-    
-    
 
     @Override
     public boolean needsRowListener() {

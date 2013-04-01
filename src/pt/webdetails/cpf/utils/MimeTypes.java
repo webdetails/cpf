@@ -15,7 +15,6 @@ import org.apache.commons.logging.LogFactory;
  */
 public class MimeTypes {
     
-    protected Log logger = LogFactory.getLog(this.getClass());
     
     public static final String CSS = "text/css";
     public static final String JAVASCRIPT = "text/javascript";
@@ -71,19 +70,19 @@ public class MimeTypes {
         mimeTypes.put(FileType.TXT, PLAIN_TEXT);
     }
 
-    protected String getMimeType(String fileName) {
+    public static String getMimeType(String fileName) {
         String[] fileNameSplit = StringUtils.split(fileName, '.');// fileName.split("\\.");
         try {
             return getMimeType(FileType.valueOf(fileNameSplit[fileNameSplit.length - 1].toUpperCase()));
         } catch (Exception e) {
-            logger.warn("Unrecognized extension for file name " + fileName);
-            return "";
+            // Can't find it... whatever
+            return null;
         }
     }
 
-    protected String getMimeType(FileType fileType) {
+    public static String getMimeType(FileType fileType) {
         if (fileType == null) {
-            return "";
+            return null;
         }
         String mimeType = mimeTypes.get(fileType);
         return mimeType == null ? "" : mimeType;
