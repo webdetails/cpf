@@ -17,7 +17,7 @@ import org.pentaho.platform.api.engine.IParameterProvider;
 import pt.webdetails.cpf.scripts.GlobalScope;
 import pt.webdetails.cpf.RequestHandler;
 import pt.webdetails.cpf.RestRequestHandler;
-import pt.webdetails.cpf.SimpleContentGenerator.MimeType;
+import pt.webdetails.cpf.utils.MimeTypes;
 
 /**
  *
@@ -94,7 +94,7 @@ public class Router implements RestRequestHandler {
 
     @Override
     public String getResponseMimeType() {
-        return MimeType.HTML;
+        return MimeTypes.HTML;
     }
 
     class Key {

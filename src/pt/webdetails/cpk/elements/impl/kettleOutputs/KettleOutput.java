@@ -23,6 +23,7 @@ import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.vfs.KettleVFS;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import pt.webdetails.cpf.Util;
+import pt.webdetails.cpf.utils.MimeTypes;
 import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.impl.KettleElementType;
 import pt.webdetails.cpk.elements.impl.KettleElementType.KettleType;
@@ -132,7 +133,6 @@ public class KettleOutput implements IKettleOutput {
         }
         else if(filesList.size()==1){
             ResultFile file = filesList.get(0);
-            
             if(parameterProviders.get("request").hasParameter("download")){
                 PluginUtils.getInstance().setResponseHeaders(parameterProviders, null, file.getFile().getName().getBaseName());
             }
@@ -147,11 +147,6 @@ public class KettleOutput implements IKettleOutput {
             
             // Build a zip / tar and ship it over!
         }
-                
-        
-        
-        
-        
     }
 
     public void processSingleCell() {
