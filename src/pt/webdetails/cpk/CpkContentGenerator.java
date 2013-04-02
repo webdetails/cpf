@@ -5,6 +5,15 @@ package pt.webdetails.cpk;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import net.sf.saxon.sort.SortedIterator;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.dom4j.DocumentException;
 import pt.webdetails.cpf.RestContentGenerator;
@@ -34,8 +43,43 @@ public class CpkContentGenerator extends RestContentGenerator {
         debug("Creating content");
        
         // Get the path, remove leading slash
-        String path = pluginUtils.getPathParameters(parameterProviders).getStringParameter("path", null).substring(1);
-        IElement element = cpkEngine.getElement(path.toLowerCase());
+        String fullPath = pluginUtils.getPathParameters(parameterProviders).getStringParameter("path", null);
+        String path = null;
+        
+        
+        if(fullPath == null){
+            path = "/";
+        }else if(fullPath.length()<=1){
+            path = fullPath;
+        }else{
+            path = pluginUtils.getPathParameters(parameterProviders).getStringParameter("path", null).substring(1);
+        }
+        
+        
+        IElement element = null;
+                
+        if (!path.equals("/")){
+            element = cpkEngine.getElement(path.toLowerCase());
+        } else {
+            
+            Map<String,IElement> sortedMap = new TreeMap<String,IElement>(cpkEngine.getElementsMap());
+            
+            for (IElement e : sortedMap.values()){
+               if(e.getElementType().equalsIgnoreCase("dashboard") ){
+                   element = e;
+                   String url = null;
+                   
+                   if(fullPath==null){
+                       url = "cvb/"+element.getId();
+                   }else{
+                       url = element.getId();
+                   }
+                   
+                   PluginUtils.getInstance().redirect(parameterProviders, url);
+                   break;
+               }
+            }
+        }
         
         
         if(element != null){
