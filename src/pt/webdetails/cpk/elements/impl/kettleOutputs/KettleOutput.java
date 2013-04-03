@@ -3,17 +3,33 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpk.elements.impl.kettleOutputs;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.JarOutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.vfs.FileContent;
+import org.apache.commons.vfs.FileObject;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.pentaho.di.core.Result;
 import org.pentaho.di.core.ResultFile;
@@ -150,7 +166,45 @@ public class KettleOutput implements IKettleOutput {
 
         } else {
             // Build a zip / tar and ship it over!
-            logger.warn("processResultFiles: Output multiple files not done yet!");
+            
+            try {
+                String zipPath = "/tmp/";
+                String zipName = filesList.get(0).getFile().getParent().getName().getBaseName() +".zip";
+                String zipFullPath = zipPath+zipName;
+                logger.info("Building '"+zipFullPath+"'");
+                FileOutputStream fos = new FileOutputStream(zipFullPath);
+                ZipOutputStream zipOut = new ZipOutputStream(new BufferedOutputStream(fos)); 
+                InputStreamReader isr = null;
+                FileInputStream fis = null;
+                
+                for(ResultFile resFile: filesList){
+                    FileObject myFile = resFile.getFile();
+
+                    ZipEntry zip = new ZipEntry(myFile.getName().getParent().getBaseName()+"/"+myFile.getName().getBaseName());
+                    zipOut.putNextEntry(zip);
+
+                    isr = new InputStreamReader(myFile.getContent().getInputStream());
+
+                    byte [] bytes = IOUtils.toByteArray(isr);
+
+                    zipOut.write(bytes);
+                }
+                
+                zipOut.close();
+                logger.info("'"+zipName+"' built. Sending to client...");
+                
+                
+                PluginUtils.getInstance().setResponseHeaders(parameterProviders, "ZIP", zipName);
+                
+                fis = new FileInputStream(zipFullPath);
+                
+                IOUtils.copy(fis, out);
+                                
+            } catch (Exception ex) {
+                Logger.getLogger(KettleOutput.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            
         }
     }
 
