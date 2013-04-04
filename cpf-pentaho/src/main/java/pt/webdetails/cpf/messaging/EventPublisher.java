@@ -14,7 +14,6 @@ import pt.webdetails.cpf.InterPluginCall;
 import pt.webdetails.cpf.JsonPluginCall;
 import pt.webdetails.cpf.Result;
 
-import pt.webdetails.cpf.messaging.PluginEvent;
 
 /**
  * Inefficient but thread-safe..
