@@ -39,6 +39,7 @@ import org.pentaho.platform.api.engine.IParameterProvider;
 import pt.webdetails.cpf.Util;
 import pt.webdetails.cpf.utils.MimeTypes;
 import pt.webdetails.cpf.utils.PluginUtils;
+import pt.webdetails.cpf.utils.ZipUtil;
 import pt.webdetails.cpk.elements.impl.KettleElementType;
 import pt.webdetails.cpk.elements.impl.KettleElementType.KettleType;
 
@@ -167,42 +168,17 @@ public class KettleOutput implements IKettleOutput {
         } else {
             // Build a zip / tar and ship it over!
             
+            ZipUtil zip = new ZipUtil(filesList);    
+             
+            PluginUtils.getInstance().setResponseHeaders(parameterProviders, "ZIP", zip.getZipNameToDownload());
+            
             try {
-                String zipPath = "/tmp/";
-                String zipName = filesList.get(0).getFile().getParent().getName().getBaseName() +".zip";
-                String zipFullPath = zipPath+zipName;
-                logger.info("Building '"+zipFullPath+"'");
-                FileOutputStream fos = new FileOutputStream(zipFullPath);
-                ZipOutputStream zipOut = new ZipOutputStream(new BufferedOutputStream(fos)); 
-                InputStreamReader isr = null;
-                FileInputStream fis = null;
-                
-                for(ResultFile resFile: filesList){
-                    FileObject myFile = resFile.getFile();
-
-                    ZipEntry zip = new ZipEntry(myFile.getName().getParent().getBaseName()+"/"+myFile.getName().getBaseName());
-                    zipOut.putNextEntry(zip);
-
-                    isr = new InputStreamReader(myFile.getContent().getInputStream());
-
-                    byte [] bytes = IOUtils.toByteArray(isr);
-
-                    zipOut.write(bytes);
-                }
-                
-                zipOut.close();
-                logger.info("'"+zipName+"' built. Sending to client...");
-                
-                
-                PluginUtils.getInstance().setResponseHeaders(parameterProviders, "ZIP", zipName);
-                
-                fis = new FileInputStream(zipFullPath);
-                
-                IOUtils.copy(fis, out);
-                                
-            } catch (Exception ex) {
+                IOUtils.copy(zip.getZipInputStream(), out);
+            } catch (IOException ex) {
                 Logger.getLogger(KettleOutput.class.getName()).log(Level.SEVERE, null, ex);
             }
+                                
+            
             
             
         }
