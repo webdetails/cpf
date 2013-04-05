@@ -15,5 +15,5 @@ public interface IUserSession {
     
     
     public boolean isAdministrator();
-    
+
 }
