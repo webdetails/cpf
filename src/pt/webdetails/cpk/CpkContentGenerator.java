@@ -84,6 +84,7 @@ import java.io.OutputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ResourceBundle.Control;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
@@ -108,6 +109,7 @@ import pt.webdetails.cpf.RestRequestHandler;
 import pt.webdetails.cpf.Router;
 import pt.webdetails.cpf.annotations.AccessLevel;
 import pt.webdetails.cpf.annotations.Exposed;
+import pt.webdetails.cpf.utils.AccessControl;
 import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.IElement;
 
@@ -119,6 +121,7 @@ public class CpkContentGenerator extends RestContentGenerator {
     public static final String CDW_EXTENSION = ".cdw";
     public static final String PLUGIN_NAME = "cpk";
     private CpkEngine cpkEngine;
+    private AccessControl accessControl = new AccessControl();
 
     @Override
     public void createContent() throws Exception {
@@ -170,13 +173,10 @@ public class CpkContentGenerator extends RestContentGenerator {
         
         
         if(element != null){
-            String adminDir = "dashboards/admin";
-            if(element.getLocation().contains(adminDir) && isAdmin()){
+            if(accessControl.isAllowed(element.getLocation())){
                 element.processRequest(parameterProviders);
-            }else if(!element.getLocation().contains(adminDir)){
-                element.processRequest(parameterProviders);
-            }else {
-               throw new RuntimeException("Unauthorized access to "+element.getElementType().toLowerCase()+": "+element.getId());
+            }else{
+                accessControl.throwAccessDenied(element);
             }
                  
         }
@@ -187,13 +187,7 @@ public class CpkContentGenerator extends RestContentGenerator {
         
     }
     
-    private boolean isAdmin(){
-        boolean is = false;
-        is = SecurityHelper.isPentahoAdministrator(PentahoSessionHolder.getSession());
-        
-        
-        return is;
-    }
+    
 
     @Exposed(accessLevel = AccessLevel.PUBLIC)
     public void reload(OutputStream out) throws DocumentException, IOException {
