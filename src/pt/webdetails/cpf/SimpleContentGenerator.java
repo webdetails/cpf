@@ -372,6 +372,12 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
         return logger;
     }
     
+    
+    protected Object getBean(String id) {
+      return BeanGetter.getInstance(getPluginName()).getBean(id);
+    }
+    
+    
     protected void setResponseHeaders(final String mimeType){
       setResponseHeaders(mimeType, 0, null);
     }
