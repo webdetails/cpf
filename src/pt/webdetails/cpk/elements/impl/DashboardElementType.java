@@ -104,4 +104,11 @@ public class DashboardElementType extends AbstractElementType {
     protected ElementInfo createElementInfo() {
         return new ElementInfo("text/html");
     }
+
+    @Override
+    public boolean isShowInSitemap() {
+        return true;
+    }
+    
+    
 }

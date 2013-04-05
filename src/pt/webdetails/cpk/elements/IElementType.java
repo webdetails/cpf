@@ -22,4 +22,6 @@ public interface IElementType {
     
     public void processRequest(Map<String, IParameterProvider> parameterProviders, IElement element);
         
+    public boolean isShowInSitemap();
+    
 }

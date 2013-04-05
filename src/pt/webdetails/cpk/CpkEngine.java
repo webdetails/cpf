@@ -4,25 +4,18 @@
 package pt.webdetails.cpk;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.TreeMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Node;
-import org.dom4j.io.SAXReader;
 import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
@@ -41,17 +34,15 @@ public class CpkEngine {
     private static CpkEngine instance;
     protected Log logger = LogFactory.getLog(this.getClass());
     private Document cpkDoc;
-    private HashMap<String, IElement> elementsMap;
+    private TreeMap<String, IElement> elementsMap;
     private HashMap<String, IElementType> elementTypesMap;
+    private static List reserverdWords = Arrays.asList("refresh", "status", "reload");
 
-    private static List reserverdWords = Arrays.asList("refresh", "status","reload");
-    
-    
     public CpkEngine() {
 
         // Starting elementEngine
         logger.debug("Starting ElementEngine");
-        elementsMap = new HashMap<String, IElement>();
+        elementsMap = new TreeMap<String, IElement>();
         elementTypesMap = new HashMap<String, IElementType>();
 
         try {
@@ -132,9 +123,9 @@ public class CpkEngine {
                 String key = element.getId().toLowerCase();
 
                 if (elementsMap.containsKey(key)) {
-                    
+
                     logger.warn("Found duplicate key " + key + " in element " + element.toString());
-                    
+
                 } else if (reserverdWords.contains(key)) {
 
                     logger.warn("Element with reserved work '" + key + "' can't be registred: " + element.toString());
@@ -167,7 +158,7 @@ public class CpkEngine {
         this.cpkDoc = cpkDoc;
     }
 
-    public HashMap<String, IElement> getElementsMap() {
+    public TreeMap<String, IElement> getElementsMap() {
         return elementsMap;
     }
 
@@ -181,8 +172,24 @@ public class CpkEngine {
      * @param key
      * @return
      */
-    IElement getElement(String key) {
+    public IElement getElement(String key) {
         return this.elementsMap.get(key);
+    }
+
+    /**
+     * Gets the element corresponding to the registred key
+     *
+     * @param key
+     * @return
+     */
+    public IElement getDefaultElement() {
+
+        for (IElement e : this.elementsMap.values()) {
+            if (CpkEngine.getInstance().getElementType(e.getElementType()).isShowInSitemap()) {
+                return e;
+            }
+        }
+        return null;
     }
 
     /**
@@ -217,12 +224,9 @@ public class CpkEngine {
 
 
     }
-    
-    public JsonNode getSitemapJson() throws IOException{
+
+    public JsonNode getSitemapJson() throws IOException {
         LinkGenerator linkGen = new LinkGenerator(elementsMap.values());
         return linkGen.getLinksJson();
     }
-    
-
-
 }

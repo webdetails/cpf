@@ -196,9 +196,8 @@ public class KettleElementType extends AbstractElementType {
         if (customParams.size() > 0) {
             for (String arg : customParams.keySet()) {
                 
-                transformationMeta.setParameterValue(arg, customParams.get(arg));
-                transformation.copyParametersFrom(transformationMeta);
-                
+                transformation.getTransMeta().setParameterValue(arg, customParams.get(arg));
+                                
             }
             transformation.copyParametersFrom(transformation.getTransMeta());
             transformation.activateParameters();
@@ -257,7 +256,7 @@ public class KettleElementType extends AbstractElementType {
          */        
         if (customParams.size() > 0) {
             for (String arg : customParams.keySet()) {
-                jobMeta.setParameterValue(arg, customParams.get(arg));
+                job.getJobMeta().setParameterValue(arg, customParams.get(arg));
             }
             job.copyParametersFrom(jobMeta);
             job.activateParameters();
@@ -275,4 +274,12 @@ public class KettleElementType extends AbstractElementType {
     protected ElementInfo createElementInfo() {
         return new ElementInfo(MimeTypes.JSON, 0);
     }
+
+    @Override
+    public boolean isShowInSitemap() {
+        return false;
+    }
+    
+    
+    
 }

@@ -1,80 +1,4 @@
-/* This Source Code For
-
-                    @Override
-                    public String getCharacterEncoding() {
-                        throw new UnsupportedOperationException("Not supported yet.");
-                    }
-
-                    @Override
-                    public String getContentType() {
-                        throw new UnsupportedOperationException("Not supported yet.");
-                    }
-
-                    @Override
-                    public ServletOutputStream getOutputStream() throws IOException {
-                        throw new UnsupportedOperationException("Not supported yet.");
-                    }
-
-                    @Override
-                    public PrintWriter getWriter() throws IOException {
-                        throw new UnsupportedOperationException("Not supported yet.");
-                    }
-
-                    @Override
-                    public void setCharacterEncoding(String string) {
-                        throw new UnsupportedOperationException("Not supported yet.");
-                    }
-
-                    @Override
-                    public void setContentLength(int i) {
-                        throw new UnsupportedOperationException("Not supported yet.");
-                    }
-
-                    @Override
-                    public void setContentType(String string) {
-                        throw new UnsupportedOperationException("Not supported yet.");
-                    }
-
-                    @Override
-                    public void setBufferSize(int i) {
-                        throw new UnsupportedOperationException("Not supported yet.");
-                    }
-
-                    @Override
-                    public int getBufferSize() {
-                        throw new UnsupportedOperationException("Not supported yet.");
-                    }
-
-                    @Override
-                    public void flushBuffer() throws IOException {
-                        throw new UnsupportedOperationException("Not supported yet.");
-                    }
-
-                    @Override
-                    public void resetBuffer() {
-                        throw new UnsupportedOperationException("Not supported yet.");
-                    }
-
-                    @Override
-                    public boolean isCommitted() {
-                        throw new UnsupportedOperationException("Not supported yet.");
-                    }
-
-                    @Override
-                    public void reset() {
-                        throw new UnsupportedOperationException("Not supported yet.");
-                    }
-
-                    @Override
-                    public void setLocale(Locale locale) {
-                        throw new UnsupportedOperationException("Not supported yet.");
-                    }
-
-                    @Override
-                    public Locale getLocale() {
-                        throw new UnsupportedOperationException("Not supported yet.");
-                    }
-                } is subject to the terms of the Mozilla Public
+/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpk;
@@ -113,8 +37,6 @@ import pt.webdetails.cpf.utils.AccessControl;
 import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.IElement;
 
-
-
 public class CpkContentGenerator extends RestContentGenerator {
 
     private static final long serialVersionUID = 1L;
@@ -131,63 +53,35 @@ public class CpkContentGenerator extends RestContentGenerator {
         PluginUtils pluginUtils = PluginUtils.getInstance();
 
         debug("Creating content");
-       
+
         // Get the path, remove leading slash
-        String fullPath = pluginUtils.getPathParameters(parameterProviders).getStringParameter("path", null);
-        String path = null;
-        
-        
-        if(fullPath == null){
-            path = "/";
-        }else if(fullPath.length()<=1){
-            path = fullPath;
-        }else{
-            path = pluginUtils.getPathParameters(parameterProviders).getStringParameter("path", null).substring(1);
-        }
-        
-        
+        String path = pluginUtils.getPathParameters(parameterProviders).getStringParameter("path", null);
         IElement element = null;
-                
-        if (!path.equals("/")){
-            element = cpkEngine.getElement(path.toLowerCase());
-        } else {
-            
-            Map<String,IElement> sortedMap = new TreeMap<String,IElement>(cpkEngine.getElementsMap());
-            
-            for (IElement e : sortedMap.values()){
-               if(e.getElementType().equalsIgnoreCase("dashboard") ){
-                   element = e;
-                   String url = null;
-                   
-                   if(fullPath==null){
-                       url = "cvb/"+element.getId();
-                   }else{
-                       url = element.getId();
-                   }
-                   
-                   PluginUtils.getInstance().redirect(parameterProviders, url);
-                   break;
-               }
+
+        if (path == null || path.equals("/")) {
+
+            String url = cpkEngine.getDefaultElement().getId();
+            if (path == null) {
+                // We need to put the http redirection on the right level
+                url = pluginUtils.getPluginName() + "/" + url;
             }
+            pluginUtils.redirect(parameterProviders, url);
         }
-        
-        
-        if(element != null){
-            if(accessControl.isAllowed(element.getLocation())){
+
+        element = cpkEngine.getElement(path.substring(1).toLowerCase());
+        if (element != null) {
+            if (accessControl.isAllowed(element.getLocation())) {
                 element.processRequest(parameterProviders);
-            }else{
+            } else {
                 accessControl.throwAccessDenied(element);
             }
-                 
-        }
-        else{
+
+        } else {
             super.createContent();
         }
-        
-        
+
+
     }
-    
-    
 
     @Exposed(accessLevel = AccessLevel.PUBLIC)
     public void reload(OutputStream out) throws DocumentException, IOException {
@@ -215,19 +109,17 @@ public class CpkContentGenerator extends RestContentGenerator {
         out.write(cpkEngine.getStatus().getBytes("UTF-8"));
 
     }
-    
-    @Exposed(accessLevel= AccessLevel.PUBLIC)
-    public void getSitemapJson(OutputStream out) throws IOException{
+
+    @Exposed(accessLevel = AccessLevel.PUBLIC)
+    public void getSitemapJson(OutputStream out) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(out, cpkEngine.getSitemapJson());
     }
-    
-    @Exposed(accessLevel= AccessLevel.PUBLIC)
-    public void getStyle(OutputStream out) throws IOException{
+
+    @Exposed(accessLevel = AccessLevel.PUBLIC)
+    public void getStyle(OutputStream out) throws IOException {
         out.write("Here is your style!".getBytes("UTF-8"));
     }
-    
-
 
     @Override
     public String getPluginName() {
@@ -235,10 +127,8 @@ public class CpkContentGenerator extends RestContentGenerator {
         return PluginUtils.getInstance().getPluginName();
     }
 
-
     @Override
     public RestRequestHandler getRequestHandler() {
         return Router.getBaseRouter();
     }
-    
 }
