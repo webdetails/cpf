@@ -29,4 +29,6 @@ public interface IKettleOutput {
     public void setKettleType(KettleElementType.KettleType kettleType);
     
     public void setOutputStepName(String stepName);
+    
+    public String getOutputStepName();
 }

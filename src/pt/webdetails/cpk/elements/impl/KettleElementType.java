@@ -206,21 +206,17 @@ public class KettleElementType extends AbstractElementType {
         }
         transformation.prepareExecution(null);
 
-        StepInterface step = transformation.findRunThread(stepName);
+        StepInterface step = transformation.findRunThread(kettleOutput.getOutputStepName());
         transformation.startThreads();
 
         if (kettleOutput.needsRowListener()) {
 
             step.addRowListener(new RowAdapter() {
                 @Override
-                public void rowReadEvent(RowMetaInterface rowMeta, Object[] row) throws KettleStepException {
+                public void rowWrittenEvent(RowMetaInterface rowMeta, Object[] row) throws KettleStepException {
                     kettleOutput.storeRow(row, rowMeta);
                 }
 
-                @Override
-                public void rowWrittenEvent(RowMetaInterface rowMeta, Object[] row) throws KettleStepException {
-                    // TODO
-                }
             });
         }
 
