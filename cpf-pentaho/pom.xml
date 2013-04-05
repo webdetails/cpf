@@ -138,6 +138,8 @@
 			<groupId>pt.webdetails</groupId>
 			<artifactId>cpf-core</artifactId>
 			<version>${project.version}</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/../cpf-core/target/cpf-core-TRUNK-SNAPSHOT.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -154,5 +156,11 @@
 			<artifactId>mondrian</artifactId>
 			<version>3.5.4</version>
 		</dependency>
+	 <dependency>
+	  <groupId>pentaho</groupId>
+	  <artifactId>pentaho-bi-platform-engine-security</artifactId>
+	  <version>4.5.0-stable</version>
+	  <type>jar</type>
+	 </dependency>
 	</dependencies>
 </project>
