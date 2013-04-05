@@ -1,4 +1,80 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
+/* This Source Code For
+
+                    @Override
+                    public String getCharacterEncoding() {
+                        throw new UnsupportedOperationException("Not supported yet.");
+                    }
+
+                    @Override
+                    public String getContentType() {
+                        throw new UnsupportedOperationException("Not supported yet.");
+                    }
+
+                    @Override
+                    public ServletOutputStream getOutputStream() throws IOException {
+                        throw new UnsupportedOperationException("Not supported yet.");
+                    }
+
+                    @Override
+                    public PrintWriter getWriter() throws IOException {
+                        throw new UnsupportedOperationException("Not supported yet.");
+                    }
+
+                    @Override
+                    public void setCharacterEncoding(String string) {
+                        throw new UnsupportedOperationException("Not supported yet.");
+                    }
+
+                    @Override
+                    public void setContentLength(int i) {
+                        throw new UnsupportedOperationException("Not supported yet.");
+                    }
+
+                    @Override
+                    public void setContentType(String string) {
+                        throw new UnsupportedOperationException("Not supported yet.");
+                    }
+
+                    @Override
+                    public void setBufferSize(int i) {
+                        throw new UnsupportedOperationException("Not supported yet.");
+                    }
+
+                    @Override
+                    public int getBufferSize() {
+                        throw new UnsupportedOperationException("Not supported yet.");
+                    }
+
+                    @Override
+                    public void flushBuffer() throws IOException {
+                        throw new UnsupportedOperationException("Not supported yet.");
+                    }
+
+                    @Override
+                    public void resetBuffer() {
+                        throw new UnsupportedOperationException("Not supported yet.");
+                    }
+
+                    @Override
+                    public boolean isCommitted() {
+                        throw new UnsupportedOperationException("Not supported yet.");
+                    }
+
+                    @Override
+                    public void reset() {
+                        throw new UnsupportedOperationException("Not supported yet.");
+                    }
+
+                    @Override
+                    public void setLocale(Locale locale) {
+                        throw new UnsupportedOperationException("Not supported yet.");
+                    }
+
+                    @Override
+                    public Locale getLocale() {
+                        throw new UnsupportedOperationException("Not supported yet.");
+                    }
+                } is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpk;
@@ -13,9 +89,20 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.ws.http.HTTPException;
 import net.sf.saxon.sort.SortedIterator;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.dom4j.DocumentException;
+import org.pentaho.platform.api.engine.IParameterProvider;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.platform.web.http.PentahoHttpSessionHelper;
+import org.pentaho.reporting.engine.classic.core.AttributeNames.Pentaho;
 import pt.webdetails.cpf.RestContentGenerator;
 import pt.webdetails.cpf.RestRequestHandler;
 import pt.webdetails.cpf.Router;
@@ -83,13 +170,29 @@ public class CpkContentGenerator extends RestContentGenerator {
         
         
         if(element != null){
-            element.processRequest(parameterProviders);                    
+            String adminDir = "dashboards/admin";
+            if(element.getLocation().contains(adminDir) && isAdmin()){
+                element.processRequest(parameterProviders);
+            }else if(!element.getLocation().contains(adminDir)){
+                element.processRequest(parameterProviders);
+            }else {
+               throw new RuntimeException("Unauthorized access to "+element.getElementType().toLowerCase()+": "+element.getId());
+            }
+                 
         }
         else{
             super.createContent();
         }
         
         
+    }
+    
+    private boolean isAdmin(){
+        boolean is = false;
+        is = SecurityHelper.isPentahoAdministrator(PentahoSessionHolder.getSession());
+        
+        
+        return is;
     }
 
     @Exposed(accessLevel = AccessLevel.PUBLIC)
