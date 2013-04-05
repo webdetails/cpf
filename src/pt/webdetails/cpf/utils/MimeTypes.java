@@ -33,11 +33,13 @@ public class MimeTypes {
     public static final String XLSX = "application/msexcel";
     public static final String PPT = "application/mspowerpoint";
     public static final String PPTX = "application/mspowerpoint";
+    public static final String ZIP = "application/zip";
+    
     
     public enum FileType {
 
         JPG, JPEG, PNG, GIF, BMP, JS, CSS, HTML, HTM, XML,
-        SVG, PDF, TXT, DOC, DOCX, XLS, XLSX, PPT, PPTX;
+        SVG, PDF, TXT, DOC, DOCX, XLS, XLSX, PPT, PPTX, ZIP;
 
         public static FileType parse(String value) {
             return valueOf(StringUtils.upperCase(value));

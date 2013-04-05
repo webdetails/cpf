@@ -4,6 +4,7 @@
 package pt.webdetails.cpk.elements.impl.kettleOutputs;
 
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -161,36 +162,31 @@ public class KettleOutput implements IKettleOutput {
             // Build a zip / tar and ship it over!
 
             try {
-                String zipPath = "/tmp/";
-                String zipName = filesList.get(0).getFile().getParent().getName().getBaseName() + ".zip";
-                String zipFullPath = zipPath + zipName;
-                logger.info("Building '" + zipFullPath + "'");
-                FileOutputStream fos = new FileOutputStream(zipFullPath);
-                ZipOutputStream zipOut = new ZipOutputStream(new BufferedOutputStream(fos));
-                InputStreamReader isr = null;
-                FileInputStream fis = null;
-
+                
+                // Create a tmp file
+                File zipFile = File.createTempFile("cpk", ".zip");
+                
+                logger.debug("Building zip file for content");
+                ZipOutputStream zipOut = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(zipFile)));
+                
+                InputStreamReader isr;
+                FileInputStream fis;
+                
+                
                 for (ResultFile resFile : filesList) {
                     FileObject myFile = resFile.getFile();
-
+                    
                     ZipEntry zip = new ZipEntry(myFile.getName().getParent().getBaseName() + "/" + myFile.getName().getBaseName());
                     zipOut.putNextEntry(zip);
-
-                    isr = new InputStreamReader(myFile.getContent().getInputStream());
-
-                    byte[] bytes = IOUtils.toByteArray(isr);
-
-                    zipOut.write(bytes);
+                    IOUtils.copy(myFile.getContent().getInputStream(),zipOut);
+                    zipOut.closeEntry();
                 }
 
                 zipOut.close();
-                logger.info("'" + zipName + "' built. Sending to client...");
+                logger.info("'" +  zipFile.getName() + "' built. Sending to client...");
 
-
-                PluginUtils.getInstance().setResponseHeaders(parameterProviders, "ZIP", zipName);
-
-                fis = new FileInputStream(zipFullPath);
-
+                PluginUtils.getInstance().setResponseHeaders(parameterProviders, MimeTypes.ZIP, zipFile.getName());
+                fis = new FileInputStream(zipFile);
                 IOUtils.copy(fis, out);
 
             } catch (Exception ex) {
