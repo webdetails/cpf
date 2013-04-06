@@ -22,6 +22,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.vfs.FileObject;
+import org.apache.commons.vfs.FileName;
+import org.apache.commons.vfs.FileType;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.pentaho.di.core.Result;
 import org.pentaho.di.core.ResultFile;
@@ -172,14 +174,18 @@ public class KettleOutput implements IKettleOutput {
                 InputStreamReader isr;
                 FileInputStream fis;
                 
-                
+                FileName topFileName =  getTopFileName( filesList );
                 for (ResultFile resFile : filesList) {
                     FileObject myFile = resFile.getFile();
                     
-                    ZipEntry zip = new ZipEntry(myFile.getName().getParent().getBaseName() + "/" + myFile.getName().getBaseName());
-                    zipOut.putNextEntry(zip);
-                    IOUtils.copy(myFile.getContent().getInputStream(),zipOut);
-                    zipOut.closeEntry();
+                    ZipEntry zip = new ZipEntry(topFileName.getRelativeName( myFile.getName() ) );
+                    if ( myFile.getType() == FileType.FILE ){
+                        zipOut.putNextEntry(zip);
+                        IOUtils.copy(myFile.getContent().getInputStream(),zipOut);
+                        zipOut.closeEntry();
+                    }
+
+
                 }
 
                 zipOut.close();
@@ -195,6 +201,25 @@ public class KettleOutput implements IKettleOutput {
 
 
         }
+    }
+    
+    private FileName getTopFileName(List<ResultFile>filesList){
+        FileName topFileName = null;
+        try {
+            if (!filesList.isEmpty()){
+                topFileName =  filesList.get(0).getFile().getParent().getName();
+            } 
+            for (ResultFile resFile : filesList) {
+                logger.debug(resFile.getFile().getParent().getName().getPath());
+                FileName myFileName = resFile.getFile().getParent().getName();               
+                if ( topFileName.getURI().length() > myFileName.getURI().length() ){
+                    topFileName = myFileName;
+                }           
+            }            
+        } catch (Exception exception) {
+            logger.error(exception);
+        }     
+        return topFileName;
     }
 
     public void processSingleCell() {
