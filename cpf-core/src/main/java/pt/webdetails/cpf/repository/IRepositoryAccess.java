@@ -79,4 +79,5 @@ public interface IRepositoryAccess {
     
     public abstract String getJSON(final String dir, final String fileExtensions, final String access);
 
+    public abstract Document getFullSolutionTree(FileAccess accessMode, IRepositoryFileFilter filter);
 }
