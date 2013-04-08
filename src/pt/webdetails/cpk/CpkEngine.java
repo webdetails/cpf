@@ -39,7 +39,6 @@ public class CpkEngine {
     private TreeMap<String, IElement> elementsMap;
     private HashMap<String, IElementType> elementTypesMap;
     private static List reserverdWords = Arrays.asList("refresh", "status", "reload");
-    private static AccessControl accessControll;
 
     public CpkEngine() {
 

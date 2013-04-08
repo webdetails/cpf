@@ -36,7 +36,7 @@ public class Link{
     
     protected Log logger = LogFactory.getLog(this.getClass());
 
-    Link(IElement e, boolean sublnk, Collection<IElement> elements){
+    public Link(IElement e, boolean sublnk, Collection<IElement> elements){
         
         if(this.elements == null){
             this.elements = elements;

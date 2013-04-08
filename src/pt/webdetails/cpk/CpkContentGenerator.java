@@ -22,7 +22,7 @@ public class CpkContentGenerator extends RestContentGenerator {
     public static final String CDW_EXTENSION = ".cdw";
     public static final String PLUGIN_NAME = "cpk";
     private CpkEngine cpkEngine;
-    private AccessControl accessControl = new AccessControl();
+    
 
     @Override
     public void createContent() throws Exception {
@@ -30,7 +30,9 @@ public class CpkContentGenerator extends RestContentGenerator {
         // Make sure we have the engine running
         cpkEngine = CpkEngine.getInstance();
         PluginUtils pluginUtils = PluginUtils.getInstance();
-
+        
+        AccessControl accessControl = new AccessControl();
+        
         debug("Creating content");
 
         // Get the path, remove leading slash

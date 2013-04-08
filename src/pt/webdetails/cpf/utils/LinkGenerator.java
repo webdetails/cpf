@@ -31,7 +31,7 @@ public class LinkGenerator{
     private ArrayList<Link> kettleLinks;
     private Collection<IElement> elements;
     protected Log logger = LogFactory.getLog(this.getClass());
-    private AccessControl accessControl = new AccessControl();
+    
     
 
 
@@ -49,18 +49,15 @@ public class LinkGenerator{
     private void generateLinks(){
         dashboardLinks = new ArrayList<Link>();
         kettleLinks = new ArrayList<Link>();
+        AccessControl accessControl = new AccessControl();
 
         for(IElement e : elements){
             if(accessControl.isAllowed(e)){
                 Link link = new Link(e,false, getElements());
                 if(isDashboard(e)){
-                    if(!dashboardLinks.isEmpty()){
-                        if(!linkExists(dashboardLinks, link) && link.getName() != null){
-                            dashboardLinks.add(link);
-
-                        }else if(link.getName() == null){
-                            logger.error("There was a problem with a link creation. It's name is 'null'");
-                        }
+                    if(!dashboardLinks.isEmpty() && !linkExists(dashboardLinks, link) && link.getName() != null){
+                        
+                        dashboardLinks.add(link);
 
                     }else if(dashboardLinks.isEmpty() && link.getName() != null){
                         dashboardLinks.add(link);
@@ -133,7 +130,5 @@ public class LinkGenerator{
         return this.elements;
     }
 
-
-    
 }
   
