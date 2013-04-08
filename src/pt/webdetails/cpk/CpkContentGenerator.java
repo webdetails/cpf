@@ -49,7 +49,7 @@ public class CpkContentGenerator extends RestContentGenerator {
 
         element = cpkEngine.getElement(path.substring(1).toLowerCase());
         if (element != null) {
-            if (accessControl.isAllowed(element.getLocation())) {
+            if (accessControl.isAllowed(element)) {
                 element.processRequest(parameterProviders);
             } else {
                 accessControl.throwAccessDenied(element);

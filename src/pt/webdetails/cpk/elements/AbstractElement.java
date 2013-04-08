@@ -18,6 +18,7 @@ public class AbstractElement implements IElement {
     private String elementType;
     private String location;
     private ElementInfo elementInfo;
+    protected  boolean adminOnly;
 
     
     
@@ -56,10 +57,18 @@ public class AbstractElement implements IElement {
     public void setElementType(String elementType) {
         this.elementType = elementType;
     }
-
+    
+    public boolean getAdminOnly(){
+        return this.adminOnly;
+    }
+    
+    public void setAdminOnly(boolean admin){
+        this.adminOnly = admin;
+    }
+    
     @Override
     public String toString() {
-        return "AbstractElement{" + "id=" + id + ", name=" + name + ", elementType=" + elementType + ", location=" + location + '}';
+        return "AbstractElement{" + "id=" + getId() + ", name=" + getName() + ", elementType=" + getElementType() + ", location=" + getLocation() + ", adminOnly=" + getAdminOnly() +'}';
     }
 
     @Override

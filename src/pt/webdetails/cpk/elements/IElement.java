@@ -22,6 +22,9 @@ public interface IElement {
  
     public void processRequest(Map<String, IParameterProvider> parameterProviders);
     
+    public boolean getAdminOnly();
+    
     public ElementInfo getElementInfo();
+    
     
 }

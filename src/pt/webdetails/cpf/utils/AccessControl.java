@@ -15,12 +15,12 @@ import pt.webdetails.cpk.elements.IElement;
 public class AccessControl {
     private final String UNAUTHORIZED = "Unauthorized access";
     
-    public boolean isAllowed(String path){
+    public boolean isAllowed(IElement element){
         boolean is = false;
         
-        if(path.contains("/admin") && isAdmin()){
+        if(element.getAdminOnly() && isAdmin()){
             is = true;
-        }else if(!path.contains("/admin")){
+        }else if(!element.getAdminOnly()){
             is = true;
         }
         

@@ -18,7 +18,7 @@ public interface IElementType {
 
     public List<IElement> scanElements(Node node);
     
-    public IElement registerElement(String elementLocation);
+    public IElement registerElement(String elementLocation, boolean adminOnly);
     
     public void processRequest(Map<String, IParameterProvider> parameterProviders, IElement element);
         

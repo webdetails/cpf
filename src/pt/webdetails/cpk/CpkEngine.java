@@ -6,6 +6,7 @@ package pt.webdetails.cpk;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +21,7 @@ import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import pt.webdetails.cpf.Util;
+import pt.webdetails.cpf.utils.AccessControl;
 import pt.webdetails.cpf.utils.LinkGenerator;
 import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.IElement;
@@ -37,6 +39,7 @@ public class CpkEngine {
     private TreeMap<String, IElement> elementsMap;
     private HashMap<String, IElementType> elementTypesMap;
     private static List reserverdWords = Arrays.asList("refresh", "status", "reload");
+    private static AccessControl accessControll;
 
     public CpkEngine() {
 
@@ -122,11 +125,7 @@ public class CpkEngine {
 
                 String key = element.getId().toLowerCase();
 
-                if (elementsMap.containsKey(key)) {
-
-                    logger.warn("Found duplicate key " + key + " in element " + element.toString());
-
-                } else if (reserverdWords.contains(key)) {
+                if (reserverdWords.contains(key)) {
 
                     logger.warn("Element with reserved work '" + key + "' can't be registred: " + element.toString());
 

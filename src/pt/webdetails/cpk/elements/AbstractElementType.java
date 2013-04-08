@@ -52,6 +52,7 @@ public abstract class AbstractElementType implements IElementType {
             String elementPath = elementLocation.valueOf("@path");
             Boolean isRecursive = Boolean.parseBoolean(elementLocation.valueOf("@isRecursive"));
             String pattern = elementLocation.valueOf("@pattern");
+            boolean adminOnly = Boolean.parseBoolean(elementLocation.valueOf("@adminOnly"));
 
             Collection<File> elements = PluginUtils.getInstance().getPluginResources(elementPath, isRecursive, pattern);
 
@@ -61,7 +62,7 @@ public abstract class AbstractElementType implements IElementType {
             // Found the list we need. Processing it!
             for (File elementFile : elements) {
 
-                IElement iElement = this.registerElement(elementFile.getAbsolutePath());
+                IElement iElement = this.registerElement(elementFile.getAbsolutePath(), adminOnly);
                 if (iElement != null) {
 
                     // Now - there are some reserved words for the id
@@ -85,13 +86,13 @@ public abstract class AbstractElementType implements IElementType {
      * @return the initialized element
      */
     @Override
-    public IElement registerElement(String elementLocation) {
+    public IElement registerElement(String elementLocation, boolean adminOnly) {
 
         // 
         // classes
 
         AbstractElement element = new AbstractElement();
-        initBaseProperties(element, elementLocation);
+        initBaseProperties(element, elementLocation, adminOnly);
 
         return element;
 
@@ -107,13 +108,14 @@ public abstract class AbstractElementType implements IElementType {
      * @param elementLocation
      * @return
      */
-    public void initBaseProperties(AbstractElement element, String elementLocation) {
+    public void initBaseProperties(AbstractElement element, String elementLocation, boolean adminOnly) {
 
         element.setLocation(elementLocation);
         element.setId(FilenameUtils.getBaseName(elementLocation));
         element.setElementType(this.getType());
         element.setName(element.getId());
         element.setElementInfo(createElementInfo());
+        element.setAdminOnly(adminOnly);
         
 
     }

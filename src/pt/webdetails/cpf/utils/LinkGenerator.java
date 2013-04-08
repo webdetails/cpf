@@ -51,7 +51,7 @@ public class LinkGenerator{
         kettleLinks = new ArrayList<Link>();
 
         for(IElement e : elements){
-            if(accessControl.isAllowed(e.getLocation())){
+            if(accessControl.isAllowed(e)){
                 Link link = new Link(e,false, getElements());
                 if(isDashboard(e)){
                     if(!dashboardLinks.isEmpty()){
