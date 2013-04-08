@@ -8,6 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -24,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.pentaho.platform.api.engine.IAclSolutionFile;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IFileFilter;
 import org.pentaho.platform.api.engine.IPentahoAclEntry;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -42,6 +45,7 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
 import pt.webdetails.cpf.PluginSettings;
@@ -201,7 +205,7 @@ public class RepositoryAccess {
       List<RepositoryFileAce> aces =  acl.getAces();
       for(RepositoryFileAce ace:aces) {
         EnumSet<RepositoryFilePermission>  permissions = ace.getPermissions();
-        if(permissions.contains(RepositoryFilePermission.WRITE) && permissions.contains(RepositoryFilePermission.WRITE_ACL)) {
+        if(permissions.contains(RepositoryFilePermission.WRITE) && permissions.contains(RepositoryFilePermission.ACL_MANAGEMENT)) {
           return true;
         } 
       }
@@ -223,7 +227,7 @@ public class RepositoryAccess {
         case EDIT: 
           for(RepositoryFileAce ace:aces) {
             EnumSet<RepositoryFilePermission>  permissions = ace.getPermissions();
-            if(permissions.contains(RepositoryFilePermission.WRITE) && permissions.contains(RepositoryFilePermission.WRITE_ACL)) {
+            if(permissions.contains(RepositoryFilePermission.WRITE) && permissions.contains(RepositoryFilePermission.ACL_MANAGEMENT)) {
               return true;
             } 
           }
@@ -232,7 +236,7 @@ public class RepositoryAccess {
         case READ:
           for(RepositoryFileAce ace:aces) {
             EnumSet<RepositoryFilePermission>  permissions = ace.getPermissions();
-            if(permissions.contains(RepositoryFilePermission.READ) && permissions.contains(RepositoryFilePermission.READ_ACL)) {
+            if(permissions.contains(RepositoryFilePermission.READ) && permissions.contains(RepositoryFilePermission.ACL_MANAGEMENT)) {
               return true;
             } 
           }
@@ -294,7 +298,23 @@ public class RepositoryAccess {
   }
 
   public RepositoryFileTree getRepositoryFileTree(String path, int depth, boolean showHiddenFiles, String filter) {
-    return getUnifiedRepository().getTree(path, depth, filter, showHiddenFiles);
+    RepositoryFileTree tree = getUnifiedRepository().getTree(path, depth, filter, showHiddenFiles); 
+    
+    List<RepositoryFileTree> files = new ArrayList<RepositoryFileTree>();
+    for (RepositoryFileTree file : tree.getChildren()) {
+      if(!showHiddenFiles && file.getFile().isHidden()) continue;
+      
+      Map<String, Serializable> fileMeta = getUnifiedRepository().getFileMetadata(file.getFile().getId());
+      boolean isSystemFolder = fileMeta.containsKey(IUnifiedRepository.SYSTEM_FOLDER) ? (Boolean) fileMeta
+          .get(IUnifiedRepository.SYSTEM_FOLDER) : false;
+      if (isSystemFolder) {
+        continue;
+      }
+      files.add(file);
+    }
+    tree = new RepositoryFileTree(tree.getFile(), files);
+    
+    return tree;
   }
   
   public List<RepositoryFile> listSolutionFiles(String solutionPath, boolean includeDirs, List<String> extensions, boolean showHiddenFiles, final List<RepositoryFile> output) {
