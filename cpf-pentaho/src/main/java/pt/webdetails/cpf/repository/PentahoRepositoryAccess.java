@@ -327,8 +327,24 @@ public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRe
         return RepositoryFileExplorer.toJSON(dir, getFileList(dir, fileExtensions, access, ((PentahoSession)userSession).getPentahoSession()));
     }
 
+
     @Override
-    public Document getFullSolutionTree(FileAccess fa, IRepositoryFileFilter irff) {
+    public IRepositoryFile[] getFullSolutionTree(FileAccess fa, IRepositoryFileFilter irff) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public IRepositoryFile getSettingsFile(String string, FileAccess fa) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public IRepositoryFile[] getSettingsFileTree(String string, String string1, FileAccess fa) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public String getSettingsResourceAsString(String string) throws IOException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
   

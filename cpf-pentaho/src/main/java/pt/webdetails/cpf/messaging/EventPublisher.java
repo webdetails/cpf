@@ -16,13 +16,14 @@ import org.apache.commons.logging.LogFactory;
 import pt.webdetails.cpf.CpfProperties;
 import pt.webdetails.cpf.InterPluginCall;
 import pt.webdetails.cpf.JsonPluginCall;
+import pt.webdetails.cpf.PentahoInterPluginCall;
 import pt.webdetails.cpf.Result;
 
 
 /**
  * Inefficient but thread-safe..
  */
-public class EventPublisher {
+public class EventPublisher implements IEventPublisher {
   
   protected static final long TIMEOUT = CpfProperties.getInstance().getLongProperty("messaging.publishTimeout", 11); 
   private static final boolean LOG_PUBLISH = false;//CpfProperties.getInstance().getBooleanProperty("messaging.logPublish", false);
@@ -41,13 +42,15 @@ public class EventPublisher {
   
   public synchronized static boolean canPush(){
     if(cdvExists == null){
-      InterPluginCall checkExistence = new InterPluginCall(InterPluginCall.CDV, "whatever");
-      cdvExists = checkExistence.pluginExists();
+      //InterPluginCall checkExistence = new InterPluginCall(InterPluginCall.CDV, "whatever") {};
+      //cdvExists = checkExistence.pluginExists();
+      cdvExists = new PentahoInterPluginCall().pluginExists();
     }
     return cdvExists;
   }
 
   private EventPublisher() {}
+  
   
   public static EventPublisher getPublisher(){
     return new EventPublisher();

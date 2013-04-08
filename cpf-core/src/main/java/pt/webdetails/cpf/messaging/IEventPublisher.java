@@ -9,7 +9,6 @@ package pt.webdetails.cpf.messaging;
  * @author joao
  */
 public interface IEventPublisher {
-    public IEventPublisher getPublisher();
     public void publish(final PluginEvent event);
     
 }

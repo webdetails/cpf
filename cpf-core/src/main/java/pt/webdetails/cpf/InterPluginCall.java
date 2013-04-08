@@ -17,7 +17,7 @@ public  abstract class InterPluginCall {
   public final static Plugin CDF = new Plugin("pentaho-cdf");
   public final static Plugin CDV = new Plugin("cdv");
   
-  private final static String DEFAULT_ENCODING = "UTF-8";
+  protected final static String DEFAULT_ENCODING = "UTF-8";
   
   public static class Plugin {
     
@@ -44,12 +44,12 @@ public  abstract class InterPluginCall {
     
   }
   
-  private static final Log logger = LogFactory.getLog(InterPluginCall.class);
+  protected static final Log logger = LogFactory.getLog(InterPluginCall.class);
 
-  private Plugin plugin;
-  private String method;
+  protected Plugin plugin;
+  protected String method;
 
-  private Map<String, Object> requestParameters;
+  protected Map<String, Object> requestParameters;
   
   public InterPluginCall(){
   }
