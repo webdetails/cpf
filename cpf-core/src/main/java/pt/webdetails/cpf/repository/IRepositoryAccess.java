@@ -76,9 +76,20 @@ public interface IRepositoryAccess {
     
     public abstract IRepositoryFile getRepositoryFile(String path, FileAccess fileAccess);
     
-    public abstract String getJqueryFileTree(final String dir, final String fileExtensions, final String access) ;
     
+    public abstract IRepositoryFile getSettingsFile(String path, FileAccess fileAccess);
+    public abstract IRepositoryFile[] getSettingsFileTree(final String dir, final String fileExtensions, FileAccess access);
+    public abstract String getSettingsResourceAsString(String settingsPath)
+            throws IOException;
+    
+    
+    
+    public abstract IRepositoryFile[] getFullSolutionTree(FileAccess accessMode, IRepositoryFileFilter filter);
+
+    
+
+    public abstract String getJqueryFileTree(final String dir, final String fileExtensions, final String access) ;    
     public abstract String getJSON(final String dir, final String fileExtensions, final String access);
 
-    public abstract Document getFullSolutionTree(FileAccess accessMode, IRepositoryFileFilter filter);
+
 }

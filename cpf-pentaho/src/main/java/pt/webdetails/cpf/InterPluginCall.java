@@ -36,48 +36,8 @@ import org.pentaho.platform.web.http.request.HttpRequestParameterProvider;
  * Call to another pentaho plugin through its content generator.
  * Not thread safe.
  */
-public class InterPluginCall implements Runnable, Callable<String> {
+public class InterPluginCall extends InterPluginCall implements Runnable, Callable<String>   {
 
-  public final static Plugin CDA = new Plugin("cda");
-  public final static Plugin CDB = new Plugin("cdb");
-  public final static Plugin CDC = new Plugin("cdc");
-  public final static Plugin CDE = new Plugin("pentaho-cdf-dd");
-  public final static Plugin CDF = new Plugin("pentaho-cdf");
-  public final static Plugin CDV = new Plugin("cdv");
-  
-  private final static String DEFAULT_ENCODING = "UTF-8";
-  
-  public static class Plugin {
-    
-    private String name;
-    private String title;
-    
-    public String getName() {
-      return name;
-    }
-
-    public String getTitle() {
-      return title;
-    }
-    
-    public Plugin(String name, String title){
-      this.name = name;
-      this.title = title;
-    }
-    
-    public Plugin(String id){
-      this.name = id;
-      this.title = id;
-    }
-    
-  }
-  
-  private static final Log logger = LogFactory.getLog(InterPluginCall.class);
-
-  private Plugin plugin;
-  private String method;
-
-  private Map<String, Object> requestParameters;
   private ServletResponse response;
   private HttpServletRequest request;
   
@@ -85,43 +45,7 @@ public class InterPluginCall implements Runnable, Callable<String> {
   private IPentahoSession session;
   private IPluginManager pluginManager;
   
-  private InterPluginCall(){
-  }
   
-  /**
-   * Creates a new call.
-   * @param plugin the plugin to call
-   * @param method 
-   */
-  public InterPluginCall(Plugin plugin, String method){
-    this();
-    
-    if(plugin == null) throw new IllegalArgumentException("Plugin must be specified");
-    
-    this.plugin = plugin;
-    this.method = method;
-    this.requestParameters = new HashMap<String, Object>();
-  }
-  
-  public InterPluginCall(Plugin plugin, String method, Map<String, Object> params) {
-    this(plugin, method);
-
-    this.plugin = plugin;
-    this.method = method;
-    
-    this.requestParameters.putAll(
-      params != null ?
-          params :
-          new HashMap<String, Object>());
-  }
-  
-  public String getMethod() {
-    return method;
-  }
-
-  public void setMethod(String method) {
-    this.method = method;
-  }
 
   public HttpServletRequest getRequest() {
     return request;
