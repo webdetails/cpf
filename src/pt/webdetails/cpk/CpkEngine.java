@@ -196,6 +196,7 @@ public class CpkEngine {
      */
     public String getStatus() {
 
+        AccessControl accessControl = new AccessControl();
         StringBuffer out = new StringBuffer();
 
         out.append("--------------------------------\n");
@@ -210,9 +211,11 @@ public class CpkEngine {
         out.append("End Points\n");
 
         for (String key : elementsMap.keySet()) {
-
-            IElement iElement = elementsMap.get(key);
-            out.append("   " + key + ": \t" + iElement.toString() + " \n");
+            
+            IElement myElement = elementsMap.get(key);
+            if(accessControl.isAllowed(myElement)){
+                out.append("   " + key + ": \t" + myElement.toString() + " \n");
+            }
 
         }
 

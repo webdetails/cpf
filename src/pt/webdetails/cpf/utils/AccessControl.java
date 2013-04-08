@@ -18,16 +18,16 @@ public class AccessControl {
     public boolean isAllowed(IElement element){
         boolean is = false;
         
-        if(element.getAdminOnly() && isAdmin()){
+        if(element.isAdminOnly() && isAdmin()){
             is = true;
-        }else if(!element.getAdminOnly()){
+        }else if(!element.isAdminOnly()){
             is = true;
         }
         
         return is;
     }
     
-    private boolean isAdmin(){
+    public boolean isAdmin(){
         boolean is = false;
         is = SecurityHelper.isPentahoAdministrator(PentahoSessionHolder.getSession());
         

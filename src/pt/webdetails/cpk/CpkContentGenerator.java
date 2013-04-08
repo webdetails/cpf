@@ -73,10 +73,14 @@ public class CpkContentGenerator extends RestContentGenerator {
 
     @Exposed(accessLevel = AccessLevel.PUBLIC)
     public void refresh(OutputStream out) throws DocumentException, IOException {
-
-        logger.info("Refreshing CPK plugin " + getPluginName());
-        cpkEngine.reload();
-        status(out);
+        AccessControl accessControl = new AccessControl();
+        if(accessControl.isAdmin()){
+            logger.info("Refreshing CPK plugin " + getPluginName());
+            cpkEngine.reload();
+            status(out);
+        }else{
+            accessControl.throwAccessDenied();
+        }
 
 
     }
