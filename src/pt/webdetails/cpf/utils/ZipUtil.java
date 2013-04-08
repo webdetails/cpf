@@ -4,13 +4,9 @@
 
 package pt.webdetails.cpf.utils;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -20,6 +16,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.vfs.FileName;
 import org.apache.commons.vfs.FileObject;
 import org.pentaho.di.core.ResultFile;
 
@@ -33,28 +30,27 @@ public class ZipUtil {
     private String zipPath;
     private String zipFullPath;
     private ZipOutputStream zipOut;
-    private InputStreamReader isr;
     private FileInputStream fis;
+    private FileName topFilename;
     ArrayList<String> fileListing = new ArrayList<String>();
     
     protected Log logger = LogFactory.getLog(this.getClass());
     
-    public ZipUtil(List<ResultFile> filesList){
-        init(filesList);
-        
+    public ZipUtil(){
+        //Suposed to be empty
     }
     
-    private void init(List<ResultFile> filesList){
+    public void buildZip(List<ResultFile> filesList){
         try {
             
-            zipName = filesList.get(0).getFile().getParent().getName().getBaseName();
+            topFilename = getTopFileName(filesList);
+            zipName = this.topFilename.getBaseName();
             File tempZip = File.createTempFile(zipName, ".tmp");
             zipFullPath = zipPath+zipName;
             
             FileOutputStream fos = new FileOutputStream(tempZip);
-            zipOut = new ZipOutputStream(new BufferedOutputStream(fos)); 
+            zipOut = new ZipOutputStream(fos); 
             
-            isr = null;
             fis = null;
 
             logger.info("Building '"+zipFullPath+"'...");
@@ -62,6 +58,7 @@ public class ZipUtil {
             writeEntriesToZip(filesList);
             logger.info("'"+zipName+"' built."+" Sending to client...");
             zipOut.close();
+            fos.close();
 
             fis = new FileInputStream(tempZip);
                 
@@ -82,17 +79,17 @@ public class ZipUtil {
                 logger.debug(resFile.getFile().getName().getPath());
                 FileObject myFile = resFile.getFile();
                 
-                fileListing.add(myFile.getName().getPath());
+                fileListing.add(removeTopFilenamePathFromString(myFile.getName().getPath()));
 
-                ZipEntry zip = new ZipEntry(myFile.getName().getPath());
+                ZipEntry zip = new ZipEntry(removeTopFilenamePathFromString(myFile.getName().getPath()));
                 zipOut.putNextEntry(zip);
 
-                isr = new InputStreamReader(myFile.getContent().getInputStream());
-
-                byte[] bytes = IOUtils.toByteArray(isr);
+                byte[] bytes = IOUtils.toByteArray(myFile.getContent().getInputStream());
 
                 zipOut.write(bytes);
+                zipOut.closeEntry();
             }
+            
             
         } catch (Exception exception) {
             logger.error(exception);
@@ -105,7 +102,7 @@ public class ZipUtil {
     
     
     public String getZipNameToDownload(){
-        return getZipName().replaceAll(" ", "-")+".zip"; //Firefox and Opera don't interpret blank spaces and cut the string there causing the files to be "bin".
+        return getZipName().replaceAll(" ", "-")+".zip"; //Firefox and Opera don't interpret blank spaces and cut the string there causing the files to be interpreted as "bin".
     }
     
     public String getZipName(){
@@ -116,6 +113,32 @@ public class ZipUtil {
         return 0;
     }
     
+    private FileName getTopFileName(List<ResultFile> filesList){
+        FileName topFileName = null;
+        try {
+            if (!filesList.isEmpty()){
+                topFileName =  filesList.get(0).getFile().getParent().getName();
+            } 
+            for (ResultFile resFile : filesList) {
+                logger.debug(resFile.getFile().getParent().getName().getPath());
+                FileName myFileName = resFile.getFile().getParent().getName();               
+                if ( topFileName.getURI().length() > myFileName.getURI().length() ){
+                    topFileName = myFileName;
+                }           
+            }            
+        } catch (Exception exception) {
+            logger.error(exception);
+        }     
+        return topFileName;
+    }
     
-    
+    private String removeTopFilenamePathFromString(String path){
+        
+        String filteredPath = null;
+        int index = this.topFilename.getParent().getPath().length();
+        filteredPath = path.substring(index);
+        
+        
+        return filteredPath;
+    }
 }

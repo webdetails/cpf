@@ -3,12 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpk.elements.impl.kettleOutputs;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -16,14 +11,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import jxl.demo.Write;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileName;
-import org.apache.commons.vfs.FileType;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.pentaho.di.core.Result;
 import org.pentaho.di.core.ResultFile;
@@ -163,39 +155,13 @@ public class KettleOutput implements IKettleOutput {
         } else {
             // Build a zip / tar and ship it over!
 
+            ZipUtil zip = new ZipUtil();
+            zip.buildZip(filesList);
+            
+            PluginUtils.getInstance().setResponseHeaders(parameterProviders, MimeTypes.ZIP, zip.getZipNameToDownload());
             try {
-                
-                // Create a tmp file
-                File zipFile = File.createTempFile("cpk", ".zip");
-                
-                logger.debug("Building zip file for content");
-                ZipOutputStream zipOut = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(zipFile)));
-                
-                InputStreamReader isr;
-                FileInputStream fis;
-                
-                FileName topFileName =  getTopFileName( filesList );
-                for (ResultFile resFile : filesList) {
-                    FileObject myFile = resFile.getFile();
-                    
-                    ZipEntry zip = new ZipEntry(topFileName.getRelativeName( myFile.getName() ) );
-                    if ( myFile.getType() == FileType.FILE ){
-                        zipOut.putNextEntry(zip);
-                        IOUtils.copy(myFile.getContent().getInputStream(),zipOut);
-                        zipOut.closeEntry();
-                    }
-
-
-                }
-
-                zipOut.close();
-                logger.info("'" +  zipFile.getName() + "' built. Sending to client...");
-
-                PluginUtils.getInstance().setResponseHeaders(parameterProviders, MimeTypes.ZIP, zipFile.getName());
-                fis = new FileInputStream(zipFile);
-                IOUtils.copy(fis, out);
-
-            } catch (Exception ex) {
+                IOUtils.copy(zip.getZipInputStream(), out);
+            } catch (IOException ex) {
                 Logger.getLogger(KettleOutput.class.getName()).log(Level.SEVERE, null, ex);
             }
 
@@ -203,24 +169,7 @@ public class KettleOutput implements IKettleOutput {
         }
     }
     
-    private FileName getTopFileName(List<ResultFile>filesList){
-        FileName topFileName = null;
-        try {
-            if (!filesList.isEmpty()){
-                topFileName =  filesList.get(0).getFile().getParent().getName();
-            } 
-            for (ResultFile resFile : filesList) {
-                logger.debug(resFile.getFile().getParent().getName().getPath());
-                FileName myFileName = resFile.getFile().getParent().getName();               
-                if ( topFileName.getURI().length() > myFileName.getURI().length() ){
-                    topFileName = myFileName;
-                }           
-            }            
-        } catch (Exception exception) {
-            logger.error(exception);
-        }     
-        return topFileName;
-    }
+    
 
     public void processSingleCell() {
 

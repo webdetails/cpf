@@ -6,8 +6,6 @@ package pt.webdetails.cpf.utils;
 
 import org.apache.commons.lang.StringUtils;
 import java.util.EnumMap;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  *
