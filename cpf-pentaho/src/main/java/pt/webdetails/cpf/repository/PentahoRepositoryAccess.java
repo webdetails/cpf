@@ -44,7 +44,7 @@ import pt.webdetails.cpf.session.PentahoSession;
  * post-ISolutionRepository world
  */
 @SuppressWarnings("deprecation")
-public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRepositoryAccess {
+public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRepositoryAccess {//XXX hit the implement all methods
 
     public PentahoRepositoryAccess() {
     }
@@ -324,6 +324,11 @@ public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRe
     @Override
     public String getJSON(String dir, String fileExtensions, String access) {
         return RepositoryFileExplorer.toJSON(dir, getFileList(dir, fileExtensions, access, ((PentahoSession)userSession).getPentahoSession()));
+    }
+
+    @Override
+    public Document getFullSolutionTree(FileAccess fa, IRepositoryFileFilter irff) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
   
     /**
