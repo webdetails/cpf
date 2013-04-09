@@ -4,24 +4,15 @@
 
 package pt.webdetails.cpk.sitemap;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import pt.webdetails.cpk.elements.IElement;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.io.SAXReader;
 import pt.webdetails.cpk.security.AccessControl;
-import pt.webdetails.cpk.CpkEngine;
 
 /**
  *

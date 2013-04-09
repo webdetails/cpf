@@ -11,11 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jxl.demo.Write;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.vfs.FileName;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.pentaho.di.core.Result;
 import org.pentaho.di.core.ResultFile;
@@ -183,9 +181,9 @@ public class KettleOutput implements IKettleOutput {
 
         try {
 
-            byte[] result = getRows().get(0)[0].toString().getBytes(ENCODING);
+            Object result = getRows().get(0)[0];
             if (result != null) {
-                PluginUtils.getInstance().getResponseOutputStream(parameterProviders).write(result);
+                PluginUtils.getInstance().getResponseOutputStream(parameterProviders).write(result.toString().getBytes(ENCODING));
             }
 
         } catch (UnsupportedEncodingException ex) {
@@ -198,8 +196,11 @@ public class KettleOutput implements IKettleOutput {
 
     public void processJson() {
         ObjectMapper mapper = new ObjectMapper();
+        
+        RowsJson rowsJson = new RowsJson(rows, rowMeta);
+        
         try {
-            mapper.writeValue(out, rows);
+            mapper.writeValue(out, rowsJson);
         } catch (IOException ex) {
             Logger.getLogger(KettleOutput.class.getName()).log(Level.SEVERE, null, ex);
         }
