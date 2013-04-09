@@ -8,41 +8,13 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import pt.webdetails.cpf.plugin.Plugin;
 
 public  abstract class InterPluginCall {
-  public final static Plugin CDA = new Plugin("cda");
-  public final static Plugin CDB = new Plugin("cdb");
-  public final static Plugin CDC = new Plugin("cdc");
-  public final static Plugin CDE = new Plugin("pentaho-cdf-dd");
-  public final static Plugin CDF = new Plugin("pentaho-cdf");
-  public final static Plugin CDV = new Plugin("cdv");
+
   
   protected final static String DEFAULT_ENCODING = "UTF-8";
   
-  public static class Plugin {
-    
-    private String name;
-    private String title;
-    
-    public String getName() {
-      return name;
-    }
-
-    public String getTitle() {
-      return title;
-    }
-    
-    public Plugin(String name, String title){
-      this.name = name;
-      this.title = title;
-    }
-    
-    public Plugin(String id){
-      this.name = id;
-      this.title = id;
-    }
-    
-  }
   
   protected static final Log logger = LogFactory.getLog(InterPluginCall.class);
 

@@ -30,6 +30,7 @@ import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.web.http.request.HttpRequestParameterProvider;
+import pt.webdetails.cpf.plugin.Plugin;
 
 
 /**
@@ -46,7 +47,15 @@ public class PentahoInterPluginCall extends InterPluginCall implements Runnable,
   private IPluginManager pluginManager;
   
   
-
+  /**
+   * Creates a new call.
+   * @param plugin the plugin to call
+   * @param method 
+   */
+  public PentahoInterPluginCall(Plugin plugin, String method){    
+    super(plugin, method, new HashMap<String, Object>());
+  }
+  
   public HttpServletRequest getRequest() {
     return request;
   }
