@@ -23,7 +23,7 @@ import org.pentaho.di.core.ResultFile;
 
 /**
  *
- * @author bandjalah
+ * @author Luís Paulo Silva
  */
 public class ZipUtil {
     private String zipName;

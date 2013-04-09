@@ -12,7 +12,7 @@ import pt.webdetails.cpf.RestRequestHandler;
 import pt.webdetails.cpf.Router;
 import pt.webdetails.cpf.annotations.AccessLevel;
 import pt.webdetails.cpf.annotations.Exposed;
-import pt.webdetails.cpf.utils.AccessControl;
+import pt.webdetails.cpk.security.AccessControl;
 import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.IElement;
 

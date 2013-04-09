@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package pt.webdetails.cpf.utils;
+package pt.webdetails.cpk.security;
 
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.security.SecurityHelper;
@@ -10,7 +10,7 @@ import pt.webdetails.cpk.elements.IElement;
 
 /**
  *
- * @author bandjalah
+ * @author Luís Paulo Silva
  */
 public class AccessControl {
     private final String UNAUTHORIZED = "Unauthorized access";

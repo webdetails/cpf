@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package pt.webdetails.cpf.utils;
+package pt.webdetails.cpk.sitemap;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,11 +20,12 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
+import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.CpkEngine;
 
 /**
  *
- * @author bandjalah
+ * @author Luís Paulo Silva
  */
 public class Link{
     

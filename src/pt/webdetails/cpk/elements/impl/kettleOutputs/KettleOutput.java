@@ -36,6 +36,7 @@ import pt.webdetails.cpk.elements.impl.KettleElementType.KettleType;
 public class KettleOutput implements IKettleOutput {
 
     protected Log logger = LogFactory.getLog(this.getClass());
+    private final String ENCODING = "UTF-8";
     private ArrayList<Object[]> rows;
     private RowMetaInterface rowMeta;
     private Result result = null;
@@ -175,14 +176,16 @@ public class KettleOutput implements IKettleOutput {
 
 
         logger.debug("Process Single Cell - print it");
+        
+        
 
         // TODO - make sure this is correct
 
         try {
 
-            Object result = getRows().get(0)[0];
+            byte[] result = getRows().get(0)[0].toString().getBytes(ENCODING);
             if (result != null) {
-                PluginUtils.getInstance().getResponseOutputStream(parameterProviders).write(result.toString().getBytes("UTF-8"));
+                PluginUtils.getInstance().getResponseOutputStream(parameterProviders).write(result);
             }
 
         } catch (UnsupportedEncodingException ex) {
@@ -247,6 +250,7 @@ public class KettleOutput implements IKettleOutput {
         processInfered();
     }
 
+    @Override
     public String getOutputStepName() {
         return outputStepName;
     }
