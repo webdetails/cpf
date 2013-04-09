@@ -206,7 +206,7 @@ public class CpkEngine {
 
         // Show the different entities
 
-        out.append(elementTypesMap.size() + " registred entity types\n");
+        out.append(elementTypesMap.size() + " registered entity types\n");
         out.append("\n");
         out.append("End Points\n");
 
@@ -214,7 +214,7 @@ public class CpkEngine {
             
             IElement myElement = elementsMap.get(key);
             if(accessControl.isAllowed(myElement)){
-                out.append("   " + key + ": \t" + myElement.toString() + " \n");
+                out.append("   [" + key + "]: \t" + myElement.toString() + "\n\n");
             }
 
         }
