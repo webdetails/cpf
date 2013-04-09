@@ -7,7 +7,7 @@ package pt.webdetails.cpf.session;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 
 
-public class SessionUtils implements ISessionUtils {
+public class PentahoSessionUtils implements ISessionUtils {
   
   
    public IUserSession getCurrentSession() {
