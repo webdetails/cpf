@@ -85,9 +85,10 @@ public interface IRepositoryAccess {
     public abstract String getSettingsResourceAsString(String settingsPath)
             throws IOException;
     
-    public abstract IRepositoryFile[] getPluginFiles(FileAccess accessMode);
+    public abstract IRepositoryFile[] getPluginFiles(String baseDir, FileAccess accessMode);
     
 
+     public abstract IRepositoryFile[] getSettingsFileTree(final String dir, final String fileExtensions, FileAccess access);
     
 
     public abstract String getJqueryFileTree(final String dir, final String fileExtensions, final String access) ;    

@@ -7,6 +7,7 @@ import com.sun.syndication.io.impl.PluginManager;
 import java.io.File;
 import java.io.FileNotFoundException;
 
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -337,8 +338,37 @@ public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRe
     return RepositoryFileExplorer.toJSON(dir, getFileList(dir, fileExtensions, access, ((PentahoSession) userSession).getPentahoSession()));
   }
 
+  
   @Override
-  public IRepositoryFile[] getPluginFiles(FileAccess fa) {
+  public IRepositoryFile[] getSettingsFileTree(final String dir, final String fileExtensions, FileAccess access) {
+    IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, getAdminSession());
+    URL resourceUrl = pluginManager.getClassLoader(plugin.getName()).getResource(dir);
+    File f;
+    try {
+      f = new File(resourceUrl.toURI());
+    } catch (URISyntaxException ex) {
+      logger.error("Error while opening settings file with url " + resourceUrl);
+      return null;
+    }
+
+    File[] fileArray = f.listFiles(new FilenameFilter() {
+      @Override
+      public boolean accept(File file, String name) {
+        return name.endsWith("." + fileExtensions);
+      }
+    });
+    
+    IRepositoryFile[] result = new IRepositoryFile[fileArray.length];
+    int i = 0;
+    for (File resultFile : fileArray)
+      result[i++] = new DefaultRepositoryFile(resultFile);
+    
+    return result;
+    
+  }
+  
+  @Override
+  public IRepositoryFile[] getPluginFiles(String baseDir, FileAccess fa) {
     final IRepositoryFileFilter irff = plugin.getPluginFileFilter();
     IFileFilter fileFilter = new IFileFilter() {
 
@@ -347,7 +377,7 @@ public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRe
         return irff.accept(new PentahoRepositoryFile(isf));
       }
     };
-    ISolutionFile[] files = listSolutionFiles("/", fileFilter);
+    ISolutionFile[] files = listSolutionFiles(baseDir, fileFilter);
 
     IRepositoryFile[] result = new IRepositoryFile[files.length];
     int i = 0;
