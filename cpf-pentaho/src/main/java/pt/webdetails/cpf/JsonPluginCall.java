@@ -7,10 +7,11 @@ package pt.webdetails.cpf;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import pt.webdetails.cpf.InterPluginCall.Plugin;
+import pt.webdetails.cpf.plugin.Plugin;
 
 public class JsonPluginCall {
   
+
     //InterPluginCall internal;
   PentahoInterPluginCall internal;
   
@@ -18,6 +19,7 @@ public class JsonPluginCall {
     //internal = new InterPluginCall(plugin, method);
       internal = new PentahoInterPluginCall();
       
+
   }
   
   public JSONObject call(JSONObject request) throws JSONException {
