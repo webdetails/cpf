@@ -6,7 +6,8 @@ package pt.webdetails.cpf.persistence;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import pt.webdetails.cpf.JsonSerializable;
+
+import pt.webdetails.cpf.messaging.JsonSerializable;
 
 /**
  *

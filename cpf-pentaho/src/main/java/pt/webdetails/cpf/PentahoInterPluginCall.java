@@ -37,7 +37,7 @@ import pt.webdetails.cpf.plugin.Plugin;
  * Call to another pentaho plugin through its content generator.
  * Not thread safe.
  */
-public class PentahoInterPluginCall extends InterPluginCall implements Runnable, Callable<String>   {
+public class PentahoInterPluginCall extends AbstractInterPluginCall implements Runnable, Callable<String>   {
 
   private ServletResponse response;
   private HttpServletRequest request;

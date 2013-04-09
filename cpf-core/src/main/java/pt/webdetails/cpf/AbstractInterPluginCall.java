@@ -8,22 +8,19 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import pt.webdetails.cpf.plugin.Plugin;
 
-public  abstract class InterPluginCall {
-
+public abstract class AbstractInterPluginCall implements IPluginCall {
   
-  protected final static String DEFAULT_ENCODING = "UTF-8";
-  
-  
-  protected static final Log logger = LogFactory.getLog(InterPluginCall.class);
+  protected static final Log logger = LogFactory.getLog(AbstractInterPluginCall.class);
 
   protected Plugin plugin;
   protected String method;
 
   protected Map<String, Object> requestParameters;
   
-  public InterPluginCall(){
+  public AbstractInterPluginCall(){
   }
   
   
@@ -32,16 +29,20 @@ public  abstract class InterPluginCall {
    * @param plugin the plugin to call
    * @param method 
    */
-  public InterPluginCall(Plugin plugin, String method){    
+  public AbstractInterPluginCall(Plugin plugin, String method){    
     init(plugin, method, new HashMap<String, Object>());
   }
   
-  public InterPluginCall(Plugin plugin, String method, Map<String, Object> params) {
+  public AbstractInterPluginCall(Plugin plugin, String method, Map<String, Object> params) {
     init(plugin, method, params);    
   }
   
   
-  public void init(Plugin plugin, String method, Map<String, Object>params) {
+  /* (non-Javadoc)
+ * @see pt.webdetails.cpf.IPluginCall#init(pt.webdetails.cpf.AbstractInterPluginCall.Plugin, java.lang.String, java.util.Map)
+ */
+@Override
+public void init(Plugin plugin, String method, Map<String, Object>params) {
     if(plugin == null) throw new IllegalArgumentException("Plugin must be specified");
     
     this.plugin = plugin;
@@ -52,13 +53,25 @@ public  abstract class InterPluginCall {
           new HashMap<String, Object>());    
   }
   
-  public String getMethod() {
+  /* (non-Javadoc)
+ * @see pt.webdetails.cpf.IPluginCall#getMethod()
+ */
+@Override
+public String getMethod() {
     return method;
   }
 
-  public void setMethod(String method) {
+  /* (non-Javadoc)
+ * @see pt.webdetails.cpf.IPluginCall#setMethod(java.lang.String)
+ */
+@Override
+public void setMethod(String method) {
     this.method = method;
   }
   
-  public  abstract String call();
+  /* (non-Javadoc)
+ * @see pt.webdetails.cpf.IPluginCall#call()
+ */
+@Override
+public  abstract String call();
 }
