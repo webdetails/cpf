@@ -11,10 +11,13 @@ import pt.webdetails.cpf.InterPluginCall.Plugin;
 
 public class JsonPluginCall {
   
-  InterPluginCall internal;
+    //InterPluginCall internal;
+  PentahoInterPluginCall internal;
   
   public JsonPluginCall(Plugin plugin, String method) {
-    internal = new InterPluginCall(plugin, method);
+    //internal = new InterPluginCall(plugin, method);
+      internal = new PentahoInterPluginCall();
+      
   }
   
   public JSONObject call(JSONObject request) throws JSONException {
