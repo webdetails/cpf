@@ -15,6 +15,7 @@ import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.json.JSONException;
 import org.json.JSONObject;
+import pt.webdetails.cpf.messaging.JsonSerializable;
 import pt.webdetails.cpf.repository.BaseRepositoryAccess.FileAccess;
 
 import pt.webdetails.cpf.repository.PentahoRepositoryAccess;

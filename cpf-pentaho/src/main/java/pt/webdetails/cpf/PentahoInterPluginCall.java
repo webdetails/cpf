@@ -78,7 +78,7 @@ public class PentahoInterPluginCall extends AbstractInterPluginCall implements R
    * @param value
    * @return this
    */
-  public InterPluginCall putParameter(String name, Object value){
+  public AbstractInterPluginCall putParameter(String name, Object value){
     requestParameters.put(name, value);
     return this;
   }

@@ -40,6 +40,7 @@ import pt.webdetails.cpf.annotations.AccessLevel;
 import pt.webdetails.cpf.annotations.Audited;
 import pt.webdetails.cpf.annotations.Exposed;
 import pt.webdetails.cpf.audit.CpfAuditHelper;
+import pt.webdetails.cpf.messaging.JsonSerializable;
 import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
 
 /**

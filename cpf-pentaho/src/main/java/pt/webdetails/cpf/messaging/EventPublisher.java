@@ -14,7 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import pt.webdetails.cpf.CpfProperties;
-import pt.webdetails.cpf.InterPluginCall;
+import pt.webdetails.cpf.AbstractInterPluginCall;
 import pt.webdetails.cpf.JsonPluginCall;
 import pt.webdetails.cpf.PentahoInterPluginCall;
 import pt.webdetails.cpf.Result;
