@@ -129,8 +129,9 @@ public class CpkEngine {
 
                 } else {
                     // All ok
-
-                    elementsMap.put(element.getId().toLowerCase(), element);
+                    if( !element.getName().startsWith("_")){
+                        elementsMap.put(element.getId().toLowerCase(), element);
+                    }
                 }
 
             }
