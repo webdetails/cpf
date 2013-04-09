@@ -12,8 +12,7 @@ public interface IUserSession {
     
     
     public String getUserName();
-    
-    
     public boolean isAdministrator();
+    public String[] getAuthorities();
 
 }

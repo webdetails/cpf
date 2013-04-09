@@ -7,7 +7,7 @@ package pt.webdetails.cpf.repository;
 import org.apache.commons.lang.StringUtils;
 import pt.webdetails.cpf.session.IUserSession;
 
-public abstract class BaseRepositoryAccess {
+public abstract class BaseRepositoryAccess implements IRepositoryAccess {
     
     protected IUserSession userSession;
 
