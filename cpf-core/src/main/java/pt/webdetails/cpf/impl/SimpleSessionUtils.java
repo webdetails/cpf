@@ -11,6 +11,8 @@ public class SimpleSessionUtils implements ISessionUtils {
 	private String[] authorities;
 	private IUserSession session;
 
+	public SimpleSessionUtils() {};
+	
 	public SimpleSessionUtils(IUserSession session, String[] principals, String[] authorities) {
 		this.session = session;
 		this.principals = principals;

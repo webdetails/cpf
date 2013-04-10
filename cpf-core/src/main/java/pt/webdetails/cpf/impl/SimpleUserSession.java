@@ -25,6 +25,10 @@ public class SimpleUserSession implements IUserSession {
 			this.attributes .putAll(attributes);
 		}
 	}
+	
+	public SimpleUserSession() {};
+	
+	
 	@Override
 	public String getUserName() {
 		return userName;
