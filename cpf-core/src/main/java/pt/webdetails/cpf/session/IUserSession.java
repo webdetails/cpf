@@ -14,5 +14,8 @@ public interface IUserSession {
     public String getUserName();
     public boolean isAdministrator();
     public String[] getAuthorities();
-
+    
+    public Object getParameter(Object key);
+    public String getStringParameter(Object key);
+    public void setParameter(Object key, Object value);
 }

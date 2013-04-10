@@ -7,4 +7,6 @@ package pt.webdetails.cpf.session;
 
 public interface ISessionUtils {
   public IUserSession getCurrentSession();
+  public String[] getSystemPrincipals();
+  public String[] getSystemAuthorities();
 }

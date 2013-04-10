@@ -23,7 +23,35 @@ public class DummySessionUtils implements ISessionUtils {
 			public String[] getAuthorities() {
 				return new String[0];
 			}
+
+			@Override
+			public Object getParameter(Object key) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public String getStringParameter(Object key) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public void setParameter(Object Object, Object value) {
+				// TODO Auto-generated method stub
+				
+			}
 		};
+	}
+
+	@Override
+	public String[] getSystemPrincipals() {
+		return new String[0];
+	}
+
+	@Override
+	public String[] getSystemAuthorities() {
+		return new String[0];
 	}
 
 }
