@@ -5,11 +5,9 @@ package pt.webdetails.cpf.plugins;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.dom4j.Document;
@@ -48,7 +46,7 @@ public class PluginsAnalyzer {
         for(String pluginName : pluginsXmls.keySet()){
                 
             for(String xmlFilePath : pluginsXmls.get(pluginName)){
-                List<Node> documentNodes = getXmlFileContent(xmlFilePath);
+                Node documentNode = getXmlFileContent(xmlFilePath);
                 String name = null;
                 String id = null;
                 String description = null;
@@ -57,19 +55,15 @@ public class PluginsAnalyzer {
                 List<Entity> entities = new ArrayList<Entity>();
                 
                 if(xmlFilePath.contains(PLUGIN_XML_FILENAME)){
-                    for(Node node : documentNodes){
-
-                        id = node.valueOf("/plugin/@title");
-                        name = node.valueOf("/plugin/content-types/content-type/title");
-                        description = node.valueOf("/plugin/content-types/content-type/description");
-                        company = node.valueOf("/plugin/content-types/content-type/company/@name");
-                        companyUrl = node.valueOf("/plugin/content-types/content-type/company/@url");
-                        
-                    }
+                    
+                    id = documentNode.valueOf("/plugin/@title");
+                    name = documentNode.valueOf("/plugin/content-types/content-type/title");
+                    description = documentNode.valueOf("/plugin/content-types/content-type/description");
+                    company = documentNode.valueOf("/plugin/content-types/content-type/company/@name");
+                    companyUrl = documentNode.valueOf("/plugin/content-types/content-type/company/@url");
+                    
                 }else if(xmlFilePath.contains(SETTINGS_XML_FILENAME)){
-                    for(Node node : documentNodes){
-                        
-                    }
+                    //TODO!
                 }
                 
             }
@@ -105,25 +99,24 @@ public class PluginsAnalyzer {
         return pluginXmls;
     }
     
-    private List<Node> getXmlFileContent(String filePath){
+    private Node getXmlFileContent(String filePath){
         FileInputStream fis = null;
         File xmlFile = null;
         Document doc = null;
-        List<Node> nodes = null;
+        Node node = null;
         
         try {
             xmlFile = new File(filePath);
             fis = new FileInputStream(xmlFile);
             Document xml = XmlDom4JHelper.getDocFromStream(fis, null);
-            nodes = xml.selectNodes("plugin");
-            
+            node = xml.getRootElement();
             
             
         } catch (Exception ex) {
             Logger.getLogger(PluginsAnalyzer.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        return nodes;
+        return node;
     }
     
 }
