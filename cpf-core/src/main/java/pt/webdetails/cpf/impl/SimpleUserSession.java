@@ -10,7 +10,7 @@ public class SimpleUserSession implements IUserSession {
 	private String userName;
 	private String[] authorities;
 	private boolean isAdministrator;
-	private Map<Object, Object> attributes = new HashMap<Object, Object>();
+	private Map<String, Object> attributes = new HashMap<String, Object>();
 
 	public SimpleUserSession(
 			String username, 
@@ -45,7 +45,7 @@ public class SimpleUserSession implements IUserSession {
 	}
 
 	@Override
-	public Object getParameter(Object key) {
+	public Object getParameter(String key) {
 		if (attributes.containsKey(key)) {
 			return attributes.get(key);
 		}
@@ -53,7 +53,7 @@ public class SimpleUserSession implements IUserSession {
 	}
 
 	@Override
-	public String getStringParameter(Object key) {
+	public String getStringParameter(String key) {
 		Object val = getParameter(key);
 		if (val != null) {
 			return val.toString();
@@ -62,7 +62,7 @@ public class SimpleUserSession implements IUserSession {
 	}
 
 	@Override
-	public void setParameter(Object key, Object value) {
+	public void setParameter(String key, Object value) {
 		attributes.put(key, value);
 	}
 	/**
@@ -86,7 +86,7 @@ public class SimpleUserSession implements IUserSession {
 	/**
 	 * @param attributes the attributes to set
 	 */
-	public void setAttributes(Map<Object, Object> attributes) {
+	public void setAttributes(Map<String, Object> attributes) {
 		this.attributes = attributes;
 	}
 

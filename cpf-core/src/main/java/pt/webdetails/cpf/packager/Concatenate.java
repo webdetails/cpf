@@ -40,6 +40,7 @@ class Concatenate {
         while (fr.ready()) {
           tmp.append(fr.readLine());
         }
+        fr.close();
         rootpath = rootpath.replaceAll("\\\\","/").replaceAll("/+","/");
         String fileLocation = file.getPath().replaceAll("\\\\","/").replaceAll(file.getName(), "").replaceAll(rootpath, "..");
         buffer.append(tmp.toString() //

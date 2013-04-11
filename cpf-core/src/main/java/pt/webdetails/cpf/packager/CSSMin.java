@@ -36,10 +36,15 @@ POSSIBILITY OF SUCH DAMAGE.
 */
 package pt.webdetails.cpf.packager;
 
-import java.util.*;
-import java.util.regex.*;
-import java.io.*;
-import java.lang.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Vector;
+import java.util.regex.PatternSyntaxException;
 
 public class CSSMin
 {

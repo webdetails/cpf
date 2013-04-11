@@ -48,4 +48,24 @@ public class PentahoSession implements IUserSession {
     return result;
   }
 
+	@Override
+	public Object getParameter(String name) {
+		if (name != null)
+			return userSession.getAttribute(name.toString());
+		return null;
+	}
+	
+	@Override
+	public String getStringParameter(String name) {
+		Object r = getParameter(name);
+		if (r != null)
+			return r.toString();
+		return null;
+	}
+	
+	@Override
+	public void setParameter(String key, Object value) {
+		userSession.setAttribute(key, value);
+	}
+
 }

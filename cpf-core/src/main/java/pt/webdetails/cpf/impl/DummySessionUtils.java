@@ -25,19 +25,19 @@ public class DummySessionUtils implements ISessionUtils {
 			}
 
 			@Override
-			public Object getParameter(Object key) {
+			public Object getParameter(String key) {
 				// TODO Auto-generated method stub
 				return null;
 			}
 
 			@Override
-			public String getStringParameter(Object key) {
+			public String getStringParameter(String key) {
 				// TODO Auto-generated method stub
 				return null;
 			}
 
 			@Override
-			public void setParameter(Object Object, Object value) {
+			public void setParameter(String key, Object value) {
 				// TODO Auto-generated method stub
 				
 			}
