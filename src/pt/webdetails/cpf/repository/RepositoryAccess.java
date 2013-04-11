@@ -175,27 +175,28 @@ public class RepositoryAccess {
   }
   
   public boolean resourceExists(String solutionPath){
-    try {
-      RepositoryFile repositoryFile = getUnifiedRepository().getFile(solutionPath);
-      return repositoryFile != null;
-    } catch(Exception e) {
-      e.printStackTrace();
-      return false;
-    }
+    RepositoryFile repositoryFile = getUnifiedRepository().getFile(solutionPath);
+    return repositoryFile != null;
   }
   
-  public boolean createFolder(String solutionFolderPath) throws IOException {
+  public boolean createFolder(String solutionFolderPath) {
     try {
-      solutionFolderPath = StringUtils.chomp(solutionFolderPath,"/");//strip trailing / if there
-      String folderName = FilenameUtils.getBaseName(solutionFolderPath);
-      String folderPath = solutionFolderPath.substring(0, StringUtils.lastIndexOf(solutionFolderPath, folderName));
-      RepositoryFile parentFolder = getUnifiedRepository().getFile(folderPath);
-      getUnifiedRepository().createFolder(parentFolder.getId(), new RepositoryFile.Builder(folderName).folder(true).build() , "");
-      return true;
-    } catch(Exception e) {
-      e.printStackTrace();
+      if(resourceExists(solutionFolderPath)){
+        logger.debug("CreateFolder: Resource " + solutionFolderPath + " already exists, skipped creation");
+        return false;
+      } else {
+        solutionFolderPath = StringUtils.chomp(solutionFolderPath,"/");//strip trailing / if there
+        String folderName = FilenameUtils.getBaseName(solutionFolderPath);
+        String folderPath = solutionFolderPath.substring(0, StringUtils.lastIndexOf(solutionFolderPath, folderName));
+        RepositoryFile parentFolder = getUnifiedRepository().getFile(folderPath);
+        getUnifiedRepository().createFolder(parentFolder.getId(), new RepositoryFile.Builder(folderName).folder(true).build() , "");
+        logger.debug("CreateFolder: Resource " + solutionFolderPath+ " created");
+        return true;
+      }
+    } catch(Exception e){
+      logger.error("CreateFolder: ", e);
       return false;
-    }
+    } 
   }
   
   public boolean canWrite(String filePath){
