@@ -59,6 +59,7 @@ public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRe
   private Plugin plugin;
 
   public PentahoRepositoryAccess() {
+    this(null);
   }
   private static Log logger = LogFactory.getLog(PentahoRepositoryAccess.class);
 
@@ -328,14 +329,27 @@ public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRe
     return new PentahoRepositoryFile(getSolutionRepository().getSolutionFile(path, fileAccess.ordinal()));
   }
 
+  
+  private IPentahoSession getPentahoSession(){
+    IPentahoSession session = null;    
+    if (userSession != null)
+      session = ((PentahoSession) userSession).getPentahoSession();
+    else
+      session = PentahoSessionHolder.getSession();
+    return session;
+  }
+  
   @Override
   public String getJqueryFileTree(String dir, String fileExtensions, String access) {
-    return RepositoryFileExplorer.toJQueryFileTree(dir, getFileList(dir, fileExtensions, access, ((PentahoSession) userSession).getPentahoSession()));
+      
+    return RepositoryFileExplorer.toJQueryFileTree(dir, getFileList(dir, fileExtensions, access, getPentahoSession()));
   }
 
+  
+  
   @Override
   public String getJSON(String dir, String fileExtensions, String access) {
-    return RepositoryFileExplorer.toJSON(dir, getFileList(dir, fileExtensions, access, ((PentahoSession) userSession).getPentahoSession()));
+    return RepositoryFileExplorer.toJSON(dir, getFileList(dir, fileExtensions, access, getPentahoSession()));
   }
 
   
