@@ -15,6 +15,7 @@ public interface IRepositoryFile {
 
     public String getSolutionPath();
 
+    @Deprecated
     public String getSolution();
 
     public String getFullPath();

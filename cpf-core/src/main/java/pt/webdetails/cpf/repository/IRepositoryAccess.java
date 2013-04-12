@@ -30,6 +30,8 @@ public interface IRepositoryAccess {
     public abstract SaveFileStatus publishFile(String solutionPath,
             String fileName, byte[] data, boolean overwrite);
 
+    // TODO: do we really need that one as well? i think we have enough?
+    @Deprecated
     public abstract SaveFileStatus publishFile(String baseUrl, String path,
             String fileName, byte[] data, boolean overwrite);
 
@@ -56,9 +58,11 @@ public interface IRepositoryAccess {
             FileAccess fileAccess, boolean getLocalizedResource)
             throws FileNotFoundException;
 
+    @Deprecated
     public abstract Document getResourceAsDocument(String solutionPath)
             throws IOException;
 
+    @Deprecated
     public abstract Document getResourceAsDocument(String solutionPath,
             FileAccess fileAccess) throws IOException;
 
@@ -72,12 +76,14 @@ public interface IRepositoryAccess {
             String toFilePath) throws IOException;
     
     public abstract String getSolutionPath(String path);
-    
-    public abstract void setUserSession(IUserSession userSession);
-    
+
+    /*
+     * TODO: This getrepository / getsolution should be consistent
+     * Best would be to remove the whole "solution" concept
+     */
     public abstract IRepositoryFile getRepositoryFile(String path, FileAccess fileAccess);
     
-    
+    public abstract void setUserSession(IUserSession userSession);
     
     public abstract void setPlugin(Plugin plugin);
     
@@ -85,13 +91,19 @@ public interface IRepositoryAccess {
     public abstract String getSettingsResourceAsString(String settingsPath)
             throws IOException;
     
+    /*
+     * TODO: This should really be getSettingsFiles ? make those two methods consistent
+     */
+    @Deprecated
     public abstract IRepositoryFile[] getPluginFiles(String baseDir, FileAccess accessMode);
     
 
      public abstract IRepositoryFile[] getSettingsFileTree(final String dir, final String fileExtensions, FileAccess access);
     
 
-    public abstract String getJqueryFileTree(final String dir, final String fileExtensions, final String access) ;    
+    @Deprecated
+    public abstract String getJqueryFileTree(final String dir, final String fileExtensions, final String access) ;
+    @Deprecated
     public abstract String getJSON(final String dir, final String fileExtensions, final String access);
 
 

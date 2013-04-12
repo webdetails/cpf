@@ -10,7 +10,7 @@ import org.pentaho.platform.api.engine.IFileFilter;
  * 
  * @author Sammy Guergachi <sguergachi at gmail.com>
  */
-public class PentahoRepositoryFileFilter implements IRepositoryFileFilter{
+public class PentahoRepositoryFileFilter implements IRepositoryFileFilter {
 
     private IFileFilter fileFilter;
 
