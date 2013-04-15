@@ -320,6 +320,14 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
         return PluginUtils.getInstance().getPathParameters(parameterProviders);
     }
     
+    protected void setResponseHeaders(String mimeType, String attachmentName ){
+        PluginUtils.getInstance().setResponseHeaders(parameterProviders, mimeType, 0, attachmentName);
+    }
+    
+    protected String getMimeType(String filename){
+        return MimeTypes.getMimeType(filename);
+    }
+    
     
 
 }
