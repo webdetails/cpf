@@ -1,21 +1,22 @@
 package pt.webdetails.cpf.repository;
 
-import java.io.ByteArrayOutputStream;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
+
 import org.apache.commons.lang.StringUtils;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.vfs.AllFileSelector;
+
 import org.apache.commons.vfs.FileObject;
-import org.apache.commons.vfs.FileSelectInfo;
-import org.apache.commons.vfs.FileSystemException;
+
 import org.apache.commons.vfs.FileSystemManager;
-import org.apache.commons.vfs.FileUtil;
+
 import org.apache.commons.vfs.VFS;
 import org.dom4j.Document;
 
@@ -109,18 +110,12 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 		try {
 			FileObject to = resolveFile(repo, toFilePath);
 			FileObject from = resolveFile(repo, fromFilePath);
-String a = to.getName().toString();
-String b = from.getName().toString();
 			to.copyFrom(from, null);
 			if (to != null && to.exists() && to.isReadable()) {
 				return SaveFileStatus.OK;
 			}
 		} catch(Exception e) {
 			log.error("Cannot copy from " + fromFilePath + " to " + toFilePath, e);
-                        String err = e.toString();
-                        e.printStackTrace();
-                        
-                        e.printStackTrace();
 		}
 		return SaveFileStatus.FAIL;
 	}
@@ -303,12 +298,12 @@ String b = from.getName().toString();
 	@Override
 	public SaveFileStatus publishFile(String file, byte[] content, boolean overwrite) {
             return publishFile(null, file, content, overwrite);
-
 	}
 
 	@Override
 	public SaveFileStatus publishFile(String solutionPath, String file, byte[] content, boolean overwrite) {
 		return publishFile(null, null, file, content, overwrite);
+
 	}
 
 	@Override
