@@ -31,7 +31,9 @@
     <classpath path="sonar-ant-task-1.3.jar" />
   </taskdef>
 
-  <target name="compile.compile" depends="init" description="Performs the actual javac compile">
+<!-- Temporarily disable the dependency for init -->
+<!--<target name="compile.compile" depends="init" description="Performs the actual javac compile">-->
+  <target name="compile.compile" description="Performs the actual javac compile">
     <javac destdir="${classes.dir}"
            debug="${javac.debug}"
            deprecation="${javac.deprecation}"
@@ -70,7 +72,9 @@
 
   <echo>distribution.version = ${distribution.version}</echo>
 
-  <target name="dist" depends="clean,resolve,jar,source.jar,dist-plugin"/>
+<!-- Temporarily disable the dependency for init -->
+<!--<target name="dist" depends="clean,resolve,jar,source.jar,dist-plugin"/>-->
+  <target name="dist" depends="jar,source.jar,dist-plugin"/>
   <target name="dist-compile" depends="jar,dist-plugin"/>
 
   <property name="plugin.artifact.id" value="${plugin.name}"/>

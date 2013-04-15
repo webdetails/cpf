@@ -9,7 +9,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import pt.webdetails.cpf.SimpleContentGenerator.MimeType;
+import pt.webdetails.cpf.utils.MimeTypes;
 
 /**
  *
@@ -23,5 +23,5 @@ public @interface Exposed {
     
     String role() default "";
     
-    String outputType() default MimeType.HTML;
+    String outputType() default MimeTypes.HTML;
 }
