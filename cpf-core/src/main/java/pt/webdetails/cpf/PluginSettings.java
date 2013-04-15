@@ -7,6 +7,8 @@ package pt.webdetails.cpf;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -15,10 +17,14 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import org.springframework.beans.factory.annotation.Autowired;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
+import pt.webdetails.cpf.repository.BaseRepositoryAccess.FileAccess;
+import pt.webdetails.cpf.repository.BaseRepositoryAccess.SaveFileStatus;
+import pt.webdetails.cpf.repository.IRepositoryFile;
 
 public abstract class PluginSettings {
 
@@ -66,18 +72,21 @@ public abstract class PluginSettings {
      * @param value
      * @return whether value was written
      */
+    // TODO: do we ever use that?
+    @Deprecated
     protected boolean writeSetting(String section, String value) {
-        String settingsFilePath = repository.getSolutionPath("system/" + getPluginSystemDir() + SETTINGS_FILE);
-        return writeSetting(section, value, settingsFilePath);
+        IRepositoryFile settingsFile = repository.getSettingsFile(SETTINGS_FILE, FileAccess.READ);
+        return writeSetting(section, value, settingsFile);
     }
 
-    protected boolean writeSetting(String section, String value, String settingsFilePath) {
-        File settingsFile = new File(settingsFilePath);
+    // TODO: do we ever use that?
+    @Deprecated
+    protected boolean writeSetting(String section, String value, IRepositoryFile settingsFile) {
         String nodePath = "settings/" + section;
         Document settings = null;
         try {
-            settings =  repository.getResourceAsDocument(settingsFilePath);
-        } catch (IOException e) {
+        	settings = DocumentHelper.parseText(new String(settingsFile.getData()));
+        } catch (Exception e) {
             logger.error(e);
         }
         if (settings != null) {
@@ -85,24 +94,23 @@ public abstract class PluginSettings {
             if (node != null) {
                 String oldValue = node.getText();
                 node.setText(value);
-                FileWriter writer = null;
                 try {
-                    writer = new FileWriter(settingsFile);
-                    settings.write(writer);
-                    writer.flush();
-                    //TODO: in future should only refresh relevant cache, not the whole thing
-                    logger.debug("changed '" + section + "' from '" + oldValue + "' to '" + value + "'");
-                    return true;
-                } catch (IOException e) {
+                    String contents = settings.asXML();
+                    SaveFileStatus ss = repository.publishFile(settingsFile.getSolutionPath(), contents, true);
+                    if (ss.equals(SaveFileStatus.OK)) {
+                    	//TODO: in future should only refresh relevant cache, not the whole thing
+                    	logger.debug("changed '" + section + "' from '" + oldValue + "' to '" + value + "'");
+                    	return true;
+                    }
+                    throw new Exception("Error converting settings document to string and publishing to repository: " + settingsFile.getSolutionPath());
+                } catch (Exception e) {
                     logger.error(e);
-                } finally {
-                    IOUtils.closeQuietly(writer);
                 }
             } else {
                 logger.error("Couldn't find node");
             }
         } else {
-            logger.error("Unable to open " + settingsFilePath);
+            logger.error("Unable to read " + settingsFile);
         }
         return false;
     }

@@ -1,15 +1,18 @@
 package pt.webdetails.cpf.repository;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemManager;
+import org.apache.commons.vfs.FileUtil;
 import org.apache.commons.vfs.VFS;
 import org.dom4j.Document;
 
@@ -91,7 +94,7 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 	public boolean canWrite(String file) {
 		try {
 			FileObject f = resolveFile(repo, file);
-			return (f != null && f.exists() && f.isWriteable());
+			return (f != null && f.isWriteable());
 		} catch(Exception e) {
 			log.error("Cannot check canWrite for " + file, e);
 		}
@@ -290,40 +293,76 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 
 	@Override
 	public SaveFileStatus publishFile(String file, byte[] content, boolean overwrite) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	//public SaveFileStatus publishFile(String solutionPath, String fileName, byte[] data, boolean overwrite) {
-	@Override
-	public SaveFileStatus publishFile(String solutionPath, String fileName, byte[] data, boolean overwrite) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	//	(String baseUrl, String path, String fileName, byte[] data, boolean overwrite) {
-	@Override
-	public SaveFileStatus publishFile(String arg0, String arg1, String arg2,
-			byte[] arg3, boolean arg4) {
-		// TODO Auto-generated method stub
-		return null;
+			return publishFile(null, file, content, overwrite);
 	}
 
 	@Override
-	public boolean removeFile(String arg0) {
-		// TODO Auto-generated method stub
-		return false;
+	public SaveFileStatus publishFile(String solutionPath, String file, byte[] content, boolean overwrite) {
+		return publishFile(null, null, file, content, overwrite);
 	}
 
 	@Override
-	public boolean removeFileIfExists(String arg0) {
-		// TODO Auto-generated method stub
-		return false;
+	public SaveFileStatus publishFile(String solution, String path, String fileName, byte[] data, boolean overwrite) {
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		try {
+			if (data != null) {
+				String file = getRelativePath(path, solution, fileName);
+				if (resourceExists(file) && overwrite && canWrite(file)) {
+					FileObject f = resolveFile(repo, file); 
+					FileUtil.writeContent(f, bos);
+					bos.write(data);
+					bos.flush();
+					return SaveFileStatus.OK;
+				}
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("Cannot publish file! solution: " + solution + " path: " + path + " file: " + fileName, e);
+		} finally {
+			try {
+				bos.close();
+			} catch (Exception e) {}
+		}
+		return SaveFileStatus.FAIL;
 	}
 
 	@Override
-	public boolean resourceExists(String arg0) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean removeFile(String file) {
+		try {
+			FileObject f = resolveFile(repo, file);
+			if (f.exists()) {
+				return f.delete();
+			}
+			return true;
+		} catch(Exception e) {
+			throw new RuntimeException("Cannot delete file: " + file, e);
+		}
 	}
+
+	@Override
+	public boolean removeFileIfExists(String file) {
+		return !resourceExists(file) || removeFile(file);
+	}
+
+	@Override
+	public boolean resourceExists(String file) {
+		try {
+			FileObject ir = resolveFile(repo, file);
+			return ir.exists();
+		} catch(Exception e) {
+			throw new RuntimeException("Cannot check if repo file exists: " + file, e);
+		}
+
+	}
+	
+	  private String getRelativePath(final String originalPath, final String solution,final String file) throws UnsupportedEncodingException
+	  {
+
+		String joined = "";
+		joined += (StringUtils.isEmpty(solution) ? "" : solution + "/");
+		joined += (StringUtils.isEmpty(originalPath) ? "" : originalPath + "/");
+		joined += (StringUtils.isEmpty(file) ? "" : file);
+		joined = joined.replaceAll("//", "/");
+		return joined;
+	  }
+
 }
