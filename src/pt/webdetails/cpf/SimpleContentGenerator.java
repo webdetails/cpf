@@ -313,7 +313,7 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
     }
     
     protected void setResponseHeaders(String mimeType, int cacheDuration, String attachmentName ){
-        PluginUtils.getInstance().setResponseHeaders(parameterProviders, mimeType, cacheDuration, attachmentName);
+        PluginUtils.getInstance().setResponseHeaders(parameterProviders, mimeType, cacheDuration, attachmentName, 0);
     }
     
     protected IParameterProvider getPathParameters(){
@@ -321,7 +321,7 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
     }
     
     protected void setResponseHeaders(String mimeType, String attachmentName ){
-        PluginUtils.getInstance().setResponseHeaders(parameterProviders, mimeType, 0, attachmentName);
+        PluginUtils.getInstance().setResponseHeaders(parameterProviders, mimeType, 0, attachmentName, 0);
     }
     
     protected String getMimeType(String filename){
