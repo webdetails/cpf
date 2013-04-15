@@ -7,6 +7,7 @@ package pt.webdetails.cpf.utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -29,7 +30,6 @@ public class ZipUtil {
     private String zipName;
     private String zipPath;
     private String zipFullPath;
-    private ZipOutputStream zipOut;
     private FileInputStream fis;
     private FileName topFilename;
     ArrayList<String> fileListing = new ArrayList<String>();
@@ -42,7 +42,7 @@ public class ZipUtil {
     
     public void buildZip(List<ResultFile> filesList){
         try {
-            
+            ZipOutputStream zipOut;
             topFilename = getTopFileName(filesList);
             zipName = this.topFilename.getBaseName();
             File tempZip = File.createTempFile(zipName, ".tmp");
@@ -55,7 +55,7 @@ public class ZipUtil {
 
             logger.info("Building '"+zipFullPath+"'...");
 
-            writeEntriesToZip(filesList);
+            zipOut = writeEntriesToZip(filesList, zipOut);
             logger.info("'"+zipName+"' built."+" Sending to client...");
             zipOut.close();
             fos.close();
@@ -68,7 +68,15 @@ public class ZipUtil {
         }
     }
     
-    private void writeEntriesToZip(List<ResultFile> filesList){
+    public void closeStream(){
+        try {
+            fis.close();
+        } catch (IOException ex) {
+            Logger.getLogger(ZipUtil.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private ZipOutputStream writeEntriesToZip(List<ResultFile> filesList, ZipOutputStream zipOut){
         int i=0;
         try {
             for (ResultFile resFile : filesList) {
@@ -94,6 +102,7 @@ public class ZipUtil {
         } catch (Exception exception) {
             logger.error(exception);
         }
+        return zipOut;
     }
 
     public FileInputStream getZipInputStream(){
@@ -109,7 +118,12 @@ public class ZipUtil {
         return zipName;
     }
     
-    public int getZipSize(){
+    public long getZipSize(){
+        try {
+            return fis.available();
+        } catch (IOException ex) {
+            Logger.getLogger(ZipUtil.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return 0;
     }
     

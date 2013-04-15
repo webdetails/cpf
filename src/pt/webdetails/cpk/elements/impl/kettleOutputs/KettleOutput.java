@@ -20,6 +20,9 @@ import org.pentaho.di.core.ResultFile;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.vfs.KettleVFS;
 import org.pentaho.platform.api.engine.IParameterProvider;
+import org.springframework.security.Authentication;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.userdetails.UserDetails;
 import pt.webdetails.cpf.Util;
 import pt.webdetails.cpf.utils.MimeTypes;
 import pt.webdetails.cpf.utils.PluginUtils;
@@ -157,9 +160,10 @@ public class KettleOutput implements IKettleOutput {
             ZipUtil zip = new ZipUtil();
             zip.buildZip(filesList);
             
-            PluginUtils.getInstance().setResponseHeaders(parameterProviders, MimeTypes.ZIP, zip.getZipNameToDownload());
+            PluginUtils.getInstance().setResponseHeaders(parameterProviders, MimeTypes.ZIP, zip.getZipNameToDownload(), zip.getZipSize());
             try {
                 IOUtils.copy(zip.getZipInputStream(), out);
+                zip.closeStream();
             } catch (IOException ex) {
                 Logger.getLogger(KettleOutput.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -230,7 +234,7 @@ public class KettleOutput implements IKettleOutput {
                 processResultOnly();
             } else {
 
-                if (getRows().size() == 1 && getRowMeta().size() == 1) {
+                if (getRows().size() == 1 && getRowMeta().getValueMetaList().size() == 1) {
                     processSingleCell();
                 } else {
                     processJson();

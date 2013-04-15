@@ -17,6 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.ws.Response;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -189,14 +190,19 @@ public class PluginUtils {
     }
 
     public void setResponseHeaders(Map<String, IParameterProvider> parameterProviders, final String mimeType) {
-        setResponseHeaders(parameterProviders, mimeType, 0, null);
+        setResponseHeaders(parameterProviders, mimeType, 0, null, 0);
     }
 
     public void setResponseHeaders(Map<String, IParameterProvider> parameterProviders, final String mimeType, final String attachmentName) {
-        setResponseHeaders(parameterProviders, mimeType, 0, attachmentName);
+        setResponseHeaders(parameterProviders, mimeType, 0, attachmentName, 0);
+    }
+    
+    public void setResponseHeaders(Map<String, IParameterProvider> parameterProviders, final String mimeType, final String attachmentName, long attachmentSize){
+        setResponseHeaders(parameterProviders, mimeType, 0, attachmentName, attachmentSize);
+        
     }
 
-    public void setResponseHeaders(Map<String, IParameterProvider> parameterProviders, final String mimeType, final int cacheDuration, final String attachmentName) {
+    public void setResponseHeaders(Map<String, IParameterProvider> parameterProviders, final String mimeType, final int cacheDuration, final String attachmentName, long attachmentSize) {
         // Make sure we have the correct mime type
 
         /* 
@@ -224,6 +230,10 @@ public class PluginUtils {
         if (attachmentName != null) {
             response.setHeader("content-disposition", "attachment; filename=" + attachmentName);
         } // Cache?
+        
+        if (attachmentSize > 0){
+            response.setHeader("Content-Length", String.valueOf(attachmentSize));
+        }
 
         if (cacheDuration > 0) {
             response.setHeader("Cache-Control", "max-age=" + cacheDuration);
