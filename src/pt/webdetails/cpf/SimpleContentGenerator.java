@@ -42,6 +42,7 @@ import pt.webdetails.cpf.annotations.Audited;
 import pt.webdetails.cpf.annotations.Exposed;
 import pt.webdetails.cpf.audit.CpfAuditHelper;
 import pt.webdetails.cpf.repository.RepositoryAccess;
+import pt.webdetails.cpf.utils.MimeTypes;
 import pt.webdetails.cpf.utils.PluginUtils;
 
 /**
@@ -290,5 +291,27 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
     public Log getLogger() {
         return logger;
     }
+    
+    protected HttpServletResponse getResponse(){
+        return PluginUtils.getInstance().getResponse(parameterProviders);
+    }
+    
+    protected HttpServletRequest getRequest(){
+        return PluginUtils.getInstance().getRequest(parameterProviders);
+    }
+    
+    protected IParameterProvider getRequestParameters(){
+        return PluginUtils.getInstance().getRequestParameters(parameterProviders);
+    }
+    
+    protected void setResponseHeaders(String mimeType, int cacheDuration, String attachmentName ){
+        PluginUtils.getInstance().setResponseHeaders(parameterProviders, mimeType, cacheDuration, attachmentName);
+    }
+    
+    protected IParameterProvider getPathParameters(){
+        return PluginUtils.getInstance().getPathParameters(parameterProviders);
+    }
+    
+    
 
 }

@@ -4,18 +4,17 @@
 package pt.webdetails.cpf.plugins;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.dom4j.Document;
-import org.dom4j.Node;
-import org.pentaho.platform.api.engine.IPluginManager;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.dom4j.Node;
+
+
+
+
 
 /**
  *
@@ -23,100 +22,82 @@ import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
  */
 public class PluginsAnalyzer {
     
-    private ArrayList<Plugin> installedPlugins;
-    private String PLUGIN_XML_FILENAME = "plugin.xml";
-    private String SETTINGS_XML_FILENAME = "settings.xml";
+    private List<Plugin> installedPlugins;
+    protected Log logger = LogFactory.getLog(this.getClass());
         
     public PluginsAnalyzer(){
         //Empty
+        refresh();
+    }
+    
+    public void refresh(){
+        buildPluginsList();
     }
     
     public List<Plugin> getInstalledPlugins(){
         return installedPlugins;
     }
 
-    public void setInstalledPlugins(ArrayList<Plugin> installedPlugins) {
-        this.installedPlugins = installedPlugins;
+    
+     public class PluginWithEntity {
+        private Plugin plugin;
+        private Node registeredEntity;
+        
+        public PluginWithEntity(Plugin plugin, Node registeredEntity) {
+            this.plugin = plugin;
+            this.registeredEntity = registeredEntity;
+        }
+
+        /**
+         * @return the plugin
+         */
+        public Plugin getPlugin() {
+            return plugin;
+        }
+
+        /**
+         * @return the registeredEntity
+         */
+        public Node getRegisteredEntity() {
+            return registeredEntity;
+        }
+    }; 
+    
+    
+    public List<PluginWithEntity> getRegisteredEntities(String entityName) {
+        List<PluginWithEntity> result = new ArrayList<PluginWithEntity>();
+        for (Plugin p: installedPlugins) {
+            Node registeredEntity = p.getRegisteredEntities(entityName);
+            if (registeredEntity != null)
+                result.add(new PluginWithEntity(p, registeredEntity));
+        }
+                
+        return result;
     }
     
     private void buildPluginsList(){
         ArrayList<Plugin> plugins = new ArrayList<Plugin>();
-        HashMap<String,List<String>> pluginsXmls = getPluginXmlsPath();
+        Plugin plugin = null;
+        String localPath = PentahoSystem.getApplicationContext().getSolutionPath("system/");
         
-        for(String pluginName : pluginsXmls.keySet()){
+        String [] pluginDirs = new File(localPath).list(new FilenameFilter() {
+
+            @Override
+            public boolean accept(File dir, String name) {
+                return new File(dir,name).isDirectory();
+            }
+        });
+        
+        for(String pluginDir : pluginDirs){
                 
-            for(String xmlFilePath : pluginsXmls.get(pluginName)){
-                Node documentNode = getXmlFileContent(xmlFilePath);
-                String name = null;
-                String id = null;
-                String description = null;
-                String company = null;
-                String companyUrl = null;
-                List<Entity> entities = new ArrayList<Entity>();
                 
-                if(xmlFilePath.contains(PLUGIN_XML_FILENAME)){
-                    
-                    id = documentNode.valueOf("/plugin/@title");
-                    name = documentNode.valueOf("/plugin/content-types/content-type/title");
-                    description = documentNode.valueOf("/plugin/content-types/content-type/description");
-                    company = documentNode.valueOf("/plugin/content-types/content-type/company/@name");
-                    companyUrl = documentNode.valueOf("/plugin/content-types/content-type/company/@url");
-                    
-                }else if(xmlFilePath.contains(SETTINGS_XML_FILENAME)){
-                    //TODO!
-                }
-                
+            plugin = new Plugin(localPath+pluginDir);
+            if(plugin.hasPluginXML()){
+                plugins.add(plugin);
             }
         }
         
-        setInstalledPlugins(plugins);
-    }
-    
-    private HashMap<String,List<String>> getPluginXmlsPath(){
-        IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, PentahoSessionHolder.getSession());
-        List<String> pluginsNames = pluginManager.getRegisteredPlugins();
-        
-        
-        
-        ArrayList<String> pluginXmlsPath;
-        HashMap<String,List<String>> pluginXmls = new HashMap<String, List<String>>();
-        
-        for(String name : pluginsNames){
-            String pluginPath = PentahoSystem.getApplicationContext().getSolutionPath("system/"+name+"/");
-            pluginXmlsPath = new ArrayList<String>();
-            
-            if(new File(pluginPath+PLUGIN_XML_FILENAME).isFile()){
-                pluginXmlsPath.add(pluginPath+PLUGIN_XML_FILENAME);
-            }
-            
-            if(new File(pluginPath+SETTINGS_XML_FILENAME).isFile()){
-                pluginXmlsPath.add(pluginPath+SETTINGS_XML_FILENAME);
-            }
-            
-            pluginXmls.put(name, pluginXmlsPath);
-        }
-        
-        return pluginXmls;
-    }
-    
-    private Node getXmlFileContent(String filePath){
-        FileInputStream fis = null;
-        File xmlFile = null;
-        Document doc = null;
-        Node node = null;
-        
-        try {
-            xmlFile = new File(filePath);
-            fis = new FileInputStream(xmlFile);
-            Document xml = XmlDom4JHelper.getDocFromStream(fis, null);
-            node = xml.getRootElement();
-            
-            
-        } catch (Exception ex) {
-            Logger.getLogger(PluginsAnalyzer.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        return node;
+        this.installedPlugins = plugins;
     }
     
 }

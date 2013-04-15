@@ -3,8 +3,16 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpf.plugins;
 
-import java.util.List;
-import java.util.concurrent.ConcurrentMap;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.dom4j.Document;
+import org.dom4j.Node;
+import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
@@ -16,26 +24,26 @@ public class Plugin {
     private String description;
     private String company;
     private String companyUrl;
-    private ConcurrentMap<Enum,List<Entity>> elementTypePath;
+    private String path;
+    private final String PLUGIN_XML_FILENAME = "plugin.xml";
+    private final String SETTINGS_XML_FILENAME = "settings.xml";
+    protected Log logger = LogFactory.getLog(this.getClass());
     
-    public Plugin(String id, String name, String description, String company,  String companyUrl, ConcurrentMap map) {
-        setId(id);
-        setName(name);
-        setDescription(description);
-        setCompany(company);
-        setCompanyUrl(companyUrl);
-        setElementTypePath(map);
+    public Plugin(String path){
+        setPath(path+"/");
+        pluginSelfBuild();
+    }
+    
+
+
+    public String getPath() {
+        return path;
     }
 
-    public ConcurrentMap<Enum, List<Entity>> getElementTypePath() {
-        return elementTypePath;
+    private void setPath(String path) {
+        this.path = path;
     }
-
-    private void setElementTypePath(ConcurrentMap<Enum, List<Entity>> elementTypePath) {
-        this.elementTypePath = elementTypePath;
-    }
-
-
+    
     public String getCompany() {
         return company;
     }
@@ -76,7 +84,71 @@ public class Plugin {
         this.name = name;
     }
     
-    public List<Entity> getEntityByType(EntityTypeEnum type){
-        return null;
+    private Node getXmlFileContent(String filePath){
+        FileInputStream fis = null;
+        BufferedInputStream bis = null;
+        File xmlFile = null;
+        Document xml = null;
+        Node node = null;
+        
+        try {
+            xmlFile = new File(filePath);
+            fis = new FileInputStream(xmlFile);
+            bis = new BufferedInputStream(fis);
+            xml = XmlDom4JHelper.getDocFromStream(bis, null);
+            node = xml.getRootElement();
+
+            bis.close();
+            fis.close();
+        } catch (Exception ex) {
+            Logger.getLogger(PluginsAnalyzer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return node;
     }
+    
+    private void pluginSelfBuild(){
+        if(hasPluginXML()){
+            Node documentNode = getXmlFileContent(getPath()+PLUGIN_XML_FILENAME);
+            setId(documentNode.valueOf("/plugin/@title"));
+            setName(documentNode.valueOf("/plugin/content-types/content-type/title"));
+            setDescription(documentNode.valueOf("/plugin/content-types/content-type/description"));
+            setCompany(documentNode.valueOf("/plugin/content-types/content-type/company/@name"));
+            setCompanyUrl(documentNode.valueOf("/plugin/content-types/content-type/company/@url"));
+        }
+    }
+    
+    public Node getRegisteredEntities(String entityName){
+        Node documentNode = null;
+        Node node = null;
+        if(hasSettingsXML()){
+            documentNode = getXmlFileContent(getPath()+SETTINGS_XML_FILENAME);
+            node = documentNode.selectSingleNode("/settings"+entityName);
+        }
+        
+        return node;
+    }
+    
+    public boolean hasPluginXML(){
+        boolean has = false;
+        
+        if(new File(getPath()+PLUGIN_XML_FILENAME).exists()){
+            has = true;
+        }
+        
+        return has;
+    }
+    
+    public boolean hasSettingsXML(){
+        boolean has = false;
+        
+        if(new File(getPath()+SETTINGS_XML_FILENAME).exists()){
+            has = true;
+        }
+        
+        return has;
+    }
+    
+    
+    
 }
