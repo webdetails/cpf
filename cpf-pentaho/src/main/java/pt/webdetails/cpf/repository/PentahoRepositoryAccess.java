@@ -54,7 +54,7 @@ import pt.webdetails.cpf.session.PentahoSession;
  * post-ISolutionRepository world
  */
 @SuppressWarnings("deprecation")
-public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRepositoryAccess {//XXX hit the implement all methods
+public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRepositoryAccess {
 
   private Plugin plugin;
 

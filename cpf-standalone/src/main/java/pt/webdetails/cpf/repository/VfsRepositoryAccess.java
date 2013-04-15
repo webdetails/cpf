@@ -10,7 +10,10 @@ import java.io.UnsupportedEncodingException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.vfs.AllFileSelector;
 import org.apache.commons.vfs.FileObject;
+import org.apache.commons.vfs.FileSelectInfo;
+import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileSystemManager;
 import org.apache.commons.vfs.FileUtil;
 import org.apache.commons.vfs.VFS;
@@ -106,12 +109,18 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 		try {
 			FileObject to = resolveFile(repo, toFilePath);
 			FileObject from = resolveFile(repo, fromFilePath);
+String a = to.getName().toString();
+String b = from.getName().toString();
 			to.copyFrom(from, null);
 			if (to != null && to.exists() && to.isReadable()) {
 				return SaveFileStatus.OK;
 			}
 		} catch(Exception e) {
 			log.error("Cannot copy from " + fromFilePath + " to " + toFilePath, e);
+                        String err = e.toString();
+                        e.printStackTrace();
+                        
+                        e.printStackTrace();
 		}
 		return SaveFileStatus.FAIL;
 	}
@@ -293,7 +302,8 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 
 	@Override
 	public SaveFileStatus publishFile(String file, byte[] content, boolean overwrite) {
-			return publishFile(null, file, content, overwrite);
+            return publishFile(null, file, content, overwrite);
+
 	}
 
 	@Override
@@ -303,24 +313,37 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 
 	@Override
 	public SaveFileStatus publishFile(String solution, String path, String fileName, byte[] data, boolean overwrite) {
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		//ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		try {
 			if (data != null) {
-				String file = getRelativePath(path, solution, fileName);
-				if (resourceExists(file) && overwrite && canWrite(file)) {
+				String file = getRelativePath(path, solution, fileName);                            
+				if (resourceExists(file)){
+                                    if(canWrite(file) && overwrite) {
 					FileObject f = resolveFile(repo, file); 
-					FileUtil.writeContent(f, bos);
-					bos.write(data);
-					bos.flush();
+//                                        if (f.exists() && !overwrite) return SaveFileStatus.FAIL;
+//                                        if (!f.exists()) f.createFile();
+                                        f.getContent().getOutputStream().write(data);
+                                        f.getContent().close();
+//					FileUtil.writeContent(f, bos);
+//					bos.write(data);
+//					bos.flush();
 					return SaveFileStatus.OK;
-				}
+                                    }
+                                    else return SaveFileStatus.FAIL;//XXX should I return false when can't write to file? or overwrite
+				}else{
+                                    FileObject f = resolveFile(repo,file);
+                                    f.getContent().getOutputStream().write(data);
+                                    f.getContent().close();
+                                    return SaveFileStatus.OK;
+                                }
+                                
 			}
 		} catch (Exception e) {
 			throw new RuntimeException("Cannot publish file! solution: " + solution + " path: " + path + " file: " + fileName, e);
-		} finally {
-			try {
-				bos.close();
-			} catch (Exception e) {}
+	//	} finally {
+	//		try {
+	//			bos.close();
+	//		} catch (Exception e) {}
 		}
 		return SaveFileStatus.FAIL;
 	}
