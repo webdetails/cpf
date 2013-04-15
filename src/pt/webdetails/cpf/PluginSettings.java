@@ -7,6 +7,7 @@ package pt.webdetails.cpf;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -124,5 +125,21 @@ public abstract class PluginSettings {
     List<Element> elements = settings.getSystemSettings(getPluginSystemDir() + SETTINGS_FILE, section);
     return elements;
   }
+  
+  @SuppressWarnings("unchecked")
+  public List<String> getTagValue(String tag)
+    {
+      List<Element> pathElements = getSettingsXmlSection(tag);
+      if (pathElements != null)
+      {
+        ArrayList<String> solutionPaths = new ArrayList<String>(pathElements.size());
+        for (Element pathElement : pathElements)
+        {
+          solutionPaths.add(pathElement.getText());
+        }
+        return solutionPaths;
+      }
+      return new ArrayList<String>(0);
+    }
   
 }
