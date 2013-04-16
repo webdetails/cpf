@@ -18,7 +18,8 @@ public class AbstractElement implements IElement {
     private String elementType;
     private String location;
     private ElementInfo elementInfo;
-    protected  boolean adminOnly;
+    private  boolean adminOnly;
+    
 
     
     

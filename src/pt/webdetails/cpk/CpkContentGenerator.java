@@ -39,9 +39,10 @@ public class CpkContentGenerator extends RestContentGenerator {
         String path = pluginUtils.getPathParameters(parameterProviders).getStringParameter("path", null);
         IElement element = null;
 
+
         if (path == null || path.equals("/")) {
 
-            String url = cpkEngine.getDefaultElement().getId();
+            String url = cpkEngine.getDefaultElement().getId().toLowerCase();
             if (path == null) {
                 // We need to put the http redirection on the right level
                 url = pluginUtils.getPluginName() + "/" + url;
@@ -49,7 +50,7 @@ public class CpkContentGenerator extends RestContentGenerator {
             pluginUtils.redirect(parameterProviders, url);
         }
 
-        element = cpkEngine.getElement(path.substring(1).toLowerCase());
+        element = cpkEngine.getElement(path.substring(1));
         if (element != null) {
             if (accessControl.isAllowed(element)) {
                 element.processRequest(parameterProviders);

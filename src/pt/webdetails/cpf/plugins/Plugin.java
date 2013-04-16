@@ -13,6 +13,7 @@ import org.dom4j.Node;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 /**
  *
@@ -35,7 +36,10 @@ public class Plugin {
     }
     
 
-
+    /**
+     * 
+     * @return Returns the path to the plugin directory (system) 
+     */
     public String getPath() {
         return path;
     }
@@ -44,6 +48,10 @@ public class Plugin {
         this.path = path;
     }
     
+    /**
+     * 
+     * @return Returns the company name if defined on the Plugin.xml 
+     */
     public String getCompany() {
         return company;
     }
@@ -52,6 +60,10 @@ public class Plugin {
         this.company = company;
     }
 
+    /**
+     * 
+     * @return Returns the company URL if defined on the Plugin.xml
+     */
     public String getCompanyUrl() {
         return companyUrl;
     }
@@ -60,6 +72,10 @@ public class Plugin {
         this.companyUrl = companyUrl;
     }
 
+    /**
+     * 
+     * @return Returns the plugin description if defined on the Plugin.xml 
+     */
     public String getDescription() {
         return description;
     }
@@ -68,6 +84,10 @@ public class Plugin {
         this.description = description;
     }
 
+    /**
+     * 
+     * @return Returns the plugin ID if defined on the Plugin.xml "<plugin title=<ID-HERE>...>"
+     */
     public String getId() {
         return id;
     }
@@ -147,6 +167,10 @@ public class Plugin {
         }
         
         return has;
+    }
+    
+    public String getPluginSolutionPath(){
+        return PentahoSystem.getApplicationContext().getSolutionPath("")+"/"+getId()+"/";
     }
     
     

@@ -42,6 +42,7 @@ public class CpkEngine {
     private TreeMap<String, IElement> elementsMap;
     private HashMap<String, IElementType> elementTypesMap;
     private static List reserverdWords = Arrays.asList("refresh", "status", "reload");
+    private String defaultElementName = null;
 
     public CpkEngine() {
 
@@ -106,7 +107,7 @@ public class CpkEngine {
         }
         
         String fileName = "cpk.xml";
-        File xmlFile = new File(PentahoSystem.getApplicationContext().getSolutionPath("")+"/"+plugin.getId()+"/"+fileName);
+        File xmlFile = new File(plugin.getPluginSolutionPath()+fileName);
         FileInputStream fis = null;
         BufferedInputStream bis = null;
         InputStream is = null;
@@ -137,6 +138,7 @@ public class CpkEngine {
         setCpkDoc(cpkDoc);
 
         List<Node> elementTypeNodes = cpkDoc.selectNodes("/cpk/elementTypes/elementType");
+        defaultElementName = cpkDoc.selectSingleNode("/cpk/elementTypes").valueOf("@defaultElement").toLowerCase();
 
         for (Node node : elementTypeNodes) {
 
@@ -222,13 +224,16 @@ public class CpkEngine {
      * @return
      */
     public IElement getDefaultElement() {
-
-        for (IElement e : this.elementsMap.values()) {
-            if (CpkEngine.getInstance().getElementType(e.getElementType()).isShowInSitemap()) {
-                return e;
+        IElement element = elementsMap.get(defaultElementName);
+        if(element==null){
+            for (IElement e : this.elementsMap.values()) {
+                if (CpkEngine.getInstance().getElementType(e.getElementType()).isShowInSitemap()) {
+                    element = e;
+                    break;
+                }
             }
         }
-        return null;
+        return element;
     }
 
     /**
@@ -247,7 +252,7 @@ public class CpkEngine {
 
         // Show the different entities
 
-        out.append(elementTypesMap.size() + " registered entity types\n");
+        out.append(elementTypesMap.size() + " registered entity types\nDefault element: "+defaultElementName+"\n");
         out.append("\n");
         out.append("End Points\n");
 
@@ -271,4 +276,5 @@ public class CpkEngine {
         LinkGenerator linkGen = new LinkGenerator(elementsMap.values());
         return linkGen.getLinksJson();
     }
+
 }
