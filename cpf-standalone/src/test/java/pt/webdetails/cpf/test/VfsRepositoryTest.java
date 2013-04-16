@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 import pt.webdetails.cpf.repository.BaseRepositoryAccess.FileAccess;
 import pt.webdetails.cpf.repository.VfsRepositoryAccess;
 import pt.webdetails.cpf.repository.BaseRepositoryAccess.SaveFileStatus;
+import pt.webdetails.cpf.repository.IRepositoryFile;
 
 public class VfsRepositoryTest extends TestCase {
 	
@@ -34,8 +35,16 @@ public class VfsRepositoryTest extends TestCase {
 	}
         public void testFolderCreation(){
             try{
-                boolean create = repository.createFolder("testFolderCreation");
+                boolean create = repository.createFolder("testFolderCreation");//creates a folder
                 assertTrue(create);
+                boolean folderCeption = repository.createFolder("folder/within/a/folder/with/folders/inside/other/folders");//folders within folders
+                assertTrue(folderCeption);
+                boolean doNothing = repository.createFolder("testFolderCreation");//do nothing because folder exists
+                assertTrue(doNothing);
+                
+                //cleanup after the test
+                repository.removeFileIfExists("testFolderCreation");
+                repository.removeUnsafe("folder");
             }catch(Exception e){
             e.printStackTrace();
             fail();
@@ -44,9 +53,13 @@ public class VfsRepositoryTest extends TestCase {
         }
         public void testResourceExists(){
             try{
+                repository.createFolder("testFolderCreation");
                 boolean exists = repository.resourceExists("testFolderCreation");
                 boolean notExists = repository.resourceExists("IAmNotAFolder!");
                 assertTrue(exists&&!notExists);
+                
+                //cleanup after the test
+                repository.removeFileIfExists("testFolderCreation");
             }catch(Exception e){
             e.printStackTrace();
             fail();
@@ -54,17 +67,17 @@ public class VfsRepositoryTest extends TestCase {
         }
         public void testPublishFile(){
         try {
-            boolean publishCreate = SaveFileStatus.OK==repository.publishFile("fileNameCreate", "fileContent", true);
+            boolean publishCreate = SaveFileStatus.OK==repository.publishFile("fileNameCreate", "fileContent", true);//creates a file
              assertTrue(publishCreate);
-            boolean publish = SaveFileStatus.OK==repository.publishFile("fileName", "fileContent", true);
-            assertTrue(publish);
-            boolean publishOverwriteFalse = SaveFileStatus.OK==repository.publishFile("fileName", "contentOverwrite", false);
-            assertTrue(!publishOverwriteFalse);
-            repository.publishFile("fileToOverwrite", "I shall be overwritten", false);
-            boolean publishOverwriteTrue = SaveFileStatus.OK==repository.publishFile("fileToOverwrite", "Overwrite Sucessfull!", true);
+            repository.publishFile("fileName", "fileContent", true);
+            boolean publishOverwriteFalse = SaveFileStatus.FAIL==repository.publishFile("fileName", "contentOverwrite", false);//overwrite = false
+            assertTrue(publishOverwriteFalse);
+            repository.publishFile("fileToOverwrite", "I shall be overwritten", false);//creates a file wich will be overwriten 
+            boolean publishOverwriteTrue = SaveFileStatus.OK==repository.publishFile("fileToOverwrite", "Overwrite Sucessfull!", true);//overwrites a file
             assertTrue(publishOverwriteTrue);
-            
-            //removing the files to create always on test
+             
+            //cleanup after the test
+            repository.removeFileIfExists("fileName");
             repository.removeFileIfExists("fileNameCreate");
             repository.removeFileIfExists("fileToOverwrite");
         } catch (Exception e) {
@@ -72,7 +85,7 @@ public class VfsRepositoryTest extends TestCase {
             fail();
         }
         }
-        public void testCopyFile(){//XXX Failing
+        public void testCopyFile(){
         try {
             
             repository.publishFile("from", "My contents shall be copied to the other file", false);
@@ -80,33 +93,84 @@ public class VfsRepositoryTest extends TestCase {
             
             boolean copy = SaveFileStatus.OK==repository.copySolutionFile("from", "to");
             
-            assertTrue(copy);
-            
+            assertTrue(copy);//was copied
+            assertEquals("My contents shall be copied to the other file",repository.getResourceAsString("to"));//the content was correctly copied
+            boolean createsFileTo = SaveFileStatus.OK==repository.copySolutionFile("from", "createdOnCopy");//creates the destination file
+            assertTrue(createsFileTo);
+            boolean cantFindFile = SaveFileStatus.FAIL==repository.copySolutionFile("nonExistingFile", "to");//wont find nonExistingFile
+            assertTrue(cantFindFile);
+         
+            //cleanup after the test
             repository.removeFileIfExists("from");
             repository.removeFileIfExists("to");
+            repository.removeFile("createdOnCopy");
         } catch (Exception e) {
             e.printStackTrace();
             fail();
         }
-        }
-        
-        
-        
-        
-        
-        
-        
-        
-        
+        }  
         public void testFileRemoval(){
             try{
-                boolean removal = repository.removeFileIfExists("fileName");
-                assertTrue(removal);
+                repository.publishFile("fileToDelete", "", true);
+                repository.createFolder("folderToDelete");
+                boolean fileRemoval = repository.removeFileIfExists("fileToDelete");//will remove file
+                assertTrue(fileRemoval);
+                boolean folderRemoval = repository.removeFileIfExists("folderToDelete");//will remove folder
+                assertTrue(folderRemoval);
+                repository.publishFile("cantDeleteMe/imSafeHere","",true);
+                boolean cantRemoveFolderWithFiles = !repository.removeFileIfExists("cantDeleteMe");//wont remove a folder with files
+                assertTrue(cantRemoveFolderWithFiles);
+                  
+                //cleanup after the test
+                repository.removeFileIfExists("cantDeleteMe/imSafeHere");
+                repository.removeFile("cantDeleteMe");
             }catch(Exception e){
             e.printStackTrace();
             fail();
         }
         }
+        public void testFileUnsafeRemoval(){
+            try{
+                repository.publishFile("folderToDelete/anotherFolder/fileToDelete", "", true);
+                repository.publishFile("folderToDelete/plusOne/file", "", true);
+                repository.publishFile("folderToDelete/plusTwo/child/fileToDelete", "", true);
+                repository.publishFile("folderToDelete/anotherFolder/folderAsInFolder/anotherFile", "", true);
+                assertTrue(repository.resourceExists("folderToDelete"));//folder exists
+                assertTrue(repository.resourceExists("folderToDelete/plusOne"));//just testing for one child
+                assertTrue(repository.removeUnsafe("folderToDelete")>=0);//removal
+                assertFalse(repository.resourceExists("folderToDelete"));//folder and children+ no longer exist
+            }catch(Exception e){
+            e.printStackTrace();
+            fail();
+        }
+        }      
+        public void testGetRepositoryFile(){
+            try{
+               repository.publishFile("repoFolder/repoFile", "repo file content", true); 
+               
+               IRepositoryFile repoFile = repository.getRepositoryFile("repoFolder/repoFile", FileAccess.READ);
+               IRepositoryFile repoFolder = repository.getRepositoryFile("repoFolder", FileAccess.READ);
+               IRepositoryFile nonExistent = repository.getRepositoryFile("wrongName", FileAccess.READ);
+               assertTrue(repoFile.exists());//file exists
+               assertFalse(repoFile.isDirectory());//is not directory
+               assertFalse(repoFile.isRoot());//not root
+               assertTrue(repoFolder.exists());//folder exists
+               assertTrue(repoFolder.isDirectory());//is directory
+               assertFalse(repoFolder.isRoot());//not root
+               assertTrue(repoFolder.listFiles().length>0);//folder has children
+               
+               assertFalse(nonExistent.exists());
+               
+               
+               
+            //cleanup after the test
+            repository.removeUnsafe("repoFolder");    
+            }catch(Exception e){
+            e.printStackTrace();
+            fail();
+        }
+        }
+        
         
 
 }

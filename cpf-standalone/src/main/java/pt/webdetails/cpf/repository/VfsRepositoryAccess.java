@@ -17,6 +17,7 @@ import org.apache.commons.vfs.FileObject;
 
 import org.apache.commons.vfs.FileSystemManager;
 
+import org.apache.commons.vfs.Selectors;
 import org.apache.commons.vfs.VFS;
 import org.dom4j.Document;
 
@@ -110,7 +111,7 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 		try {
 			FileObject to = resolveFile(repo, toFilePath);
 			FileObject from = resolveFile(repo, fromFilePath);
-			to.copyFrom(from, null);
+                        to.copyFrom(from,Selectors.SELECT_SELF);
 			if (to != null && to.exists() && to.isReadable()) {
 				return SaveFileStatus.OK;
 			}
@@ -382,5 +383,23 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 		joined = joined.replaceAll("//", "/");
 		return joined;
 	  }
+          
+          /**
+           * Please do note this will remove the folder and all subfolders and files
+           * Used for testing purposes only
+           * @param file
+           * @return 
+           */
+          public int removeUnsafe(String file){//XXX if this could actually be an option, just add a boolean in removeFile.
+              try {
+			FileObject f = resolveFile(repo, file);
+			if (f.exists()) {
+				return f.delete(Selectors.SELECT_ALL);
+			}
+			return -1;
+		} catch(Exception e) {
+			throw new RuntimeException("Cannot delete file: " + file, e);
+		}
+          }
 
 }
