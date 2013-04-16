@@ -3,7 +3,10 @@ package pt.webdetails.cpf.test;
 import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import junit.framework.TestCase;
+import org.apache.commons.vfs.FileObject;
+import org.apache.commons.vfs.Selectors;
 import pt.webdetails.cpf.repository.BaseRepositoryAccess.FileAccess;
 import pt.webdetails.cpf.repository.VfsRepositoryAccess;
 import pt.webdetails.cpf.repository.BaseRepositoryAccess.SaveFileStatus;
@@ -13,21 +16,22 @@ import pt.webdetails.cpf.repository.IRepositoryFile;
 
 public class VfsRepositoryTest extends TestCase {
 	
-	private VfsRepositoryAccess repository;
+	private VfsRepositoryAccessForTests repository;
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.repository = new VfsRepositoryAccess("res:repository", "res:settings");
+		this.repository = new VfsRepositoryAccessForTests("res:repository", "res:settings");
 	}
         
         
 	public void testBasicRepo() {
 		try {
+                        repository.publishFile("testsolutionfile", "testcontent", true);
 			String content = repository.getResourceAsString("testsolutionfile", FileAccess.READ);
 			assertEquals("testcontent",  content);
 			String settingContent = repository.getSettingsResourceAsString("testsettingsfile");
 			assertEquals("testsetting",  settingContent);
-                        
+                        repository.removeUnsafe(".");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -45,8 +49,7 @@ public class VfsRepositoryTest extends TestCase {
                 assertTrue(doNothing);
                 
                 //cleanup after the test
-                repository.removeFileIfExists("testFolderCreation");
-                repository.removeUnsafe("folder");
+                repository.removeUnsafe(".");
             }catch(Exception e){
             e.printStackTrace();
             fail();
@@ -61,7 +64,7 @@ public class VfsRepositoryTest extends TestCase {
                 assertTrue(exists&&!notExists);
                 
                 //cleanup after the test
-                repository.removeFileIfExists("testFolderCreation");
+                repository.removeUnsafe(".");
             }catch(Exception e){
             e.printStackTrace();
             fail();
@@ -79,9 +82,7 @@ public class VfsRepositoryTest extends TestCase {
             assertTrue(publishOverwriteTrue);
              
             //cleanup after the test
-            repository.removeFileIfExists("fileName");
-            repository.removeFileIfExists("fileNameCreate");
-            repository.removeFileIfExists("fileToOverwrite");
+            repository.removeUnsafe(".");
         } catch (Exception e) {
             e.printStackTrace();
             fail();
@@ -103,9 +104,7 @@ public class VfsRepositoryTest extends TestCase {
             assertTrue(cantFindFile);
          
             //cleanup after the test
-            repository.removeFileIfExists("from");
-            repository.removeFileIfExists("to");
-            repository.removeFile("createdOnCopy");
+            repository.removeUnsafe(".");
         } catch (Exception e) {
             e.printStackTrace();
             fail();
@@ -124,28 +123,12 @@ public class VfsRepositoryTest extends TestCase {
                 assertTrue(cantRemoveFolderWithFiles);
                   
                 //cleanup after the test
-                repository.removeFileIfExists("cantDeleteMe/imSafeHere");
-                repository.removeFile("cantDeleteMe");
+                repository.removeUnsafe(".");
             }catch(Exception e){
             e.printStackTrace();
             fail();
         }
         }
-        public void testFileUnsafeRemoval(){
-            try{
-                repository.publishFile("folderToDelete/anotherFolder/fileToDelete", "", true);
-                repository.publishFile("folderToDelete/plusOne/file", "", true);
-                repository.publishFile("folderToDelete/plusTwo/child/fileToDelete", "", true);
-                repository.publishFile("folderToDelete/anotherFolder/folderAsInFolder/anotherFile", "", true);
-                assertTrue(repository.resourceExists("folderToDelete"));//folder exists
-                assertTrue(repository.resourceExists("folderToDelete/plusOne"));//just testing for one child
-                assertTrue(repository.removeUnsafe("folderToDelete")>=0);//removal
-                assertFalse(repository.resourceExists("folderToDelete"));//folder and children+ no longer exist
-            }catch(Exception e){
-            e.printStackTrace();
-            fail();
-        }
-        }      
         public void testGetRepositoryFile(){
             try{
                repository.publishFile("repoFolder/repoFile", "repo file content", true); 
@@ -166,7 +149,7 @@ public class VfsRepositoryTest extends TestCase {
                
                
             //cleanup after the test
-            repository.removeUnsafe("repoFolder");    
+            repository.removeUnsafe(".");  
             }catch(Exception e){
             e.printStackTrace();
             fail();
@@ -219,8 +202,51 @@ public class VfsRepositoryTest extends TestCase {
             e.printStackTrace();
             fail();
         }
+        } 
+        public void testFileUnsafeRemoval(){
+            try{
+                repository.publishFile("folderToDelete/anotherFolder/fileToDelete", "", true);
+                repository.publishFile("folderToDelete/plusOne/file", "", true);
+                repository.publishFile("folderToDelete/plusTwo/child/fileToDelete", "", true);
+                repository.publishFile("folderToDelete/anotherFolder/folderAsInFolder/anotherFile", "", true);
+                assertTrue(repository.resourceExists("folderToDelete"));//folder exists
+                assertTrue(repository.resourceExists("folderToDelete/plusOne"));//just testing for one child
+                assertTrue(repository.removeUnsafe("folderToDelete")>=0);//removal
+                assertFalse(repository.resourceExists("folderToDelete"));//folder and children no longer exist
+            }catch(Exception e){
+            e.printStackTrace();
+            fail();
         }
-       
-        
+        }      
+}
 
+
+
+ class  VfsRepositoryAccessForTests extends VfsRepositoryAccess {
+      
+     
+     
+     public VfsRepositoryAccessForTests(String repo,String settings){
+         super(repo,settings);
+     }
+     
+          /**
+           * Please do note this will remove the folder and all subfolders and files
+           * Used for testing purposes only
+           * @param file
+           * @return 
+           */
+          public int removeUnsafe(String file){
+              try {
+                  if(file.equals("."))
+                      return repo.delete(Selectors.EXCLUDE_SELF);
+			FileObject f = resolveFile(repo, file);
+			if (f.exists()) {
+				return f.delete(Selectors.SELECT_ALL);
+			}
+			return -1;
+		} catch(Exception e) {
+			throw new RuntimeException("Cannot delete file: " + file, e);
+		}
+          }
 }

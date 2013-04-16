@@ -30,10 +30,10 @@ import pt.webdetails.cpf.session.IUserSession;
 public class VfsRepositoryAccess implements IRepositoryAccess {
 
 	protected static final Log log = LogFactory.getLog(VfsRepositoryAccess.class);
-	private FileObject settings;
-	private FileObject repo;
-	private Plugin plugin;
-	private IUserSession session;
+	protected FileObject settings;
+	protected FileObject repo;
+	protected Plugin plugin;
+	protected IUserSession session;
 
 	public VfsRepositoryAccess() {};
 	public VfsRepositoryAccess(String repo, String settings) {
@@ -88,7 +88,7 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 
 	}
 
-	private FileObject resolveFile(FileObject folder, String file) throws Exception {
+	protected FileObject resolveFile(FileObject folder, String file) throws Exception {
 		if (file == null || file.startsWith("/") || file.startsWith(".") || file.contains("/../")) {
 			throw new IllegalArgumentException("Path cannot be null or start with \"/\" or \".\" - Illegal Path: " + file);
 		}
@@ -385,23 +385,6 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 		joined = joined.replaceAll("//", "/");
 		return joined;
 	  }
-          
-          /**
-           * Please do note this will remove the folder and all subfolders and files
-           * Used for testing purposes only
-           * @param file
-           * @return 
-           */
-          public int removeUnsafe(String file){//XXX if this could actually be an option, just add a boolean in removeFile.
-              try {
-			FileObject f = resolveFile(repo, file);
-			if (f.exists()) {
-				return f.delete(Selectors.SELECT_ALL);
-			}
-			return -1;
-		} catch(Exception e) {
-			throw new RuntimeException("Cannot delete file: " + file, e);
-		}
-          }
+    
 
 }
