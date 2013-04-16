@@ -4,6 +4,8 @@
 package pt.webdetails.cpk;
 
 import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -20,6 +22,8 @@ import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import pt.webdetails.cpf.Util;
+import pt.webdetails.cpf.plugins.Plugin;
+import pt.webdetails.cpf.plugins.PluginsAnalyzer;
 import pt.webdetails.cpk.security.AccessControl;
 import pt.webdetails.cpk.sitemap.LinkGenerator;
 import pt.webdetails.cpf.utils.PluginUtils;
@@ -87,11 +91,48 @@ public class CpkEngine {
         // Clean the types
         elementsMap.clear();
         elementTypesMap.clear();
+        
+        PluginsAnalyzer pluginsAnalyzer = new PluginsAnalyzer();
+        
+        List<Plugin> plugins = pluginsAnalyzer.getInstalledPlugins();
+        String pluginName = PluginUtils.getInstance().getPluginName();
+        Plugin plugin = null;
+        
+        for(Plugin plgn : plugins){
+            if(plgn.getName().equalsIgnoreCase(pluginName) || plgn.getId().equalsIgnoreCase(pluginName)){
+                plugin = plgn;
+                break;
+            }
+        }
+        
+        String fileName = "cpk.xml";
+        File xmlFile = new File(PentahoSystem.getApplicationContext().getSolutionPath("")+"/"+plugin.getId()+"/"+fileName);
+        FileInputStream fis = null;
+        BufferedInputStream bis = null;
+        InputStream is = null;
+        
+        
+        if(!xmlFile.exists()){
+            xmlFile = new File(plugin.getPath()+fileName);
+            fis = new FileInputStream(xmlFile);
+            bis = new BufferedInputStream(fis);
+            
+            if(!xmlFile.exists()){
+                IPluginResourceLoader resLoader = PentahoSystem.get(IPluginResourceLoader.class, null);
+                is = resLoader.getResourceAsStream(this.getClass(), fileName);
+                bis = new BufferedInputStream(is);
 
-        IPluginResourceLoader resLoader = PentahoSystem.get(IPluginResourceLoader.class, null);
-        InputStream is = resLoader.getResourceAsStream(this.getClass(), "cpk.xml");
+                fis.close();
+            }
+        }else{
+            fis = new FileInputStream(xmlFile);
+            bis = new BufferedInputStream(fis);
+        }
+        
+        
         // Buffer the is
-        BufferedInputStream bis = new BufferedInputStream(is);
+        
+        
         Document cpkDoc = XmlDom4JHelper.getDocFromStream(bis, null);
         setCpkDoc(cpkDoc);
 
