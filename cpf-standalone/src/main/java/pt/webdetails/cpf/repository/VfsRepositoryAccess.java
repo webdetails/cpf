@@ -45,6 +45,7 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 		}
 
 	}
+        
 
 	public void setRepository(String path) {
 		repo = setRepoPath(path);
@@ -264,6 +265,7 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 			log.error("Error getting plugin files for (" + plugin + ")  at: " + directory + " with extension: " + fileExtension, e);
 		}
 		return null;
+                
 	}
 
 	@Override

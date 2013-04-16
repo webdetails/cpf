@@ -9,6 +9,8 @@ import pt.webdetails.cpf.repository.VfsRepositoryAccess;
 import pt.webdetails.cpf.repository.BaseRepositoryAccess.SaveFileStatus;
 import pt.webdetails.cpf.repository.IRepositoryFile;
 
+
+
 public class VfsRepositoryTest extends TestCase {
 	
 	private VfsRepositoryAccess repository;
@@ -170,7 +172,55 @@ public class VfsRepositoryTest extends TestCase {
             fail();
         }
         }
-        
+        public void testGetSettingsFile(){
+            try{
+               
+             assertTrue(repository.getSettingsFile("testFile", FileAccess.READ).exists());//this one exists
+             assertFalse(repository.getSettingsFile("random", FileAccess.READ).exists());//this one doesnt
+             
+
+            }catch(Exception e){
+            e.printStackTrace();
+            fail();
+        }
+        }
+        public void testGetSettingsFileTree(){
+            try{
+                //XXX these must be manually created since there is no way of calling publishFile to settings dir?
+                //create dir testFolder and inside, at leat 2 files, one with name.extension and another with name.anotherExtension
+               IRepositoryFile[] files0 = repository.getSettingsFileTree("testFolder", "extension", FileAccess.READ);
+               IRepositoryFile[] files1 = repository.getSettingsFileTree("testFolder", "anotherExtension", FileAccess.READ);
+               IRepositoryFile[] files2 = repository.getSettingsFileTree("testFolder", "notAnExtension", FileAccess.READ);
+               IRepositoryFile[] files3 = repository.getSettingsFileTree("notEvenAFolder", "extension", FileAccess.READ);
+               
+               assertTrue(files0.length>0);
+               assertTrue(files1.length>0);
+               assertFalse(files2.length>0);
+               assertFalse(files3.length>0);
+               
+            }catch(Exception e){
+            e.printStackTrace();
+            fail();
+        }
+        }
+        public void testGetPluginFiles(){
+            try{
+              //XXX created manually
+               IRepositoryFile[] files = repository.getPluginFiles("pluginDir", FileAccess.READ);
+               IRepositoryFile[] files1 = repository.getPluginFiles("wrongDir", FileAccess.READ);
+               
+               
+               assertTrue(files.length>0);
+               assertFalse(files1.length>0);
+               
+               
+               
+            }catch(Exception e){
+            e.printStackTrace();
+            fail();
+        }
+        }
+       
         
 
 }
