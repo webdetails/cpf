@@ -1,8 +1,5 @@
 package pt.webdetails.cpf.test;
 
-import java.io.UnsupportedEncodingException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import junit.framework.TestCase;
 import org.apache.commons.vfs.FileObject;
