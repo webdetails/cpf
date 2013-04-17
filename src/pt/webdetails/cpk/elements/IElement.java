@@ -26,5 +26,7 @@ public interface IElement {
     
     public ElementInfo getElementInfo();
     
+    public String getTopLevel();
+    
     
 }

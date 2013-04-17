@@ -4,14 +4,21 @@
 
 package pt.webdetails.cpk.sitemap;
 
+import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import pt.webdetails.cpk.elements.IElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.security.AccessControl;
 
 /**
@@ -21,55 +28,112 @@ import pt.webdetails.cpk.security.AccessControl;
 public class LinkGenerator{
     private ArrayList<Link> dashboardLinks;
     private ArrayList<Link> kettleLinks;
-    private Collection<IElement> elements;
     protected Log logger = LogFactory.getLog(this.getClass());
     
     
 
 
-    public LinkGenerator(Collection<IElement> e) {
-        elements = e;
-        generateLinks();
+    public LinkGenerator(Map<String,IElement> elementsMap) {
+        generateLinks(elementsMap);
     }
     
-    public LinkGenerator(){
-        //Dummy constructor
-    }
-    
-
-
-    private void generateLinks(){
-        dashboardLinks = new ArrayList<Link>();
-        kettleLinks = new ArrayList<Link>();
-        AccessControl accessControl = new AccessControl();
-
-        for(IElement e : elements){
-            if(accessControl.isAllowed(e)){
-                Link link = new Link(e,false, getElements());
-                if(isDashboard(e)){
-                    if(!dashboardLinks.isEmpty() && !linkExists(dashboardLinks, link) && link.getName() != null){
-                        
-                        dashboardLinks.add(link);
-
-                    }else if(dashboardLinks.isEmpty() && link.getName() != null){
-                        dashboardLinks.add(link);
-                    }
-                }else if(isKettle(e)){
-                    kettleLinks.add(link);
-                }
+    private Map<String,File> getTopLevelDirectories(Map<String,IElement> elementsMap){
+        HashMap<String,File> directories = new HashMap<String, File>();
+        
+        for(IElement element : elementsMap.values()){
+            File directory = new File(PluginUtils.getInstance().getPluginDirectory()+"/"+element.getTopLevel());
+            if(directory != null){
+                try {
+                    directories.put(directory.getCanonicalPath(), directory);
+                }catch(Exception e){}
             }
         }
+        return directories;
+    }
+    
+    private List<File> getDirectories(File directory){
+        List<File> directories = new ArrayList<File>();
+        
+        FileFilter dirFilter = new FileFilter() {
 
+            @Override
+            public boolean accept(File pathname) {
+                return pathname.isDirectory();
+            }
+        };
+        
+        File [] dirs = directory.listFiles(dirFilter);
+        
+        if(dirs != null){
+            directories = Arrays.asList(dirs);
+        }
+        
+        return directories;
     }
 
+
+    private void generateLinks(Map<String,IElement> elementsMap){
+        dashboardLinks = new ArrayList<Link>();
+        Map<String,File> directories = getTopLevelDirectories(elementsMap);
+        Link l = null;
+        
+        for(File directory : directories.values()){
+            
+            for(File file : getFiles(directory)){
+                int index = file.getName().indexOf(".");
+                String filename = file.getName().substring(0,index).toLowerCase();
+                
+                if(elementsMap.containsKey(filename)){
+                    IElement element = elementsMap.get(filename);
+                    if(isDashboard(element)){
+                        l = new Link(elementsMap.get(filename));
+                        if(!linkExists(dashboardLinks, l)){
+                            dashboardLinks.add(l);
+                        }
+                    }
+                }
+                
+                for(File dir : getDirectories(directory)){
+                    l = new Link(dir, elementsMap);
+                    if(!linkExists(dashboardLinks, l)){
+                        dashboardLinks.add(l);
+                    }
+            
+                }
+                
+            }
+            
+            
+            
+        }
+    }
+    
+    private List<File> getFiles(File directory){
+        List<File> files = null;
+        
+        if(directory.isDirectory()){
+            FileFilter dirFilter = new FileFilter() {
+
+                @Override
+                public boolean accept(File pathname) {
+                    return pathname.isFile();
+                }
+            };
+            
+            files = new ArrayList<File>(Arrays.asList(directory.listFiles(dirFilter)));
+        }
+        
+        return files;
+    }
+    
     private boolean linkExists(ArrayList<Link> lnks, Link lnk){
         boolean exists = false;
 
         for(Link l : lnks){
             try{
                 if(l.getName() == null){
-                }else if(l.getName().equals(lnk.getName())){
-                    exists=true;
+                }else if(l.getId().equals(lnk.getId())){
+                        exists=true;
                 }
             }catch(Exception e){
                 exists = true;
@@ -118,9 +182,7 @@ public class LinkGenerator{
         return is;
     }
     
-    private Collection<IElement> getElements(){
-        return this.elements;
-    }
+    
 
 }
   

@@ -19,9 +19,15 @@ public class AbstractElement implements IElement {
     private String location;
     private ElementInfo elementInfo;
     private  boolean adminOnly;
-    
+    private String topLevel;
 
-    
+    public String getTopLevel() {
+        return topLevel;
+    }
+
+    public void setTopLevel(String topLevel) {
+        this.topLevel = topLevel;
+    }
     
     @Override
     public String getId() {

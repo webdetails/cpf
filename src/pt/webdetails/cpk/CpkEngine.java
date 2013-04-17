@@ -274,7 +274,7 @@ public class CpkEngine {
     }
 
     public JsonNode getSitemapJson() throws IOException {
-        LinkGenerator linkGen = new LinkGenerator(elementsMap.values());
+        LinkGenerator linkGen = new LinkGenerator(elementsMap);
         return linkGen.getLinksJson();
     }
 

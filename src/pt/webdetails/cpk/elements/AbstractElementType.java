@@ -114,6 +114,7 @@ public abstract class AbstractElementType implements IElementType {
         element.setElementType(this.getType());
         element.setName(element.getId());
         element.setAdminOnly(Boolean.parseBoolean(node.valueOf("@adminOnly")));
+        element.setTopLevel(node.valueOf("@path"));
         
         element.setElementInfo(createElementInfo());
         

@@ -5,10 +5,15 @@
 package pt.webdetails.cpk.sitemap;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import pt.webdetails.cpk.elements.IElement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,60 +34,86 @@ import pt.webdetails.cpk.CpkEngine;
 public class Link{
     
     private String name, id, link;
-    private IElement element;
-    private boolean isSublink;
     private List<Link> subLinks;
-    private Collection<IElement> elements;
+    private Map<String,IElement> elements;
     
     protected Log logger = LogFactory.getLog(this.getClass());
 
-    public Link(IElement e, boolean sublnk, Collection<IElement> elements){
-        
-        if(this.elements == null){
-            this.elements = elements;
-        }
-        init(e,sublnk);
-    }
-
-    private void init(IElement e, boolean sublnk){
-        this.element = e;
-        this.isSublink = sublnk;
+    public Link(File directory, Map<String,IElement> elementsMap){
+        elements = elementsMap;
         subLinks = new ArrayList<Link>();
-        buildLink();
+        buildLink(directory);
+        this.name = directory.getName();
+        this.id = "";
+        this.link = "";
 
     }
+    
+    public Link(IElement element){
+        this.name = getTextFromWcdf(element.getLocation(),"description");
+        this.link = "/pentaho/content/"+PluginUtils.getInstance().getPluginName()+"/"+element.getId().toLowerCase();
+        this.id = element.getLocation().split("/")[element.getLocation().split("/").length-1];
+        subLinks = new ArrayList<Link>();
+    }
+    
 
-    public void buildLink(){
-        if(isDashboard(element) && !isSublink){
-            if(hasSublink()){
-                createSublinks();
-            }else{
-                this.name = getTextFromWcdf(element.getLocation(),"description");
-                this.link = "/pentaho/content/"+PluginUtils.getInstance().getPluginName()+"/"+element.getId();
-                this.id = element.getLocation().split("/")[element.getLocation().split("/").length-1];
-                //this.sublink = null;
+
+    public void buildLink(File directory){
+        List<File> directories = null;
+        List<File> files = null;
+        Link l = null;
+        
+        if(!getTopLevelDirectories(elements).containsValue(directory)){
+            
+            if(hasSubfolders(directory)){
+                directories = getDirectories(directory);
             }
 
-        }else if(isKettle(element) && !isSublink){
-            if(hasSublink()){
-                createSublinks();
-            }else{
-                this.name = element.getName();
-                this.id = element.getLocation().split("/")[element.getLocation().split("/").length-1];
-                //this.sublink = null;
-                this.link = "/pentaho/content/"+PluginUtils.getInstance().getPluginName()+"/"+element.getId();
+            if(hasFiles(directory)){
+                files = getFiles(directory);
             }
 
-
-        }else if(isSublink){
-            if(isDashboard(element)){
-                this.name = getTextFromWcdf(element.getLocation(),"description");
-                this.link = "/pentaho/content/"+PluginUtils.getInstance().getPluginName()+"/"+element.getId();
-                this.id = element.getLocation().split("/")[element.getLocation().split("/").length-1];
-                //this.sublink = null;
+            if(directories != null){
+                for(File dir : directories){
+                    l = new Link(dir, elements);
+                    subLinks.add(l);
+                }
             }
 
+            if(files != null){
+                for(File file : files){
+                    int index = file.getName().indexOf(".");
+                    String filename = file.getName().substring(0,index).toLowerCase();
+                    if(elements.containsKey(filename)){
+                        IElement myElement = elements.get(filename);
+                        l = new Link(myElement);
+                        
+                        if(!subLinkExists((ArrayList)subLinks, l)){
+                            subLinks.add(l);
+                        }
+                    }
+                }
+            }
         }
+    }
+    
+    private boolean hasSubfolders(File directory){
+        boolean has = false;
+        if(directory.isDirectory()){
+            FileFilter dirFilter = new FileFilter() {
+
+                @Override
+                public boolean accept(File pathname) {
+                    return pathname.isDirectory();
+                }
+            };
+            
+            if(directory.listFiles(dirFilter).length>0){
+                has = true;
+            }
+        }
+        
+        return has;
     }
 
     public String getName(){
@@ -117,6 +148,7 @@ public class Link{
         try {
             doc = reader.read(xml);
         } catch (DocumentException documentException) {
+            logger.error("Problem reading properties from "+path);
         }
 
         org.dom4j.Element root = doc.getRootElement();
@@ -124,41 +156,10 @@ public class Link{
         return root.elementText(text);
     }
 
-    private boolean hasSublink(){
-        boolean has = false;
-        String primaryDir = null;
-        String [] dirs = element.getLocation().split("/");
-        int nrDirs = dirs.length;
-
-        if(isDashboard(element)){
-            primaryDir = "dashboards";
-            if(!dirs[nrDirs-2].equals(primaryDir)){
-                has = true;
-            }
-
-        }else if(isKettle(element)){
-            primaryDir = "kettle";
-            if(!dirs[nrDirs-2].equals(primaryDir)){
-                has = true;
-            }
-
-        }
-        return has;
-    }
 
     private void createSublinks(){
-        String [] dirs = element.getLocation().split("/");
-        int nrDirs = dirs.length;
-
-
-        this.name = dirs[nrDirs-2];
-        this.link = "";
-        ArrayList<IElement> elementsList = getAllElementsOnFolder(name);
-
-        for(IElement e: elementsList){
-            Link l = new Link(e, true, getElements());
-            subLinks.add(l);
-        }
+        
+        
 
     }
     
@@ -181,27 +182,7 @@ public class Link{
 
         return is;
     }
-    
-    private ArrayList<IElement> getAllElementsOnFolder(String folderName){
 
-        ArrayList<IElement> sublinkElements = new ArrayList<IElement>();
-        boolean has = false;
-        String primaryFolder = folderName;
-        String [] dirs;
-        int nrDirs;
-        
-
-        for(IElement e: getElements()){
-            dirs = e.getLocation().split("/");
-            nrDirs = dirs.length;
-
-            if(dirs[nrDirs-2].equals(primaryFolder)){
-                sublinkElements.add(e);
-            }
-        }
-
-        return sublinkElements;
-    }
 
     @JsonIgnore
     public String getLinkJson(){
@@ -214,10 +195,91 @@ public class Link{
         }
         return null;
     }
+
+    private boolean hasFiles(File directory) {
+        boolean has = false;
+        if(directory.isDirectory()){
+            FileFilter dirFilter = new FileFilter() {
+
+                @Override
+                public boolean accept(File pathname) {
+                    return pathname.isFile();
+                }
+            };
+            
+            if(directory.listFiles(dirFilter).length>0){
+                has = true;
+            }
+        }
+        
+        return has;
+    }
     
-    private Collection<IElement> getElements(){
-        return this.elements;
+    private List<File> getFiles(File directory){
+        List<File> files = null;
+        
+        if(directory.isDirectory()){
+            FileFilter dirFilter = new FileFilter() {
+
+                @Override
+                public boolean accept(File pathname) {
+                    return pathname.isFile();
+                }
+            };
+            
+            files = new ArrayList<File>(Arrays.asList(directory.listFiles(dirFilter)));
+        }
+        
+        return files;
     }
 
+    private List<File> getDirectories(File directory) {
+        List<File> dirs = null;
+        
+        if(directory.isDirectory()){
+            FileFilter dirFilter = new FileFilter() {
+
+                @Override
+                public boolean accept(File pathname) {
+                    return pathname.isDirectory();
+                }
+            };
+            
+            dirs = new ArrayList<File>(Arrays.asList(directory.listFiles(dirFilter)));
+        }
+        
+        return dirs;
+    }
+    
+    private Map<String,File> getTopLevelDirectories(Map<String,IElement> elementsMap){
+        HashMap<String,File> directories = new HashMap<String, File>();
+        
+        for(IElement element : elementsMap.values()){
+            File directory = new File(PluginUtils.getInstance().getPluginDirectory()+"/"+element.getTopLevel());
+            if(directory != null){
+                try {
+                    directories.put(directory.getCanonicalPath(), directory);
+                }catch(Exception e){}
+            }
+        }
+        return directories;
+    }
+
+    private boolean subLinkExists(ArrayList<Link> lnks, Link lnk){
+        boolean exists = false;
+
+        for(Link l : lnks){
+            try{
+                if(l.getName() == null){
+                }else if(l.getId().equals(lnk.getId())){
+                        exists=true;
+                }
+            }catch(Exception e){
+                exists = true;
+            }
+        }
+
+        return exists;
+    }
 
 }
