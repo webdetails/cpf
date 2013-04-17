@@ -115,15 +115,16 @@ public class CpkEngine {
         
         if(!xmlFile.exists()){
             xmlFile = new File(plugin.getPath()+fileName);
-            fis = new FileInputStream(xmlFile);
-            bis = new BufferedInputStream(fis);
+            try{
+                fis = new FileInputStream(xmlFile);
+                bis = new BufferedInputStream(fis);
+            }catch(Exception e){}
             
             if(!xmlFile.exists()){
                 IPluginResourceLoader resLoader = PentahoSystem.get(IPluginResourceLoader.class, null);
                 is = resLoader.getResourceAsStream(this.getClass(), fileName);
                 bis = new BufferedInputStream(is);
 
-                fis.close();
             }
         }else{
             fis = new FileInputStream(xmlFile);
@@ -252,7 +253,7 @@ public class CpkEngine {
 
         // Show the different entities
 
-        out.append(elementTypesMap.size() + " registered entity types\nDefault element: "+defaultElementName+"\n");
+        out.append(elementTypesMap.size() + " registered entity types\nDefault element: ["+defaultElementName+"]\n");
         out.append("\n");
         out.append("End Points\n");
 
