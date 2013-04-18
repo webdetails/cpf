@@ -49,14 +49,14 @@ public class PentahoSession implements IUserSession {
   }
 
 	@Override
-	public Object getParameter(Object name) {
+	public Object getParameter(String name) {
 		if (name != null)
 			return userSession.getAttribute(name.toString());
 		return null;
 	}
 	
 	@Override
-	public String getStringParameter(Object name) {
+	public String getStringParameter(String name) {
 		Object r = getParameter(name);
 		if (r != null)
 			return r.toString();
@@ -64,8 +64,7 @@ public class PentahoSession implements IUserSession {
 	}
 	
 	@Override
-	public void setParameter(Object key, Object value) {
+	public void setParameter(String key, Object value) {
 		userSession.setAttribute(key.toString(), value);
 	}
-
 }

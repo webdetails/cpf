@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>pt.webdetails</groupId>
 	<artifactId>cpf-standalone</artifactId>
-	<version>trunk-SNAPSHOT</version>
+	<version>TRUNK-SNAPSHOT</version>
 	<name>cpf-standalone</name>
 	<properties>
 		<json.revision>3.1</json.revision>

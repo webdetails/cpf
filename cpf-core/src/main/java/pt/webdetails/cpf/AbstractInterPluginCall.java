@@ -47,6 +47,8 @@ public void init(Plugin plugin, String method, Map<String, Object>params) {
     
     this.plugin = plugin;
     this.method = method;
+    if (this.requestParameters == null)
+      this.requestParameters = new HashMap<String, Object>();
     this.requestParameters.putAll(
       params != null ?
           params :

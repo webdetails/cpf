@@ -47,6 +47,11 @@ public class PentahoInterPluginCall extends AbstractInterPluginCall implements R
   private IPluginManager pluginManager;
   
   
+  
+  public PentahoInterPluginCall() {
+    
+  }
+  
   /**
    * Creates a new call.
    * @param plugin the plugin to call
