@@ -4,6 +4,9 @@
 package pt.webdetails.cpk.elements.impl.kettleOutputs;
 
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.commons.vfs.FileSystemException;
 import org.pentaho.platform.api.engine.IParameterProvider;
 
 /**
@@ -23,6 +26,10 @@ public class ResultFilesKettleOutput extends KettleOutput {
 
     @Override
     public void processResult() {
-        super.processResultFiles();
+        try {
+            super.processResultFiles();
+        } catch (FileSystemException ex) {
+            Logger.getLogger(ResultFilesKettleOutput.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }
