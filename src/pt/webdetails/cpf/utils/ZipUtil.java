@@ -19,6 +19,7 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs.FileName;
 import org.apache.commons.vfs.FileObject;
+import org.apache.commons.vfs.FileType;
 import org.pentaho.di.core.ResultFile;
 
 
@@ -88,8 +89,15 @@ public class ZipUtil {
                 FileObject myFile = resFile.getFile();
                 
                 fileListing.add(removeTopFilenamePathFromString(myFile.getName().getPath()));
-
-                ZipEntry zip = new ZipEntry(removeTopFilenamePathFromString(myFile.getName().getPath()));
+                
+                ZipEntry zip = null;
+                
+                if(myFile.getType() == FileType.FOLDER){
+                    zip = new ZipEntry(removeTopFilenamePathFromString(myFile.getName().getPath()+File.separator+"."));
+                }else{
+                    zip = new ZipEntry(removeTopFilenamePathFromString(myFile.getName().getPath()));
+                }
+                
                 zipOut.putNextEntry(zip);
 
                 byte[] bytes = IOUtils.toByteArray(myFile.getContent().getInputStream());
