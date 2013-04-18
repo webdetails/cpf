@@ -14,15 +14,14 @@ import java.util.logging.Logger;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.vfs.FileSystemException;
+import org.apache.commons.vfs.FileType;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.pentaho.di.core.Result;
 import org.pentaho.di.core.ResultFile;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.vfs.KettleVFS;
 import org.pentaho.platform.api.engine.IParameterProvider;
-import org.springframework.security.Authentication;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.userdetails.UserDetails;
 import pt.webdetails.cpf.Util;
 import pt.webdetails.cpf.utils.MimeTypes;
 import pt.webdetails.cpf.utils.PluginUtils;
@@ -124,7 +123,7 @@ public class KettleOutput implements IKettleOutput {
         }
     }
 
-    public void processResultFiles() {
+    public void processResultFiles() throws FileSystemException {
 
         logger.debug("Process Result Files");
 
@@ -134,7 +133,7 @@ public class KettleOutput implements IKettleOutput {
         if (filesList.isEmpty()) {
             logger.warn("Processing result files but no files found");
             return;
-        } else if (filesList.size() == 1) {
+        } else if (filesList.size() == 1 && filesList.get(0).getFile().getType() == FileType.FILE) {
             ResultFile file = filesList.get(0);
 
             // Do we know the mime type?
@@ -227,7 +226,12 @@ public class KettleOutput implements IKettleOutput {
 
         if (result.getResultFilesList().size() > 0) {
 
-            processResultFiles();
+            try {
+                processResultFiles();
+            } catch (Exception e) {
+                logger.error("Problem processing Result Files\n"+e);
+            }
+            
         } else {
 
             if (getKettleType() == KettleType.JOB) {

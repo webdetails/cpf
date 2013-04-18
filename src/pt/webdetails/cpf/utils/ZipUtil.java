@@ -25,7 +25,7 @@ import org.pentaho.di.core.ResultFile;
 
 /**
  *
- * @author Luís Paulo Silva
+ * @author Luís Paulo Silva<luis.silva@webdetails.pt>
  */
 public class ZipUtil {
     private String zipName;

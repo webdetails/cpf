@@ -13,7 +13,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IParameterProvider;
-import pt.webdetails.cpf.SimpleContentGenerator;
 import pt.webdetails.cpk.elements.AbstractElementType;
 import pt.webdetails.cpk.elements.ElementInfo;
 import pt.webdetails.cpk.elements.IElement;
@@ -49,6 +48,7 @@ public class KettleElementType extends AbstractElementType {
     private ConcurrentHashMap<String, TransMeta> transMetaStorage = new ConcurrentHashMap<String, TransMeta>();//Stores the metadata of the ktr files. [Key=path]&[Value=transMeta]
     private ConcurrentHashMap<String, JobMeta> jobMetaStorage = new ConcurrentHashMap<String, JobMeta>();//Stores the metadata of the kjb files. [Key=path]&[Value=jobMeta]
     private String stepName = "OUTPUT";
+    private String mimeType = null;
     
     
     public KettleElementType() {
@@ -201,6 +201,8 @@ public class KettleElementType extends AbstractElementType {
             }
             transformation.copyParametersFrom(transformation.getTransMeta());
             transformation.activateParameters();
+            
+            
 
         }
         transformation.prepareExecution(null);
@@ -218,7 +220,8 @@ public class KettleElementType extends AbstractElementType {
 
             });
         }
-
+        setMimeType(transformation.getVariable("mimeType"), transformation.getParameterValue("mimeType"));
+        
         transformation.waitUntilFinished();
         return transformation.getResult();
     }
@@ -265,9 +268,17 @@ public class KettleElementType extends AbstractElementType {
         
         
         job.start();
+        setMimeType(job.getVariable("mimeType"), job.getParameterValue("mimeType"));
         job.waitUntilFinished();
         return job.getResult();
 
+    }
+    
+    private void setMimeType(String varValue, String paramValue){
+        this.mimeType = varValue;
+        if(varValue == null || varValue.equals("")){
+            this.mimeType = paramValue;
+        }
     }
 
     @Override
