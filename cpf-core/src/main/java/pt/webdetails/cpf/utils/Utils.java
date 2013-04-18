@@ -17,7 +17,7 @@ public class Utils {
     public enum FileType {
 
         JPG, JPEG, PNG, GIF, BMP, JS, CSS, HTML, HTM, XML,
-        SVG, PDF, TXT, DOC, DOCX, XLS, XLSX, PPT, PPTX;
+        SVG, PDF, TXT, DOC, DOCX, XLS, XLSX, PPT, PPTX, CSV;
 
         public static FileType parse(String value) {
             return valueOf(StringUtils.upperCase(value));
@@ -26,6 +26,7 @@ public class Utils {
 
     public static class MimeType {
 
+        public static final String CSV = "text/csv";
         public static final String CSS = "text/css";
         public static final String JAVASCRIPT = "text/javascript";
         public static final String PLAIN_TEXT = "text/plain";
@@ -64,6 +65,7 @@ public class Utils {
         mimeTypes.put(FileType.HTM, MimeType.HTML);
         mimeTypes.put(FileType.HTML, MimeType.HTML);
         mimeTypes.put(FileType.CSS, MimeType.CSS);
+        mimeTypes.put(FileType.CSV, MimeType.CSV);
         mimeTypes.put(FileType.XML, MimeType.XML);
         mimeTypes.put(FileType.TXT, MimeType.PLAIN_TEXT);
     }
