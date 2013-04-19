@@ -140,7 +140,12 @@ public class KettleOutput implements IKettleOutput {
             String mimeType = MimeTypes.getMimeType(file.getFile().getName().getExtension());
 
             if (Boolean.parseBoolean(PluginUtils.getInstance().getRequestParameters(parameterProviders).getStringParameter("download", "false"))) {
-                PluginUtils.getInstance().setResponseHeaders(parameterProviders, mimeType, file.getFile().getName().getBaseName());
+                try {
+                    long attachmentSize = file.getFile().getContent().getInputStream().available();
+                    PluginUtils.getInstance().setResponseHeaders(parameterProviders, mimeType, file.getFile().getName().getBaseName(), attachmentSize);
+                } catch (Exception e) {
+                    logger.error("Problem setting the attachment size: "+e);
+                }
             } else {
                 // set Mimetype only
                 PluginUtils.getInstance().setResponseHeaders(parameterProviders, mimeType);

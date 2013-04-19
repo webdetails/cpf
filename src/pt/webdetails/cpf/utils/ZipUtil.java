@@ -36,16 +36,24 @@ public class ZipUtil {
     
     protected Log logger = LogFactory.getLog(this.getClass());
     
-    public ZipUtil(){
-        //Suposed to be empty
-    }
     
     public void buildZip(List<ResultFile> filesList){
         try {
             ZipOutputStream zipOut;
             topFilename = getTopFileName(filesList);
             zipName = this.topFilename.getBaseName();
-            File tempZip = File.createTempFile(zipName, ".tmp");
+            File tempZip = null;
+            
+            if(zipName.length() < 3){
+                String tempPrefix = new String();
+                for(int i = 0; i < 3-zipName.length(); i++ ){
+                    tempPrefix+="_";
+                }
+                tempZip = File.createTempFile(tempPrefix+zipName, ".tmp");
+            }
+            else{
+                tempZip = File.createTempFile(zipName, ".tmp");
+            }
             
             FileOutputStream fos = new FileOutputStream(tempZip);
             zipOut = new ZipOutputStream(fos); 
