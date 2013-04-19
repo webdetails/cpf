@@ -29,9 +29,12 @@ import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.RowAdapter;
 import org.pentaho.di.trans.step.StepInterface;
 import pt.webdetails.cpf.Util;
+import pt.webdetails.cpf.plugins.PluginsAnalyzer;
 import pt.webdetails.cpf.utils.MimeTypes;
 import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.impl.kettleOutputs.IKettleOutput;
+import pt.webdetails.cpk.security.AccessControl;
+import pt.webdetails.cpk.security.UserControl;
 
 /**
  *
@@ -49,8 +52,7 @@ public class KettleElementType extends AbstractElementType {
     private ConcurrentHashMap<String, JobMeta> jobMetaStorage = new ConcurrentHashMap<String, JobMeta>();//Stores the metadata of the kjb files. [Key=path]&[Value=jobMeta]
     private String stepName = "OUTPUT";
     private String mimeType = null;
-    
-    
+
     public KettleElementType() {
         transMetaStorage = new ConcurrentHashMap<String, TransMeta>();//Stores the metadata of the ktr files. [Key=path]&[Value=transMeta]
         jobMetaStorage = new ConcurrentHashMap<String, JobMeta>();//Stores the metadata of the kjb files. [Key=path]&[Value=jobMeta]
@@ -67,7 +69,7 @@ public class KettleElementType extends AbstractElementType {
 
         String kettlePath = element.getLocation();
         String kettleFilename = element.getName();
-        
+
 
         logger.debug("Processing request for: " + kettlePath);
 
@@ -195,14 +197,23 @@ public class KettleElementType extends AbstractElementType {
          */
         if (customParams.size() > 0) {
             for (String arg : customParams.keySet()) {
-                
+
                 transformation.getTransMeta().setParameterValue(arg, customParams.get(arg));
-                                
+
             }
             transformation.copyParametersFrom(transformation.getTransMeta());
+            UserControl userControl = new UserControl();
+            
+            if(userControl.getUsername() != null){
+                transformation.getTransMeta().setVariable("pentahoUsername", userControl.getUsername());
+            }
+            
+            if(userControl.getRolesAsCSV() != null){
+                transformation.getTransMeta().setVariable("pentahoRoles", userControl.getRolesAsCSV());
+            }
+            
+            transformation.copyVariablesFrom(transformation.getTransMeta());
             transformation.activateParameters();
-            
-            
 
         }
         transformation.prepareExecution(null);
@@ -213,15 +224,15 @@ public class KettleElementType extends AbstractElementType {
         if (kettleOutput.needsRowListener()) {
 
             step.addRowListener(new RowAdapter() {
+
                 @Override
                 public void rowWrittenEvent(RowMetaInterface rowMeta, Object[] row) throws KettleStepException {
                     kettleOutput.storeRow(row, rowMeta);
                 }
-
             });
         }
         setMimeType(transformation.getVariable("mimeType"), transformation.getParameterValue("mimeType"));
-        
+
         transformation.waitUntilFinished();
         return transformation.getResult();
     }
@@ -256,27 +267,40 @@ public class KettleElementType extends AbstractElementType {
 
         /*
          * Loading parameters, if there are any. We'll pass them also as variables
-         */        
+         */
         if (customParams.size() > 0) {
             for (String arg : customParams.keySet()) {
                 job.getJobMeta().setParameterValue(arg, customParams.get(arg));
             }
+            UserControl userControl = new UserControl();
+            
+            if(userControl.getUsername() != null){
+                job.getJobMeta().setVariable("pentahoUsername", userControl.getUsername());
+            
+            }
+            
+            if(userControl.getRolesAsCSV() != null){
+                job.getJobMeta().setVariable("pentahoRoles", userControl.getRolesAsCSV());
+
+            }
+            
             job.copyParametersFrom(jobMeta);
+            job.copyVariablesFrom(job.getJobMeta());
             job.activateParameters();
 
         }
-        
-        
+
+
         job.start();
         setMimeType(job.getVariable("mimeType"), job.getParameterValue("mimeType"));
         job.waitUntilFinished();
         return job.getResult();
 
     }
-    
-    private void setMimeType(String varValue, String paramValue){
+
+    private void setMimeType(String varValue, String paramValue) {
         this.mimeType = varValue;
-        if(varValue == null || varValue.equals("")){
+        if (varValue == null || varValue.equals("")) {
             this.mimeType = paramValue;
         }
     }
@@ -290,7 +314,4 @@ public class KettleElementType extends AbstractElementType {
     public boolean isShowInSitemap() {
         return false;
     }
-    
-    
-    
 }

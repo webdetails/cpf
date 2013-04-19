@@ -6,11 +6,6 @@ package pt.webdetails.cpk.security;
 
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.security.SecurityHelper;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.ui.WebAuthenticationDetails;
-import org.springframework.security.userdetails.UserDetails;
 import pt.webdetails.cpk.elements.IElement;
 
 /**
@@ -48,42 +43,7 @@ public class AccessControl {
         throw new RuntimeException(UNAUTHORIZED+" "+element.getElementType().toLowerCase()+": "+element.getId());
     }
     
-    public UserDetails getUserDetails(){
-        Authentication auth = getAuthentication();
-        UserDetails ud = null;
-        if(auth != null && auth.getPrincipal() != null && auth.getPrincipal() instanceof UserDetails){
-            ud = (UserDetails)auth.getPrincipal();
-        }
-        
-        return ud;
-    }
     
-    public Authentication getAuthentication(){
-        return SecurityContextHolder.getContext().getAuthentication();
-    }
     
-    public GrantedAuthority[] getGrantedAuthorities(){
-        return getUserDetails().getAuthorities();
-    }
-    
-    public String getUsername(){
-        return getUserDetails().getUsername();
-    }
-    
-    public String getUserPassword(){
-        return (String)getAuthentication().getCredentials();
-    }
-    
-    public WebAuthenticationDetails getWebAuthenticationDetails(){
-        return (WebAuthenticationDetails)getAuthentication().getDetails();
-    }
-    
-    public String getUserIPAddress(){
-        return getWebAuthenticationDetails().getRemoteAddress();
-    }
-    
-    public String getUserSessionID(){
-        return getWebAuthenticationDetails().getSessionId();
-    }
     
 }

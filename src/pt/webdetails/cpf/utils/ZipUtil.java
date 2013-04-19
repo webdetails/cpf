@@ -21,6 +21,7 @@ import org.apache.commons.vfs.FileName;
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileType;
 import org.pentaho.di.core.ResultFile;
+import pt.webdetails.cpk.security.UserControl;
 
 
 /**
@@ -29,8 +30,6 @@ import org.pentaho.di.core.ResultFile;
  */
 public class ZipUtil {
     private String zipName;
-    private String zipPath;
-    private String zipFullPath;
     private FileInputStream fis;
     private FileName topFilename;
     ArrayList<String> fileListing = new ArrayList<String>();
@@ -47,21 +46,22 @@ public class ZipUtil {
             topFilename = getTopFileName(filesList);
             zipName = this.topFilename.getBaseName();
             File tempZip = File.createTempFile(zipName, ".tmp");
-            zipFullPath = zipPath+zipName;
             
             FileOutputStream fos = new FileOutputStream(tempZip);
             zipOut = new ZipOutputStream(fos); 
             
             fis = null;
 
-            logger.info("Building '"+zipFullPath+"'...");
+            logger.info("Building '"+zipName+"'...");
 
             zipOut = writeEntriesToZip(filesList, zipOut);
-            logger.info("'"+zipName+"' built."+" Sending to client...");
+            
             zipOut.close();
             fos.close();
 
             fis = new FileInputStream(tempZip);
+            UserControl userControl = new UserControl();
+            logger.info("'"+zipName+"' built."+" Sending to client "+getZipSize()/1024+"KB of data. ["+userControl.getUserIPAddress()+"]");
                 
                 
         } catch (Exception ex) {
@@ -82,9 +82,9 @@ public class ZipUtil {
         try {
             for (ResultFile resFile : filesList) {
                 i++;
-                logger.info("Files to process:"+filesList.size());
-                logger.info("Files processed: "+i);
-                logger.info("Files remaining: "+(filesList.size()-i));
+                logger.debug("Files to process:"+filesList.size());
+                logger.debug("Files processed: "+i);
+                logger.debug("Files remaining: "+(filesList.size()-i));
                 logger.debug(resFile.getFile().getName().getPath());
                 FileObject myFile = resFile.getFile();
                 
@@ -93,17 +93,19 @@ public class ZipUtil {
                 ZipEntry zip = null;
                 
                 if(myFile.getType() == FileType.FOLDER){
-                    zip = new ZipEntry(removeTopFilenamePathFromString(myFile.getName().getPath()+File.separator+"."));
+                    zip = new ZipEntry(removeTopFilenamePathFromString(myFile.getName().getPath()+File.separator+""));
+                    zipOut.putNextEntry(zip);
                 }else{
                     zip = new ZipEntry(removeTopFilenamePathFromString(myFile.getName().getPath()));
+                    zipOut.putNextEntry(zip);
+                    byte[] bytes = IOUtils.toByteArray(myFile.getContent().getInputStream());
+                    zipOut.write(bytes);
+                    zipOut.closeEntry();
+                
                 }
                 
-                zipOut.putNextEntry(zip);
 
-                byte[] bytes = IOUtils.toByteArray(myFile.getContent().getInputStream());
-
-                zipOut.write(bytes);
-                zipOut.closeEntry();
+                
             }
             
             
