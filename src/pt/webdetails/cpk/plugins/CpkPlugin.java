@@ -3,6 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpk.plugins;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.dom4j.Node;
 import pt.webdetails.cpf.plugins.Plugin;
 
@@ -16,6 +17,7 @@ public class CpkPlugin extends Plugin{
         super(path);
     }
     
+    @JsonIgnore
     public boolean isCpkPlugin(){
         boolean is = false;
         Node documentNode = super.getXmlFileContent(super.getPath()+"plugin.xml");
