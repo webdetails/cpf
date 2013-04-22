@@ -5,6 +5,8 @@ package pt.webdetails.cpk;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.dom4j.DocumentException;
 import pt.webdetails.cpf.RestContentGenerator;
@@ -15,6 +17,7 @@ import pt.webdetails.cpf.annotations.Exposed;
 import pt.webdetails.cpk.security.AccessControl;
 import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.IElement;
+import pt.webdetails.cpk.plugins.CpkPluginsAnalyzer;
 
 public class CpkContentGenerator extends RestContentGenerator {
 
@@ -101,10 +104,21 @@ public class CpkContentGenerator extends RestContentGenerator {
         ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(out, cpkEngine.getSitemapJson());
     }
-
+    
     @Exposed(accessLevel = AccessLevel.PUBLIC)
-    public void getStyle(OutputStream out) throws IOException {
-        out.write("Here is your style!".getBytes("UTF-8"));
+    public void getCpkPluginsList(OutputStream out){
+        CpkPluginsAnalyzer cpkPluginsAnalyzer = new CpkPluginsAnalyzer();
+        try {
+            String json = cpkPluginsAnalyzer.getCpkPluginsListJson();
+            out.write(json.getBytes(ENCODING));
+        } catch (IOException ex) {
+            try {
+                out.write("Error getting JSON".getBytes(ENCODING));
+            } catch (IOException ex1) {
+                Logger.getLogger(CpkContentGenerator.class.getName()).log(Level.SEVERE, null, ex1);
+            }
+        }
+        
     }
 
     @Override

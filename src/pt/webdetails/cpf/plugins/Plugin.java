@@ -6,6 +6,7 @@ package pt.webdetails.cpf.plugins;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.dom4j.Document;
@@ -13,6 +14,9 @@ import org.dom4j.Node;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 /**
@@ -31,7 +35,12 @@ public class Plugin {
     protected Log logger = LogFactory.getLog(this.getClass());
     
     public Plugin(String path){
-        setPath(path+"/");
+        if(!path.endsWith("/"))
+        {
+            setPath(path+"/");
+        }else{
+            setPath(path);
+        }
         pluginSelfBuild();
     }
     
@@ -40,6 +49,7 @@ public class Plugin {
      * 
      * @return Returns the path to the plugin directory (system) 
      */
+    @JsonProperty("path")
     public String getPath() {
         return path;
     }
@@ -52,6 +62,7 @@ public class Plugin {
      * 
      * @return Returns the company name if defined on the Plugin.xml 
      */
+    @JsonProperty("company")
     public String getCompany() {
         return company;
     }
@@ -64,6 +75,7 @@ public class Plugin {
      * 
      * @return Returns the company URL if defined on the Plugin.xml
      */
+    @JsonProperty("companyUrl")
     public String getCompanyUrl() {
         return companyUrl;
     }
@@ -76,6 +88,7 @@ public class Plugin {
      * 
      * @return Returns the plugin description if defined on the Plugin.xml 
      */
+    @JsonProperty("description")
     public String getDescription() {
         return description;
     }
@@ -88,6 +101,7 @@ public class Plugin {
      * 
      * @return Returns the plugin ID if defined on the Plugin.xml "<plugin title=<ID-HERE>...>"
      */
+    @JsonProperty("id")
     public String getId() {
         return id;
     }
@@ -96,6 +110,7 @@ public class Plugin {
         this.id = id;
     }
 
+    @JsonProperty("name")
     public String getName() {
         return name;
     }
@@ -104,7 +119,8 @@ public class Plugin {
         this.name = name;
     }
     
-    private Node getXmlFileContent(String filePath){
+    @JsonIgnore
+    protected Node getXmlFileContent(String filePath){
         FileInputStream fis = null;
         BufferedInputStream bis = null;
         File xmlFile = null;
@@ -138,6 +154,7 @@ public class Plugin {
         }
     }
     
+    @JsonIgnore
     public Node getRegisteredEntities(String entityName){
         Node documentNode = null;
         Node node = null;
@@ -149,6 +166,7 @@ public class Plugin {
         return node;
     }
     
+    @JsonIgnore
     public boolean hasPluginXML(){
         boolean has = false;
         
@@ -159,6 +177,7 @@ public class Plugin {
         return has;
     }
     
+    @JsonIgnore
     public boolean hasSettingsXML(){
         boolean has = false;
         
@@ -169,8 +188,15 @@ public class Plugin {
         return has;
     }
     
+    @JsonProperty("solutionPath")
     public String getPluginSolutionPath(){
-        return PentahoSystem.getApplicationContext().getSolutionPath("")+"/"+getId()+"/";
+        return PentahoSystem.getApplicationContext().getSolutionPath("")+getId()+File.separator;
+    }
+    
+    @JsonIgnore
+    public String getPluginJson() throws IOException{
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
     }
     
     
