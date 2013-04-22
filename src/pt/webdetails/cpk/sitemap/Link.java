@@ -188,7 +188,6 @@ public class Link{
     public String getLinkJson(){
         ObjectMapper mapper = new ObjectMapper();
         try {
-            logger.info(mapper.writeValueAsString(this));
             return mapper.writeValueAsString(this);
         } catch (IOException ex) {
             Logger.getLogger(CpkEngine.class.getName()).log(Level.SEVERE, null, ex);

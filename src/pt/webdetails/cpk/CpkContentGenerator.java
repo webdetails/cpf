@@ -55,7 +55,7 @@ public class CpkContentGenerator extends RestContentGenerator {
             if (accessControl.isAllowed(element)) {
                 element.processRequest(parameterProviders);
             } else {
-                accessControl.throwAccessDenied(element);
+                accessControl.throwAccessDenied(parameterProviders);
             }
 
         } else {
@@ -80,7 +80,7 @@ public class CpkContentGenerator extends RestContentGenerator {
             cpkEngine.reload();
             status(out);
         }else{
-            accessControl.throwAccessDenied();
+            accessControl.throwAccessDenied(parameterProviders);
         }
 
 

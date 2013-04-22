@@ -4,8 +4,14 @@
 
 package pt.webdetails.cpk.security;
 
+import java.util.Map;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.ws.http.HTTPException;
+import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.platform.web.http.session.PentahoHttpSession;
+import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.IElement;
 
 /**
@@ -35,12 +41,10 @@ public class AccessControl {
         return is;
     }
     
-    public void throwAccessDenied(){
-        throw new RuntimeException(UNAUTHORIZED);
-    }
-    
-    public void throwAccessDenied(IElement element){
-        throw new RuntimeException(UNAUTHORIZED+" "+element.getElementType().toLowerCase()+": "+element.getId());
+    public void throwAccessDenied(Map<String,IParameterProvider> parameterProviders){
+        final HttpServletResponse response = PluginUtils.getInstance().getResponse(parameterProviders);
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        return;
     }
     
     
