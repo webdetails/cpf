@@ -4,6 +4,8 @@
 package pt.webdetails.cpk.elements;
 
 import java.util.Map;
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.pentaho.platform.api.engine.IParameterProvider;
 
 /**
@@ -12,20 +14,27 @@ import org.pentaho.platform.api.engine.IParameterProvider;
  */
 public interface IElement {
     
+    @JsonProperty("id")
     public String getId();
     
+    @JsonProperty("name")
     public String getName();
     
+    @JsonIgnore
     public String getLocation();
     
+    @JsonProperty("type")
     public String getElementType();
  
     public void processRequest(Map<String, IParameterProvider> parameterProviders);
     
+    @JsonProperty("adminOnly")
     public boolean isAdminOnly();
     
+    @JsonIgnore
     public ElementInfo getElementInfo();
     
+    @JsonProperty("location")
     public String getTopLevel();
     
     

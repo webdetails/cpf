@@ -49,7 +49,7 @@ public class Plugin {
      * 
      * @return Returns the path to the plugin directory (system) 
      */
-    @JsonProperty("path")
+    @JsonIgnore
     public String getPath() {
         return path;
     }
@@ -190,7 +190,12 @@ public class Plugin {
     
     @JsonProperty("solutionPath")
     public String getPluginSolutionPath(){
-        return PentahoSystem.getApplicationContext().getSolutionPath("")+getId()+File.separator;
+        return getId()+File.separator;
+    }
+    
+    @JsonProperty("systemPath")
+    public String getPluginRelativePath(){
+        return getPath().replace(PentahoSystem.getApplicationContext().getSolutionPath(""), "");
     }
     
     @JsonIgnore

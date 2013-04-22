@@ -12,9 +12,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Node;
@@ -276,6 +281,19 @@ public class CpkEngine {
     public JsonNode getSitemapJson() throws IOException {
         LinkGenerator linkGen = new LinkGenerator(elementsMap);
         return linkGen.getLinksJson();
+    }
+    
+    public String getElementsJson(){
+        ObjectMapper mapper = new ObjectMapper();
+        String json = null;
+        
+        try {
+            json = mapper.writeValueAsString(this.elementsMap.values());
+        } catch (IOException ex) {
+            Logger.getLogger(CpkEngine.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return json;
     }
 
 }

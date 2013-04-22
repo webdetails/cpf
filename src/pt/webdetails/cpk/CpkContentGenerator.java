@@ -120,6 +120,15 @@ public class CpkContentGenerator extends RestContentGenerator {
         }
         
     }
+    
+    @Exposed(accessLevel = AccessLevel.PUBLIC)
+    public void getElementsList(OutputStream out){
+        try {
+            out.write(cpkEngine.getElementsJson().getBytes(ENCODING));
+        } catch (IOException ex) {
+            Logger.getLogger(CpkContentGenerator.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     @Override
     public String getPluginName() {
