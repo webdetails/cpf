@@ -5,12 +5,9 @@ package pt.webdetails.cpk;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.dom4j.DocumentException;
 import pt.webdetails.cpf.RestContentGenerator;
@@ -18,13 +15,10 @@ import pt.webdetails.cpf.RestRequestHandler;
 import pt.webdetails.cpf.Router;
 import pt.webdetails.cpf.annotations.AccessLevel;
 import pt.webdetails.cpf.annotations.Exposed;
-import pt.webdetails.cpf.plugins.IPluginFilter;
-import pt.webdetails.cpf.plugins.Plugin;
-import pt.webdetails.cpf.plugins.PluginsAnalyzer;
 import pt.webdetails.cpk.security.AccessControl;
 import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.IElement;
-import pt.webdetails.cpk.plugins.PluginMaker;
+import pt.webdetails.cpk.plugins.PluginBuilder;
 
 public class CpkContentGenerator extends RestContentGenerator {
 
@@ -147,7 +141,7 @@ public class CpkContentGenerator extends RestContentGenerator {
         ObjectMapper mapper = new ObjectMapper();
         try {
             JsonNode node = mapper.readTree(json);
-            PluginMaker pluginMaker = new PluginMaker(node);
+            PluginBuilder pluginMaker = new PluginBuilder(node);
             pluginMaker.writeFiles(true);
             writeMessage(out, "Plugin created successfully!");
             

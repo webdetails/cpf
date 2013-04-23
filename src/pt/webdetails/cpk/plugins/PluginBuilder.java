@@ -4,7 +4,6 @@
 package pt.webdetails.cpk.plugins;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
@@ -22,11 +21,11 @@ import pt.webdetails.cpk.elements.IElementType;
  *
  * @author Luis Paulo Silva<luis.silva@webdetails.pt>
  */
-public class PluginMaker {
+public class PluginBuilder {
     
     List<File> files;
     
-    public PluginMaker(JsonNode node){
+    public PluginBuilder(JsonNode node){
         buildFilesList(node);
     }
     
@@ -48,7 +47,7 @@ public class PluginMaker {
                         fos.close();
                     }
                 } catch (IOException ex) {
-                    Logger.getLogger(PluginMaker.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(PluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
             }
@@ -63,6 +62,7 @@ public class PluginMaker {
     private boolean pluginExists(JsonNode node){
         boolean exists = false;
         PluginsAnalyzer pluginsAnalyzer = new PluginsAnalyzer();
+        pluginsAnalyzer.refresh();
         
         for(Plugin plugin : pluginsAnalyzer.getInstalledPlugins()){
             if(node.get("id").getTextValue().equals(plugin.getId())){
@@ -80,7 +80,7 @@ public class PluginMaker {
             
             
         } catch (Exception ex) {
-            Logger.getLogger(PluginMaker.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
         }
         
     

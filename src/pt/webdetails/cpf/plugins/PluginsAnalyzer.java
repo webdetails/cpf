@@ -24,11 +24,7 @@ public class PluginsAnalyzer {
     
     private List<Plugin> installedPlugins;
     protected Log logger = LogFactory.getLog(this.getClass());
-        
-    public PluginsAnalyzer(){
-        //Empty
-        refresh();
-    }
+
     
     public void refresh(){
         buildPluginsList();
