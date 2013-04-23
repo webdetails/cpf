@@ -100,4 +100,17 @@ public class PluginsAnalyzer {
         this.installedPlugins = plugins;
     }
     
+    public List<Plugin> getPlugins(IPluginFilter filter){
+     List<Plugin> pluginsList = new ArrayList<Plugin>();
+     
+     for (Plugin plugin : installedPlugins) {     
+       if (filter.include(plugin)){
+         pluginsList.add(plugin);
+       }
+       
+     }
+     
+     return pluginsList;
+   }  
+    
 }

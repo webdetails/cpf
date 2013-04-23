@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,6 +28,7 @@ import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import pt.webdetails.cpf.Util;
+import pt.webdetails.cpf.plugins.IPluginFilter;
 import pt.webdetails.cpf.plugins.Plugin;
 import pt.webdetails.cpf.plugins.PluginsAnalyzer;
 import pt.webdetails.cpk.security.AccessControl;
@@ -283,6 +285,10 @@ public class CpkEngine {
         return linkGen.getLinksJson();
     }
     
+    public Map<String,IElementType> getElementTypes(){
+        return this.elementTypesMap;
+    }
+    
     public String getElementsJson(){
         ObjectMapper mapper = new ObjectMapper();
         String json = null;
@@ -294,6 +300,31 @@ public class CpkEngine {
         }
         
         return json;
+    }
+    
+    public List<Plugin> getPluginsList(){
+        PluginsAnalyzer pluginsAnalyzer = new PluginsAnalyzer();
+        List<Plugin> plugins = pluginsAnalyzer.getInstalledPlugins();
+        
+        IPluginFilter pluginFilter = new IPluginFilter() {
+
+            @Override
+            public boolean include(Plugin plugin) {
+                boolean is = false;
+                String xmlValue = plugin.getXmlValue("/plugin/content-generator/@class", "plugin.xml");
+                String className = "pt.webdetails.cpk.CpkContentGenerator";
+                
+                if(xmlValue.equals(className)){
+                    is = true;
+                }
+                
+                return is;
+            }
+        };
+        
+        plugins = pluginsAnalyzer.getPlugins(pluginFilter);
+        
+        return plugins;
     }
 
 }

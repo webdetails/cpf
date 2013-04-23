@@ -5,8 +5,12 @@ package pt.webdetails.cpk;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.dom4j.DocumentException;
 import pt.webdetails.cpf.RestContentGenerator;
@@ -14,10 +18,13 @@ import pt.webdetails.cpf.RestRequestHandler;
 import pt.webdetails.cpf.Router;
 import pt.webdetails.cpf.annotations.AccessLevel;
 import pt.webdetails.cpf.annotations.Exposed;
+import pt.webdetails.cpf.plugins.IPluginFilter;
+import pt.webdetails.cpf.plugins.Plugin;
+import pt.webdetails.cpf.plugins.PluginsAnalyzer;
 import pt.webdetails.cpk.security.AccessControl;
 import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.IElement;
-import pt.webdetails.cpk.plugins.CpkPluginsAnalyzer;
+import pt.webdetails.cpk.plugins.PluginMaker;
 
 public class CpkContentGenerator extends RestContentGenerator {
 
@@ -106,11 +113,14 @@ public class CpkContentGenerator extends RestContentGenerator {
     }
     
     @Exposed(accessLevel = AccessLevel.PUBLIC)
-    public void getCpkPluginsList(OutputStream out){
-        CpkPluginsAnalyzer cpkPluginsAnalyzer = new CpkPluginsAnalyzer();
+    public void pluginsList(OutputStream out){
+        
+        
+        ObjectMapper mapper = new ObjectMapper();
+        
         try {
-            String json = cpkPluginsAnalyzer.getCpkPluginsListJson();
-            out.write(json.getBytes(ENCODING));
+            String json = mapper.writeValueAsString(cpkEngine.getPluginsList());
+            writeMessage(out, json);
         } catch (IOException ex) {
             try {
                 out.write("Error getting JSON".getBytes(ENCODING));
@@ -129,11 +139,37 @@ public class CpkContentGenerator extends RestContentGenerator {
             Logger.getLogger(CpkContentGenerator.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    @Exposed(accessLevel = AccessLevel.PUBLIC)
+    public void createPlugin(OutputStream out){
+        String json = parameterProviders.get("request").getStringParameter("plugin", null);
+        
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            JsonNode node = mapper.readTree(json);
+            PluginMaker pluginMaker = new PluginMaker(node);
+            pluginMaker.writeFiles(true);
+            writeMessage(out, "Plugin created successfully!");
+            
+        } catch (Exception ex) {
+            writeMessage(out, "There seems to have occurred an error during the plugin creation. Sorry!");
+            Logger.getLogger(CpkContentGenerator.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
 
     @Override
     public String getPluginName() {
 
         return PluginUtils.getInstance().getPluginName();
+    }
+    
+    private void writeMessage(OutputStream out, String message){
+        try {
+            out.write(message.getBytes(ENCODING));
+        } catch (IOException ex) {
+            Logger.getLogger(CpkContentGenerator.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override

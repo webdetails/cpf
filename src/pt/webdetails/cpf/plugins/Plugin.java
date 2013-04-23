@@ -120,7 +120,7 @@ public class Plugin {
     }
     
     @JsonIgnore
-    protected Node getXmlFileContent(String filePath){
+    private Node getXmlFileContent(String filePath){
         FileInputStream fis = null;
         BufferedInputStream bis = null;
         File xmlFile = null;
@@ -202,6 +202,20 @@ public class Plugin {
     public String getPluginJson() throws IOException{
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(this);
+    }
+    
+    @JsonIgnore
+    public String getXmlValue(String xpathExpression, String filename){
+        Node documentNode = getXmlFileContent(this.getPath()+filename);
+        String value = null;
+        
+            try{
+                value = documentNode.valueOf(xpathExpression);
+            }catch(Exception ex){
+                logger.error(ex);
+            }
+            
+        return value;
     }
     
     
