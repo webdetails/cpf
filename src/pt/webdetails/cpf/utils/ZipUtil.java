@@ -6,6 +6,7 @@ package pt.webdetails.cpf.utils;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import java.util.zip.ZipOutputStream;
@@ -56,9 +58,7 @@ public class ZipUtil {
             }
             
             FileOutputStream fos = new FileOutputStream(tempZip);
-            zipOut = new ZipOutputStream(fos); 
-            
-            fis = null;
+            zipOut = new ZipOutputStream(fos);
 
             logger.info("Building '"+zipName+"'...");
 
@@ -67,7 +67,7 @@ public class ZipUtil {
             zipOut.close();
             fos.close();
 
-            fis = new FileInputStream(tempZip);
+            setFileInputStream(tempZip);
             UserControl userControl = new UserControl();
             logger.info("'"+zipName+"' built."+" Sending to client "+getZipSize()/1024+"KB of data. ["+userControl.getUserIPAddress()+"]");
                 
@@ -77,7 +77,7 @@ public class ZipUtil {
         }
     }
     
-    public void closeStream(){
+    public void closeInputStream(){
         try {
             fis.close();
         } catch (IOException ex) {
@@ -121,6 +121,51 @@ public class ZipUtil {
             logger.error(exception);
         }
         return zipOut;
+    }
+    
+    public void unzip(File zipFile, File destinationFolder){
+        byte [] buffer = new byte[1024];
+        setFileInputStream(zipFile);
+        ZipInputStream zis = new ZipInputStream(fis);
+        try {
+            
+            ZipEntry entry = zis.getNextEntry();
+            while(entry != null){
+                String filename = entry.getName();
+                File newFile = new File(destinationFolder.getAbsolutePath()+File.separator+filename);
+                
+                new File(newFile.getParent()).mkdirs();
+                
+                FileOutputStream fos = new FileOutputStream(newFile);
+                int len = 0;
+                while ((len = zis.read(buffer)) > 0) {
+                    fos.write(buffer, 0, len);
+                }
+                
+                fos.close();
+                entry = zis.getNextEntry();
+            }
+            
+            zis.closeEntry();
+            zis.close();
+            
+        } catch (IOException ex) {
+            Logger.getLogger(ZipUtil.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        
+    }
+    
+    private void setFileInputStream(File file){
+        try {
+            if(file == null){
+                this.fis = null;
+            }else{
+                this.fis = new FileInputStream(file);
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(ZipUtil.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public FileInputStream getZipInputStream(){

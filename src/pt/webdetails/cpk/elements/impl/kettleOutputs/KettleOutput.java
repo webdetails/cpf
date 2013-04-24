@@ -167,7 +167,7 @@ public class KettleOutput implements IKettleOutput {
             PluginUtils.getInstance().setResponseHeaders(parameterProviders, MimeTypes.ZIP, zip.getZipNameToDownload(), zip.getZipSize());
             try {
                 IOUtils.copy(zip.getZipInputStream(), out);
-                zip.closeStream();
+                zip.closeInputStream();
             } catch (IOException ex) {
                 Logger.getLogger(KettleOutput.class.getName()).log(Level.SEVERE, null, ex);
             }
