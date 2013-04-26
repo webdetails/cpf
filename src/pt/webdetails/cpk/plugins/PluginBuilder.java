@@ -119,6 +119,8 @@ public class PluginBuilder {
             } catch (IOException ex) {
                 Logger.getLogger(PluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
             }
+            
+            this.statusMessage = "Plugin created successfully!";
         
         }else{
             if(!stubZip.exists()){
@@ -127,7 +129,7 @@ public class PluginBuilder {
                 this.statusMessage = "There is already a plugin with this ID, please select another ID for the plugin or uninstall the other plugin first.";
             }
         }
-        this.statusMessage = "Plugin created successfully!";
+        
     
     }
     
@@ -203,8 +205,8 @@ public class PluginBuilder {
             content = content.replaceAll("@PLUGIN_COMPANY@", this.company);
             content = content.replaceAll("@PLUGIN_PACKAGE_URL@", this.packageUrl);
             content = content.replaceAll("@PLUGIN_PACKAGE_DESCRIPTION@", this.packageDescription);
-            content = content.replaceAll("@PLUGIN_STYLES@", "<cde-styles>\n<path>"+this.styles+"</path>\n<cde-styles>\n");
-            content = content.replaceAll("@PLUGIN_COMPONENTS@", "<cde-components>\n<path>"+this.components+"</path>\n</cde-components>\n");
+            content = content.replaceAll("@PLUGIN_STYLES@", "<cde-styles>\n\t\t<path>"+this.styles+"</path>\n\t<cde-styles>\n");
+            content = content.replaceAll("@PLUGIN_COMPONENTS@", "<cde-components>\n\t\t<path>"+this.components+"</path>\n\t</cde-components>\n");
             
             /*
              * missing endpoints and dashboards 
