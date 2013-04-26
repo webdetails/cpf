@@ -62,7 +62,7 @@ public class PluginUtils {
     public PluginUtils() {
         try {
             // init
-            initialize();
+             initialize();
         } catch (Exception e) {
             logger.error("Can't initialize PluginUtils: " + Util.getExceptionDescription(e));
         }
@@ -84,10 +84,13 @@ public class PluginUtils {
         IPluginResourceLoader resLoader = PentahoSystem.get(IPluginResourceLoader.class, null);
         List<URL> pluginResource = resLoader.findResources(this.getClass(), "plugin.xml");
 
-        if (pluginResource.size() != 1) {
+        if (pluginResource.size() < 1) {
             throw new IOException("plugin.xml required but not found");
         }
 
+        /*
+         * Verify if the index 0 is actually the file we want!
+         */
         URL pluginUrl = pluginResource.get(0);
 
         // Parent file holds the name
