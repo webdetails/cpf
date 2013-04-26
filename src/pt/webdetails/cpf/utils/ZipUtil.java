@@ -123,7 +123,7 @@ public class ZipUtil {
         return zipOut;
     }
     
-    public void unzip(File zipFile, File destinationFolder){
+   public void unzip(File zipFile, File destinationFolder){
         byte [] buffer = new byte[1024];
         setFileInputStream(zipFile);
         ZipInputStream zis = new ZipInputStream(fis);
@@ -132,17 +132,26 @@ public class ZipUtil {
             ZipEntry entry = zis.getNextEntry();
             while(entry != null){
                 String filename = entry.getName();
-                File newFile = new File(destinationFolder.getAbsolutePath()+File.separator+filename);
+                File newFile = null;
                 
-                new File(newFile.getParent()).mkdirs();
-                
-                FileOutputStream fos = new FileOutputStream(newFile);
-                int len = 0;
-                while ((len = zis.read(buffer)) > 0) {
-                    fos.write(buffer, 0, len);
+                if(entry.isDirectory()){
+                    newFile = new File(destinationFolder.getAbsolutePath()+File.separator+filename+File.separator);
+                    newFile.mkdirs();
+                    newFile.mkdir();
+                }else{
+                    newFile = new File(destinationFolder.getAbsolutePath()+File.separator+filename);
+                    newFile.createNewFile();
+                    FileOutputStream fos = new FileOutputStream(newFile);
+                    int len = 0;
+                    while ((len = zis.read(buffer)) > 0) {
+                        fos.write(buffer, 0, len);
+                    }
+
+                    fos.close();
                 }
                 
-                fos.close();
+                
+                
                 entry = zis.getNextEntry();
             }
             
