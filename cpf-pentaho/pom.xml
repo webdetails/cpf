@@ -162,6 +162,15 @@
       <scope>system</scope>
       <systemPath>${basedir}/../cpf-core/target/cpf-core-TRUNK-SNAPSHOT.jar</systemPath>
 		</dependency>
+
+		 <!--  added dependencies in CPK refactoring context  -->
+    <dependency>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-mapper-asl</artifactId>
+      <version>1.8.2</version>
+      <type>jar</type>
+    </dependency>
+
    
 	</dependencies>
 </project>
