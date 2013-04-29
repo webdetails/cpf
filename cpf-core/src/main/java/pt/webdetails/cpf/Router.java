@@ -13,7 +13,6 @@ import org.apache.commons.logging.LogFactory;
 import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
-import pt.webdetails.cpf.scripts.GlobalScope;
 import pt.webdetails.cpf.RequestHandler;
 import pt.webdetails.cpf.RestRequestHandler;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
@@ -29,22 +28,24 @@ public class Router implements RestRequestHandler {
     private Map<Key, RequestHandler> javaHandlers;
     private static Router _instance;
     protected static final Log logger = LogFactory.getLog(Router.class);
+    private static IGlobalScope globalScope;
 
     public static synchronized Router getBaseRouter() {
         if (_instance == null) {
-            _instance = new Router();
+            _instance = new Router(globalScope);
         }
         return _instance;
     }
 
     public static synchronized Router resetBaseRouter() {
-        _instance = new Router();
+        _instance = new Router(globalScope);
         return _instance;
     }
 
-    public Router() {
+    public Router(IGlobalScope globalScope) {
         javaScriptHandlers = new HashMap<Key, Callable>();
         javaHandlers = new HashMap<Key, RequestHandler>();
+        this.globalScope=globalScope;
     }
 
 //    @Override
@@ -63,9 +64,9 @@ public class Router implements RestRequestHandler {
         Key key = new Key(method, path);
         if (javaScriptHandlers.containsKey(key)) {
             Callable handler = javaScriptHandlers.get(key);
-            Context cx = GlobalScope.getContextFactory().enterContext();
+            Context cx = globalScope.getContextFactory().enterContext();
             try {
-                GlobalScope scope = GlobalScope.getInstance();
+                IGlobalScope scope = globalScope.getInstance();
                 ResponseWrapper r = new ResponseWrapper((HttpServletResponse) pathParams.getParameter("httpresponse"));
                 Scriptable thiz = cx.getWrapFactory().wrapAsJavaObject(cx, scope, r, null),
                         pParams = cx.getWrapFactory().wrapAsJavaObject(cx, scope, pathParams, null),
