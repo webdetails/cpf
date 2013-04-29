@@ -18,6 +18,7 @@ import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
+import pt.webdetails.cpf.repository.IRepositoryAccess;
 //import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 /**
@@ -33,6 +34,7 @@ public class Plugin {
     private String path;
     private final String PLUGIN_XML_FILENAME = "plugin.xml";
     private final String SETTINGS_XML_FILENAME = "settings.xml";
+    private IRepositoryAccess repoAccess;//XXX needs to be initialized
     protected Log logger = LogFactory.getLog(this.getClass());
     
     public Plugin(String path){
@@ -197,7 +199,7 @@ public class Plugin {
     
     @JsonProperty("systemPath")
     public String getPluginRelativePath(){
-        return getPath().replace(PentahoSystem.getApplicationContext().getSolutionPath(""), "");
+        return getPath().replace(repoAccess.getSolutionPath(""), "");
     }
     
     @JsonIgnore

@@ -24,8 +24,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
-import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.CpkEngine;
+import pt.webdetails.cpf.utils.IPluginUtils;
 
 /**
  *
@@ -36,22 +36,24 @@ public class Link{
     private String name, id, link;
     private List<Link> subLinks;
     private Map<String,IElement> elements;
+    private IPluginUtils pluginUtils;
     
     protected Log logger = LogFactory.getLog(this.getClass());
 
-    public Link(File directory, Map<String,IElement> elementsMap){
+    public Link(File directory, Map<String,IElement> elementsMap, IPluginUtils pluginUtils){
         elements = elementsMap;
         subLinks = new ArrayList<Link>();
         buildLink(directory);
         this.name = directory.getName();
         this.id = "";
         this.link = "";
+        this.pluginUtils=pluginUtils;
 
     }
     
     public Link(IElement element){
         this.name = getTextFromWcdf(element.getLocation(),"description");
-        this.link = "/pentaho/content/"+PluginUtils.getInstance().getPluginName()+"/"+element.getId().toLowerCase();
+        this.link = "/pentaho/content/"+pluginUtils.getInstance().getPluginName()+"/"+element.getId().toLowerCase();
         this.id = element.getLocation().split("/")[element.getLocation().split("/").length-1];
         subLinks = new ArrayList<Link>();
     }
@@ -75,7 +77,7 @@ public class Link{
 
             if(directories != null){
                 for(File dir : directories){
-                    l = new Link(dir, elements);
+                    l = new Link(dir, elements,pluginUtils);
                     subLinks.add(l);
                 }
             }
@@ -254,7 +256,7 @@ public class Link{
         HashMap<String,File> directories = new HashMap<String, File>();
         
         for(IElement element : elementsMap.values()){
-            File directory = new File(PluginUtils.getInstance().getPluginDirectory()+"/"+element.getTopLevel());
+            File directory = new File(pluginUtils.getInstance().getPluginDirectory()+"/"+element.getTopLevel());
             if(directory != null){
                 try {
                     directories.put(directory.getCanonicalPath(), directory);

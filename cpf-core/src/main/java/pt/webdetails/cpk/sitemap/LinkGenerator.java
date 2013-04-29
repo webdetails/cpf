@@ -9,7 +9,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+//import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,30 +18,30 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-import pt.webdetails.cpf.utils.PluginUtils;
-import pt.webdetails.cpk.security.AccessControl;
+import pt.webdetails.cpf.utils.IPluginUtils;
+//import pt.webdetails.cpk.security.AccessControl;
 
 /**
  *
  * @author Luís Paulo Silva
  */
-public class LinkGenerator{
+public class LinkGenerator {
     private ArrayList<Link> dashboardLinks;
     private ArrayList<Link> kettleLinks;
     protected Log logger = LogFactory.getLog(this.getClass());
-    
-    
+    private IPluginUtils pluginUtils;
 
 
-    public LinkGenerator(Map<String,IElement> elementsMap) {
+    public LinkGenerator(Map<String,IElement> elementsMap,IPluginUtils pluginUtils) {
         generateLinks(elementsMap);
+        this.pluginUtils=pluginUtils;
     }
     
     private Map<String,File> getTopLevelDirectories(Map<String,IElement> elementsMap){
         HashMap<String,File> directories = new HashMap<String, File>();
         
         for(IElement element : elementsMap.values()){
-            File directory = new File(PluginUtils.getInstance().getPluginDirectory()+"/"+element.getTopLevel());
+            File directory = new File(pluginUtils.getInstance().getPluginDirectory()+"/"+element.getTopLevel());
             if(directory != null){
                 try {
                     directories.put(directory.getCanonicalPath(), directory);
@@ -94,7 +94,7 @@ public class LinkGenerator{
                 }
                 
                 for(File dir : getDirectories(directory)){
-                    l = new Link(dir, elementsMap);
+                    l = new Link(dir, elementsMap,pluginUtils);
                     if(!linkExists(dashboardLinks, l)){
                         dashboardLinks.add(l);
                     }
@@ -181,8 +181,6 @@ public class LinkGenerator{
 
         return is;
     }
-    
-    
 
 }
   

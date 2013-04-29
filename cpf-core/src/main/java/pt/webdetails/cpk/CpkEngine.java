@@ -26,15 +26,16 @@ import org.dom4j.io.SAXReader;
 //import org.pentaho.platform.api.engine.IPluginResourceLoader;
 //import org.pentaho.platform.engine.core.system.PentahoSystem;
 //import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;//can be switched by another lib
-import pt.webdetails.cpf.Util;
+//import pt.webdetails.cpf.Util;
 import pt.webdetails.cpf.plugins.IPluginFilter;
 import pt.webdetails.cpf.plugins.Plugin;
 import pt.webdetails.cpf.plugins.PluginsAnalyzer;
-import pt.webdetails.cpf.utils.PluginUtils;
+//import pt.webdetails.cpf.utils.PluginUtils;
+import pt.webdetails.cpf.utils.IPluginUtils;
 import pt.webdetails.cpk.security.AccessControl;
-import pt.webdetails.cpk.sitemap.LinkGenerator;
 import pt.webdetails.cpk.elements.IElement;
 import pt.webdetails.cpk.elements.IElementType;
+import pt.webdetails.cpk.sitemap.LinkGenerator;
 
 /**
  *
@@ -49,18 +50,20 @@ public class CpkEngine {
     private HashMap<String, IElementType> elementTypesMap;
     private static List reserverdWords = Arrays.asList("refresh", "status", "reload");
     private String defaultElementName = null;
-
-    public CpkEngine() {
+    private static IPluginUtils pluginUtils;
+    
+    public CpkEngine(IPluginUtils pluginUtils) {
 
         // Starting elementEngine
         logger.debug("Starting ElementEngine");
         elementsMap = new TreeMap<String, IElement>();
         elementTypesMap = new HashMap<String, IElementType>();
-
+        this.pluginUtils=pluginUtils;
         try {
             this.initialize();
         } catch (Exception ex) {
-            logger.fatal("Error initializing CpkEngine: " + Util.getExceptionDescription(ex));
+            //logger.fatal("Error initializing CpkEngine: " + Util.getExceptionDescription(ex));//XXX get this method here?
+            logger.fatal("Error initializing CpkEngine: " + getExceptionDescription(ex));
         }
 
     }
@@ -69,7 +72,7 @@ public class CpkEngine {
 
         if (instance == null) {
 
-            instance = new CpkEngine();
+            instance = new CpkEngine(pluginUtils);
 
         }
 
@@ -80,9 +83,9 @@ public class CpkEngine {
     private synchronized void initialize() throws DocumentException, IOException {
 
         // Start by forcing initialization of PluginUtils
-        PluginUtils.getInstance();
+        pluginUtils.getInstance();
 
-        logger.info("Initializing CPK Plugin " + PluginUtils.getInstance().getPluginName().toUpperCase());
+        logger.info("Initializing CPK Plugin " + pluginUtils.getInstance().getPluginName().toUpperCase());
         reload();
 
 
@@ -103,7 +106,7 @@ public class CpkEngine {
         pluginsAnalyzer.refresh();
         
         List<Plugin> plugins = pluginsAnalyzer.getInstalledPlugins();
-        String pluginName = PluginUtils.getInstance().getPluginName();
+        String pluginName = pluginUtils.getInstance().getPluginName();
         Plugin plugin = null;
         
         for(Plugin plgn : plugins){
@@ -126,7 +129,7 @@ public class CpkEngine {
                 fis = new FileInputStream(xmlFile);
                 bis = new BufferedInputStream(fis);
             }catch(Exception e){}
-            //XXXxml must exist so we can discard this code
+            //XXX xml must exist so we can discard this code
 //            if(!xmlFile.exists()){
 //                IPluginResourceLoader resLoader = PentahoSystem.get(IPluginResourceLoader.class, null);
 //                is = resLoader.getResourceAsStream(this.getClass(), fileName);
@@ -163,7 +166,8 @@ public class CpkEngine {
                 elementTypesMap.put(elementType.getType(), elementType);
 
             } catch (Exception ex) {
-                logger.error("Error initializing element type " + clazz + ": " + Util.getExceptionDescription(ex));
+                //logger.error("Error initializing element type " + clazz + ": " + Util.getExceptionDescription(ex));//XXX get this method here?
+                logger.error("Error initializing element type " + clazz + ": " + getExceptionDescription(ex));
                 continue;
             }
 
@@ -251,11 +255,11 @@ public class CpkEngine {
      */
     public String getStatus() {
 
-        AccessControl accessControl = new AccessControl();
+        AccessControl accessControl = new AccessControl(pluginUtils);
         StringBuffer out = new StringBuffer();
 
         out.append("--------------------------------\n");
-        out.append("   " + PluginUtils.getInstance().getPluginName() + " Status\n");
+        out.append("   " + pluginUtils.getInstance().getPluginName() + " Status\n");
         out.append("--------------------------------\n");
         out.append("\n");
 
@@ -282,7 +286,7 @@ public class CpkEngine {
     }
 
     public JsonNode getSitemapJson() throws IOException {
-        LinkGenerator linkGen = new LinkGenerator(elementsMap);
+        LinkGenerator linkGen = new LinkGenerator(elementsMap,pluginUtils);
         return linkGen.getLinksJson();
     }
     
@@ -329,5 +333,25 @@ public class CpkEngine {
         
         return plugins;
     }
+    
+    
+    
+    //XXX integral copy of method in the Util class present in cpf Pentaho
+    private String getExceptionDescription(final Exception e) {
+
+        final StringBuilder out = new StringBuilder();
+        out.append("[ ").append(e.getClass().getName()).append(" ] - ");
+        out.append(e.getMessage());
+
+        if (e.getCause() != null) {
+            out.append(" .( Cause [ ").append(e.getCause().getClass().getName()).append(" ] ");
+            out.append(e.getCause().getMessage());
+        }
+
+        e.printStackTrace();
+        return out.toString();
+
+    }
+    
 
 }

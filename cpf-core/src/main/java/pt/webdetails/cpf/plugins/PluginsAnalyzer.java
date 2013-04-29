@@ -11,6 +11,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Node;
+import pt.webdetails.cpf.repository.IRepositoryAccess;
 
 
 
@@ -23,6 +24,7 @@ import org.dom4j.Node;
 public class PluginsAnalyzer {
     
     private List<Plugin> installedPlugins;
+    private IRepositoryAccess repoAccess;//XXX nedds to be initialized
     protected Log logger = LogFactory.getLog(this.getClass());
 
     
@@ -73,8 +75,8 @@ public class PluginsAnalyzer {
     
     private void buildPluginsList(){
         ArrayList<Plugin> plugins = new ArrayList<Plugin>();
-        Plugin plugin = null;//XXX 
-        String localPath = PentahoSystem.getApplicationContext().getSolutionPath("system/");
+        Plugin plugin = null;
+        String localPath = repoAccess.getSolutionPath("system/");
         
         String [] pluginDirs = new File(localPath).list(new FilenameFilter() {
 

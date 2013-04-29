@@ -12,11 +12,11 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Node;
-import org.pentaho.platform.api.engine.IPluginResourceLoader;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
+//import org.pentaho.platform.api.engine.IPluginResourceLoader;
+//import org.pentaho.platform.engine.core.system.PentahoSystem;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
-import pt.webdetails.cpf.utils.PluginUtils;
-
+import pt.webdetails.cpf.repository.IRepositoryAccess;
+import pt.webdetails.cpf.utils.IPluginUtils;
 /**
  *
  * @author Pedro Alves<pedro.alves@webdetails.pt>
@@ -24,9 +24,13 @@ import pt.webdetails.cpf.utils.PluginUtils;
 public abstract class AbstractElementType implements IElementType {
 
     protected Log logger = LogFactory.getLog(this.getClass());
-
+    protected IRepositoryAccess repoAccess;//XXX initialize this
     public abstract String getType();
-
+    protected IPluginUtils pluginUtils;
+    
+    public AbstractElementType(IPluginUtils pluginUtils){
+        this.pluginUtils=pluginUtils;
+    }
     /**
      * Scans the location of the directory and returns a list of the content
      *
@@ -39,7 +43,7 @@ public abstract class AbstractElementType implements IElementType {
         ArrayList<IElement> iElements = new ArrayList<IElement>();
 
         // Grab resource loader
-        IPluginResourceLoader resLoader = PentahoSystem.get(IPluginResourceLoader.class, null);
+        //IPluginResourceLoader resLoader = PentahoSystem.get(IPluginResourceLoader.class, null);//XXX not used, just delete?
 
         // Get list of files to process
 
@@ -52,8 +56,7 @@ public abstract class AbstractElementType implements IElementType {
             String elementPath = elementLocation.valueOf("@path");
             Boolean isRecursive = Boolean.parseBoolean(elementLocation.valueOf("@isRecursive"));
             String pattern = elementLocation.valueOf("@pattern");
-
-            Collection<File> elements = PluginUtils.getInstance().getPluginResources(elementPath, isRecursive, pattern);
+            Collection<File> elements = pluginUtils.getInstance().getPluginResources(elementPath, isRecursive, pattern);
 
             if (elements == null)
                 continue;

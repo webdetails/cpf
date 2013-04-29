@@ -29,13 +29,23 @@ import pt.webdetails.cpf.session.IUserSession;
 
 public class VfsRepositoryAccess implements IRepositoryAccess {
 
+        private final String DEFAULT_REPO="vfs-repository";
+        private final String DEFAULT_SETTINGS="vfs-settingts";
 	protected static final Log log = LogFactory.getLog(VfsRepositoryAccess.class);
 	protected FileObject settings;
 	protected FileObject repo;
 	protected Plugin plugin;
 	protected IUserSession session;
 
-	public VfsRepositoryAccess() {};
+	public VfsRepositoryAccess() {
+        //XXX set default values so when beanFactory creates this it wont return null values
+            try{
+            setRepository(DEFAULT_REPO);
+            setSettings(DEFAULT_SETTINGS);
+            }catch (Exception e){
+                log.error("Cannot initialize VfsRepository",e);
+            }
+        };
 	public VfsRepositoryAccess(String repo, String settings) {
 		try {
 			setRepository(repo);

@@ -5,33 +5,33 @@ package pt.webdetails.cpk;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.engine.IPluginLifecycleListener;
-import org.pentaho.platform.api.engine.PluginLifecycleException;
+//import org.pentaho.platform.api.engine.IPluginLifecycleListener;
+//import org.pentaho.platform.api.engine.PluginLifecycleException;
 
 /**
  *
  * @author pedro
  */
-public class CpkLifecycleListener implements IPluginLifecycleListener {
+public class CpkLifecycleListener/* implements IPluginLifecycleListener*/ {
 
     static Log logger = LogFactory.getLog(CpkLifecycleListener.class);
 
-    @Override
-    public void init() throws PluginLifecycleException {
+  //  @Override
+    public void init()/* throws PluginLifecycleException*/ {
 
         logger.info("Initializing CPK plugin");
 
     }
 
-    @Override
-    public void loaded() throws PluginLifecycleException {
+    //@Override
+    public void loaded()/* throws PluginLifecycleException */{
 
         logger.info("CPK plugin loaded");
 
     }
 
-    @Override
-    public void unLoaded() throws PluginLifecycleException {
+    //@Override
+    public void unLoaded() /*throws PluginLifecycleException*/ {
         logger.info("CPK plugin unloaded");
 
     }

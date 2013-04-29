@@ -6,21 +6,27 @@ package pt.webdetails.cpk.security;
 
 import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.ws.http.HTTPException;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.security.SecurityHelper;
-import org.pentaho.platform.web.http.session.PentahoHttpSession;
+//import javax.xml.ws.http.HTTPException;
+//import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+//import org.pentaho.platform.engine.security.SecurityHelper;
+//import org.pentaho.platform.web.http.session.PentahoHttpSession;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
-import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.IElement;
-
+import pt.webdetails.cpf.session.IUserSession;
+import pt.webdetails.cpf.utils.IPluginUtils;
 /**
  *
  * @author Luís Paulo Silva
  */
 public class AccessControl {
     private final String UNAUTHORIZED = "Unauthorized access";
-    
+    private IUserSession session;//XXX initialize this
+    private IPluginUtils pluginUtils;
+    public AccessControl(IPluginUtils pluginUtils){
+        this.pluginUtils=pluginUtils;
+        
+    }
+
     public boolean isAllowed(IElement element){
         boolean is = false;
         
@@ -35,14 +41,14 @@ public class AccessControl {
     
     public boolean isAdmin(){
         boolean is = false;
-        is = SecurityHelper.isPentahoAdministrator(PentahoSessionHolder.getSession());
+        is = session.isAdministrator();
         
         
         return is;
     }
     
     public void throwAccessDenied(Map<String,ICommonParameterProvider> parameterProviders){
-        final HttpServletResponse response = PluginUtils.getInstance().getResponse(parameterProviders);
+        final HttpServletResponse response = pluginUtils.getInstance().getResponse(parameterProviders);
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         return;
     }
