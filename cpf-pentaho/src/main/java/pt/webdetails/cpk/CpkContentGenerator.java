@@ -39,8 +39,13 @@ public class CpkContentGenerator extends RestContentGenerator {
     private ICommonParameterProvider commonParameterProvider;
     private Map<String, ICommonParameterProvider> map;
     private IPluginUtils pluginUtils;
-    public void initParams(){//XXX review
+    
+    @Override
+    public void initParams(){
         
+            //XXX review
+        pluginUtils=new PluginUtils();
+        cpkEngine=new CpkEngine(pluginUtils);
         Iterator it =  parameterProviders.entrySet().iterator();
         map = new HashMap<String, ICommonParameterProvider>();
         while(it.hasNext()){
@@ -108,7 +113,7 @@ public class CpkContentGenerator extends RestContentGenerator {
             cpkEngine.reload();
             status(out);
         }else{
-            accessControl.throwAccessDenied(map);            //XXX changed from accessControl.throwAccessDenied(parameterProviders);
+            accessControl.throwAccessDenied(map);//XXX changed from accessControl.throwAccessDenied(parameterProviders);
         }
 
 

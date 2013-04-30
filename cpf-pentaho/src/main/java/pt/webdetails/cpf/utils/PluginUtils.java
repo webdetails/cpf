@@ -9,15 +9,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.ws.Response;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -37,23 +33,27 @@ import pt.webdetails.cpf.http.ICommonParameterProvider;
  */
 public class PluginUtils implements IPluginUtils {
 
-    private static PluginUtils _instance;
+    
     protected Log logger = LogFactory.getLog(this.getClass());
     private String pluginName;
     private File pluginDirectory;
 
+    @Override
     public File getPluginDirectory() {
         return pluginDirectory;
     }
 
+    @Override
     public void setPluginDirectory(File pluginDirectory) {
         this.pluginDirectory = pluginDirectory;
     }
 
+    @Override
     public String getPluginName() {
         return pluginName;
     }
 
+    @Override
     public void setPluginName(String pluginName) {
         this.pluginName = pluginName;
     }
@@ -101,6 +101,7 @@ public class PluginUtils implements IPluginUtils {
      * @param pattern regular expression to filter the files
      * @return Files found
      */
+    @Override
     public Collection<File> getPluginResources(String elementPath, Boolean recursive, String pattern) {
 
         IOFileFilter fileFilter = TrueFileFilter.TRUE;
@@ -139,6 +140,7 @@ public class PluginUtils implements IPluginUtils {
      * @param includePluginDir
      * @return The relative path
      */
+    @Override
     public String getPluginRelativeDirectory(String fullPath, boolean includePluginDir) throws FileNotFoundException {
 
 
@@ -167,6 +169,7 @@ public class PluginUtils implements IPluginUtils {
      * @param recursive Do we want to enable recursivity?
      * @return Files found
      */
+    @Override
     public Collection<File> getPluginResources(String elementPath, Boolean recursive) {
         return getPluginResources(elementPath, recursive, null);
     }
@@ -179,23 +182,28 @@ public class PluginUtils implements IPluginUtils {
      * @param pattern regular expression to filter the files
      * @return Files found
      */
+    @Override
     public Collection<File> getPluginResources(String elementPath, String pattern) {
         return getPluginResources(elementPath, false, pattern);
     }
 
+    @Override
     public void setResponseHeaders(Map<String, ICommonParameterProvider> parameterProviders, final String mimeType) {
         setResponseHeaders(parameterProviders, mimeType, 0, null, 0);
     }
 
+    @Override
     public void setResponseHeaders(Map<String, ICommonParameterProvider> parameterProviders, final String mimeType, final String attachmentName) {
         setResponseHeaders(parameterProviders, mimeType, 0, attachmentName, 0);
     }
     
+    @Override
     public void setResponseHeaders(Map<String, ICommonParameterProvider> parameterProviders, final String mimeType, final String attachmentName, long attachmentSize){
         setResponseHeaders(parameterProviders, mimeType, 0, attachmentName, attachmentSize);
         
     }
 
+    @Override
     public void setResponseHeaders(Map<String, ICommonParameterProvider> parameterProviders, final String mimeType, final int cacheDuration, final String attachmentName, long attachmentSize) {
         // Make sure we have the correct mime type
 
@@ -242,6 +250,7 @@ public class PluginUtils implements IPluginUtils {
      * @param params
      * @param provider
      */
+    @Override
     public void copyParametersFromProvider(Map<String, Object> params, ICommonParameterProvider provider) {
         @SuppressWarnings("unchecked")
         Iterator<String> paramNames = provider.getParameterNames();
@@ -251,6 +260,7 @@ public class PluginUtils implements IPluginUtils {
         }
     }
 
+    @Override
     public void redirect(Map<String, ICommonParameterProvider> parameterProviders, String url) {
 
         final HttpServletResponse response = getResponse(parameterProviders);
@@ -266,22 +276,27 @@ public class PluginUtils implements IPluginUtils {
         }
     }
 
+    @Override
     public HttpServletRequest getRequest(Map<String, ICommonParameterProvider> parameterProviders) {
         return (HttpServletRequest) parameterProviders.get("path").getParameter("httprequest");
     }
 
+    @Override
     public HttpServletResponse getResponse(Map<String, ICommonParameterProvider> parameterProviders) {
         return (HttpServletResponse) parameterProviders.get("path").getParameter("httpresponse");
     }
 
+    @Override
     public ICommonParameterProvider getRequestParameters(Map<String, ICommonParameterProvider> parameterProviders) {
         return parameterProviders.get("request");
     }
 
+    @Override
     public ICommonParameterProvider getPathParameters(Map<String, ICommonParameterProvider> parameterProviders) {
         return parameterProviders.get("path");
     }
 
+    @Override
     public OutputStream getResponseOutputStream(Map<String, ICommonParameterProvider> parameterProviders) throws IOException {
 
         return getResponse(parameterProviders).getOutputStream();

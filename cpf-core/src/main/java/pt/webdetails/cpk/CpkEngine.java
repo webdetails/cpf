@@ -53,7 +53,6 @@ public class CpkEngine {
     private static IPluginUtils pluginUtils;
     
     public CpkEngine(IPluginUtils pluginUtils) {
-
         // Starting elementEngine
         logger.debug("Starting ElementEngine");
         elementsMap = new TreeMap<String, IElement>();
@@ -84,7 +83,8 @@ public class CpkEngine {
         
 
         // Start by forcing initialization of PluginUtils
-       
+       if(pluginUtils==null)
+           pluginUtils.initialize();
        
         logger.info("Initializing CPK Plugin " + pluginUtils.getPluginName().toUpperCase());
         reload();
