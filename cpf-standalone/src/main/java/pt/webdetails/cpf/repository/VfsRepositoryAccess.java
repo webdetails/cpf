@@ -6,17 +6,17 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.apache.commons.vfs.FileName;
 import org.apache.commons.vfs.FileObject;
-
+import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileSystemManager;
-
+import org.apache.commons.vfs.FileType;
 import org.apache.commons.vfs.Selectors;
 import org.apache.commons.vfs.VFS;
 import org.dom4j.Document;
@@ -55,7 +55,7 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 		}
 
 	}
-        
+
 
 	public void setRepository(String path) {
 		repo = setRepoPath(path);
@@ -105,7 +105,7 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 		FileObject repoFile = folder.resolveFile(file);
 		return repoFile;
 	}
-	
+
 	@Override
 	public boolean canWrite(String file) {
 		try {
@@ -214,8 +214,8 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 	}
 
 	@Override
-	public InputStream getResourceInputStream(String file, FileAccess acess, boolean getLocalizedResource) 
-			throws FileNotFoundException 
+	public InputStream getResourceInputStream(String file, FileAccess acess, boolean getLocalizedResource)
+			throws FileNotFoundException
 	{
 		return getResourceInputStream(file);
 	}
@@ -242,7 +242,7 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 		}
 		return new IRepositoryFile[0];
 	}
-	
+
 	@Override
 	public IRepositoryFile getSettingsFile(String file, FileAccess arg1) {
 		try {
@@ -255,7 +255,7 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public IRepositoryFile[] getSettingsFileTree(final String directory, final String fileExtension, FileAccess access) {
 		try {
@@ -263,7 +263,7 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 				FileObject p = resolvePluginDirectory(settings, directory);
 				IRepositoryFile ir = new VfsRepositoryFile(settings, p);
 				IRepositoryFile[] files =  ir.listFiles(new IRepositoryFileFilter() {
-					
+
 					@Override
 					public boolean accept(IRepositoryFile isf) {
 						return (fileExtension != null && fileExtension.equals(isf.getExtension()));
@@ -275,7 +275,7 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 			log.error("Error getting plugin files for (" + plugin + ")  at: " + directory + " with extension: " + fileExtension, e);
 		}
 		return null;
-                
+
 	}
 
 	@Override
@@ -300,7 +300,7 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 	}
 
 	@Override
-	public SaveFileStatus publishFile(String file, String contents, boolean overwrite) throws UnsupportedEncodingException 
+	public SaveFileStatus publishFile(String file, String contents, boolean overwrite) throws UnsupportedEncodingException
 	{
 		if (contents != null) {
 			return publishFile(file, contents.getBytes(getEncoding()), overwrite);
@@ -324,10 +324,10 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 		//ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		try {
 			if (data != null) {
-				String file = getRelativePath(path, solution, fileName);                            
+				String file = getRelativePath(path, solution, fileName);
 				if (resourceExists(file)){
                                     if(canWrite(file) && overwrite) {
-					FileObject f = resolveFile(repo, file); 
+					FileObject f = resolveFile(repo, file);
 //                                        if (f.exists() && !overwrite) return SaveFileStatus.FAIL;
 //                                        if (!f.exists()) f.createFile();
                                         f.getContent().getOutputStream().write(data);
@@ -344,7 +344,7 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
                                     f.getContent().close();
                                     return SaveFileStatus.OK;
                                 }
-                                
+
 			}
 		} catch (Exception e) {
 			throw new RuntimeException("Cannot publish file! solution: " + solution + " path: " + path + " file: " + fileName, e);
@@ -384,7 +384,7 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 		}
 
 	}
-	
+
 	  private String getRelativePath(final String originalPath, final String solution,final String file) throws UnsupportedEncodingException
 	  {
 
@@ -395,6 +395,25 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 		joined = joined.replaceAll("//", "/");
 		return joined;
 	  }
-    
 
+    @Override
+    public IRepositoryFile[] listRepositoryFiles() {
+        try {
+            FileObject[] files = repo.getChildren();
+            List<IRepositoryFile> repoFiles = new ArrayList<IRepositoryFile>();
+            for (FileObject file : files) {
+                if (file.exists() && file.isReadable() && file.getType().equals(FileType.FILE)) {
+                    FileName name = file.getName();
+                    log.debug("Checking " + name);
+                    String extension = name.getExtension();
+                    if ("cda".equalsIgnoreCase(extension)) {
+                        repoFiles.add(new VfsRepositoryFile(repo, file));
+                    }
+                }
+            }
+            return repoFiles.toArray(new IRepositoryFile[]{});
+        } catch (FileSystemException e) {
+            throw new RuntimeException("Cannot list repo files", e);
+        }
+    }
 }

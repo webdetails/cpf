@@ -74,7 +74,7 @@ public interface IRepositoryAccess {
 
     public abstract SaveFileStatus copySolutionFile(String fromFilePath,
             String toFilePath) throws IOException;
-    
+
     public abstract String getSolutionPath(String path);
 
     /*
@@ -82,24 +82,25 @@ public interface IRepositoryAccess {
      * Best would be to remove the whole "solution" concept
      */
     public abstract IRepositoryFile getRepositoryFile(String path, FileAccess fileAccess);
-    
+
     public abstract void setUserSession(IUserSession userSession);
-    
+
     public abstract void setPlugin(Plugin plugin);
-    
+
     public abstract IRepositoryFile getSettingsFile(String path, FileAccess fileAccess);
     public abstract String getSettingsResourceAsString(String settingsPath)
             throws IOException;
-    
+
     /*
      * TODO: This should really be getSettingsFiles ? make those two methods consistent
      */
     @Deprecated
     public abstract IRepositoryFile[] getPluginFiles(String baseDir, FileAccess accessMode);
-    
+
+    public abstract IRepositoryFile[] listRepositoryFiles();
 
      public abstract IRepositoryFile[] getSettingsFileTree(final String dir, final String fileExtensions, FileAccess access);
-    
+
 
     @Deprecated
     public abstract String getJqueryFileTree(final String dir, final String fileExtensions, final String access) ;
