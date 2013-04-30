@@ -29,7 +29,9 @@ import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.RowAdapter;
 import org.pentaho.di.trans.step.StepInterface;
 import pt.webdetails.cpf.Util;
+import pt.webdetails.cpf.http.ICommonParameterProvider;
 import pt.webdetails.cpf.plugins.PluginsAnalyzer;
+import pt.webdetails.cpf.utils.IPluginUtils;
 import pt.webdetails.cpf.utils.MimeTypes;
 import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.impl.kettleOutputs.IKettleOutput;
@@ -52,10 +54,13 @@ public class KettleElementType extends AbstractElementType {
     private ConcurrentHashMap<String, JobMeta> jobMetaStorage = new ConcurrentHashMap<String, JobMeta>();//Stores the metadata of the kjb files. [Key=path]&[Value=jobMeta]
     private String stepName = "OUTPUT";
     private String mimeType = null;
+    private IPluginUtils pluginUtils;
 
-    public KettleElementType() {
+    public KettleElementType(IPluginUtils plug) {
+        super(plug);
         transMetaStorage = new ConcurrentHashMap<String, TransMeta>();//Stores the metadata of the ktr files. [Key=path]&[Value=transMeta]
         jobMetaStorage = new ConcurrentHashMap<String, JobMeta>();//Stores the metadata of the kjb files. [Key=path]&[Value=jobMeta]
+        pluginUtils=plug;
     }
 
     @Override
@@ -64,7 +69,7 @@ public class KettleElementType extends AbstractElementType {
     }
 
     @Override
-    public void processRequest(Map<String, IParameterProvider> parameterProviders, IElement element) {
+    public void processRequest(Map<String, ICommonParameterProvider> parameterProviders, IElement element) {
 
 
         String kettlePath = element.getLocation();
@@ -74,7 +79,7 @@ public class KettleElementType extends AbstractElementType {
         logger.debug("Processing request for: " + kettlePath);
 
         //This gets all the params inserted in the URL
-        Iterator customParamsIter = PluginUtils.getInstance().getRequestParameters(parameterProviders).getParameterNames();
+        Iterator customParamsIter = pluginUtils.getRequestParameters(parameterProviders).getParameterNames();
         HashMap<String, String> customParams = new HashMap<String, String>();
         String key, value;
 
@@ -121,7 +126,7 @@ public class KettleElementType extends AbstractElementType {
         //These conditions will treat the different types of kettle operations
 
         IKettleOutput kettleOutput = null;
-        String clazz = PluginUtils.getInstance().getRequestParameters(parameterProviders).getStringParameter("kettleOutput", "Infered") + "KettleOutput";
+        String clazz = pluginUtils.getRequestParameters(parameterProviders).getStringParameter("kettleOutput", "Infered") + "KettleOutput";
 
         try {
             // Get defined kettleOutput class name
@@ -131,11 +136,11 @@ public class KettleElementType extends AbstractElementType {
 
         } catch (Exception ex) {
             logger.error("Error initializing Kettle output type " + clazz + ", reverting to KettleOutput: " + Util.getExceptionDescription(ex));
-            kettleOutput = new KettleOutput(parameterProviders);
+            kettleOutput = new KettleOutput(parameterProviders,pluginUtils);
         }
 
         // Are we specifying a stepname?
-        kettleOutput.setOutputStepName(PluginUtils.getInstance().getRequestParameters(parameterProviders).getStringParameter("stepName", stepName));
+        kettleOutput.setOutputStepName(pluginUtils.getRequestParameters(parameterProviders).getStringParameter("stepName", stepName));
 
         Result result = null;
 

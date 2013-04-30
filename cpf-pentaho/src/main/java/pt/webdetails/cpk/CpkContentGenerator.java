@@ -5,6 +5,11 @@ package pt.webdetails.cpk;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.AbstractMap;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.codehaus.jackson.JsonNode;
@@ -15,11 +20,15 @@ import pt.webdetails.cpf.RestRequestHandler;
 import pt.webdetails.cpf.Router;
 import pt.webdetails.cpf.annotations.AccessLevel;
 import pt.webdetails.cpf.annotations.Exposed;
+import pt.webdetails.cpf.http.CommonParameterProvider;
+import pt.webdetails.cpf.http.ICommonParameterProvider;
 import pt.webdetails.cpk.security.AccessControl;
 import pt.webdetails.cpf.utils.IPluginUtils;
+import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.CpkEngine;
 import pt.webdetails.cpk.elements.IElement;
 import pt.webdetails.cpk.plugins.PluginBuilder;
+import org.pentaho.platform.api.engine.IParameterProvider;
 
 public class CpkContentGenerator extends RestContentGenerator {
 
@@ -27,21 +36,35 @@ public class CpkContentGenerator extends RestContentGenerator {
     public static final String CDW_EXTENSION = ".cdw";
     public static final String PLUGIN_NAME = "cpk";
     private CpkEngine cpkEngine;
-    
+    private ICommonParameterProvider commonParameterProvider;
+    private Map<String, ICommonParameterProvider> map;
+    private IPluginUtils pluginUtils;
+    public void initParams(){//XXX review
+        
+        Iterator it =  parameterProviders.entrySet().iterator();
+        map = new HashMap<String, ICommonParameterProvider>();
+        while(it.hasNext()){
+            Entry<String,IParameterProvider> e = (Entry<String,IParameterProvider>) it.next();
+            commonParameterProvider=new CommonParameterProvider();
+           commonParameterProvider.put(e.getKey(), e.getValue());
+           map.put(e.getKey(), commonParameterProvider);
+        }
+        
+    }
 
     @Override
     public void createContent() throws Exception {
 
         // Make sure we have the engine running
         cpkEngine = CpkEngine.getInstance();
-        PluginUtils pluginUtils = PluginUtils.getInstance();
         
-        AccessControl accessControl = new AccessControl();
+        
+        AccessControl accessControl = new AccessControl(pluginUtils);
         
         debug("Creating content");
 
         // Get the path, remove leading slash
-        String path = pluginUtils.getPathParameters(parameterProviders).getStringParameter("path", null);
+        String path = pluginUtils.getPathParameters(map).getStringParameter("path", null);
         IElement element = null;
 
 
@@ -52,15 +75,15 @@ public class CpkContentGenerator extends RestContentGenerator {
                 // We need to put the http redirection on the right level
                 url = pluginUtils.getPluginName() + "/" + url;
             }
-            pluginUtils.redirect(parameterProviders, url);
+            pluginUtils.redirect(map, url);
         }
 
         element = cpkEngine.getElement(path.substring(1));
         if (element != null) {
             if (accessControl.isAllowed(element)) {
-                element.processRequest(parameterProviders);
+                element.processRequest(map);
             } else {
-                accessControl.throwAccessDenied(parameterProviders);
+                accessControl.throwAccessDenied(map);
             }
 
         } else {
@@ -79,13 +102,13 @@ public class CpkContentGenerator extends RestContentGenerator {
 
     @Exposed(accessLevel = AccessLevel.PUBLIC)
     public void refresh(OutputStream out) throws DocumentException, IOException {
-        AccessControl accessControl = new AccessControl();
+        AccessControl accessControl = new AccessControl(pluginUtils);
         if(accessControl.isAdmin()){
             logger.info("Refreshing CPK plugin " + getPluginName());
             cpkEngine.reload();
             status(out);
         }else{
-            accessControl.throwAccessDenied(parameterProviders);
+            accessControl.throwAccessDenied(map);            //XXX changed from accessControl.throwAccessDenied(parameterProviders);
         }
 
 
@@ -96,7 +119,7 @@ public class CpkContentGenerator extends RestContentGenerator {
 
         logger.info("Showing status for CPK plugin " + getPluginName());
 
-        PluginUtils.getInstance().setResponseHeaders(parameterProviders, "text/plain");
+        pluginUtils.setResponseHeaders(map, "text/plain");
         out.write(cpkEngine.getStatus().getBytes("UTF-8"));
 
     }
@@ -156,7 +179,7 @@ public class CpkContentGenerator extends RestContentGenerator {
     @Override
     public String getPluginName() {
 
-        return PluginUtils.getInstance().getPluginName();
+        return pluginUtils.getPluginName();
     }
     
     private void writeMessage(OutputStream out, String message){

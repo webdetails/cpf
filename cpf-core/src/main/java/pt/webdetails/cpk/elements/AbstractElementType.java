@@ -12,8 +12,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Node;
-//import org.pentaho.platform.api.engine.IPluginResourceLoader;
-//import org.pentaho.platform.engine.core.system.PentahoSystem;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
 import pt.webdetails.cpf.utils.IPluginUtils;
@@ -56,7 +54,7 @@ public abstract class AbstractElementType implements IElementType {
             String elementPath = elementLocation.valueOf("@path");
             Boolean isRecursive = Boolean.parseBoolean(elementLocation.valueOf("@isRecursive"));
             String pattern = elementLocation.valueOf("@pattern");
-            Collection<File> elements = pluginUtils.getInstance().getPluginResources(elementPath, isRecursive, pattern);
+            Collection<File> elements = pluginUtils.getPluginResources(elementPath, isRecursive, pattern);
 
             if (elements == null)
                 continue;

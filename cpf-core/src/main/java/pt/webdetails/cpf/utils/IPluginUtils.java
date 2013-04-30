@@ -28,9 +28,7 @@ public interface IPluginUtils {
     public String getPluginName();
 
     public void setPluginName(String pluginName);
-
-    public IPluginUtils getInstance();
-
+    
     public void initialize() throws IOException, DocumentException;
 
     public Collection<File> getPluginResources(String elementPath, Boolean recursive, String pattern);

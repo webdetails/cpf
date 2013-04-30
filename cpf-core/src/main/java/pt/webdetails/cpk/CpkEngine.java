@@ -80,12 +80,13 @@ public class CpkEngine {
 
     }
 
-    private synchronized void initialize() throws DocumentException, IOException {
+    private synchronized void initialize() throws DocumentException, IOException {//XXX pluginUtils no longer singleton
+        
 
         // Start by forcing initialization of PluginUtils
-        pluginUtils.getInstance();
-
-        logger.info("Initializing CPK Plugin " + pluginUtils.getInstance().getPluginName().toUpperCase());
+       
+       
+        logger.info("Initializing CPK Plugin " + pluginUtils.getPluginName().toUpperCase());
         reload();
 
 
@@ -106,7 +107,7 @@ public class CpkEngine {
         pluginsAnalyzer.refresh();
         
         List<Plugin> plugins = pluginsAnalyzer.getInstalledPlugins();
-        String pluginName = pluginUtils.getInstance().getPluginName();
+        String pluginName = pluginUtils.getPluginName();
         Plugin plugin = null;
         
         for(Plugin plgn : plugins){
@@ -259,7 +260,7 @@ public class CpkEngine {
         StringBuffer out = new StringBuffer();
 
         out.append("--------------------------------\n");
-        out.append("   " + pluginUtils.getInstance().getPluginName() + " Status\n");
+        out.append("   " + pluginUtils.getPluginName() + " Status\n");
         out.append("--------------------------------\n");
         out.append("\n");
 

@@ -23,6 +23,8 @@ import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.vfs.KettleVFS;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import pt.webdetails.cpf.Util;
+import pt.webdetails.cpf.http.ICommonParameterProvider;
+import pt.webdetails.cpf.utils.IPluginUtils;
 import pt.webdetails.cpf.utils.MimeTypes;
 import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpf.utils.ZipUtil;
@@ -43,13 +45,15 @@ public class KettleOutput implements IKettleOutput {
     private OutputStream out;
     protected KettleType kettleType;
     private String outputStepName = "OUTPUT";
-    private Map<String, IParameterProvider> parameterProviders;
+    private Map<String, ICommonParameterProvider> parameterProviders;
+    private IPluginUtils pluginUtils;
 
-    public KettleOutput(Map<String, IParameterProvider> parameterProviders) {
+    public KettleOutput(Map<String, ICommonParameterProvider> parameterProviders, IPluginUtils plug) {
         init(parameterProviders);
+        pluginUtils=plug;
     }
 
-    protected void init(Map<String, IParameterProvider> parameterProviders) {
+    protected void init(Map<String, ICommonParameterProvider> parameterProviders) {
 
         this.parameterProviders = parameterProviders;
         rows = new ArrayList<Object[]>();
@@ -57,7 +61,7 @@ public class KettleOutput implements IKettleOutput {
 
 
         try {
-            out = PluginUtils.getInstance().getResponseOutputStream(parameterProviders);
+            out = pluginUtils.getResponseOutputStream(parameterProviders);
         } catch (IOException ex) {
             Logger.getLogger("Something went wrong on the KettleOutput class initialization.");
         }
@@ -139,21 +143,21 @@ public class KettleOutput implements IKettleOutput {
             // Do we know the mime type?
             String mimeType = MimeTypes.getMimeType(file.getFile().getName().getExtension());
 
-            if (Boolean.parseBoolean(PluginUtils.getInstance().getRequestParameters(parameterProviders).getStringParameter("download", "false"))) {
+            if (Boolean.parseBoolean(pluginUtils.getRequestParameters(parameterProviders).getStringParameter("download", "false"))) {
                 try {
                     long attachmentSize = file.getFile().getContent().getInputStream().available();
-                    PluginUtils.getInstance().setResponseHeaders(parameterProviders, mimeType, file.getFile().getName().getBaseName(), attachmentSize);
+                    pluginUtils.setResponseHeaders(parameterProviders, mimeType, file.getFile().getName().getBaseName(), attachmentSize);
                 } catch (Exception e) {
                     logger.error("Problem setting the attachment size: "+e);
                 }
             } else {
                 // set Mimetype only
-                PluginUtils.getInstance().setResponseHeaders(parameterProviders, mimeType);
+                pluginUtils.setResponseHeaders(parameterProviders, mimeType);
             }
 
 
             try {
-                IOUtils.copy(KettleVFS.getInputStream(file.getFile()), PluginUtils.getInstance().getResponseOutputStream(parameterProviders));
+                IOUtils.copy(KettleVFS.getInputStream(file.getFile()), pluginUtils.getResponseOutputStream(parameterProviders));
             } catch (Exception ex) {
                 logger.warn("Failed to copy file to outputstream: " + Util.getExceptionDescription(ex));
             }
@@ -164,7 +168,7 @@ public class KettleOutput implements IKettleOutput {
             ZipUtil zip = new ZipUtil();
             zip.buildZip(filesList);
             
-            PluginUtils.getInstance().setResponseHeaders(parameterProviders, MimeTypes.ZIP, zip.getZipNameToDownload(), zip.getZipSize());
+            pluginUtils.setResponseHeaders(parameterProviders, MimeTypes.ZIP, zip.getZipNameToDownload(), zip.getZipSize());
             try {
                 IOUtils.copy(zip.getZipInputStream(), out);
                 zip.closeInputStream();
@@ -191,7 +195,7 @@ public class KettleOutput implements IKettleOutput {
 
             Object result = getRows().get(0)[0];
             if (result != null) {
-                PluginUtils.getInstance().getResponseOutputStream(parameterProviders).write(result.toString().getBytes(ENCODING));
+                pluginUtils.getResponseOutputStream(parameterProviders).write(result.toString().getBytes(ENCODING));
             }
 
         } catch (UnsupportedEncodingException ex) {

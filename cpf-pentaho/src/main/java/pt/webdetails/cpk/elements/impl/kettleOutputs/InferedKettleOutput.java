@@ -4,7 +4,8 @@
 package pt.webdetails.cpk.elements.impl.kettleOutputs;
 
 import java.util.Map;
-import org.pentaho.platform.api.engine.IParameterProvider;
+import pt.webdetails.cpf.http.ICommonParameterProvider;
+import pt.webdetails.cpf.utils.IPluginUtils;
 
 /**
  *
@@ -12,8 +13,9 @@ import org.pentaho.platform.api.engine.IParameterProvider;
  */
 public class InferedKettleOutput extends KettleOutput {
 
-    public InferedKettleOutput(Map<String, IParameterProvider> parameterProviders) {
-        super(parameterProviders);
+    
+    public InferedKettleOutput(Map<String, ICommonParameterProvider> parameterProviders,IPluginUtils plug) {
+        super(parameterProviders,plug);
     }
 
 }

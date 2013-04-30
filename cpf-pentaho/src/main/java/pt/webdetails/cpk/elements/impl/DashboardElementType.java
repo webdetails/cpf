@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import pt.webdetails.cpf.InterPluginCall;
 import pt.webdetails.cpf.Util;
+import pt.webdetails.cpf.http.ICommonParameterProvider;
 import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.AbstractElementType;
 import pt.webdetails.cpk.elements.ElementInfo;
@@ -21,6 +22,7 @@ import pt.webdetails.cpk.elements.IElement;
 
 import java.io.*;
 import java.util.HashMap;
+import pt.webdetails.cpf.utils.IPluginUtils;
 
 /**
  *
@@ -28,7 +30,10 @@ import java.util.HashMap;
  */
 public class DashboardElementType extends AbstractElementType {
 
-    public DashboardElementType() {
+    private IPluginUtils pluginUtils;
+    public DashboardElementType(IPluginUtils plug) {
+        super(plug);
+        pluginUtils=plug;
     }
 
     @Override
@@ -37,7 +42,7 @@ public class DashboardElementType extends AbstractElementType {
     }
 
     @Override
-    public void processRequest(Map<String, IParameterProvider> parameterProviders, IElement element) {
+    public void processRequest(Map<String, ICommonParameterProvider> parameterProviders, IElement element) {
         try {
             // element = (DashboardElement) element;
             callCDE(parameterProviders, element);
@@ -46,9 +51,9 @@ public class DashboardElementType extends AbstractElementType {
         }    
     }
 
-    protected void callCDE(Map<String, IParameterProvider> parameterProviders, IElement element) throws UnsupportedEncodingException, IOException {
+    protected void callCDE(Map<String, ICommonParameterProvider> parameterProviders, IElement element) throws UnsupportedEncodingException, IOException {
 
-        PluginUtils pluginUtils = PluginUtils.getInstance();
+        
 
         
         String path = pluginUtils.getPluginRelativeDirectory(element.getLocation(), true);
@@ -65,7 +70,7 @@ public class DashboardElementType extends AbstractElementType {
         params.put("absolute", "true");
         params.put("inferScheme", "false");
         params.put("root", root);
-        IParameterProvider requestParams = pluginUtils.getRequestParameters(parameterProviders);
+        ICommonParameterProvider requestParams = pluginUtils.getRequestParameters(parameterProviders);
         pluginUtils.copyParametersFromProvider(params, requestParams);
 
         if (requestParams.hasParameter("mode") && requestParams.getStringParameter("mode", "Render").equals("edit")) {
@@ -79,7 +84,7 @@ public class DashboardElementType extends AbstractElementType {
         pluginCall.run();
     }
 
-    private void redirectToCdeEditor(Map<String, IParameterProvider> parameterProviders, Map<String, Object> params) throws IOException {
+    private void redirectToCdeEditor(Map<String, ICommonParameterProvider> parameterProviders, Map<String, Object> params) throws IOException {
 
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append("../pentaho-cdf-dd/edit");
@@ -96,7 +101,7 @@ public class DashboardElementType extends AbstractElementType {
         }
 
         urlBuilder.append(StringUtils.join(paramArray, "&"));
-        PluginUtils.getInstance().redirect(parameterProviders, urlBuilder.toString());
+        pluginUtils.redirect(parameterProviders, urlBuilder.toString());
     }
 
     
@@ -109,6 +114,8 @@ public class DashboardElementType extends AbstractElementType {
     public boolean isShowInSitemap() {
         return true;
     }
+
+
     
     
 }

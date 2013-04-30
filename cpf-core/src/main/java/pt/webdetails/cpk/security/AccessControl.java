@@ -48,7 +48,7 @@ public class AccessControl {
     }
     
     public void throwAccessDenied(Map<String,ICommonParameterProvider> parameterProviders){
-        final HttpServletResponse response = pluginUtils.getInstance().getResponse(parameterProviders);
+        final HttpServletResponse response = pluginUtils.getResponse(parameterProviders);
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         return;
     }

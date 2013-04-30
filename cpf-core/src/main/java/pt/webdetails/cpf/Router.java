@@ -13,8 +13,6 @@ import org.apache.commons.logging.LogFactory;
 import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
-import pt.webdetails.cpf.RequestHandler;
-import pt.webdetails.cpf.RestRequestHandler;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
 import pt.webdetails.cpf.utils.MimeTypes;
 
@@ -68,12 +66,12 @@ public class Router implements RestRequestHandler {
             try {
                 IGlobalScope scope = globalScope.getInstance();
                 ResponseWrapper r = new ResponseWrapper((HttpServletResponse) pathParams.getParameter("httpresponse"));
-                Scriptable thiz = cx.getWrapFactory().wrapAsJavaObject(cx, scope, r, null),
-                        pParams = cx.getWrapFactory().wrapAsJavaObject(cx, scope, pathParams, null),
-                        rParams = cx.getWrapFactory().wrapAsJavaObject(cx, scope, requestParams, null);
+                Scriptable thiz = cx.getWrapFactory().wrapAsJavaObject(cx, (Scriptable)scope, r, null),//XXX forced scriptable
+                        pParams = cx.getWrapFactory().wrapAsJavaObject(cx, (Scriptable)scope, pathParams, null),//XXX forced scriptable
+                        rParams = cx.getWrapFactory().wrapAsJavaObject(cx, (Scriptable)scope, requestParams, null);//XXX forced scriptable
 
                 Object[] params = {out, pParams, rParams};
-                handler.call(cx, scope, thiz, params).toString().getBytes("utf-8");
+                handler.call(cx, (Scriptable)scope, thiz, params).toString().getBytes("utf-8");//XXX forced scriptable
             } catch (Exception e) {
                 logger.error(e);
             } finally {

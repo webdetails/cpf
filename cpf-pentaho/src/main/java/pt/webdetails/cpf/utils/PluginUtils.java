@@ -26,11 +26,10 @@ import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.DocumentException;
-import org.pentaho.platform.api.engine.IMimeTypeListener;
-import org.pentaho.platform.api.engine.ICommonParameterProvider;
 import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import pt.webdetails.cpf.Util;
+import pt.webdetails.cpf.http.ICommonParameterProvider;
 
 /**
  *
@@ -69,16 +68,8 @@ public class PluginUtils implements IPluginUtils {
 
     }
 
-    public static PluginUtils getInstance() {
-
-        if (_instance == null) {
-            _instance = new PluginUtils();
-        }
-
-        return _instance;
-    }
-
-    private void initialize() throws IOException, DocumentException {
+    @Override
+    public void initialize() throws IOException, DocumentException {//XXX was private
 
         // We need to get the plugin name
         IPluginResourceLoader resLoader = PentahoSystem.get(IPluginResourceLoader.class, null);
@@ -219,7 +210,7 @@ public class PluginUtils implements IPluginUtils {
          */
 
 
-        final HttpServletResponse response = PluginUtils.getInstance().getResponse(parameterProviders);
+        final HttpServletResponse response = getResponse(parameterProviders);
 
         if (response == null) {
             logger.warn("Parameter 'httpresponse' not found!");

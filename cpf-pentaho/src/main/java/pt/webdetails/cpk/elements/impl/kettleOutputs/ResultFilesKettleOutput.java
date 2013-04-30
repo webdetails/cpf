@@ -7,7 +7,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.vfs.FileSystemException;
-import org.pentaho.platform.api.engine.IParameterProvider;
+import pt.webdetails.cpf.http.ICommonParameterProvider;
+import pt.webdetails.cpf.utils.IPluginUtils;
 
 /**
  *
@@ -15,8 +16,8 @@ import org.pentaho.platform.api.engine.IParameterProvider;
  */
 public class ResultFilesKettleOutput extends KettleOutput {
 
-    public ResultFilesKettleOutput(Map<String, IParameterProvider> parameterProviders) {
-        super(parameterProviders);
+    public ResultFilesKettleOutput(Map<String, ICommonParameterProvider> parameterProviders,IPluginUtils plug) {
+        super(parameterProviders,plug);
     }
 
     @Override

@@ -53,7 +53,7 @@ public class Link{
     
     public Link(IElement element){
         this.name = getTextFromWcdf(element.getLocation(),"description");
-        this.link = "/pentaho/content/"+pluginUtils.getInstance().getPluginName()+"/"+element.getId().toLowerCase();
+        this.link = "/pentaho/content/"+pluginUtils.getPluginName()+"/"+element.getId().toLowerCase();
         this.id = element.getLocation().split("/")[element.getLocation().split("/").length-1];
         subLinks = new ArrayList<Link>();
     }
@@ -256,7 +256,7 @@ public class Link{
         HashMap<String,File> directories = new HashMap<String, File>();
         
         for(IElement element : elementsMap.values()){
-            File directory = new File(pluginUtils.getInstance().getPluginDirectory()+"/"+element.getTopLevel());
+            File directory = new File(pluginUtils.getPluginDirectory()+"/"+element.getTopLevel());
             if(directory != null){
                 try {
                     directories.put(directory.getCanonicalPath(), directory);

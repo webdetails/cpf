@@ -76,7 +76,8 @@ public class CpkCoreService {
             }
 
         } else {
-            super.createContent();//XXX have no super, change this maybe throw an exception
+            //super.createContent();//XXX have no super, change this maybe throw an exception
+            logger.log(Level.WARNING, "Element null"); //XXX change! just to compile
         }
 
 
@@ -108,7 +109,7 @@ public class CpkCoreService {
 
         logger.info("Showing status for CPK plugin " + getPluginName());
 
-        pluginUtils.getInstance().setResponseHeaders(parameterProviders, "text/plain");
+        pluginUtils.setResponseHeaders(parameterProviders, "text/plain");
         out.write(cpkEngine.getStatus().getBytes("UTF-8"));
 
     }
@@ -168,7 +169,7 @@ public class CpkCoreService {
    // @Override  
     public String getPluginName() {
 
-        return pluginUtils.getInstance().getPluginName();
+        return pluginUtils.getPluginName();
     }
     
     private void writeMessage(OutputStream out, String message){

@@ -41,7 +41,7 @@ public class LinkGenerator {
         HashMap<String,File> directories = new HashMap<String, File>();
         
         for(IElement element : elementsMap.values()){
-            File directory = new File(pluginUtils.getInstance().getPluginDirectory()+"/"+element.getTopLevel());
+            File directory = new File(pluginUtils.getPluginDirectory()+"/"+element.getTopLevel());
             if(directory != null){
                 try {
                     directories.put(directory.getCanonicalPath(), directory);

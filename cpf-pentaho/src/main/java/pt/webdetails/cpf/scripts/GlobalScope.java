@@ -36,6 +36,7 @@ import pt.webdetails.cpf.repository.IRepositoryAccess;
 import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
 import pt.webdetails.cpf.persistence.PersistenceEngine;
 import pt.webdetails.cpk.CpkContentGenerator;
+import pt.webdetails.cpf.repository.BaseRepositoryAccess.FileAccess;
 
 /**
  *
@@ -43,14 +44,7 @@ import pt.webdetails.cpk.CpkContentGenerator;
  */
 public class GlobalScope extends ImporterTopLevel {
 
-    private enum FileAccess {
-    READ,
-    EDIT,
-    EXECUTE,
-    DELETE,
-    CREATE, 
-    NONE;
-    }
+  
     
     
     
@@ -165,7 +159,7 @@ public class GlobalScope extends ImporterTopLevel {
         /* Get the repository, and get a listing of all the files in the test dir from it*/
 //        final ISolutionRepository solutionRepository = PentahoSystem.get(ISolutionRepository.class, PentahoSessionHolder.getSession());
 //        ISolutionFile dir = solutionRepository.getSolutionFile(testPath, ISolutionRepository.ACTION_EXECUTE);
-        IRepositoryAccess repository = PentahoRepositoryAccess.getRepository();
+        PentahoRepositoryAccess repository = (PentahoRepositoryAccess)PentahoRepositoryAccess.getRepository();//XXX change this aproach prob
         ISolutionFile testDir = repository.getSolutionFile(testPath, FileAccess.EXECUTE);
 
         if (testDir != null) {
