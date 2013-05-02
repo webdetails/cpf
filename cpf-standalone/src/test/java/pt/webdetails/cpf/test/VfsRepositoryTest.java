@@ -2,25 +2,27 @@ package pt.webdetails.cpf.test;
 
 
 import junit.framework.TestCase;
+
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.Selectors;
+
 import pt.webdetails.cpf.repository.BaseRepositoryAccess.FileAccess;
-import pt.webdetails.cpf.repository.VfsRepositoryAccess;
 import pt.webdetails.cpf.repository.BaseRepositoryAccess.SaveFileStatus;
 import pt.webdetails.cpf.repository.IRepositoryFile;
+import pt.webdetails.cpf.repository.VfsRepositoryAccess;
 
 
 
 public class VfsRepositoryTest extends TestCase {
-	
+
 	private VfsRepositoryAccessForTests repository;
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.repository = new VfsRepositoryAccessForTests("res:repository", "res:settings");
 	}
-        
-        
+
+
 	public void testBasicRepo() {
 		try {
                         repository.publishFile("testsolutionfile", "testcontent", true);
@@ -34,7 +36,7 @@ public class VfsRepositoryTest extends TestCase {
 			e.printStackTrace();
 			fail();
 		}
-		
+
 	}
         public void testFolderCreation(){
             try{
@@ -44,14 +46,14 @@ public class VfsRepositoryTest extends TestCase {
                 assertTrue(folderCeption);
                 boolean doNothing = repository.createFolder("testFolderCreation");//do nothing because folder exists
                 assertTrue(doNothing);
-                
+
                 //cleanup after the test
                 repository.removeUnsafe(".");
             }catch(Exception e){
             e.printStackTrace();
             fail();
-        }    
-            
+        }
+
         }
         public void testResourceExists(){
             try{
@@ -59,7 +61,7 @@ public class VfsRepositoryTest extends TestCase {
                 boolean exists = repository.resourceExists("testFolderCreation");
                 boolean notExists = repository.resourceExists("IAmNotAFolder!");
                 assertTrue(exists&&!notExists);
-                
+
                 //cleanup after the test
                 repository.removeUnsafe(".");
             }catch(Exception e){
@@ -74,10 +76,10 @@ public class VfsRepositoryTest extends TestCase {
             repository.publishFile("fileName", "fileContent", true);
             boolean publishOverwriteFalse = SaveFileStatus.FAIL==repository.publishFile("fileName", "contentOverwrite", false);//overwrite = false
             assertTrue(publishOverwriteFalse);
-            repository.publishFile("fileToOverwrite", "I shall be overwritten", false);//creates a file wich will be overwriten 
+            repository.publishFile("fileToOverwrite", "I shall be overwritten", false);//creates a file wich will be overwriten
             boolean publishOverwriteTrue = SaveFileStatus.OK==repository.publishFile("fileToOverwrite", "Overwrite Sucessfull!", true);//overwrites a file
             assertTrue(publishOverwriteTrue);
-             
+
             //cleanup after the test
             repository.removeUnsafe(".");
         } catch (Exception e) {
@@ -87,26 +89,26 @@ public class VfsRepositoryTest extends TestCase {
         }
         public void testCopyFile(){
         try {
-            
+
             repository.publishFile("from", "My contents shall be copied to the other file", false);
             repository.publishFile("to", "no matter, these contents will be deleted", false);
-            
+
             boolean copy = SaveFileStatus.OK==repository.copySolutionFile("from", "to");
-            
+
             assertTrue(copy);//was copied
             assertEquals("My contents shall be copied to the other file",repository.getResourceAsString("to"));//the content was correctly copied
             boolean createsFileTo = SaveFileStatus.OK==repository.copySolutionFile("from", "createdOnCopy");//creates the destination file
             assertTrue(createsFileTo);
             boolean cantFindFile = SaveFileStatus.FAIL==repository.copySolutionFile("nonExistingFile", "to");//wont find nonExistingFile
             assertTrue(cantFindFile);
-         
+
             //cleanup after the test
             repository.removeUnsafe(".");
         } catch (Exception e) {
             e.printStackTrace();
             fail();
         }
-        }  
+        }
         public void testFileRemoval(){
             try{
                 repository.publishFile("fileToDelete", "", true);
@@ -118,7 +120,7 @@ public class VfsRepositoryTest extends TestCase {
                 repository.publishFile("cantDeleteMe/imSafeHere","",true);
                 boolean cantRemoveFolderWithFiles = !repository.removeFileIfExists("cantDeleteMe");//wont remove a folder with files
                 assertTrue(cantRemoveFolderWithFiles);
-                  
+
                 //cleanup after the test
                 repository.removeUnsafe(".");
             }catch(Exception e){
@@ -128,8 +130,8 @@ public class VfsRepositoryTest extends TestCase {
         }
         public void testGetRepositoryFile(){
             try{
-               repository.publishFile("repoFolder/repoFile", "repo file content", true); 
-               
+               repository.publishFile("repoFolder/repoFile", "repo file content", true);
+
                IRepositoryFile repoFile = repository.getRepositoryFile("repoFolder/repoFile", FileAccess.READ);
                IRepositoryFile repoFolder = repository.getRepositoryFile("repoFolder", FileAccess.READ);
                IRepositoryFile nonExistent = repository.getRepositoryFile("wrongName", FileAccess.READ);
@@ -140,13 +142,13 @@ public class VfsRepositoryTest extends TestCase {
                assertTrue(repoFolder.isDirectory());//is directory
                assertFalse(repoFolder.isRoot());//not root
                assertTrue(repoFolder.listFiles().length>0);//folder has children
-               
+
                assertFalse(nonExistent.exists());
-               
-               
-               
+
+
+
             //cleanup after the test
-            repository.removeUnsafe(".");  
+            repository.removeUnsafe(".");
             }catch(Exception e){
             e.printStackTrace();
             fail();
@@ -154,10 +156,10 @@ public class VfsRepositoryTest extends TestCase {
         }
         public void testGetSettingsFile(){
             try{
-               
+
              assertTrue(repository.getSettingsFile("testFile", FileAccess.READ).exists());//this one exists
              assertFalse(repository.getSettingsFile("random", FileAccess.READ).exists());//this one doesnt
-             
+
 
             }catch(Exception e){
             e.printStackTrace();
@@ -172,12 +174,12 @@ public class VfsRepositoryTest extends TestCase {
                IRepositoryFile[] files1 = repository.getSettingsFileTree("testFolder", "anotherExtension", FileAccess.READ);
                IRepositoryFile[] files2 = repository.getSettingsFileTree("testFolder", "notAnExtension", FileAccess.READ);
                IRepositoryFile[] files3 = repository.getSettingsFileTree("notEvenAFolder", "extension", FileAccess.READ);
-               
+
                assertTrue(files0.length>0);
                assertTrue(files1.length>0);
                assertFalse(files2.length>0);
                assertFalse(files3.length>0);
-               
+
             }catch(Exception e){
             e.printStackTrace();
             fail();
@@ -188,18 +190,18 @@ public class VfsRepositoryTest extends TestCase {
               //XXX created manually
                IRepositoryFile[] files = repository.getPluginFiles("pluginDir", FileAccess.READ);
                IRepositoryFile[] files1 = repository.getPluginFiles("wrongDir", FileAccess.READ);
-               
-               
+
+
                assertTrue(files.length>0);
                assertFalse(files1.length>0);
-               
-               
-               
+
+
+
             }catch(Exception e){
             e.printStackTrace();
             fail();
         }
-        } 
+        }
         public void testFileUnsafeRemoval(){
             try{
                 repository.publishFile("folderToDelete/anotherFolder/fileToDelete", "", true);
@@ -214,24 +216,29 @@ public class VfsRepositoryTest extends TestCase {
             e.printStackTrace();
             fail();
         }
-        }      
+        }
+
+        public void testListRepositoryFiles() {
+            IRepositoryFile[] listRepositoryFiles = repository.listRepositoryFiles();
+            assertEquals(0, listRepositoryFiles.length);
+        }
 }
 
 
 
  class  VfsRepositoryAccessForTests extends VfsRepositoryAccess {
-      
-     
-     
+
+
+
      public VfsRepositoryAccessForTests(String repo,String settings){
          super(repo,settings);
      }
-     
+
           /**
            * Please do note this will remove the folder and all subfolders and files
            * Used for testing purposes only
            * @param file
-           * @return 
+           * @return
            */
           public int removeUnsafe(String file){
               try {
