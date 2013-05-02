@@ -133,25 +133,6 @@ public class CpkContentGenerator extends RestContentGenerator {
             Logger.getLogger(CpkContentGenerator.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    @Exposed(accessLevel = AccessLevel.PUBLIC)
-    public void createPlugin(OutputStream out){
-        String json = parameterProviders.get("request").getStringParameter("plugin", null);
-        PluginBuilder pluginBuilder = new PluginBuilder();
-        ObjectMapper mapper = new ObjectMapper();
-        
-        try {
-            JsonNode node = mapper.readTree(json);
-            
-            pluginBuilder.buildPlugin(node);
-            writeMessage(out, pluginBuilder.getStatusMessage());
-            
-        } catch (Exception ex) {
-            writeMessage(out, pluginBuilder.getStatusMessage());
-            Logger.getLogger(CpkContentGenerator.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-    }
 
     @Override
     public String getPluginName() {

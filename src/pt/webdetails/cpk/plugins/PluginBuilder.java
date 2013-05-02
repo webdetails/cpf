@@ -89,7 +89,7 @@ public class PluginBuilder {
             this.filesList = getAllFilesFromDirectory(stubUnzip); //List of stub files
             
             /*
-             * Lets start to configure the content of the files (everything saying cpk will be changed to the plugin ID and so on!)
+             * Lets start to configure the content of the files (everything saying 'cpk' will be changed to the plugin ID and so on!)
              */
             
             for(File file : filesList){
@@ -211,7 +211,6 @@ public class PluginBuilder {
             /*
              * missing endpoints and dashboards 
              */
-            
             
             FileOutputStream fos = new FileOutputStream(file);
             try {
