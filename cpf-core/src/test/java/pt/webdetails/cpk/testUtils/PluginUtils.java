@@ -76,11 +76,12 @@ public class PluginUtils implements IPluginUtils {
         /*
          * Verify if the index 0 is actually the file we want!
          */
-        URL pluginUrl = new URL("");
+        URL pluginUrl = new URL("file:///home/joao/work/cpf/cpf-core/plugin.xml");
+        //URL pluginUrl = new File("plugin.xml").toURI().toURL();
 
         // Parent file holds the name
         File pluginDir = new File(pluginUrl.getFile()).getParentFile();
-        setPluginName(pluginDir.getName());
+        setPluginName("Data Access");//setPluginName(pluginDir.getName());
         setPluginDirectory(pluginDir);
 
         logger.debug("Found resource? " + "?");

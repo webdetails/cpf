@@ -1,7 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
-package pt.webdetails.cpf.plugins;
+package pt.webdetails.cpk.testUtils;
+
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -11,6 +12,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Node;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
+
 
 
 
@@ -79,7 +81,7 @@ public class PluginsAnalyzer {
     private void buildPluginsList(){
         ArrayList<Plugin> plugins = new ArrayList<Plugin>();
         Plugin plugin = null;
-        String localPath = repoAccess.getSolutionPath("system/");
+        String localPath = "repo/";//repoAccess.getSolutionPath("system/");
         
         String [] pluginDirs = new File(localPath).list(new FilenameFilter() {
 

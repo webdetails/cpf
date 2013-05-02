@@ -27,9 +27,9 @@ import org.dom4j.io.SAXReader;
 //import org.pentaho.platform.engine.core.system.PentahoSystem;
 //import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;//can be switched by another lib
 //import pt.webdetails.cpf.Util;
-import pt.webdetails.cpf.plugins.IPluginFilter;
-import pt.webdetails.cpf.plugins.Plugin;
-import pt.webdetails.cpf.plugins.PluginsAnalyzer;
+import pt.webdetails.cpk.testUtils.IPluginFilter;
+import pt.webdetails.cpk.testUtils.Plugin;
+import pt.webdetails.cpk.testUtils.PluginsAnalyzer;
 //import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpf.utils.IPluginUtils;
 import pt.webdetails.cpk.security.AccessControl;
@@ -186,7 +186,10 @@ public class CpkEngine {
 
             IElementType elementType;
             try {
-                elementType = (IElementType) Class.forName(clazz).newInstance();
+                Object o[] = new Object[1];
+                o[0]=pluginUtils;
+                //elementType = (IElementType) Class.forName(clazz).getConstructors()[0].newInstance(pluginUtils);
+                elementType = (IElementType) Class.forName(clazz).getDeclaredConstructors()[0].newInstance(o);
 
                 // Store it
                 elementTypesMap.put(elementType.getType(), elementType);

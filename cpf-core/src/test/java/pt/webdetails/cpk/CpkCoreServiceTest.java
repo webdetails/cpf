@@ -3,26 +3,13 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpk;
 
-import pt.webdetails.cpk.*;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.Map;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.dom4j.DocumentException;
-import pt.webdetails.cpf.RestRequestHandler;
-import pt.webdetails.cpf.Router;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
 import pt.webdetails.cpf.utils.IPluginUtils;
-import pt.webdetails.cpk.elements.IElement;
-import pt.webdetails.cpk.plugins.PluginBuilder;
-import pt.webdetails.cpk.security.AccessControl;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import pt.webdetails.cpf.http.CommonParameterProvider;
 import pt.webdetails.cpk.testUtils.PluginUtils;
 
 /**
@@ -41,6 +28,9 @@ public class CpkCoreServiceTest {
         pluginUtils = new PluginUtils();
         cpkCore = new CpkCoreService(pluginUtils);
         map = new HashMap<String, ICommonParameterProvider>();
+        ICommonParameterProvider p = new CommonParameterProvider();
+        p.put("path", "/home/joao/work/cpf/cpf-core/repo/plugin.xml");
+        map.put("path", p);
 
     }
     

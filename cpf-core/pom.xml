@@ -7,6 +7,37 @@
   	<properties>
 		<json.revision>3.1</json.revision>
 	</properties>
+
+ <repositories>
+    <repository>
+      <id>pentaho-repo</id>
+      <name>pentaho repository</name>
+      <url>http://repository.pentaho.org/artifactory/pentaho</url>
+    </repository>
+  <repository>
+      <id>ibiblio</id>
+      <url>http://ibiblio.org/maven2/</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>java</id>
+      <url>http://download.java.net/maven/2/</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>central</id>
+      <name>repo</name>
+      <url>http://repo.analytical-labs.com/repo</url>
+    </repository>
+  </repositories>
+
 		<build>
 		<plugins>
 			<plugin>
@@ -21,6 +52,7 @@
 			</plugin>
 		</plugins>
 	</build>
+
   <dependencies>
     <dependency>
         <groupId>commons-lang</groupId>
@@ -118,6 +150,38 @@
         <version>4.10</version>
        <optional>true</optional>
        <type>jar</type>
-     </dependency>        
+     </dependency>     
+     <dependency>
+      <groupId>jaxen</groupId>
+      <artifactId>jaxen</artifactId>
+      <version>1.1</version>
+      <type>jar</type>
+     </dependency>
+     
+
+
+
+
+    <dependency>
+      <groupId>pentaho-kettle</groupId>
+      <artifactId>kettle-core</artifactId>
+      <version>4.3.0-stable</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>pentaho-kettle</groupId>
+      <artifactId>kettle-engine</artifactId>
+      <version>4.3.0-stable</version>
+      <type>jar</type>
+    </dependency>
+
+
+
+
+
+
+
+
+                 
   </dependencies>
 </project>
