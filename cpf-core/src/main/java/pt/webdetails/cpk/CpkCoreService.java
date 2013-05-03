@@ -13,9 +13,9 @@ import org.dom4j.DocumentException;
 import pt.webdetails.cpf.RestRequestHandler;
 import pt.webdetails.cpf.Router;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
+import pt.webdetails.cpf.repository.IRepositoryAccess;
 import pt.webdetails.cpf.utils.IPluginUtils;
 import pt.webdetails.cpk.elements.IElement;
-import pt.webdetails.cpk.plugins.PluginBuilder;
 import pt.webdetails.cpk.security.AccessControl;
 
 
@@ -33,18 +33,20 @@ public class CpkCoreService {
     private CpkEngine cpkEngine;
     private final String PLUGIN_UTILS = "PluginUtils";
     private IPluginUtils pluginUtils;
+    private IRepositoryAccess repAccess;
     private static final Logger logger = Logger.getLogger(CpkCoreService.class.getName());
 
-    public CpkCoreService(IPluginUtils pluginUtils){
+    public CpkCoreService(IPluginUtils pluginUtils,IRepositoryAccess repAccess){
         
         this.pluginUtils=pluginUtils;
+        this.repAccess=repAccess;
     }
     
     
     public void createContent(Map<String,ICommonParameterProvider> parameterProviders) throws Exception {
 
         //Make sure the instance is first set so we have pluginUtils
-        cpkEngine = CpkEngine.getInstanceWithPluginUtils(pluginUtils);
+        cpkEngine = CpkEngine.getInstanceWithParams(pluginUtils,repAccess);
         
         // Make sure we have the engine running
         cpkEngine = CpkEngine.getInstance();
@@ -90,7 +92,7 @@ public class CpkCoreService {
     public void reload(OutputStream out,Map<String,ICommonParameterProvider> parameterProviders) throws DocumentException, IOException {
 
         // alias to refresh
-        refresh(out,parameterProviders); //XXX should I store the parameter providers somewhere?
+        refresh(out,parameterProviders); 
     }
 
     //@Exposed(accessLevel = AccessLevel.PUBLIC)
@@ -152,7 +154,7 @@ public class CpkCoreService {
     }
     
    // @Exposed(accessLevel = AccessLevel.PUBLIC)
-    public void createPlugin(OutputStream out,Map<String,ICommonParameterProvider> parameterProviders){
+   /* public void createPlugin(OutputStream out,Map<String,ICommonParameterProvider> parameterProviders){//XXX method removed
         String json = parameterProviders.get("request").getStringParameter("plugin", null);
         
         ObjectMapper mapper = new ObjectMapper();
@@ -167,7 +169,7 @@ public class CpkCoreService {
             Logger.getLogger(CpkCoreService.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-    }
+    }*/
 
    // @Override  
     public String getPluginName() {

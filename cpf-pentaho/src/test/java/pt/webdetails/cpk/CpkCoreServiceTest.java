@@ -33,6 +33,8 @@ import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.pentaho.platform.engine.core.system.objfac.AbstractSpringPentahoObjectFactory;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneObjectFactory;
 import org.pentaho.platform.engine.services.solution.SolutionEngine;
+import pt.webdetails.cpf.repository.IRepositoryAccess;
+import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
 import pt.webdetails.cpf.utils.PluginUtils;
 
 
@@ -45,7 +47,7 @@ public class CpkCoreServiceTest {
     private static IPluginUtils pluginUtils;
     private static CpkCoreService cpkCore;
     private static Map<String,ICommonParameterProvider> map;
-    
+    private static IRepositoryAccess repAccess;
     
     @BeforeClass
     public static void setUp() {//XXX won't work, needs further looking into
@@ -58,7 +60,8 @@ public class CpkCoreServiceTest {
         p.init(appContext);
         
         pluginUtils = new PluginUtils();
-        cpkCore = new CpkCoreService(pluginUtils);
+        repAccess = new PentahoRepositoryAccess();
+        cpkCore = new CpkCoreService(pluginUtils,repAccess);
         map = new HashMap<String, ICommonParameterProvider>();
         
 

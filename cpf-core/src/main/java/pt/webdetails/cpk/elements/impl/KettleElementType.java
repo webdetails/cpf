@@ -29,7 +29,6 @@ import org.pentaho.di.trans.step.RowAdapter;
 import org.pentaho.di.trans.step.StepInterface;
 import pt.webdetails.cpf.Util;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
-import pt.webdetails.cpf.plugins.PluginsAnalyzer;
 import pt.webdetails.cpf.utils.IPluginUtils;
 import pt.webdetails.cpf.utils.MimeTypes;
 import pt.webdetails.cpk.elements.impl.kettleOutputs.IKettleOutput;

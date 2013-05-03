@@ -18,7 +18,7 @@ public abstract class JsonRequestHandler implements RequestHandler {
 
   public static String JSON_REQUEST_PARAM = "payload";
   
-  @Override
+  //@Override
   public void call(OutputStream out, IParameterProvider pathParams, IParameterProvider requestParams) {
     
     Object request = requestParams.getParameter(JSON_REQUEST_PARAM);

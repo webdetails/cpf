@@ -4,6 +4,7 @@
 package pt.webdetails.cpk;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -27,15 +28,17 @@ import org.dom4j.io.SAXReader;
 //import org.pentaho.platform.engine.core.system.PentahoSystem;
 //import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;//can be switched by another lib
 //import pt.webdetails.cpf.Util;
+import pt.webdetails.cpf.Util;
 import pt.webdetails.cpf.plugins.IPluginFilter;
 import pt.webdetails.cpf.plugins.Plugin;
-import pt.webdetails.cpf.plugins.PluginsAnalyzer;
+import pt.webdetails.cpf.repository.BaseRepositoryAccess;
+import pt.webdetails.cpf.repository.IRepositoryAccess;
+import pt.webdetails.cpf.repository.IRepositoryFile;
 //import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpf.utils.IPluginUtils;
 import pt.webdetails.cpk.security.AccessControl;
 import pt.webdetails.cpk.elements.IElement;
 import pt.webdetails.cpk.elements.IElementType;
-import pt.webdetails.cpk.sitemap.LinkGenerator;
 
 /**
  *
@@ -50,20 +53,21 @@ public class CpkEngine {
     private HashMap<String, IElementType> elementTypesMap;
     private static List reserverdWords = Arrays.asList("refresh", "status", "reload");
     private String defaultElementName = null;
-    private IPluginUtils pluginUtils;
+    protected IPluginUtils pluginUtils;
+    protected IRepositoryAccess repAccess;
 
-    public CpkEngine(IPluginUtils pluginUtils) {
+    public CpkEngine(IPluginUtils pluginUtils, IRepositoryAccess repAccess) {
         // Starting elementEngine
         logger.debug("Starting ElementEngine");
         elementsMap = new TreeMap<String, IElement>();
         elementTypesMap = new HashMap<String, IElementType>();
 
         this.pluginUtils = pluginUtils;
+        this.repAccess=repAccess;
         try {
             this.initialize();
         } catch (Exception ex) {
-            //logger.fatal("Error initializing CpkEngine: " + Util.getExceptionDescription(ex));//XXX get this method here?
-            logger.fatal("Error initializing CpkEngine: " + getExceptionDescription(ex));
+            logger.fatal("Error initializing CpkEngine: " + Util.getExceptionDescription(ex));
         }
     }
 
@@ -76,17 +80,16 @@ public class CpkEngine {
         try {
             this.initialize();
         } catch (Exception ex) {
-            //logger.fatal("Error initializing CpkEngine: " + Util.getExceptionDescription(ex));//XXX get this method here?
-            logger.fatal("Error initializing CpkEngine: " + getExceptionDescription(ex));
+            logger.fatal("Error initializing CpkEngine: " + Util.getExceptionDescription(ex));
         }
 
     }
     //XXX lacking a better name
 
-    public static CpkEngine getInstanceWithPluginUtils(IPluginUtils pluginUtils) {
+    public static CpkEngine getInstanceWithParams(IPluginUtils pluginUtils,IRepositoryAccess repAccess) {
 
         if (instance == null) {
-            instance = new CpkEngine(pluginUtils);
+            instance = new CpkEngine(pluginUtils,repAccess);
         }
         return instance;
     }
@@ -126,54 +129,18 @@ public class CpkEngine {
         // Clean the types
         elementsMap.clear();
         elementTypesMap.clear();
+        SAXReader reader;
+        Document cpkDoc;
+        IRepositoryFile repFile = repAccess.getSettingsFile("cpk.xml", BaseRepositoryAccess.FileAccess.READ);
+        ByteArrayInputStream bis = new ByteArrayInputStream(repFile.getData());
 
-        PluginsAnalyzer pluginsAnalyzer = new PluginsAnalyzer();
-        pluginsAnalyzer.refresh();
-
-        List<Plugin> plugins = pluginsAnalyzer.getInstalledPlugins();
-        String pluginName = pluginUtils.getPluginName();
-        Plugin plugin = null;
-
-        for (Plugin plgn : plugins) {
-            if (plgn.getName().equalsIgnoreCase(pluginName) || plgn.getId().equalsIgnoreCase(pluginName)) {
-                plugin = plgn;
-                break;
-            }
-        }
-
-        String fileName = "cpk.xml";//XXX ensure this xml exists so we won't need IPluginResourceLoader 
-        File xmlFile = new File(plugin.getPluginSolutionPath() + fileName);
-        FileInputStream fis = null;
-        BufferedInputStream bis = null;
-        InputStream is = null;
-
-
-        if (!xmlFile.exists()) {
-            xmlFile = new File(plugin.getPath() + fileName);
-            try {
-                fis = new FileInputStream(xmlFile);
-                bis = new BufferedInputStream(fis);
-            } catch (Exception e) {
-            }
-            //XXX xml must exist so we can discard this code
-//            if(!xmlFile.exists()){
-//                IPluginResourceLoader resLoader = PentahoSystem.get(IPluginResourceLoader.class, null);
-//                is = resLoader.getResourceAsStream(this.getClass(), fileName);
-//                bis = new BufferedInputStream(is);
-//
-//            }
-        } else {
-            fis = new FileInputStream(xmlFile);
-            bis = new BufferedInputStream(fis);
-        }
-
-
-        // Buffer the is
-
-        SAXReader reader = new SAXReader();
-        Document cpkDoc = reader.read(bis);
-        //Document cpkDoc = XmlDom4JHelper.getDocFromStream(bis, null);
+        try {
+        reader = new SAXReader();
+        cpkDoc = reader.read(bis);
         setCpkDoc(cpkDoc);
+        } finally {
+            bis.close();
+        }
 
         List<Node> elementTypeNodes = cpkDoc.selectNodes("/cpk/elementTypes/elementType");
         defaultElementName = cpkDoc.selectSingleNode("/cpk/elementTypes").valueOf("@defaultElement").toLowerCase();
@@ -186,14 +153,16 @@ public class CpkEngine {
 
             IElementType elementType;
             try {
-                elementType = (IElementType) Class.forName(clazz).newInstance();
+                Object o[] = new Object[1];
+                o[0]=pluginUtils;
+                //elementType = (IElementType) Class.forName(clazz).getConstructors()[0].newInstance(pluginUtils);
+                elementType = (IElementType) Class.forName(clazz).getDeclaredConstructors()[0].newInstance(o);
 
                 // Store it
                 elementTypesMap.put(elementType.getType(), elementType);
 
             } catch (Exception ex) {
-                //logger.error("Error initializing element type " + clazz + ": " + Util.getExceptionDescription(ex));//XXX get this method here?
-                logger.error("Error initializing element type " + clazz + ": " + getExceptionDescription(ex));
+                logger.error("Error initializing element type " + clazz + ": " + Util.getExceptionDescription(ex));//XXX get this method here?
                 continue;
             }
 
@@ -222,11 +191,6 @@ public class CpkEngine {
             logger.debug("Initialization for " + elementType.getType() + " successfull. Registred " + elements.size() + " elements");
 
         }
-
-
-        // List<Url> urls = resLoader.findResources(this.getClass(), ".");
-
-
 
     }
 
@@ -310,10 +274,11 @@ public class CpkEngine {
 
 
     }
-
+   
     public JsonNode getSitemapJson() throws IOException {
-        LinkGenerator linkGen = new LinkGenerator(elementsMap, pluginUtils);
-        return linkGen.getLinksJson();
+        //LinkGenerator linkGen = new LinkGenerator(elementsMap, pluginUtils);
+        //return linkGen.getLinksJson();
+        return null;
     }
 
     public Map<String, IElementType> getElementTypes() {
@@ -334,46 +299,32 @@ public class CpkEngine {
     }
 
     public List<Plugin> getPluginsList() {
-        PluginsAnalyzer pluginsAnalyzer = new PluginsAnalyzer();
-        pluginsAnalyzer.refresh();
-
-        List<Plugin> plugins = pluginsAnalyzer.getInstalledPlugins();
-
-        IPluginFilter pluginFilter = new IPluginFilter() {
-
-            @Override
-            public boolean include(Plugin plugin) {
-                boolean is = false;
-                String xmlValue = plugin.getXmlValue("/plugin/content-generator/@class", "plugin.xml");
-                String className = "pt.webdetails.cpk.CpkContentGenerator";
-
-                if (xmlValue.equals(className)) {
-                    is = true;
-                }
-
-                return is;
-            }
-        };
-
-        plugins = pluginsAnalyzer.getPlugins(pluginFilter);
-
-        return plugins;
+//        PluginsAnalyzer pluginsAnalyzer = new PluginsAnalyzer();
+//        pluginsAnalyzer.refresh();
+//
+//        List<Plugin> plugins = pluginsAnalyzer.getInstalledPlugins();
+//
+//        IPluginFilter pluginFilter = new IPluginFilter() {
+//
+//            @Override
+//            public boolean include(Plugin plugin) {
+//                boolean is = false;
+//                String xmlValue = plugin.getXmlValue("/plugin/content-generator/@class", "plugin.xml");
+//                String className = "pt.webdetails.cpk.CpkContentGenerator";
+//
+//                if (xmlValue.equals(className)) {
+//                    is = true;
+//                }
+//
+//                return is;
+//            }
+//        };
+//
+//        plugins = pluginsAnalyzer.getPlugins(pluginFilter);
+//
+//        return plugins;
+        return null;//XXX 
     }
 
-    //XXX integral copy of method in the Util class present in cpf Pentaho
-    private String getExceptionDescription(final Exception e) {
 
-        final StringBuilder out = new StringBuilder();
-        out.append("[ ").append(e.getClass().getName()).append(" ] - ");
-        out.append(e.getMessage());
-
-        if (e.getCause() != null) {
-            out.append(" .( Cause [ ").append(e.getCause().getClass().getName()).append(" ] ");
-            out.append(e.getCause().getMessage());
-        }
-
-        e.printStackTrace();
-        return out.toString();
-
-    }
 }

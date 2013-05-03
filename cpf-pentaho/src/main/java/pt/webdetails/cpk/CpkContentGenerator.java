@@ -25,27 +25,30 @@ import pt.webdetails.cpf.http.ICommonParameterProvider;
 import pt.webdetails.cpk.security.AccessControl;
 import pt.webdetails.cpf.utils.IPluginUtils;
 import pt.webdetails.cpf.utils.PluginUtils;
-import pt.webdetails.cpk.CpkEngine;
 import pt.webdetails.cpk.elements.IElement;
 import pt.webdetails.cpk.plugins.PluginBuilder;
 import org.pentaho.platform.api.engine.IParameterProvider;
+import pt.webdetails.cpf.repository.IRepositoryAccess;
+import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
 
 public class CpkContentGenerator extends RestContentGenerator {
 
     private static final long serialVersionUID = 1L;
     public static final String CDW_EXTENSION = ".cdw";
     public static final String PLUGIN_NAME = "cpk";
-    private CpkEngine cpkEngine;
+    //private CpkEngine cpkEngine;
+    private CpkPentahoEngine cpkPentahoEngine;
     private ICommonParameterProvider commonParameterProvider;
     private Map<String, ICommonParameterProvider> map;
     private IPluginUtils pluginUtils;
-    
+    private IRepositoryAccess repAccess;
     @Override
     public void initParams(){
         
             //XXX review
+        repAccess = new PentahoRepositoryAccess();
         pluginUtils=new PluginUtils();
-        cpkEngine=new CpkEngine(pluginUtils);
+        cpkPentahoEngine = CpkPentahoEngine.getInstanceWithPluginUtils(pluginUtils, repAccess);
         Iterator it =  parameterProviders.entrySet().iterator();
         map = new HashMap<String, ICommonParameterProvider>();
         while(it.hasNext()){
@@ -61,7 +64,7 @@ public class CpkContentGenerator extends RestContentGenerator {
     public void createContent() throws Exception {
 
         // Make sure we have the engine running
-        cpkEngine = CpkEngine.getInstance();
+        cpkPentahoEngine = CpkPentahoEngine.getInstance();
         
         
         AccessControl accessControl = new AccessControl(pluginUtils);
@@ -75,7 +78,7 @@ public class CpkContentGenerator extends RestContentGenerator {
 
         if (path == null || path.equals("/")) {
 
-            String url = cpkEngine.getDefaultElement().getId().toLowerCase();
+            String url = cpkPentahoEngine.getDefaultElement().getId().toLowerCase();
             if (path == null) {
                 // We need to put the http redirection on the right level
                 url = pluginUtils.getPluginName() + "/" + url;
@@ -83,7 +86,7 @@ public class CpkContentGenerator extends RestContentGenerator {
             pluginUtils.redirect(map, url);
         }
 
-        element = cpkEngine.getElement(path.substring(1));
+        element = cpkPentahoEngine.getElement(path.substring(1));
         if (element != null) {
             if (accessControl.isAllowed(element)) {
                 element.processRequest(map);
@@ -110,7 +113,7 @@ public class CpkContentGenerator extends RestContentGenerator {
         AccessControl accessControl = new AccessControl(pluginUtils);
         if(accessControl.isAdmin()){
             logger.info("Refreshing CPK plugin " + getPluginName());
-            cpkEngine.reload();
+            cpkPentahoEngine.reload();
             status(out);
         }else{
             accessControl.throwAccessDenied(map);//XXX changed from accessControl.throwAccessDenied(parameterProviders);
@@ -125,14 +128,14 @@ public class CpkContentGenerator extends RestContentGenerator {
         logger.info("Showing status for CPK plugin " + getPluginName());
 
         pluginUtils.setResponseHeaders(map, "text/plain");
-        out.write(cpkEngine.getStatus().getBytes("UTF-8"));
+        out.write(cpkPentahoEngine.getStatus().getBytes("UTF-8"));
 
     }
 
     @Exposed(accessLevel = AccessLevel.PUBLIC)
     public void getSitemapJson(OutputStream out) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(out, cpkEngine.getSitemapJson());
+        mapper.writeValue(out, cpkPentahoEngine.getSitemapJson());
     }
     
     @Exposed(accessLevel = AccessLevel.PUBLIC)
@@ -142,7 +145,7 @@ public class CpkContentGenerator extends RestContentGenerator {
         ObjectMapper mapper = new ObjectMapper();
         
         try {
-            String json = mapper.writeValueAsString(cpkEngine.getPluginsList());
+            String json = mapper.writeValueAsString(cpkPentahoEngine.getPluginsList());
             writeMessage(out, json);
         } catch (IOException ex) {
             try {
@@ -157,7 +160,7 @@ public class CpkContentGenerator extends RestContentGenerator {
     @Exposed(accessLevel = AccessLevel.PUBLIC)
     public void getElementsList(OutputStream out){
         try {
-            out.write(cpkEngine.getElementsJson().getBytes(ENCODING));
+            out.write(cpkPentahoEngine.getElementsJson().getBytes(ENCODING));
         } catch (IOException ex) {
             Logger.getLogger(CpkContentGenerator.class.getName()).log(Level.SEVERE, null, ex);
         }

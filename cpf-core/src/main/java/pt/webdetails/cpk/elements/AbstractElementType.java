@@ -40,9 +40,6 @@ public abstract class AbstractElementType implements IElementType {
         // Initialize container
         ArrayList<IElement> iElements = new ArrayList<IElement>();
 
-        // Grab resource loader
-        //IPluginResourceLoader resLoader = PentahoSystem.get(IPluginResourceLoader.class, null);//XXX not used, just delete?
-
         // Get list of files to process
 
         List<Node> elementLocations = node.selectNodes("elementLocations/elementLocation");

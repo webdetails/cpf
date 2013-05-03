@@ -141,7 +141,8 @@ public class Plugin {
             bis.close();
             fis.close();
         } catch (Exception ex) {
-            Logger.getLogger(PluginsAnalyzer.class.getName()).log(Level.SEVERE, null, ex);
+            //Logger.getLogger(PluginsAnalyzer.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Plugin.class.getName()).log(Level.SEVERE,null,ex);
         }
         
         return node;
