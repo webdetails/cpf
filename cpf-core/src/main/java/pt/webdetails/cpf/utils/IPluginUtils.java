@@ -61,4 +61,6 @@ public interface IPluginUtils {
 
     public OutputStream getResponseOutputStream(Map<String, ICommonParameterProvider> parameterProviders) throws IOException ;
     
+    public OutputStream getOutputStream(Map<String, ICommonParameterProvider> parameterProviders) throws IOException ;
+    
 }

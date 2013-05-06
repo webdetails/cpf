@@ -76,7 +76,7 @@ public class PluginUtils implements IPluginUtils {
         /*
          * Verify if the index 0 is actually the file we want!
          */
-        String url ="file://"+System.getProperty("user.dir")+"/test-resources/testPluginSol/plugin.xml";
+        String url ="file://"+System.getProperty("user.dir")+"/test-resources/cpkSol/plugin.xml";//XXX for testing purposes
         
         URL pluginUrl = new URL(url);
         //URL pluginUrl = new File("plugin.xml").toURI().toURL();
@@ -297,5 +297,11 @@ public class PluginUtils implements IPluginUtils {
     public OutputStream getResponseOutputStream(Map<String, ICommonParameterProvider> parameterProviders) throws IOException {
 
         return getResponse(parameterProviders).getOutputStream();
+    }
+    
+    @Override
+    public OutputStream getOutputStream(Map<String, ICommonParameterProvider> parameterProviders){
+        
+        return (OutputStream) parameterProviders.get("path").getParameter("outputstream");
     }
 }

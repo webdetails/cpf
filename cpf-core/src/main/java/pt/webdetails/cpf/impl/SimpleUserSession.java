@@ -26,7 +26,7 @@ public class SimpleUserSession implements IUserSession {
 		}
 	}
 	
-	public SimpleUserSession() {};
+	public SimpleUserSession() {this.isAdministrator=false;}
 	
 	
 	@Override

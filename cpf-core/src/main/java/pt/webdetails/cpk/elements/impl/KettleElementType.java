@@ -52,12 +52,15 @@ public class KettleElementType extends AbstractElementType {
     private String stepName = "OUTPUT";
     private String mimeType = null;
     private IPluginUtils pluginUtils;
+    
 
     public KettleElementType(IPluginUtils plug) {
+
         super(plug);
         transMetaStorage = new ConcurrentHashMap<String, TransMeta>();//Stores the metadata of the ktr files. [Key=path]&[Value=transMeta]
         jobMetaStorage = new ConcurrentHashMap<String, JobMeta>();//Stores the metadata of the kjb files. [Key=path]&[Value=jobMeta]
-        pluginUtils=plug;
+        pluginUtils = plug;
+
     }
 
     @Override
@@ -128,12 +131,12 @@ public class KettleElementType extends AbstractElementType {
         try {
             // Get defined kettleOutput class name
 
-            Constructor constructor = Class.forName("pt.webdetails.cpk.elements.impl.kettleOutputs." + clazz).getConstructor(Map.class);
-            kettleOutput = (IKettleOutput) constructor.newInstance(parameterProviders);
+            Constructor constructor = Class.forName("pt.webdetails.cpk.elements.impl.kettleOutputs." + clazz).getConstructor(Map.class,IPluginUtils.class);
+            kettleOutput = (IKettleOutput) constructor.newInstance(parameterProviders,pluginUtils);
 
         } catch (Exception ex) {
             logger.error("Error initializing Kettle output type " + clazz + ", reverting to KettleOutput: " + Util.getExceptionDescription(ex));
-            kettleOutput = new KettleOutput(parameterProviders,pluginUtils);
+            kettleOutput = new KettleOutput(parameterProviders, pluginUtils);
         }
 
         // Are we specifying a stepname?
@@ -205,15 +208,15 @@ public class KettleElementType extends AbstractElementType {
             }
             transformation.copyParametersFrom(transformation.getTransMeta());
             UserControl userControl = new UserControl();
-            
-            if(userControl.getUsername() != null){
+
+            if (userControl.getUsername() != null) {
                 transformation.getTransMeta().setVariable("pentahoUsername", userControl.getUsername());
             }
-            
-            if(userControl.getRolesAsCSV() != null){
+
+            if (userControl.getRolesAsCSV() != null) {
                 transformation.getTransMeta().setVariable("pentahoRoles", userControl.getRolesAsCSV());
             }
-            
+
             transformation.copyVariablesFrom(transformation.getTransMeta());
             transformation.activateParameters();
 
@@ -226,7 +229,6 @@ public class KettleElementType extends AbstractElementType {
         if (kettleOutput.needsRowListener()) {
 
             step.addRowListener(new RowAdapter() {
-
                 @Override
                 public void rowWrittenEvent(RowMetaInterface rowMeta, Object[] row) throws KettleStepException {
                     kettleOutput.storeRow(row, rowMeta);
@@ -264,7 +266,6 @@ public class KettleElementType extends AbstractElementType {
             jobMetaStorage.put(kettlePath, jobMeta);
             logger.debug("Added metadata to the storage.");
         }
-
         Job job = new Job(null, jobMeta);
 
         /*
@@ -275,17 +276,17 @@ public class KettleElementType extends AbstractElementType {
                 job.getJobMeta().setParameterValue(arg, customParams.get(arg));
             }
             UserControl userControl = new UserControl();
-            
-            if(userControl.getUsername() != null){
+
+            if (userControl.getUsername() != null) {
                 job.getJobMeta().setVariable("pentahoUsername", userControl.getUsername());
-            
+
             }
-            
-            if(userControl.getRolesAsCSV() != null){
+
+            if (userControl.getRolesAsCSV() != null) {
                 job.getJobMeta().setVariable("pentahoRoles", userControl.getRolesAsCSV());
 
             }
-            
+
             job.copyParametersFrom(jobMeta);
             job.copyVariablesFrom(job.getJobMeta());
             job.activateParameters();

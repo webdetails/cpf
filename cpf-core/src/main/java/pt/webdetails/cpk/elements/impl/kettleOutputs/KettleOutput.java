@@ -47,8 +47,9 @@ public class KettleOutput implements IKettleOutput {
     private IPluginUtils pluginUtils;
 
     public KettleOutput(Map<String, ICommonParameterProvider> parameterProviders, IPluginUtils plug) {
-        init(parameterProviders);
         pluginUtils=plug;
+        init(parameterProviders);
+        
     }
 
     protected void init(Map<String, ICommonParameterProvider> parameterProviders) {
@@ -59,7 +60,7 @@ public class KettleOutput implements IKettleOutput {
 
 
         try {
-            out = pluginUtils.getResponseOutputStream(parameterProviders);
+            out = pluginUtils.getOutputStream(parameterProviders);
         } catch (IOException ex) {
             Logger.getLogger("Something went wrong on the KettleOutput class initialization.");
         }
@@ -155,7 +156,7 @@ public class KettleOutput implements IKettleOutput {
 
 
             try {
-                IOUtils.copy(KettleVFS.getInputStream(file.getFile()), pluginUtils.getResponseOutputStream(parameterProviders));
+                IOUtils.copy(KettleVFS.getInputStream(file.getFile()), pluginUtils.getOutputStream(parameterProviders));
             } catch (Exception ex) {
                 logger.warn("Failed to copy file to outputstream: " + Util.getExceptionDescription(ex));
             }
@@ -193,7 +194,7 @@ public class KettleOutput implements IKettleOutput {
 
             Object result = getRows().get(0)[0];
             if (result != null) {
-                pluginUtils.getResponseOutputStream(parameterProviders).write(result.toString().getBytes(ENCODING));
+                pluginUtils.getOutputStream(parameterProviders).write(result.toString().getBytes(ENCODING));
             }
 
         } catch (UnsupportedEncodingException ex) {

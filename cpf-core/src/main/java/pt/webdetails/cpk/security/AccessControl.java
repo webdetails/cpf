@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 //import org.pentaho.platform.engine.security.SecurityHelper;
 //import org.pentaho.platform.web.http.session.PentahoHttpSession;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
+import pt.webdetails.cpf.impl.SimpleUserSession;
 import pt.webdetails.cpk.elements.IElement;
 import pt.webdetails.cpf.session.IUserSession;
 import pt.webdetails.cpf.utils.IPluginUtils;
@@ -20,11 +21,15 @@ import pt.webdetails.cpf.utils.IPluginUtils;
  */
 public class AccessControl {
     private final String UNAUTHORIZED = "Unauthorized access";
-    private IUserSession session;//XXX initialize this
+    private IUserSession session;
     private IPluginUtils pluginUtils;
     public AccessControl(IPluginUtils pluginUtils){
         this.pluginUtils=pluginUtils;
-        
+        this.session = new SimpleUserSession("Core", null, true, null);//XXX enough for core? 
+    }
+    public AccessControl(IPluginUtils pluginUtils, IUserSession session){//XXX should i have this constructor?
+        this.pluginUtils=pluginUtils;
+        this.session=session;
     }
 
     public boolean isAllowed(IElement element){
@@ -51,9 +56,6 @@ public class AccessControl {
         final HttpServletResponse response = pluginUtils.getResponse(parameterProviders);
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         return;
-    }
-    
-    
-    
+    }   
     
 }

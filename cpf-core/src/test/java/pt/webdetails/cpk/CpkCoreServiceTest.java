@@ -8,11 +8,14 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
+import org.dom4j.DocumentException;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
 import pt.webdetails.cpf.utils.IPluginUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.util.Assert;
+import org.junit.Assert;
 import pt.webdetails.cpf.http.CommonParameterProvider;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
 import pt.webdetails.cpk.testUtils.PluginUtils;
@@ -29,9 +32,10 @@ public class CpkCoreServiceTest {
     private static Map<String,ICommonParameterProvider> map;
     private static IRepositoryAccess repAccess;
     private static OutputStream out;
+    private static OutputStream outResponse;
     private static String userDir=System.getProperty("user.dir");
     @BeforeClass
-    public static void setUp() throws IOException {
+    public static void setUp() throws IOException, InitializationException {
     
         repAccess= new VfsRepositoryAccess(userDir+"/test-resources/repo",
                                             userDir+"/test-resources/settings");
@@ -39,16 +43,32 @@ public class CpkCoreServiceTest {
         cpkCore = new CpkCoreService(pluginUtils,repAccess);
         map = new HashMap<String, ICommonParameterProvider>();
         ICommonParameterProvider p = new CommonParameterProvider();
-        
-        p.put("path", "/elem1");//XXX change path to any other to test getElementList, createContent still broken
+        ICommonParameterProvider p1 = new CommonParameterProvider();
+        outResponse = new ByteArrayOutputStream();
+        p.put("path", "/createPlugin");
+        p.put("stepname", "OUTPUT");
+        p.put("outputstream", outResponse);
+        p.put("httpresponse", null);
+        p1.put("request","random request");
         map.put("path", p);
+        map.put("request", p1);
 
     }
     
     @Test
     public void testCreateContent() throws Exception {
-        cpkCore.createContent(map);
+        //outResponse...
         
+        cpkCore.createContent(map);
+        String str = outResponse.toString();//XXX the steps seem to be runing fine, check with a real .kjb file
+        
+        System.out.println(str);
+        
+   
+    }
+    
+    @Test
+    public void testGetElementsList() throws IOException{
         
         out = new ByteArrayOutputStream();
         cpkCore.getElementsList(out);
@@ -56,7 +76,12 @@ public class CpkCoreServiceTest {
         Assert.assertTrue(str!=null);
         System.out.println(str);
         out.close();
-        
+    }
+    
+    @Test
+    public void testReloadRefreshStatus() throws DocumentException, IOException{
+        out = new ByteArrayOutputStream();
+        cpkCore.reload(out, map);
         
     }
 }

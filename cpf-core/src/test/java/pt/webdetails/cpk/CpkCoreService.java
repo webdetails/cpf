@@ -36,20 +36,21 @@ public class CpkCoreService {
     private IRepositoryAccess repAccess;
     private static final Logger logger = Logger.getLogger(CpkCoreService.class.getName());
 
-    public CpkCoreService(IPluginUtils pluginUtils,IRepositoryAccess repAccess){
+    public CpkCoreService(IPluginUtils pluginUtils,IRepositoryAccess repAccess) throws InitializationException, IOException{
         
         this.pluginUtils=pluginUtils;
         this.repAccess=repAccess;
+        CpkEngine.init(pluginUtils, repAccess);
+        cpkEngine=CpkEngine.getInstance();
+        
     }
     
     
     public void createContent(Map<String,ICommonParameterProvider> parameterProviders) throws Exception {
 
-        //Make sure the instance is first set so we have pluginUtils
-        cpkEngine = CpkEngine.getInstanceWithParams(pluginUtils,repAccess);
-        
-        // Make sure we have the engine running
+        //Make sure the instance is set
         cpkEngine = CpkEngine.getInstance();
+        
         
         //PluginUtils pluginUtils = PluginUtils.getInstance();
         
@@ -72,7 +73,7 @@ public class CpkCoreService {
             pluginUtils.redirect(parameterProviders, url);
         }
 
-        element = cpkEngine.getElement(path.substring(1));
+        element = cpkEngine.getElement(path.substring(1).toLowerCase());
         if (element != null) {
             if (accessControl.isAllowed(element)) {
                 element.processRequest(parameterProviders);

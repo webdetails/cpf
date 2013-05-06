@@ -31,7 +31,9 @@ import pt.webdetails.cpf.utils.IPluginUtils;
 import pt.webdetails.cpk.security.AccessControl;
 import pt.webdetails.cpk.elements.IElement;
 import pt.webdetails.cpk.elements.IElementType;
+import pt.webdetails.cpk.testUtils.PluginUtils;
 import pt.webdetails.cpk.testUtils.Util;
+import pt.webdetails.cpk.testUtils.VfsRepositoryAccess;
 
 
 /**
@@ -41,7 +43,7 @@ import pt.webdetails.cpk.testUtils.Util;
 public class CpkEngine {
 
     private static CpkEngine instance;
-    protected Log logger = LogFactory.getLog(this.getClass());
+    protected static Log logger = LogFactory.getLog(CpkEngine.class);
     private Document cpkDoc;
     private TreeMap<String, IElement> elementsMap;
     private HashMap<String, IElementType> elementTypesMap;
@@ -80,7 +82,29 @@ public class CpkEngine {
         }
 
     }
-    
+    public static boolean isInitialized()
+  {
+    return instance != null;
+  }
+    public static void init(IPluginUtils pluginUtils,IRepositoryAccess repoAccess)throws InitializationException, IOException{
+        
+        
+        if (!isInitialized()) {
+
+		  if (pluginUtils == null)
+			  pluginUtils = new PluginUtils();
+
+		  if (repoAccess == null)
+			  repoAccess = new VfsRepositoryAccess();
+		  
+		  instance = new CpkEngine(pluginUtils,repoAccess);
+	  }
+    }
+    private static void init() throws InitializationException, IOException{
+        
+        init(null,null);
+        
+    }
     //XXX lacking a better name
     public static CpkEngine getInstanceWithParams(IPluginUtils pluginUtils,IRepositoryAccess repAccess) {
 
@@ -90,11 +114,14 @@ public class CpkEngine {
         return instance;
     }
 
-    public static CpkEngine getInstance() {
+    public static CpkEngine getInstance() throws IOException {
 
         if (instance == null) {
-
-            instance = new CpkEngine();
+            try{
+            init();
+            }catch(InitializationException ie){
+                logger.fatal("Initialization failed. CPK will NOT be available", ie);
+            }
 
         }
 
@@ -223,7 +250,7 @@ public class CpkEngine {
      * @param key
      * @return
      */
-    public IElement getDefaultElement() {
+    public IElement getDefaultElement() throws IOException {
         IElement element = elementsMap.get(defaultElementName);
         if (element == null) {
             for (IElement e : this.elementsMap.values()) {
