@@ -30,8 +30,10 @@ public class Plugin {
     private String company;
     private String companyUrl;
     private String path;
+    private Version version;
     private final String PLUGIN_XML_FILENAME = "plugin.xml";
     private final String SETTINGS_XML_FILENAME = "settings.xml";
+    private final String VERSION_XML_FILENAME = "version.xml";
     protected Log logger = LogFactory.getLog(this.getClass());
     
     public Plugin(String path){
@@ -152,6 +154,22 @@ public class Plugin {
             setCompany(documentNode.valueOf("/plugin/content-types/content-type/company/@name"));
             setCompanyUrl(documentNode.valueOf("/plugin/content-types/content-type/company/@url"));
         }
+        
+        if(hasVersionXML()){
+            Node documentNode = getXmlFileContent(getPath()+VERSION_XML_FILENAME);
+            
+            String name = null, buildId = null, branch = null;
+            
+            name = documentNode.valueOf("/version");
+            buildId = documentNode.valueOf("/version/@buildId");
+            branch = documentNode.valueOf("/version/@branch");
+            
+            this.version = new Version(branch, buildId, name);
+            
+        }else{
+            String unspecified = "unspecified or no version.xml present in plugin directory";
+            this.version = new Version(unspecified, unspecified, unspecified);
+        }
     }
     
     @JsonIgnore
@@ -188,6 +206,17 @@ public class Plugin {
         return has;
     }
     
+    @JsonIgnore
+    public boolean hasVersionXML(){
+        boolean has = false;
+        
+        if(new File(getPath()+VERSION_XML_FILENAME).exists()){
+            has = true;
+        }
+        
+        return has;
+    }
+    
     @JsonProperty("solutionPath")
     public String getPluginSolutionPath(){
         return getId()+File.separator;
@@ -218,6 +247,52 @@ public class Plugin {
         return value;
     }
     
+    @JsonIgnore
+    public Version getVersion(){
+        return version;
+    }
+    
+    @JsonProperty("version")
+    public String getVersionJson(){
+        ObjectMapper mapper = new ObjectMapper();
+        
+        String json = null;
+        
+        try{
+            json = mapper.writeValueAsString(getVersion());
+        }catch(IOException ex){
+        }
+        
+        return json;
+    }
+    
+    public class Version{
+        private String branch, buildId, name;
+        
+        public Version(String branch, String buildId, String name){
+            this.branch = branch;
+            this.buildId = buildId;
+            this. name = name;
+        }
+
+        public String getBranch() {
+            return branch;
+        }
+
+        public String getBuildId() {
+            return buildId;
+        }
+
+        public String getName() {
+            return name;
+        }
+        
+        @Override
+        public String toString(){
+            return getName()+" - Branch:"+getBranch()+" - BuildID:"+getBuildId();
+        }
+        
+    }
     
     
 }

@@ -5,9 +5,9 @@ package pt.webdetails.cpk;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.dom4j.DocumentException;
 import pt.webdetails.cpf.RestContentGenerator;
@@ -15,10 +15,12 @@ import pt.webdetails.cpf.RestRequestHandler;
 import pt.webdetails.cpf.Router;
 import pt.webdetails.cpf.annotations.AccessLevel;
 import pt.webdetails.cpf.annotations.Exposed;
+import pt.webdetails.cpf.plugins.IPluginFilter;
+import pt.webdetails.cpf.plugins.Plugin;
+import pt.webdetails.cpf.plugins.PluginsAnalyzer;
 import pt.webdetails.cpk.security.AccessControl;
 import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.IElement;
-import pt.webdetails.cpk.plugins.PluginBuilder;
 
 public class CpkContentGenerator extends RestContentGenerator {
 
@@ -89,6 +91,35 @@ public class CpkContentGenerator extends RestContentGenerator {
 
 
     }
+    
+    @Exposed(accessLevel = AccessLevel.PUBLIC)
+    public void version(OutputStream out){        
+
+        PluginsAnalyzer pluginsAnalyzer = new PluginsAnalyzer();
+        pluginsAnalyzer.refresh();
+        
+        String version = null;
+        
+        boolean hasJson = PluginUtils.getInstance().getRequestParameters(parameterProviders).hasParameter("json");
+        
+        IPluginFilter thisPlugin = new IPluginFilter() {
+
+            @Override
+            public boolean include(Plugin plugin) {
+                return plugin.getId().equalsIgnoreCase(PluginUtils.getInstance().getPluginName());
+            }
+        };
+        
+        List<Plugin> plugins = pluginsAnalyzer.getPlugins(thisPlugin);
+        
+        if(hasJson){
+            version = plugins.get(0).getVersionJson();
+        }else{
+            version = plugins.get(0).getVersion().toString();
+        }
+        
+        writeMessage(out, version);
+    }
 
     @Exposed(accessLevel = AccessLevel.PUBLIC)
     public void status(OutputStream out) throws DocumentException, IOException {
@@ -136,7 +167,6 @@ public class CpkContentGenerator extends RestContentGenerator {
 
     @Override
     public String getPluginName() {
-
         return PluginUtils.getInstance().getPluginName();
     }
     

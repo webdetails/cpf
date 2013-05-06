@@ -259,18 +259,22 @@ public class RepositoryAccess {
   }
   
   public ISolutionFile[] listSolutionFiles(String solutionPath, IFileFilter fileFilter) {
+      ISolutionFile[] filesList = null;
     ISolutionFile baseDir = getSolutionFile(solutionPath, FileAccess.READ);
-    return baseDir.listFiles(fileFilter);
+
+    if(baseDir != null){
+        filesList = baseDir.listFiles(fileFilter);
+    }
+    
+    return filesList;
   }
   
   public SaveFileStatus copySolutionFile(String fromFilePath, String toFilePath) throws IOException {
-    InputStream in = null;
     try{
-      in = getResourceInputStream(fromFilePath);
-      return publishFile(toFilePath, IOUtils.toByteArray(in), true);
+
+      return publishFile(toFilePath, IOUtils.toByteArray(getResourceInputStream(fromFilePath)), true);
     } 
     finally {
-      IOUtils.closeQuietly(in);
     }
   }
 
