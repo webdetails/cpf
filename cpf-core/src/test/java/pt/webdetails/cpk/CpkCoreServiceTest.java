@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import org.dom4j.DocumentException;
@@ -69,11 +71,13 @@ public class CpkCoreServiceTest {
     
     @Test
     public void testGetElementsList() throws IOException{
+        Pattern p = Pattern.compile("\\[\\{.....*\\}\\]");
         
         out = new ByteArrayOutputStream();
         cpkCore.getElementsList(out);
         String str = out.toString();
-        Assert.assertTrue(str!=null);
+        Matcher m = p.matcher(str);
+        Assert.assertTrue(m.matches());
         System.out.println(str);
         out.close();
     }
