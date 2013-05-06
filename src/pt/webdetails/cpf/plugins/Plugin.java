@@ -30,7 +30,7 @@ public class Plugin {
     private String company;
     private String companyUrl;
     private String path;
-    private Version version;
+    private String version;
     private final String PLUGIN_XML_FILENAME = "plugin.xml";
     private final String SETTINGS_XML_FILENAME = "settings.xml";
     private final String VERSION_XML_FILENAME = "version.xml";
@@ -158,17 +158,15 @@ public class Plugin {
         if(hasVersionXML()){
             Node documentNode = getXmlFileContent(getPath()+VERSION_XML_FILENAME);
             
-            String name = null, buildId = null, branch = null;
+            String content = null;
             
-            name = documentNode.valueOf("/version");
-            buildId = documentNode.valueOf("/version/@buildId");
-            branch = documentNode.valueOf("/version/@branch");
+            content = documentNode.asXML();
             
-            this.version = new Version(branch, buildId, name);
+            this.version = content;
             
         }else{
             String unspecified = "unspecified or no version.xml present in plugin directory";
-            this.version = new Version(unspecified, unspecified, unspecified);
+            this.version = unspecified;
         }
     }
     
@@ -247,52 +245,7 @@ public class Plugin {
         return value;
     }
     
-    @JsonIgnore
-    public Version getVersion(){
+    public String getVersion(){
         return version;
     }
-    
-    @JsonProperty("version")
-    public String getVersionJson(){
-        ObjectMapper mapper = new ObjectMapper();
-        
-        String json = null;
-        
-        try{
-            json = mapper.writeValueAsString(getVersion());
-        }catch(IOException ex){
-        }
-        
-        return json;
-    }
-    
-    public class Version{
-        private String branch, buildId, name;
-        
-        public Version(String branch, String buildId, String name){
-            this.branch = branch;
-            this.buildId = buildId;
-            this. name = name;
-        }
-
-        public String getBranch() {
-            return branch;
-        }
-
-        public String getBuildId() {
-            return buildId;
-        }
-
-        public String getName() {
-            return name;
-        }
-        
-        @Override
-        public String toString(){
-            return getName()+" - Branch:"+getBranch()+" - BuildID:"+getBuildId();
-        }
-        
-    }
-    
-    
 }

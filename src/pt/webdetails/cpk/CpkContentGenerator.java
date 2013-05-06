@@ -100,8 +100,6 @@ public class CpkContentGenerator extends RestContentGenerator {
         
         String version = null;
         
-        boolean hasJson = PluginUtils.getInstance().getRequestParameters(parameterProviders).hasParameter("json");
-        
         IPluginFilter thisPlugin = new IPluginFilter() {
 
             @Override
@@ -112,12 +110,8 @@ public class CpkContentGenerator extends RestContentGenerator {
         
         List<Plugin> plugins = pluginsAnalyzer.getPlugins(thisPlugin);
         
-        if(hasJson){
-            version = plugins.get(0).getVersionJson();
-        }else{
-            version = plugins.get(0).getVersion().toString();
-        }
-        
+
+        version = plugins.get(0).getVersion().toString();
         writeMessage(out, version);
     }
 
