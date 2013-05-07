@@ -31,8 +31,6 @@ import pt.webdetails.cpf.session.IUserSession;
 
 public class VfsRepositoryAccess implements IRepositoryAccess {
 
-    //private final String DEFAULT_REPO=System.getProperty("user.dir")+/cpf/repository;
-    //private final String DEFAULT_SETTINGS=System.getProperty("user.dir")+/cpf/settings; // XXX DO
     private final String DEFAULT_REPO;
     private final String DEFAULT_SETTINGS;
     protected static final Log log = LogFactory.getLog(VfsRepositoryAccess.class);
@@ -301,7 +299,8 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 
     @Override
     public String getSolutionPath(String arg0) {
-        throw new UnsupportedOperationException("getSolutionpath is deprecated, not supported!");
+        return "";//XXX code TODO code
+        //throw new UnsupportedOperationException("getSolutionpath is deprecated, not supported!");
     }
 
     @Override
@@ -347,7 +346,7 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 //					bos.flush();
                         return SaveFileStatus.OK;
                     } else {
-                        return SaveFileStatus.FAIL;//XXX should I return false when can't write to file? or overwrite
+                        return SaveFileStatus.FAIL;
                     }
                 } else {
                     FileObject f = resolveFile(repo, file);

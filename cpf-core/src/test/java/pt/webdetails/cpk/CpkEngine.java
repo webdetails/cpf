@@ -129,7 +129,7 @@ public class CpkEngine {
 
     }
 
-    private synchronized void initialize() throws DocumentException, IOException {//XXX pluginUtils no longer singleton
+    private synchronized void initialize() throws DocumentException, IOException {
 
 
         // Start by forcing initialization of PluginUtils
@@ -323,7 +323,7 @@ public class CpkEngine {
     }
 
     public List<Plugin> getPluginsList() {
-        PluginsAnalyzer pluginsAnalyzer = new PluginsAnalyzer();
+        PluginsAnalyzer pluginsAnalyzer = new PluginsAnalyzer(repAccess);
         pluginsAnalyzer.refresh();
 
         List<Plugin> plugins = pluginsAnalyzer.getInstalledPlugins();

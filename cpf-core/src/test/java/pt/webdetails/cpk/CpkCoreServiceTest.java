@@ -18,6 +18,8 @@ import pt.webdetails.cpf.utils.IPluginUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.Assert;
+import pt.webdetails.cpf.RestRequestHandler;
+import pt.webdetails.cpf.Router;
 import pt.webdetails.cpf.http.CommonParameterProvider;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
 import pt.webdetails.cpk.testUtils.PluginUtils;
@@ -47,7 +49,7 @@ public class CpkCoreServiceTest {
         ICommonParameterProvider p = new CommonParameterProvider();
         ICommonParameterProvider p1 = new CommonParameterProvider();
         outResponse = new ByteArrayOutputStream();
-        p.put("path", "/createPlugin");
+        p.put("path", "/pass_arguments");
         p.put("stepname", "OUTPUT");
         p.put("outputstream", outResponse);
         p.put("httpresponse", null);
@@ -84,8 +86,50 @@ public class CpkCoreServiceTest {
     
     @Test
     public void testReloadRefreshStatus() throws DocumentException, IOException{
+        Pattern p = Pattern.compile("---.*.\\[.*.\\].*.\\{.*.\\}.*.");//XXX maybe not enough to check
         out = new ByteArrayOutputStream();
         cpkCore.reload(out, map);
+        String str = out.toString();
+        String less = str.replaceAll("\n", " ");
+        Matcher m = p.matcher(less);
+        Assert.assertTrue(m.matches());
         
     }
+    
+    @Test
+    public void testPluginList(){
+        out = new ByteArrayOutputStream();
+        cpkCore.pluginsList(out);///XXX needs fine tuning on vfsRepositoryAccess getSolutionPath
+        String str = out.toString();
+        
+        Assert.assertTrue(str!=null);
+        
+        
+    }
+    @Test
+    public void testGetSitemapJson() throws IOException{//getSitemapJson not avalaible in Core
+        out = new ByteArrayOutputStream();
+        cpkCore.getSitemapJson(out);
+        String str = out.toString();
+        
+        Assert.assertTrue(str.equals("null"));
+        
+    }
+     @Test
+    public void testGetRequestHandler(){
+         RestRequestHandler r = cpkCore.getRequestHandler();//XXX Just testing if router requesthandler is null, other way of test?
+         Assert.assertTrue(r!=null);
+     }
+     @Test
+    public void testGetPluginName() {
+         
+         
+         String str = cpkCore.getPluginName();
+         
+         Assert.assertTrue(str.equals("cpkSol"));//compare with a plugin i know
+         
+         
+     }
+
+    
 }

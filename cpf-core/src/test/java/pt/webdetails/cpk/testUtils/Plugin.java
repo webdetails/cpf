@@ -35,10 +35,23 @@ public class Plugin {
     private String path;
     private final String PLUGIN_XML_FILENAME = "plugin.xml";
     private final String SETTINGS_XML_FILENAME = "settings.xml";
-    private IRepositoryAccess repoAccess;//XXX needs to be initialized
+    private IRepositoryAccess repoAccess;
     protected Log logger = LogFactory.getLog(this.getClass());
     
     public Plugin(String path){
+        try{
+        this.repoAccess = new VfsRepositoryAccess();
+        }catch(IOException e){logger.error("Error initializing Repository Access!",e);}//XXX confirm this logging
+        if(!path.endsWith("/"))
+        {
+            setPath(path+"/");
+        }else{
+            setPath(path);
+        }
+        pluginSelfBuild();
+    }
+    public Plugin(String path,IRepositoryAccess repoAccess){
+        this.repoAccess=repoAccess;
         if(!path.endsWith("/"))
         {
             setPath(path+"/");

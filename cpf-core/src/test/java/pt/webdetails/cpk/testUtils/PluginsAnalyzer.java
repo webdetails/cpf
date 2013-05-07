@@ -6,6 +6,7 @@ package pt.webdetails.cpk.testUtils;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.logging.Log;
@@ -25,14 +26,14 @@ import pt.webdetails.cpf.repository.IRepositoryAccess;
 public class PluginsAnalyzer {
     
     private List<Plugin> installedPlugins;
-    private IRepositoryAccess repoAccess;//XXX nedds to be initialized
+    private IRepositoryAccess repoAccess;
     protected Log logger = LogFactory.getLog(this.getClass());
 
     public PluginsAnalyzer(IRepositoryAccess repoAccess){
         this.repoAccess=repoAccess;
         
     }
-    public PluginsAnalyzer(){}
+    public PluginsAnalyzer() throws IOException{this.repoAccess= new VfsRepositoryAccess();}
     public void refresh(){
         buildPluginsList();
     }
@@ -81,7 +82,7 @@ public class PluginsAnalyzer {
     private void buildPluginsList(){
         ArrayList<Plugin> plugins = new ArrayList<Plugin>();
         Plugin plugin = null;
-        String localPath = "repo/";//repoAccess.getSolutionPath("system/");
+        String localPath = "test-resources/";//repoAccess.getSolutionPath("system/");//XXX testing purposes
         
         String [] pluginDirs = new File(localPath).list(new FilenameFilter() {
 
@@ -94,7 +95,7 @@ public class PluginsAnalyzer {
         for(String pluginDir : pluginDirs){
                 
                 
-            plugin = new Plugin(localPath+pluginDir);
+            plugin = new Plugin(localPath+pluginDir,repoAccess);
             if(plugin.hasPluginXML()){
                 plugins.add(plugin);
             }
