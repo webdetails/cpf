@@ -41,15 +41,13 @@ public class CpkCoreService {
         this.pluginUtils=pluginUtils;
         this.repAccess=repAccess;
     }
-    
+    //public CpkCoreService(){}
     
     public void createContent(Map<String,ICommonParameterProvider> parameterProviders) throws Exception {
 
         //Make sure the instance is first set so we have pluginUtils
         cpkEngine = CpkEngine.getInstanceWithParams(pluginUtils,repAccess);
         
-        // Make sure we have the engine running
-        cpkEngine = CpkEngine.getInstance();
         
         //PluginUtils pluginUtils = PluginUtils.getInstance();
         
@@ -72,7 +70,7 @@ public class CpkCoreService {
             pluginUtils.redirect(parameterProviders, url);
         }
 
-        element = cpkEngine.getElement(path.substring(1));
+        element = cpkEngine.getElement(path.substring(1).toLowerCase());
         if (element != null) {
             if (accessControl.isAllowed(element)) {
                 element.processRequest(parameterProviders);
@@ -81,8 +79,8 @@ public class CpkCoreService {
             }
 
         } else {
-            //super.createContent();//XXX have no super, change this maybe throw an exception
-            logger.log(Level.WARNING, "Element null"); //XXX change! just to compile
+            Logger.getLogger(CpkCoreService.class.getName()).log(Level.SEVERE, "Unable to get element!");
+            //XXX confirm error message
         }
 
 
@@ -120,13 +118,13 @@ public class CpkCoreService {
     }
 
    // @Exposed(accessLevel = AccessLevel.PUBLIC)
-    public void getSitemapJson(OutputStream out) throws IOException {
+   /* public void getSitemapJson(OutputStream out) throws IOException {//XXX pass this test to CpkPentahoEngine
         ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(out, cpkEngine.getSitemapJson());
-    }
+    }*/
     
   //  @Exposed(accessLevel = AccessLevel.PUBLIC)
-    public void pluginsList(OutputStream out){
+    /*public void pluginsList(OutputStream out){//XXX pass this test to CpkPentahoEngine
         
         
         ObjectMapper mapper = new ObjectMapper();
@@ -142,7 +140,7 @@ public class CpkCoreService {
             }
         }
         
-    }
+    }*/
     
    // @Exposed(accessLevel = AccessLevel.PUBLIC)
     public void getElementsList(OutputStream out){
@@ -153,24 +151,7 @@ public class CpkCoreService {
         }
     }
     
-   // @Exposed(accessLevel = AccessLevel.PUBLIC)
-   /* public void createPlugin(OutputStream out,Map<String,ICommonParameterProvider> parameterProviders){//XXX method removed
-        String json = parameterProviders.get("request").getStringParameter("plugin", null);
-        
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            JsonNode node = mapper.readTree(json);
-            PluginBuilder pluginMaker = new PluginBuilder(node);
-            pluginMaker.writeFiles(true);
-            writeMessage(out, "Plugin created successfully!");
-            
-        } catch (Exception ex) {
-            writeMessage(out, "There seems to have occurred an error during the plugin creation. Sorry!");
-            Logger.getLogger(CpkCoreService.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-    }*/
-
+   
    // @Override  
     public String getPluginName() {
 

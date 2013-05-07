@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.dom4j.DocumentException;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
 import pt.webdetails.cpf.utils.IPluginUtils;
+import pt.webdetails.cpf.Util;
 
 /**
  *

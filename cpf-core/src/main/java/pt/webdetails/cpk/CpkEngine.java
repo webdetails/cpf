@@ -53,8 +53,8 @@ public class CpkEngine {
     private HashMap<String, IElementType> elementTypesMap;
     private static List reserverdWords = Arrays.asList("refresh", "status", "reload");
     private String defaultElementName = null;
-    protected IPluginUtils pluginUtils;
-    protected IRepositoryAccess repAccess;
+    private IPluginUtils pluginUtils;
+    private IRepositoryAccess repAccess;
 
     public CpkEngine(IPluginUtils pluginUtils, IRepositoryAccess repAccess) {
         // Starting elementEngine
@@ -106,7 +106,7 @@ public class CpkEngine {
 
     }
 
-    private synchronized void initialize() throws DocumentException, IOException {//XXX pluginUtils no longer singleton
+    private synchronized void initialize() throws DocumentException, IOException {
 
 
         // Start by forcing initialization of PluginUtils
@@ -115,7 +115,6 @@ public class CpkEngine {
         }
         logger.info("Initializing CPK Plugin " + pluginUtils.getPluginName().toUpperCase());
         reload();
-
 
     }
 
@@ -186,7 +185,6 @@ public class CpkEngine {
                 }
 
             }
-
 
             logger.debug("Initialization for " + elementType.getType() + " successfull. Registred " + elements.size() + " elements");
 
@@ -268,18 +266,10 @@ public class CpkEngine {
 
         }
 
-
         return out.toString();
-
-
 
     }
    
-    public JsonNode getSitemapJson() throws IOException {
-        //LinkGenerator linkGen = new LinkGenerator(elementsMap, pluginUtils);
-        //return linkGen.getLinksJson();
-        return null;
-    }
 
     public Map<String, IElementType> getElementTypes() {
         return this.elementTypesMap;
@@ -298,33 +288,20 @@ public class CpkEngine {
         return json;
     }
 
-    public List<Plugin> getPluginsList() {
-//        PluginsAnalyzer pluginsAnalyzer = new PluginsAnalyzer();
-//        pluginsAnalyzer.refresh();
-//
-//        List<Plugin> plugins = pluginsAnalyzer.getInstalledPlugins();
-//
-//        IPluginFilter pluginFilter = new IPluginFilter() {
-//
-//            @Override
-//            public boolean include(Plugin plugin) {
-//                boolean is = false;
-//                String xmlValue = plugin.getXmlValue("/plugin/content-generator/@class", "plugin.xml");
-//                String className = "pt.webdetails.cpk.CpkContentGenerator";
-//
-//                if (xmlValue.equals(className)) {
-//                    is = true;
-//                }
-//
-//                return is;
-//            }
-//        };
-//
-//        plugins = pluginsAnalyzer.getPlugins(pluginFilter);
-//
-//        return plugins;
-        return null;//XXX 
+    /**
+     * @param pluginUtils the pluginUtils to set
+     */
+    public void setPluginUtils(IPluginUtils pluginUtils) {
+        this.pluginUtils = pluginUtils;
     }
 
+    /**
+     * @param repAccess the repAccess to set
+     */
+    public void setRepAccess(IRepositoryAccess repAccess) {
+        this.repAccess = repAccess;
+    }
+    
+    
 
 }
