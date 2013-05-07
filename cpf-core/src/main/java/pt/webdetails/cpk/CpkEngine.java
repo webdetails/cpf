@@ -109,7 +109,6 @@ public class CpkEngine {
     private synchronized void initialize() throws DocumentException, IOException {
 
 
-        // Start by forcing initialization of PluginUtils
         if (pluginUtils == null) {
             logger.error("No Plugin Utils");
         }

@@ -46,7 +46,7 @@ public class CpkCoreServiceTestBundle {
         ICommonParameterProvider p = new CommonParameterProvider();
         ICommonParameterProvider p1 = new CommonParameterProvider();
         outResponse = new ByteArrayOutputStream();
-        p.put("path", "/pass_arguments");
+        p.put("path", "/pass_arguments");//diferent .kjb files give diferent errors(pass_arguments,createPlugin)
         p.put("stepname", "OUTPUT");
         p.put("outputstream", outResponse);
         p.put("httpresponse", null);
@@ -58,14 +58,12 @@ public class CpkCoreServiceTestBundle {
     
     @Test
     public void testCreateContent() throws Exception {
-        //outResponse...
         
         cpkCore.createContent(map);
         String str = outResponse.toString();//XXX the steps seem to be runing fine, check with a real .kjb file
         
         System.out.println(str);
         
-   
     }
     
     @Test
@@ -121,11 +119,9 @@ public class CpkCoreServiceTestBundle {
      @Test
     public void testGetPluginName() {
          
-         
          String str = cpkCore.getPluginName();
          
          Assert.assertTrue(str.equals("cpkSol"));//compare with a plugin i know
-         
          
      }
 
