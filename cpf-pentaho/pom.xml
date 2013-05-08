@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>pt.webdetails</groupId>
 	<artifactId>cpf-pentaho</artifactId>
-	<version>trunk-SNAPSHOT</version>
+	<version>TRUNK-SNAPSHOT</version>
 	<name>cpf-pentaho4.8</name>
 
 	<properties>
@@ -159,8 +159,9 @@
 			<groupId>pt.webdetails</groupId>
 			<artifactId>cpf-core</artifactId>
 			<version>${project.version}</version>
-      <scope>system</scope>
+<!--      <scope>system</scope>
       <systemPath>${basedir}/../cpf-core/target/cpf-core-TRUNK-SNAPSHOT.jar</systemPath>
+      -->
 		</dependency>
 
 		 <!--  added dependencies in CPK refactoring context  -->
