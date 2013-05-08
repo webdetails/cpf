@@ -22,14 +22,14 @@ import pt.webdetails.cpf.annotations.AccessLevel;
 import pt.webdetails.cpf.annotations.Exposed;
 import pt.webdetails.cpf.http.CommonParameterProvider;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
-import pt.webdetails.cpk.security.AccessControl;
+import pt.webdetails.cpk.security.IAccessControl;
 import pt.webdetails.cpf.utils.IPluginUtils;
 import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.IElement;
-import pt.webdetails.cpk.plugins.PluginBuilder;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
 import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
+import pt.webdetails.cpk.security.AccessControl;
 
 public class CpkContentGenerator extends RestContentGenerator {
 
@@ -42,13 +42,15 @@ public class CpkContentGenerator extends RestContentGenerator {
     private Map<String, ICommonParameterProvider> map;
     private IPluginUtils pluginUtils;
     private IRepositoryAccess repAccess;
+    private ICpkEnvironment cpkEnv;
     @Override
     public void initParams(){
         
             //XXX review
         repAccess = new PentahoRepositoryAccess();
         pluginUtils=new PluginUtils();
-        cpkPentahoEngine = CpkPentahoEngine.getInstanceWithPluginUtils(pluginUtils, repAccess);
+        cpkEnv = new CpkPentahoEnvironment(pluginUtils, repAccess);
+        cpkPentahoEngine = CpkPentahoEngine.getInstanceWithEnv(cpkEnv);
         Iterator it =  parameterProviders.entrySet().iterator();
         map = new HashMap<String, ICommonParameterProvider>();
         while(it.hasNext()){
@@ -67,7 +69,7 @@ public class CpkContentGenerator extends RestContentGenerator {
         cpkPentahoEngine = CpkPentahoEngine.getInstance();
         
         
-        AccessControl accessControl = new AccessControl(pluginUtils);
+        //AccessControl accessControl = new AccessControl(pluginUtils);
         
         debug("Creating content");
 
@@ -88,10 +90,10 @@ public class CpkContentGenerator extends RestContentGenerator {
 
         element = cpkPentahoEngine.getElement(path.substring(1));
         if (element != null) {
-            if (accessControl.isAllowed(element)) {
+            if (cpkEnv.getAccessControl().isAllowed(element)) {
                 element.processRequest(map);
             } else {
-                accessControl.throwAccessDenied(map);
+                cpkEnv.getAccessControl().throwAccessDenied(map);
             }
 
         } else {
@@ -110,13 +112,13 @@ public class CpkContentGenerator extends RestContentGenerator {
 
     @Exposed(accessLevel = AccessLevel.PUBLIC)
     public void refresh(OutputStream out) throws DocumentException, IOException {
-        AccessControl accessControl = new AccessControl(pluginUtils);
-        if(accessControl.isAdmin()){
+        //AccessControl accessControl = new AccessControl(pluginUtils);
+        if(cpkEnv.getAccessControl().isAdmin()){
             logger.info("Refreshing CPK plugin " + getPluginName());
             cpkPentahoEngine.reload();
             status(out);
         }else{
-            accessControl.throwAccessDenied(map);//XXX changed from accessControl.throwAccessDenied(parameterProviders);
+            cpkEnv.getAccessControl().throwAccessDenied(map);//XXX changed from accessControl.throwAccessDenied(parameterProviders);
         }
 
 
@@ -166,23 +168,6 @@ public class CpkContentGenerator extends RestContentGenerator {
         }
     }
     
-    @Exposed(accessLevel = AccessLevel.PUBLIC)
-    public void createPlugin(OutputStream out){
-        String json = parameterProviders.get("request").getStringParameter("plugin", null);
-        
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            JsonNode node = mapper.readTree(json);
-            PluginBuilder pluginMaker = new PluginBuilder(node);
-            pluginMaker.writeFiles(true);
-            writeMessage(out, "Plugin created successfully!");
-            
-        } catch (Exception ex) {
-            writeMessage(out, "There seems to have occurred an error during the plugin creation. Sorry!");
-            Logger.getLogger(CpkContentGenerator.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-    }
 
     @Override
     public String getPluginName() {

@@ -27,6 +27,7 @@ import pt.webdetails.cpk.security.IAccessControl;
 import pt.webdetails.cpk.testUtils.PluginUtils;
 import pt.webdetails.cpf.repository.VfsRepositoryAccess;
 import pt.webdetails.cpf.session.IUserSession;
+import org.pentaho.di.core.KettleEnvironment;
 
 /**
  *
@@ -109,11 +110,10 @@ public class CpkCoreServiceTestBundle {
     
     @Test
     public void testCreateContent() throws Exception {
-        
+        KettleEnvironment.init();
         cpkCore.createContent(map);
-        String str = outResponse.toString();//XXX the steps seem to be runing fine, check with a real .kjb file
+        String str = outResponse.toString();//XXX the steps seem to be runing fine, explodes in KettleElementType ln268
         
-        System.out.println(str);
         
     }
     
@@ -126,7 +126,6 @@ public class CpkCoreServiceTestBundle {
         String str = out.toString();
         Matcher m = p.matcher(str);
         Assert.assertTrue(m.matches());
-        System.out.println(str);
         out.close();
     }
     

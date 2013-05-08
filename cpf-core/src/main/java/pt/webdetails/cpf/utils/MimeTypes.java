@@ -4,8 +4,9 @@
 
 package pt.webdetails.cpf.utils;
 
-import org.apache.commons.lang.StringUtils;
 import java.util.EnumMap;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
@@ -32,12 +33,13 @@ public class MimeTypes {
     public static final String PPT = "application/mspowerpoint";
     public static final String PPTX = "application/mspowerpoint";
     public static final String ZIP = "application/zip";
+    public static final String CSV = "text/csv";
     
     
     public enum FileType {
 
         JPG, JPEG, PNG, GIF, BMP, JS, CSS, HTML, HTM, XML,
-        SVG, PDF, TXT, DOC, DOCX, XLS, XLSX, PPT, PPTX, ZIP;
+        SVG, PDF, TXT, DOC, DOCX, XLS, XLSX, PPT, PPTX, ZIP,CSV;
 
         public static FileType parse(String value) {
             return valueOf(StringUtils.upperCase(value));
@@ -66,6 +68,7 @@ public class MimeTypes {
         mimeTypes.put(FileType.HTM, HTML);
         mimeTypes.put(FileType.HTML, HTML);
         mimeTypes.put(FileType.CSS, CSS);
+        mimeTypes.put(FileType.CSV, CSV);
         mimeTypes.put(FileType.XML, XML);
         mimeTypes.put(FileType.TXT, PLAIN_TEXT);
     }
@@ -75,14 +78,14 @@ public class MimeTypes {
         try {
             return getMimeType(FileType.valueOf(fileNameSplit[fileNameSplit.length - 1].toUpperCase()));
         } catch (Exception e) {
-            // Can't find it... whatever
-            return null;
+            LogFactory.getLog(MimeTypes.class).error("Unrecognized extension", e);
+            return "";
         }
     }
 
     public static String getMimeType(FileType fileType) {
         if (fileType == null) {
-            return null;
+            return null;//XXX or return ""; ?
         }
         String mimeType = mimeTypes.get(fileType);
         return mimeType == null ? "" : mimeType;

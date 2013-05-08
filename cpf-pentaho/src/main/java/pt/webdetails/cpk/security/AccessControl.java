@@ -8,11 +8,11 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import pt.webdetails.cpf.http.ICommonParameterProvider;
-import pt.webdetails.cpf.impl.SimpleUserSession;
 import pt.webdetails.cpk.elements.IElement;
 import pt.webdetails.cpf.session.IUserSession;
 import pt.webdetails.cpf.session.PentahoSessionUtils;
 import pt.webdetails.cpf.utils.PluginUtils;
+import pt.webdetails.cpf.utils.IPluginUtils;
 /**
  *
  * @author Luís Paulo Silva
@@ -20,11 +20,13 @@ import pt.webdetails.cpf.utils.PluginUtils;
 public class AccessControl implements IAccessControl {
     private IUserSession session;
     private PluginUtils pluginUtils;
-    public AccessControl(PluginUtils pluginUtils){
+    public AccessControl(IPluginUtils pluginUtils){
         this.session = new PentahoSessionUtils().getCurrentSession();
-        this.pluginUtils = pluginUtils;
+        this.pluginUtils = (PluginUtils)pluginUtils;
     }
+    
 
+    @Override
     public boolean isAllowed(IElement element){
         boolean is = false;
         
@@ -37,6 +39,7 @@ public class AccessControl implements IAccessControl {
         return is;
     }
     
+    @Override
     public boolean isAdmin(){
         boolean is = false;
         is = session.isAdministrator();
@@ -45,6 +48,7 @@ public class AccessControl implements IAccessControl {
         return is;
     }
     
+    @Override
     public void throwAccessDenied(Map<String,ICommonParameterProvider> parameterProviders){
         final HttpServletResponse response = pluginUtils.getResponse(parameterProviders);
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);

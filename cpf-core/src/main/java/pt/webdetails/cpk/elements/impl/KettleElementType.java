@@ -76,7 +76,7 @@ public class KettleElementType extends AbstractElementType {
 
         String kettlePath = element.getLocation();
         String kettleFilename = element.getName();
-
+                
 
         logger.debug("Processing request for: " + kettlePath);
 
@@ -259,7 +259,6 @@ public class KettleElementType extends AbstractElementType {
 
         JobMeta jobMeta;
 
-
         if (jobMetaStorage.containsKey(kettlePath)) {
             logger.debug("Existent metadata found for " + kettlePath);
             jobMeta = jobMetaStorage.get(kettlePath);
@@ -268,6 +267,7 @@ public class KettleElementType extends AbstractElementType {
             jobMeta = new JobMeta(kettlePath, null);
             jobMetaStorage.put(kettlePath, jobMeta);
             logger.debug("Added metadata to the storage.");
+            
         }
         Job job = new Job(null, jobMeta);
 
