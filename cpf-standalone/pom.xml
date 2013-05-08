@@ -32,9 +32,9 @@
 			<groupId>pt.webdetails</groupId>
 			<artifactId>cpf-core</artifactId>
 			<version>${project.version}</version>
-                          <scope>system</scope>
+<!--                          <scope>system</scope>
       <systemPath>${basedir}/../cpf-core/target/cpf-core-TRUNK-SNAPSHOT.jar</systemPath>
-		</dependency>
+	-->	</dependency>
 	<dependency>
 		<groupId>commons-vfs</groupId>
 		<artifactId>commons-vfs</artifactId>
