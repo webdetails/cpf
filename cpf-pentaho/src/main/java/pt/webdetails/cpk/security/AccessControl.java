@@ -6,30 +6,23 @@ package pt.webdetails.cpk.security;
 
 import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
-//import javax.xml.ws.http.HTTPException;
-//import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-//import org.pentaho.platform.engine.security.SecurityHelper;
-//import org.pentaho.platform.web.http.session.PentahoHttpSession;
+
 import pt.webdetails.cpf.http.ICommonParameterProvider;
 import pt.webdetails.cpf.impl.SimpleUserSession;
 import pt.webdetails.cpk.elements.IElement;
 import pt.webdetails.cpf.session.IUserSession;
-import pt.webdetails.cpf.utils.IPluginUtils;
+import pt.webdetails.cpf.session.PentahoSessionUtils;
+import pt.webdetails.cpf.utils.PluginUtils;
 /**
  *
  * @author Luís Paulo Silva
  */
-public class AccessControl {
-    private final String UNAUTHORIZED = "Unauthorized access";
+public class AccessControl implements IAccessControl {
     private IUserSession session;
-    private IPluginUtils pluginUtils;
-    public AccessControl(IPluginUtils pluginUtils){
-        this.pluginUtils=pluginUtils;
-        this.session = new SimpleUserSession("Core", null, true, null);//XXX enough for core? 
-    }
-    public AccessControl(IPluginUtils pluginUtils, IUserSession session){//XXX should i have this constructor?
-        this.pluginUtils=pluginUtils;
-        this.session=session;
+    private PluginUtils pluginUtils;
+    public AccessControl(PluginUtils pluginUtils){
+        this.session = new PentahoSessionUtils().getCurrentSession();
+        this.pluginUtils = pluginUtils;
     }
 
     public boolean isAllowed(IElement element){

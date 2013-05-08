@@ -3,42 +3,26 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpk;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
-//import org.pentaho.platform.api.engine.IPluginResourceLoader;
-//import org.pentaho.platform.engine.core.system.PentahoSystem;
-//import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;//can be switched by another lib
-//import pt.webdetails.cpf.Util;
 import pt.webdetails.cpf.Util;
-import pt.webdetails.cpf.plugins.IPluginFilter;
-import pt.webdetails.cpf.plugins.Plugin;
 import pt.webdetails.cpf.repository.BaseRepositoryAccess;
-import pt.webdetails.cpf.repository.IRepositoryAccess;
 import pt.webdetails.cpf.repository.IRepositoryFile;
-//import pt.webdetails.cpf.utils.PluginUtils;
-import pt.webdetails.cpf.utils.IPluginUtils;
-import pt.webdetails.cpk.security.AccessControl;
 import pt.webdetails.cpk.elements.IElement;
 import pt.webdetails.cpk.elements.IElementType;
+import pt.webdetails.cpk.security.IAccessControl;
 
 /**
  *
@@ -47,23 +31,23 @@ import pt.webdetails.cpk.elements.IElementType;
 public class CpkEngine {
 
     private static CpkEngine instance;
-    protected Log logger = LogFactory.getLog(this.getClass());
+    protected static Log logger = LogFactory.getLog(CpkEngine.class);
     private Document cpkDoc;
     private TreeMap<String, IElement> elementsMap;
     private HashMap<String, IElementType> elementTypesMap;
     private static List reserverdWords = Arrays.asList("refresh", "status", "reload");
     private String defaultElementName = null;
-    private IPluginUtils pluginUtils;
-    private IRepositoryAccess repAccess;
+    protected ICpkEnvironment environment;
 
-    public CpkEngine(IPluginUtils pluginUtils, IRepositoryAccess repAccess) {
+
+
+    public CpkEngine(ICpkEnvironment environment) {
         // Starting elementEngine
         logger.debug("Starting ElementEngine");
         elementsMap = new TreeMap<String, IElement>();
         elementTypesMap = new HashMap<String, IElementType>();
 
-        this.pluginUtils = pluginUtils;
-        this.repAccess=repAccess;
+        this.environment = environment;
         try {
             this.initialize();
         } catch (Exception ex) {
@@ -86,10 +70,10 @@ public class CpkEngine {
     }
     //XXX lacking a better name
 
-    public static CpkEngine getInstanceWithParams(IPluginUtils pluginUtils,IRepositoryAccess repAccess) {
+    public static CpkEngine getInstanceWithParams(ICpkEnvironment environment) {
 
         if (instance == null) {
-            instance = new CpkEngine(pluginUtils,repAccess);
+            instance = new CpkEngine(environment);
         }
         return instance;
     }
@@ -109,14 +93,17 @@ public class CpkEngine {
     private synchronized void initialize() throws DocumentException, IOException {
 
 
-        if (pluginUtils == null) {
-            logger.error("No Plugin Utils");
-        }
-        logger.info("Initializing CPK Plugin " + pluginUtils.getPluginName().toUpperCase());
+        logger.info("Initializing CPK Plugin " + environment.getPluginUtils().getPluginName().toUpperCase());
         reload();
 
     }
 
+    
+    
+    public ICpkEnvironment getEnvironment() {
+      return this.environment;
+    }
+    
     /**
      *
      * Reloads or initializes the ElementManager
@@ -129,7 +116,7 @@ public class CpkEngine {
         elementTypesMap.clear();
         SAXReader reader;
         Document cpkDoc;
-        IRepositoryFile repFile = repAccess.getSettingsFile("cpk.xml", BaseRepositoryAccess.FileAccess.READ);
+        IRepositoryFile repFile = environment.getRepositoryAccess().getSettingsFile("cpk.xml", BaseRepositoryAccess.FileAccess.READ);
         ByteArrayInputStream bis = new ByteArrayInputStream(repFile.getData());
 
         try {
@@ -152,8 +139,7 @@ public class CpkEngine {
             IElementType elementType;
             try {
                 Object o[] = new Object[1];
-                o[0]=pluginUtils;
-                //elementType = (IElementType) Class.forName(clazz).getConstructors()[0].newInstance(pluginUtils);
+                o[0]=environment.getPluginUtils(); //Devia receber o environment
                 elementType = (IElementType) Class.forName(clazz).getDeclaredConstructors()[0].newInstance(o);
 
                 // Store it
@@ -242,11 +228,11 @@ public class CpkEngine {
      */
     public String getStatus() {
 
-        AccessControl accessControl = new AccessControl(pluginUtils);
+        IAccessControl accessControl = environment.getAccessControl();
         StringBuffer out = new StringBuffer();
 
         out.append("--------------------------------\n");
-        out.append("   " + pluginUtils.getPluginName() + " Status\n");
+        out.append("   " + environment.getPluginName() + " Status\n");
         out.append("--------------------------------\n");
         out.append("\n");
 
@@ -281,25 +267,12 @@ public class CpkEngine {
         try {
             json = mapper.writeValueAsString(this.elementsMap.values());
         } catch (IOException ex) {
-            Logger.getLogger(CpkEngine.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Error getting json elements", ex);
         }
 
         return json;
     }
 
-    /**
-     * @param pluginUtils the pluginUtils to set
-     */
-    public void setPluginUtils(IPluginUtils pluginUtils) {
-        this.pluginUtils = pluginUtils;
-    }
-
-    /**
-     * @param repAccess the repAccess to set
-     */
-    public void setRepAccess(IRepositoryAccess repAccess) {
-        this.repAccess = repAccess;
-    }
     
     
 

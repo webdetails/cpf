@@ -7,8 +7,6 @@ import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Map;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.dom4j.DocumentException;
 import pt.webdetails.cpf.RestRequestHandler;
 import pt.webdetails.cpf.Router;
@@ -16,7 +14,7 @@ import pt.webdetails.cpf.http.ICommonParameterProvider;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
 import pt.webdetails.cpf.utils.IPluginUtils;
 import pt.webdetails.cpk.elements.IElement;
-import pt.webdetails.cpk.security.AccessControl;
+import pt.webdetails.cpk.security.IAccessControl;
 
 
 /**
@@ -30,31 +28,31 @@ public class CpkCoreService {
     public static final String CDW_EXTENSION = ".cdw";
     public static final String PLUGIN_NAME = "cpk";
     private static final String ENCODING = "UTF-8";
-    private CpkEngine cpkEngine;
-    private final String PLUGIN_UTILS = "PluginUtils";
-    private IPluginUtils pluginUtils;
+    protected CpkEngine cpkEngine;
     private IRepositoryAccess repAccess;
     private static final Logger logger = Logger.getLogger(CpkCoreService.class.getName());
+    protected ICpkEnvironment cpkEnvironment;
 
-    public CpkCoreService(IPluginUtils pluginUtils,IRepositoryAccess repAccess){
-        
-        this.pluginUtils=pluginUtils;
-        this.repAccess=repAccess;
+    public CpkCoreService(ICpkEnvironment environment){
+        this.cpkEnvironment = environment;
     }
     //public CpkCoreService(){}
     
     public void createContent(Map<String,ICommonParameterProvider> parameterProviders) throws Exception {
 
-        //Set instance with pluginUtils and repAccess (if the instance was already set, it may not have pluginUtils and repAccess)
-        cpkEngine = CpkEngine.getInstanceWithParams(pluginUtils,repAccess);
-            
- 
-        AccessControl accessControl = new AccessControl(pluginUtils);
+        //Make sure the instance is first set so we have pluginUtils
+        cpkEngine = CpkEngine.getInstanceWithParams(cpkEnvironment);
+        
+        
+
+        
+        IAccessControl accessControl = cpkEnvironment.getAccessControl();
+
         
         logger.log(Level.WARNING,"Creating content");//switched from debug("Creating content")
 
         // Get the path, remove leading slash
-        
+        IPluginUtils pluginUtils = cpkEnvironment.getPluginUtils();
         String path = pluginUtils.getPathParameters(parameterProviders).getStringParameter("path", null);
         IElement element = null;
 
@@ -93,7 +91,7 @@ public class CpkCoreService {
 
 
     public void refresh(OutputStream out, Map<String,ICommonParameterProvider> parameterProviders) throws DocumentException, IOException {
-        AccessControl accessControl = new AccessControl(pluginUtils);
+        IAccessControl accessControl = cpkEnvironment.getAccessControl();
         if(accessControl.isAdmin()){
             logger.info("Refreshing CPK plugin " + getPluginName());
             cpkEngine.reload();
@@ -110,7 +108,7 @@ public class CpkCoreService {
 
         logger.info("Showing status for CPK plugin " + getPluginName());
 
-        pluginUtils.setResponseHeaders(parameterProviders, "text/plain");
+        cpkEnvironment.getPluginUtils().setResponseHeaders(parameterProviders, "text/plain");
         out.write(cpkEngine.getStatus().getBytes("UTF-8"));
 
     }
@@ -127,7 +125,7 @@ public class CpkCoreService {
     
     public String getPluginName() {
 
-        return pluginUtils.getPluginName();
+      return cpkEnvironment.getPluginName();
     }
     
     private void writeMessage(OutputStream out, String message){

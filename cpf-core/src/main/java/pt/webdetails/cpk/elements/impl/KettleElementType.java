@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import pt.webdetails.cpk.elements.AbstractElementType;
@@ -29,11 +30,13 @@ import org.pentaho.di.trans.step.RowAdapter;
 import org.pentaho.di.trans.step.StepInterface;
 import pt.webdetails.cpf.Util;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
+import pt.webdetails.cpf.session.IUserSession;
 import pt.webdetails.cpf.utils.IPluginUtils;
 import pt.webdetails.cpf.utils.MimeTypes;
+import pt.webdetails.cpk.CpkEngine;
 import pt.webdetails.cpk.elements.impl.kettleOutputs.IKettleOutput;
-import pt.webdetails.cpk.security.AccessControl;
-import pt.webdetails.cpk.security.UserControl;
+
+
 
 /**
  *
@@ -51,7 +54,7 @@ public class KettleElementType extends AbstractElementType {
     private ConcurrentHashMap<String, JobMeta> jobMetaStorage = new ConcurrentHashMap<String, JobMeta>();//Stores the metadata of the kjb files. [Key=path]&[Value=jobMeta]
     private String stepName = "OUTPUT";
     private String mimeType = null;
-    private IPluginUtils pluginUtils;
+
     
 
     public KettleElementType(IPluginUtils plug) {
@@ -59,7 +62,6 @@ public class KettleElementType extends AbstractElementType {
         super(plug);
         transMetaStorage = new ConcurrentHashMap<String, TransMeta>();//Stores the metadata of the ktr files. [Key=path]&[Value=transMeta]
         jobMetaStorage = new ConcurrentHashMap<String, JobMeta>();//Stores the metadata of the kjb files. [Key=path]&[Value=jobMeta]
-        pluginUtils = plug;
 
     }
 
@@ -207,14 +209,15 @@ public class KettleElementType extends AbstractElementType {
 
             }
             transformation.copyParametersFrom(transformation.getTransMeta());
-            UserControl userControl = new UserControl();
+            IUserSession userSession = CpkEngine.getInstance().getEnvironment().getSessionUtils().getCurrentSession();
 
-            if (userControl.getUsername() != null) {
-                transformation.getTransMeta().setVariable("pentahoUsername", userControl.getUsername());
+            if (userSession.getUserName() != null) {
+                transformation.getTransMeta().setVariable("pentahoUsername", userSession.getUserName());
             }
 
-            if (userControl.getRolesAsCSV() != null) {
-                transformation.getTransMeta().setVariable("pentahoRoles", userControl.getRolesAsCSV());
+            String[] authorities = userSession.getAuthorities();
+            if (authorities != null && authorities.length > 0) {              
+                transformation.getTransMeta().setVariable("pentahoRoles", StringUtils.join(authorities, ","));
             }
 
             transformation.copyVariablesFrom(transformation.getTransMeta());
@@ -275,17 +278,18 @@ public class KettleElementType extends AbstractElementType {
             for (String arg : customParams.keySet()) {
                 job.getJobMeta().setParameterValue(arg, customParams.get(arg));
             }
-            UserControl userControl = new UserControl();
+            IUserSession userSession = CpkEngine.getInstance().getEnvironment().getSessionUtils().getCurrentSession();
 
-            if (userControl.getUsername() != null) {
-                job.getJobMeta().setVariable("pentahoUsername", userControl.getUsername());
-
-            }
-
-            if (userControl.getRolesAsCSV() != null) {
-                job.getJobMeta().setVariable("pentahoRoles", userControl.getRolesAsCSV());
+            if (userSession.getUserName() != null) {
+                job.getJobMeta().setVariable("pentahoUsername", userSession.getUserName());
 
             }
+            String[] authorities = userSession.getAuthorities();
+            
+            if (authorities != null && authorities.length > 0) {              
+                job.getJobMeta().setVariable("pentahoRoles", StringUtils.join(authorities, ","));
+            }            
+            
 
             job.copyParametersFrom(jobMeta);
             job.copyVariablesFrom(job.getJobMeta());

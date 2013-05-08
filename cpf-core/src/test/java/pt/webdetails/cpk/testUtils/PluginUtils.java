@@ -190,7 +190,6 @@ public class PluginUtils implements IPluginUtils {
         setResponseHeaders(parameterProviders, mimeType, 0, null, 0);
     }
 
-    @Override
     public void setResponseHeaders(Map<String, ICommonParameterProvider> parameterProviders, final String mimeType, final String attachmentName) {
         setResponseHeaders(parameterProviders, mimeType, 0, attachmentName, 0);
     }
@@ -201,7 +200,6 @@ public class PluginUtils implements IPluginUtils {
 
     }
 
-    @Override
     public void setResponseHeaders(Map<String, ICommonParameterProvider> parameterProviders, final String mimeType, final int cacheDuration, final String attachmentName, long attachmentSize) {
         // Make sure we have the correct mime type
 
@@ -274,12 +272,11 @@ public class PluginUtils implements IPluginUtils {
         }
     }
 
-    @Override
+
     public HttpServletRequest getRequest(Map<String, ICommonParameterProvider> parameterProviders) {
         return (HttpServletRequest) parameterProviders.get("path").getParameter("httprequest");
     }
 
-    @Override
     public HttpServletResponse getResponse(Map<String, ICommonParameterProvider> parameterProviders) {
         return (HttpServletResponse) parameterProviders.get("path").getParameter("httpresponse");
     }
@@ -294,7 +291,6 @@ public class PluginUtils implements IPluginUtils {
         return parameterProviders.get("path");
     }
 
-    @Override
     public OutputStream getResponseOutputStream(Map<String, ICommonParameterProvider> parameterProviders) throws IOException {
 
         return getResponse(parameterProviders).getOutputStream();

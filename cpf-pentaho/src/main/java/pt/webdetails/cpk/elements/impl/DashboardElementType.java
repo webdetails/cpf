@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import javax.servlet.ServletRequest;
 import org.apache.commons.lang.StringUtils;
-import org.pentaho.platform.api.engine.IParameterProvider;
 import pt.webdetails.cpf.InterPluginCall;
 import pt.webdetails.cpf.Util;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
@@ -58,8 +57,8 @@ public class DashboardElementType extends AbstractElementType {
         
         String path = pluginUtils.getPluginRelativeDirectory(element.getLocation(), true);
         
-        ServletRequest wrapper = pluginUtils.getRequest(parameterProviders);
-        OutputStream out = pluginUtils.getResponseOutputStream(parameterProviders);
+        ServletRequest wrapper = ((PluginUtils) pluginUtils).getRequest(parameterProviders);
+        OutputStream out = ((PluginUtils) pluginUtils).getResponseOutputStream(parameterProviders);
 
         String root = wrapper.getScheme() + "://" + wrapper.getServerName() + ":" + wrapper.getServerPort();
 
@@ -79,7 +78,7 @@ public class DashboardElementType extends AbstractElementType {
         }
 
         InterPluginCall pluginCall = new InterPluginCall(InterPluginCall.CDE, "Render", params);
-        pluginCall.setResponse(pluginUtils.getResponse(parameterProviders));
+        pluginCall.setResponse(((PluginUtils)pluginUtils).getResponse(parameterProviders));
         pluginCall.setOutputStream(out);
         pluginCall.run();
     }

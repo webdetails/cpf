@@ -1,19 +1,17 @@
 package pt.webdetails.cpf;
 
-import java.io.IOException;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.servlet.http.HttpServletRequest;
 
-import org.dom4j.DocumentException;
+
 import org.pentaho.platform.api.engine.IParameterProvider;
-import pt.webdetails.cpf.RestRequestHandler;
 import pt.webdetails.cpf.RestRequestHandler.HttpMethod;
 import pt.webdetails.cpf.http.CommonParameterProvider;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
-import pt.webdetails.cpf.utils.IPluginUtils;
 import pt.webdetails.cpf.utils.PluginUtils;
 
 public abstract class RestContentGenerator extends SimpleContentGenerator {
@@ -22,7 +20,7 @@ public abstract class RestContentGenerator extends SimpleContentGenerator {
     private ICommonParameterProvider commonParameterProviders=new CommonParameterProvider();
     private ICommonParameterProvider commonParameterProvider;
     private Map<String, ICommonParameterProvider> map;
-    private IPluginUtils pluginUtils;
+    private PluginUtils pluginUtils;
     public void initParams() {//XXX review
         pluginUtils = new PluginUtils();
         Iterator it =  parameterProviders.entrySet().iterator();

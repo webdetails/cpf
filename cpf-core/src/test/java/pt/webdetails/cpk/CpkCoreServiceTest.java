@@ -16,7 +16,6 @@ import pt.webdetails.cpf.http.ICommonParameterProvider;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
 import pt.webdetails.cpf.utils.IPluginUtils;
 import pt.webdetails.cpk.elements.IElement;
-import pt.webdetails.cpk.security.AccessControl;
 
 
 /**
@@ -27,22 +26,19 @@ public class CpkCoreServiceTest extends CpkCoreService {
     
 
     private static final long serialVersionUID = 1L;
-    public static final String CDW_EXTENSION = ".cdw";
-    public static final String PLUGIN_NAME = "cpk";
+
     private static final String ENCODING = "UTF-8";
-    private CpkEngineTest cpkEngine;
     private final String PLUGIN_UTILS = "PluginUtils";
-    private IPluginUtils pluginUtils;
     private IRepositoryAccess repAccess;
     private static final Logger logger = Logger.getLogger(CpkCoreServiceTest.class.getName());
    
-    public CpkCoreServiceTest(IPluginUtils pluginUtils,IRepositoryAccess repAccess) {
+    public CpkCoreServiceTest(ICpkEnvironment environment) {
         
         // this.pluginUtils=pluginUtils;
         // this.repAccess=repAccess;
-        super(pluginUtils,repAccess);
+        super(environment);
         try {
-            CpkEngineTest.init(pluginUtils, repAccess);
+            CpkEngineTest.init(environment);
         } catch (InitializationException ex) {
             Logger.getLogger(CpkCoreServiceTest.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {

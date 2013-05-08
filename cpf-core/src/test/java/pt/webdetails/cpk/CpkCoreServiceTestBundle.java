@@ -12,15 +12,21 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.dom4j.DocumentException;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
+import pt.webdetails.cpf.session.ISessionUtils;
 import pt.webdetails.cpf.utils.IPluginUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.Assert;
 import pt.webdetails.cpf.RestRequestHandler;
 import pt.webdetails.cpf.http.CommonParameterProvider;
+import pt.webdetails.cpf.impl.SimpleSessionUtils;
+import pt.webdetails.cpf.impl.SimpleUserSession;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
+import pt.webdetails.cpk.elements.IElement;
+import pt.webdetails.cpk.security.IAccessControl;
 import pt.webdetails.cpk.testUtils.PluginUtils;
 import pt.webdetails.cpf.repository.VfsRepositoryAccess;
+import pt.webdetails.cpf.session.IUserSession;
 
 /**
  *
@@ -41,7 +47,52 @@ public class CpkCoreServiceTestBundle {
         repAccess= new VfsRepositoryAccess(userDir+"/test-resources/repo",
                                             userDir+"/test-resources/settings");
         pluginUtils = new PluginUtils();
-        cpkCore = new CpkCoreServiceTest(pluginUtils,repAccess);
+        final IUserSession userSession = new SimpleUserSession("userName", null, true, null);
+        ICpkEnvironment environment = new ICpkEnvironment() {
+
+      @Override
+      public IPluginUtils getPluginUtils() {
+        return pluginUtils;
+      }
+
+      @Override
+      public IRepositoryAccess getRepositoryAccess() {
+        return repAccess;
+      }
+
+      @Override
+      public IAccessControl getAccessControl() {
+        return new IAccessControl() {
+
+          @Override
+          public boolean isAllowed(IElement element) {
+            return true;
+          }
+
+          @Override
+          public boolean isAdmin() {
+            return true;
+          }
+
+          @Override
+          public void throwAccessDenied(Map<String, ICommonParameterProvider> parameterProviders) {
+            throw new UnsupportedOperationException("Not supported yet.");
+          }
+          
+        };
+      }
+
+      @Override
+      public String getPluginName() {
+        return pluginUtils.getPluginName();
+      }
+
+      @Override
+      public ISessionUtils getSessionUtils() {
+        return new SimpleSessionUtils(userSession, null, null);
+      }
+    };
+        cpkCore = new CpkCoreServiceTest(environment);
         map = new HashMap<String, ICommonParameterProvider>();
         ICommonParameterProvider p = new CommonParameterProvider();
         ICommonParameterProvider p1 = new CommonParameterProvider();

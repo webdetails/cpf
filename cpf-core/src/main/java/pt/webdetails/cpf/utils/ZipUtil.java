@@ -23,7 +23,6 @@ import org.apache.commons.vfs.FileName;
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileType;
 import org.pentaho.di.core.ResultFile;
-import pt.webdetails.cpk.security.UserControl;
 
 
 /**
@@ -68,8 +67,7 @@ public class ZipUtil {
             fos.close();
 
             setFileInputStream(tempZip);
-            UserControl userControl = new UserControl();
-            logger.info("'"+zipName+"' built."+" Sending to client "+getZipSize()/1024+"KB of data. ["+userControl.getUserIPAddress()+"]");
+            logger.info("'"+zipName+"' built."+" Sending to client "+getZipSize()/1024+"KB of data.");
                 
                 
         } catch (Exception ex) {
