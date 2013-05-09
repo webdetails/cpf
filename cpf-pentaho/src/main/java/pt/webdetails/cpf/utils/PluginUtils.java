@@ -69,7 +69,7 @@ public class PluginUtils implements IPluginUtils {
     }
 
     @Override
-    public void initialize() throws IOException, DocumentException {//XXX was private
+    public void initialize() throws IOException, DocumentException {
 
         // We need to get the plugin name
         IPluginResourceLoader resLoader = PentahoSystem.get(IPluginResourceLoader.class, null);

@@ -4,8 +4,6 @@
 
 package pt.webdetails.cpf.plugins;
 
-import pt.webdetails.cpf.plugins.Plugin;
-
 /**
  *
  * @author Luís Paulo Silva<luis.silva@webdetails.pt>

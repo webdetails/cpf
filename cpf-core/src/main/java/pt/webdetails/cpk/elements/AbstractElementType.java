@@ -13,7 +13,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Node;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
-import pt.webdetails.cpf.repository.IRepositoryAccess;
 import pt.webdetails.cpf.utils.IPluginUtils;
 /**
  *
@@ -22,7 +21,6 @@ import pt.webdetails.cpf.utils.IPluginUtils;
 public abstract class AbstractElementType implements IElementType {
 
     protected Log logger = LogFactory.getLog(this.getClass());
-    protected IRepositoryAccess repoAccess;//XXX initialize this
     public abstract String getType();
     protected IPluginUtils pluginUtils;
     

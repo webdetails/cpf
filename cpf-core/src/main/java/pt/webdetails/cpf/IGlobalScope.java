@@ -14,7 +14,7 @@ import pt.webdetails.cpf.session.IUserSession;
  *
  * @author joao
  */
-public interface IGlobalScope {
+public interface IGlobalScope extends Scriptable{
     
 
 

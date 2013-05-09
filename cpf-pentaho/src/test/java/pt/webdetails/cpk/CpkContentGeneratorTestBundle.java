@@ -35,8 +35,8 @@ package pt.webdetails.cpk;
 //    private static ICpkEnvironment cpkEnv;
 //    
 //    @BeforeClass
-//    public static void setUp() {//XXX won't work, needs further looking into
-//        IPentahoObjectFactory objFact = new StandaloneObjectFactory();//XXX tried to force in some PentahoSystem related things to get it to work just to test
+//    public static void setUp() {
+//        IPentahoObjectFactory objFact = new StandaloneObjectFactory();
 //        IApplicationContext appContext= new StandaloneApplicationContext("", "");
 //        ISolutionEngine eng = new SolutionEngine();
 //        PentahoSystem p = new PentahoSystem();

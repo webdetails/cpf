@@ -166,7 +166,6 @@ public class VfsRepositoryTest extends TestCase {
         }
         public void testGetSettingsFileTree(){
             try{
-                //XXX these must be manually created since there is no way of calling publishFile to settings dir?
                 //create dir testFolder and inside, at leat 2 files, one with name.extension and another with name.anotherExtension
                IRepositoryFile[] files0 = repository.getSettingsFileTree("testFolder", "extension", FileAccess.READ);
                IRepositoryFile[] files1 = repository.getSettingsFileTree("testFolder", "anotherExtension", FileAccess.READ);
@@ -185,7 +184,7 @@ public class VfsRepositoryTest extends TestCase {
         }
         public void testGetPluginFiles(){
             try{
-              //XXX created manually
+              //created manually
                IRepositoryFile[] files = repository.getPluginFiles("pluginDir", FileAccess.READ);
                IRepositoryFile[] files1 = repository.getPluginFiles("wrongDir", FileAccess.READ);
                

@@ -41,7 +41,6 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
     public VfsRepositoryAccess() throws IOException {
         this.DEFAULT_REPO = createDefaultRepo();
         this.DEFAULT_SETTINGS = createDefaultSettings();
-        //XXX set default values so when beanFactory creates this it wont return null values
         try {
             setRepository(DEFAULT_REPO);
             setSettings(DEFAULT_SETTINGS);

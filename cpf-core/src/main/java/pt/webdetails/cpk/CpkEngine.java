@@ -146,7 +146,7 @@ public class CpkEngine {
                 elementTypesMap.put(elementType.getType(), elementType);
 
             } catch (Exception ex) {
-                logger.error("Error initializing element type " + clazz + ": " + Util.getExceptionDescription(ex));//XXX get this method here?
+                logger.error("Error initializing element type " + clazz + ": " + Util.getExceptionDescription(ex));
                 continue;
             }
 

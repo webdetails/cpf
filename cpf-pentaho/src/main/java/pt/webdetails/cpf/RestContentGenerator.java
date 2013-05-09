@@ -17,7 +17,6 @@ import pt.webdetails.cpf.utils.PluginUtils;
 public abstract class RestContentGenerator extends SimpleContentGenerator {
 
     private static final long serialVersionUID = 1L;
-    private ICommonParameterProvider commonParameterProviders=new CommonParameterProvider();
     private ICommonParameterProvider commonParameterProvider;
     private Map<String, ICommonParameterProvider> map;
     private PluginUtils pluginUtils;
@@ -39,7 +38,7 @@ public abstract class RestContentGenerator extends SimpleContentGenerator {
     public abstract RestRequestHandler getRequestHandler();
     
   
-    //XXX removed override
+    //XXX removed override at first  because changed signature, wont need to because of initParams?
     public void createContent(Map<String,ICommonParameterProvider> parameterProviders) throws Exception {
 
         RestRequestHandler router = getRequestHandler();
@@ -50,6 +49,22 @@ public abstract class RestContentGenerator extends SimpleContentGenerator {
             router.route(getHttpMethod(), path, getResponseOutputStream(router.getResponseMimeType()),
                     pluginUtils.getPathParameters(parameterProviders),
                     pluginUtils.getRequestParameters(parameterProviders));
+        } else {
+            super.createContent();
+        }
+    }
+    //XXX remove method above? leave both?
+    @Override
+    public void createContent() throws Exception {
+
+        RestRequestHandler router = getRequestHandler();
+        
+
+        String path = pluginUtils.getPathParameters(map).getStringParameter("path", null);
+        if (router.canHandle(getHttpMethod(), path)) {
+            router.route(getHttpMethod(), path, getResponseOutputStream(router.getResponseMimeType()),
+                    pluginUtils.getPathParameters(map),
+                    pluginUtils.getRequestParameters(map));
         } else {
             super.createContent();
         }

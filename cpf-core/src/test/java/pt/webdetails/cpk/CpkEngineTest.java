@@ -36,8 +36,8 @@ public class CpkEngineTest extends CpkEngine {
         init(null);
         
     }
-    //XXX lacking a better name
-    public static CpkEngineTest getInstanceWithParams(ICpkEnvironment environment) {
+    
+    public static CpkEngineTest getInstanceWithEnvironment(ICpkEnvironment environment) {
 
         if (instance == null) {
             instance = new CpkEngineTest(environment);

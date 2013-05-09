@@ -46,7 +46,7 @@ public class CpkContentGenerator extends RestContentGenerator {
     @Override
     public void initParams(){
         
-            //XXX review
+        //XXX review
         repAccess = new PentahoRepositoryAccess();
         pluginUtils=new PluginUtils();
         cpkEnv = new CpkPentahoEnvironment(pluginUtils, repAccess);
@@ -118,7 +118,7 @@ public class CpkContentGenerator extends RestContentGenerator {
             cpkPentahoEngine.reload();
             status(out);
         }else{
-            cpkEnv.getAccessControl().throwAccessDenied(map);//XXX changed from accessControl.throwAccessDenied(parameterProviders);
+            cpkEnv.getAccessControl().throwAccessDenied(map);
         }
 
 

@@ -68,7 +68,7 @@ public class PluginUtils implements IPluginUtils {
     }
 
     @Override
-    public void initialize() throws IOException, DocumentException {//XXX was private
+    public void initialize() throws IOException, DocumentException {
 
         // We need to get the plugin name
        
@@ -77,7 +77,7 @@ public class PluginUtils implements IPluginUtils {
         /*
          * Verify if the index 0 is actually the file we want!
          */
-        String url ="file://"+System.getProperty("user.dir")+"/test-resources/cpkSol/plugin.xml";//XXX for testing purposes
+        String url ="file://"+System.getProperty("user.dir")+"/test-resources/cpkSol/plugin.xml";//XXX for testing purposes only
         
         URL pluginUrl = new URL(url);
         //URL pluginUrl = new File("plugin.xml").toURI().toURL();
