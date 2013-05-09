@@ -199,7 +199,7 @@ public class KettleElementType extends AbstractElementType {
         }
 
         Trans transformation = new Trans(transformationMeta);
-
+        transformation.setLogLevel(LogLevel.ROWLEVEL);//XXX remove, debuging purposes only
         /*
          * Loading parameters, if there are any.
          */
@@ -271,7 +271,7 @@ public class KettleElementType extends AbstractElementType {
             
         }
         Job job = new Job(null, jobMeta);
-        job.setLogLevel(LogLevel.ROWLEVEL);
+        job.setLogLevel(LogLevel.ROWLEVEL);//XXX remove, debuging purposes only
         /*
          * Loading parameters, if there are any. We'll pass them also as variables
          */

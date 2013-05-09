@@ -98,7 +98,7 @@ public class CpkCoreServiceTestBundle {
         ICommonParameterProvider p = new CommonParameterProvider();
         ICommonParameterProvider p1 = new CommonParameterProvider();
         outResponse = new ByteArrayOutputStream();
-        p.put("path", "/writeback");//kjb or ktr
+        p.put("path", "/pass_arguments");//kjb or ktr
         p.put("outputstream", outResponse);
         p.put("httpresponse", null);
         p1.put("request","random request");
@@ -120,7 +120,7 @@ public class CpkCoreServiceTestBundle {
          Matcher rightKjbMatch=rightKjb.matcher(str);
          Matcher rightKtrMatch=rightKtr.matcher(str);
          
-        Assert.assertTrue(wrongKjbMatch.matches()||rightKtrMatch.matches());
+         Assert.assertTrue(wrongKjbMatch.matches()||rightKtrMatch.matches());
         
     }
     
