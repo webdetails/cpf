@@ -322,17 +322,7 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
     
     protected String getMimeType(String filename){
         return MimeTypes.getMimeType(filename);
-    }
-    
-    @SuppressWarnings("unchecked")
-    protected void copyParametersFromProvider(Map<String, Object> params, IParameterProvider provider){
-        Iterator<String> paramNames = provider.getParameterNames();
-        while(paramNames.hasNext()){
-         String paramName = paramNames.next();
-          params.put(paramName, provider.getParameter(paramName));
-        }
-    }
-    
+    }  
     
 
 }
