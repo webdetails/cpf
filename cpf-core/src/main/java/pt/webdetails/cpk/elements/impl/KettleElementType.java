@@ -282,7 +282,7 @@ public class KettleElementType extends AbstractElementType {
             IUserSession userSession = CpkEngine.getInstance().getEnvironment().getSessionUtils().getCurrentSession();
 
             if (userSession.getUserName() != null) {
-                job.getJobMeta().setVariable("pentahoUsername", userSession.getUserName());
+                job.getJobMeta().setVariable("pentahoUsername", userSession.getUserName());//XXX remove pentaho from here...what to put
 
             }
             String[] authorities = userSession.getAuthorities();
