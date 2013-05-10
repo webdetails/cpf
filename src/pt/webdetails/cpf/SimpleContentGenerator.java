@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -18,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import mondrian.olap.QueryTimeoutException;
-import org.apache.axis2.transport.nhttp.PlainClientIOEventDispatch;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -26,11 +24,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.json.JSONException;
-import org.pentaho.platform.api.engine.IMimeTypeListener;
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.repository.IContentItem;
-import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.security.SecurityHelper;
@@ -326,6 +322,15 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
     
     protected String getMimeType(String filename){
         return MimeTypes.getMimeType(filename);
+    }
+    
+    @SuppressWarnings("unchecked")
+    protected void copyParametersFromProvider(Map<String, Object> params, IParameterProvider provider){
+        Iterator<String> paramNames = provider.getParameterNames();
+        while(paramNames.hasNext()){
+         String paramName = paramNames.next();
+          params.put(paramName, provider.getParameter(paramName));
+        }
     }
     
     
