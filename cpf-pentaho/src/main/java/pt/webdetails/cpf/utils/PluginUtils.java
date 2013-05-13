@@ -72,7 +72,7 @@ public class PluginUtils implements IPluginUtils {
     public void initialize() throws IOException, DocumentException {
 
         // We need to get the plugin name
-        IPluginResourceLoader resLoader = PentahoSystem.get(IPluginResourceLoader.class, null);
+        IPluginResourceLoader resLoader = PentahoSystem.get(IPluginResourceLoader.class, null);//XXX null pointer here
         List<URL> pluginResource = resLoader.findResources(this.getClass(), "plugin.xml");
 
         if (pluginResource.size() < 1) {
