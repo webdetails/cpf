@@ -5,6 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 import org.apache.commons.lang.StringUtils;
@@ -13,6 +16,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.commons.vfs.FileObject;
+import org.apache.commons.vfs.FileSystemException;
 
 import org.apache.commons.vfs.FileSystemManager;
 
@@ -36,8 +40,6 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
     protected Plugin plugin;
     protected IUserSession session;
 
-   
-
     public VfsRepositoryAccess() throws IOException {
         this.DEFAULT_REPO = createDefaultRepo();
         this.DEFAULT_SETTINGS = createDefaultSettings();
@@ -48,7 +50,6 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
             log.error("Cannot initialize VfsRepository", e);
         }
     }
-
 
     public VfsRepositoryAccess(String repo, String settings) {
         this.DEFAULT_REPO = "";
@@ -295,7 +296,30 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 
     @Override
     public String getSolutionPath(String arg0) {
-        throw new UnsupportedOperationException("getSolutionpath is deprecated, not supported!");
+        String path = "";
+        FileObject file = null;
+        try {
+            path = repo.getURL().toURI().getPath();
+        } catch (FileSystemException ex) {
+            Logger.getLogger(VfsRepositoryAccess.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(VfsRepositoryAccess.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        if (arg0 == null || arg0.isEmpty()) {
+            return path;
+        }
+        if (arg0.startsWith("/")) {
+            arg0=arg0.substring(1);
+        }
+        try {
+            file = resolveFile(repo, arg0);
+            if (file != null && file.exists()) {
+                return path +"/"+arg0;
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(VfsRepositoryAccess.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 
     @Override
@@ -399,20 +423,19 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
         joined = joined.replaceAll("//", "/");
         return joined;
     }
-    
-    
-     private String createDefaultRepo() throws IOException {
-        
-        String repo= System.getProperty("user.dir");
+
+    private String createDefaultRepo() throws IOException {
+
+        String repo = System.getProperty("user.dir");
         setRepository(repo);
-        repo+="/cpf/repository";
+        repo += "/cpf/repository";
         createFolder("cpf/repository");
         return repo;
     }
 
     private String createDefaultSettings() throws IOException {
-        String sett= System.getProperty("user.dir");
-        sett+="/cpf/settings";
+        String sett = System.getProperty("user.dir");
+        sett += "/cpf/settings";
         createFolder("cpf/settings");
         return sett;
     }

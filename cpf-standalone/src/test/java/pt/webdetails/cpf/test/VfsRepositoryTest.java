@@ -1,6 +1,7 @@
 package pt.webdetails.cpf.test;
 
 
+import java.io.IOException;
 import junit.framework.TestCase;
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.Selectors;
@@ -214,6 +215,23 @@ public class VfsRepositoryTest extends TestCase {
             fail();
         }
         }      
+        
+        public void testGetSolutionPath() throws IOException {
+        repository.createFolder("one");
+        repository.createFolder("one/two");
+        
+        String solPath = repository.getSolutionPath("");
+        String solPath1 = repository.getSolutionPath("one");
+        String solPath2 = repository.getSolutionPath("one/two");
+        
+        assertNotNull(solPath);
+        assertNotNull(solPath1);
+        assertNotNull(solPath2);
+        
+        repository.removeUnsafe("one");
+        
+        }
+        
 }
 
 
