@@ -61,7 +61,7 @@ public class CpkEngineTest extends CpkEngine {
         return instance;
     }
  
-    private synchronized void initialize() throws DocumentException, IOException {
+    protected synchronized void initialize() throws DocumentException, IOException {
 
 
         // Start by forcing initialization of PluginUtils

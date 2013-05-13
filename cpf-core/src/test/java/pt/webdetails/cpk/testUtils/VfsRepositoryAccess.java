@@ -1,4 +1,4 @@
-package pt.webdetails.cpf.repository;
+package pt.webdetails.cpk.testUtils;
 
 
 import java.io.File;
@@ -6,6 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 import org.apache.commons.lang.StringUtils;
@@ -14,6 +17,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.commons.vfs.FileObject;
+import org.apache.commons.vfs.FileSystemException;
 
 import org.apache.commons.vfs.FileSystemManager;
 
@@ -25,6 +29,9 @@ import pt.webdetails.cpf.PluginSettings;
 import pt.webdetails.cpf.plugin.Plugin;
 import pt.webdetails.cpf.repository.BaseRepositoryAccess.FileAccess;
 import pt.webdetails.cpf.repository.BaseRepositoryAccess.SaveFileStatus;
+import pt.webdetails.cpf.repository.IRepositoryAccess;
+import pt.webdetails.cpf.repository.IRepositoryFile;
+import pt.webdetails.cpf.repository.IRepositoryFileFilter;
 import pt.webdetails.cpf.session.IUserSession;
 
 public class VfsRepositoryAccess implements IRepositoryAccess {
@@ -297,8 +304,30 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 
     @Override
     public String getSolutionPath(String arg0) {
-        return "";//XXX code TODO code
-        //throw new UnsupportedOperationException("getSolutionpath is deprecated, not supported!");
+        String path = "";
+        FileObject file = null;
+        try {
+            path = repo.getURL().toURI().getPath();
+        } catch (FileSystemException ex) {
+            Logger.getLogger(VfsRepositoryAccess.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(VfsRepositoryAccess.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        if (arg0 == null || arg0.isEmpty()) {
+            return path;
+        }
+        if (arg0.startsWith("/")) {
+            arg0=arg0.substring(1);
+        }
+        try {
+            file = resolveFile(repo, arg0);
+            if (file != null && file.exists()) {
+                return path +"/"+arg0;
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(VfsRepositoryAccess.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 
     @Override

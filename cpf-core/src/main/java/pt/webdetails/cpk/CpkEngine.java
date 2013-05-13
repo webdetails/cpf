@@ -32,11 +32,11 @@ public class CpkEngine {
 
     private static CpkEngine instance;
     protected static Log logger = LogFactory.getLog(CpkEngine.class);
-    private Document cpkDoc;
-    private TreeMap<String, IElement> elementsMap;
-    private HashMap<String, IElementType> elementTypesMap;
-    private static List reserverdWords = Arrays.asList("refresh", "status", "reload");
-    private String defaultElementName = null;
+    protected Document cpkDoc;
+    protected TreeMap<String, IElement> elementsMap;
+    protected HashMap<String, IElementType> elementTypesMap;
+    protected static List reserverdWords = Arrays.asList("refresh", "status", "reload");
+    protected String defaultElementName = null;
     protected ICpkEnvironment environment;
 
 
@@ -70,7 +70,7 @@ public class CpkEngine {
     }
     //XXX lacking a better name
 
-    public static CpkEngine getInstanceWithParams(ICpkEnvironment environment) {
+    public static CpkEngine getInstanceWithEnv(ICpkEnvironment environment) {
 
         if (instance == null) {
             instance = new CpkEngine(environment);
@@ -90,7 +90,7 @@ public class CpkEngine {
 
     }
 
-    private synchronized void initialize() throws DocumentException, IOException {
+    protected synchronized void initialize() throws DocumentException, IOException {
 
 
         logger.info("Initializing CPK Plugin " + environment.getPluginUtils().getPluginName().toUpperCase());

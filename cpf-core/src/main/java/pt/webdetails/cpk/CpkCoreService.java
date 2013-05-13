@@ -41,7 +41,7 @@ public class CpkCoreService {
     public void createContent(Map<String,ICommonParameterProvider> parameterProviders) throws Exception {
 
         //Make sure the instance is first set so we have pluginUtils
-        cpkEngine = CpkEngine.getInstanceWithParams(cpkEnvironment);
+        cpkEngine = CpkEngine.getInstanceWithEnv(cpkEnvironment);
         
         
 

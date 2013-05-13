@@ -1,7 +1,6 @@
-package pt.webdetails.cpf.repository;
+package pt.webdetails.cpk.testUtils;
 
-import pt.webdetails.cpk.testUtils.VfsRepositoryFile;
-import pt.webdetails.cpk.testUtils.VfsRepositoryAccess;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -30,6 +29,9 @@ import pt.webdetails.cpf.PluginSettings;
 import pt.webdetails.cpf.plugin.Plugin;
 import pt.webdetails.cpf.repository.BaseRepositoryAccess.FileAccess;
 import pt.webdetails.cpf.repository.BaseRepositoryAccess.SaveFileStatus;
+import pt.webdetails.cpf.repository.IRepositoryAccess;
+import pt.webdetails.cpf.repository.IRepositoryFile;
+import pt.webdetails.cpf.repository.IRepositoryFileFilter;
 import pt.webdetails.cpf.session.IUserSession;
 
 public class VfsRepositoryAccess implements IRepositoryAccess {
@@ -42,9 +44,12 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
     protected Plugin plugin;
     protected IUserSession session;
 
+   
+
     public VfsRepositoryAccess() throws IOException {
         this.DEFAULT_REPO = createDefaultRepo();
         this.DEFAULT_SETTINGS = createDefaultSettings();
+
         try {
             setRepository(DEFAULT_REPO);
             setSettings(DEFAULT_SETTINGS);
@@ -52,6 +57,7 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
             log.error("Cannot initialize VfsRepository", e);
         }
     }
+
 
     public VfsRepositoryAccess(String repo, String settings) {
         this.DEFAULT_REPO = "";
@@ -367,7 +373,7 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 //					bos.flush();
                         return SaveFileStatus.OK;
                     } else {
-                        return SaveFileStatus.FAIL;//XXX should I return false when can't write to file? or overwrite
+                        return SaveFileStatus.FAIL;
                     }
                 } else {
                     FileObject f = resolveFile(repo, file);
@@ -425,19 +431,20 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
         joined = joined.replaceAll("//", "/");
         return joined;
     }
-
-    private String createDefaultRepo() throws IOException {
-
-        String repo = System.getProperty("user.dir");
+    
+    
+     private String createDefaultRepo() throws IOException {
+        
+        String repo= System.getProperty("user.dir");
         setRepository(repo);
-        repo += "/cpf/repository";
+        repo+="/cpf/repository";
         createFolder("cpf/repository");
         return repo;
     }
 
     private String createDefaultSettings() throws IOException {
-        String sett = System.getProperty("user.dir");
-        sett += "/cpf/settings";
+        String sett= System.getProperty("user.dir");
+        sett+="/cpf/settings";
         createFolder("cpf/settings");
         return sett;
     }

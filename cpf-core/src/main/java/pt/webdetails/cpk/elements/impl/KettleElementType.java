@@ -199,7 +199,6 @@ public class KettleElementType extends AbstractElementType {
         }
 
         Trans transformation = new Trans(transformationMeta);
-        transformation.setLogLevel(LogLevel.ROWLEVEL);//XXX remove, debuging purposes only
         /*
          * Loading parameters, if there are any.
          */
@@ -271,7 +270,6 @@ public class KettleElementType extends AbstractElementType {
             
         }
         Job job = new Job(null, jobMeta);
-        job.setLogLevel(LogLevel.ROWLEVEL);//XXX remove, debuging purposes only
         /*
          * Loading parameters, if there are any. We'll pass them also as variables
          */
@@ -282,13 +280,13 @@ public class KettleElementType extends AbstractElementType {
             IUserSession userSession = CpkEngine.getInstance().getEnvironment().getSessionUtils().getCurrentSession();
 
             if (userSession.getUserName() != null) {
-                job.getJobMeta().setVariable("pentahoUsername", userSession.getUserName());//XXX remove pentaho from here...what to put
+                job.getJobMeta().setVariable("username", userSession.getUserName());
 
             }
             String[] authorities = userSession.getAuthorities();
             
             if (authorities != null && authorities.length > 0) {              
-                job.getJobMeta().setVariable("pentahoRoles", StringUtils.join(authorities, ","));
+                job.getJobMeta().setVariable("roles", StringUtils.join(authorities, ","));
             }            
             
 

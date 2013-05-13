@@ -33,23 +33,17 @@ import pt.webdetails.cpk.elements.IElementType;
  *
  * @author Pedro Alves<pedro.alves@webdetails.pt>
  */
-public class CpkPentahoEngine extends CpkEngine {
+public class CpkPentahoEngine extends CpkEngine {//XXX needs more attention
 
     private static CpkPentahoEngine instance;
-    protected Log logger = LogFactory.getLog(this.getClass());
-    private Document cpkDoc;
-    private TreeMap<String, IElement> elementsMap;
-    private HashMap<String, IElementType> elementTypesMap;
-    private static List reserverdWords = Arrays.asList("refresh", "status", "reload");
-    private String defaultElementName = null;
     private ICpkEnvironment cpkEnv;
 
    
     public CpkPentahoEngine(ICpkEnvironment cpkEnv){
-        //super(cpkEnv);
-        this.cpkEnv=cpkEnv;
+        super(cpkEnv);
+        //this.cpkEnv=cpkEnv;
     }
-    public CpkPentahoEngine(){}
+    public CpkPentahoEngine(){super();}
     public static CpkPentahoEngine getInstanceWithEnv(ICpkEnvironment cpkEnv) {
 
         if (instance == null) {

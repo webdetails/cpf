@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
@@ -27,9 +28,14 @@ import pt.webdetails.cpf.utils.IPluginUtils;
 import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.IElement;
 import org.pentaho.platform.api.engine.IParameterProvider;
+import pt.webdetails.cpf.WrapperUtils;
+import pt.webdetails.cpf.plugins.IPluginFilter;
+import pt.webdetails.cpf.plugins.Plugin;
+import pt.webdetails.cpf.plugins.PluginsAnalyzer;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
 import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
 import pt.webdetails.cpk.security.AccessControl;
+import pt.webdetails.cpk.CpkCoreService;
 
 public class CpkContentGenerator extends RestContentGenerator {
 
@@ -39,35 +45,28 @@ public class CpkContentGenerator extends RestContentGenerator {
     //private CpkEngine cpkEngine;
     private CpkPentahoEngine cpkPentahoEngine;
     private ICommonParameterProvider commonParameterProvider;
-    private Map<String, ICommonParameterProvider> map;
-    private IPluginUtils pluginUtils;
+    //private Map<String, ICommonParameterProvider> map;
+    //private IPluginUtils pluginUtils;
     private IRepositoryAccess repAccess;
     private ICpkEnvironment cpkEnv;
     @Override
     public void initParams(){
         
-        //XXX review
+        super.initParams();
         repAccess = new PentahoRepositoryAccess();
-        pluginUtils=new PluginUtils();
         cpkEnv = new CpkPentahoEnvironment(pluginUtils, repAccess);
         cpkPentahoEngine = CpkPentahoEngine.getInstanceWithEnv(cpkEnv);
-        Iterator it =  parameterProviders.entrySet().iterator();
-        map = new HashMap<String, ICommonParameterProvider>();
-        while(it.hasNext()){
-            Entry<String,IParameterProvider> e = (Entry<String,IParameterProvider>) it.next();
-            commonParameterProvider=new CommonParameterProvider();
-           commonParameterProvider.put(e.getKey(), e.getValue());
-           map.put(e.getKey(), commonParameterProvider);
-        }
         
     }
+    
+    public CpkContentGenerator(){this.initParams();}
 
     @Override
     public void createContent() throws Exception {
 
         // Make sure we have the engine running
-        cpkPentahoEngine = CpkPentahoEngine.getInstance();
-        
+        //cpkPentahoEngine = CpkPentahoEngine.getInstance();
+        cpkPentahoEngine = CpkPentahoEngine.getInstanceWithEnv(cpkEnv);
         
         //AccessControl accessControl = new AccessControl(pluginUtils);
         
@@ -122,6 +121,29 @@ public class CpkContentGenerator extends RestContentGenerator {
         }
 
 
+    }
+    
+    @Exposed(accessLevel = AccessLevel.PUBLIC)
+    public void version(OutputStream out){        
+
+        PluginsAnalyzer pluginsAnalyzer = new PluginsAnalyzer();
+        pluginsAnalyzer.refresh();
+        
+        String version = null;
+        
+        IPluginFilter thisPlugin = new IPluginFilter() {
+
+            @Override
+            public boolean include(Plugin plugin) {
+                return plugin.getId().equalsIgnoreCase(pluginUtils.getPluginName());
+            }
+        };
+        
+        List<Plugin> plugins = pluginsAnalyzer.getPlugins(thisPlugin);
+        
+
+        version = plugins.get(0).getVersion().toString();
+        writeMessage(out, version);
     }
 
     @Exposed(accessLevel = AccessLevel.PUBLIC)
