@@ -36,7 +36,7 @@ import pt.webdetails.cpk.elements.IElementType;
 public class CpkPentahoEngine extends CpkEngine {//XXX needs more attention
 
     private static CpkPentahoEngine instance;
-    private ICpkEnvironment cpkEnv;
+    //private ICpkEnvironment cpkEnv;
 
    
     public CpkPentahoEngine(ICpkEnvironment cpkEnv){

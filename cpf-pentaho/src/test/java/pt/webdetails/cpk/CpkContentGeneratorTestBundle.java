@@ -21,15 +21,26 @@ import org.junit.Test;
 import org.pentaho.di.core.KettleEnvironment;
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.IParameterProvider;
+import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
+import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISolutionEngine;
+import org.pentaho.platform.api.engine.ISystemSettings;
+import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.engine.core.solution.PentahoSessionParameterProvider;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
+import org.pentaho.platform.engine.core.system.BaseSession;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
+import org.pentaho.platform.engine.core.system.StandaloneSession;
+import org.pentaho.platform.engine.core.system.UserSession;
+import org.pentaho.platform.engine.core.system.boot.PentahoSystemBoot;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneObjectFactory;
+import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
 import org.pentaho.platform.engine.services.solution.SimpleParameterSetter;
 import org.pentaho.platform.engine.services.solution.SolutionEngine;
+import org.pentaho.platform.web.http.context.PentahoSolutionSpringApplicationContext;
+import org.springframework.context.ApplicationContext;
 import pt.webdetails.cpf.RestRequestHandler;
 import pt.webdetails.cpf.http.CommonParameterProvider;
 import pt.webdetails.cpf.impl.SimpleSessionUtils;
@@ -39,9 +50,11 @@ import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
 import pt.webdetails.cpk.testUtils.VfsRepositoryAccess;//XXX should use PentahoRepository?
 import pt.webdetails.cpf.session.ISessionUtils;
 import pt.webdetails.cpf.session.IUserSession;
+import pt.webdetails.cpf.session.PentahoSession;
 import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.IElement;
 import pt.webdetails.cpk.security.IAccessControl;
+import org.pentaho.platform.plugin.services.pluginmgr.PluginResourceLoader;
 
 /**
  *
@@ -56,14 +69,26 @@ public class CpkContentGeneratorTestBundle {
     private static OutputStream out;
     private static OutputStream outResponse;
     private static String userDir = System.getProperty("user.dir");
+    //private static PentahoSession session = new PentahoSession();
+    private static StandaloneSession session = new StandaloneSession("test");
 
     @BeforeClass
-    public static void setUp() throws IOException, InitializationException {
+    public static void setUp() throws IOException, InitializationException, ObjectFactoryException {
 
-        //repAccess = new PentahoRepositoryAccess();
-            repAccess = new VfsRepositoryAccess(userDir + "/test-resources/repo",
+        
+        StandaloneApplicationContext appContext = new StandaloneApplicationContext("test-resources/repo", "");
+
+        StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory();
+        factory.init("test-resources/repo/system/pentahoObjects.spring.xml", null);
+
+        PentahoSystem.setObjectFactory(factory);
+        PentahoSystem.setSystemSettingsService(factory.get(ISystemSettings.class, "systemSettingsService", session));
+        PentahoSystem.init(appContext);
+
+        repAccess = new VfsRepositoryAccess(userDir + "/test-resources/repo",
                 userDir + "/test-resources/settings");
         pluginUtils = new PluginUtils();
+        pluginUtils.setPluginName("cpk");//XXX hardcode the name just to pass, try to bypass this
         final IUserSession userSession = new SimpleUserSession("userName", null, true, null);
         ICpkEnvironment environment = new ICpkEnvironment() {
             @Override
@@ -106,21 +131,7 @@ public class CpkContentGeneratorTestBundle {
                 return new SimpleSessionUtils(userSession, null, null);
             }
         };
-        cpkContentGenerator = new CpkContentGenerator();
-        map = new HashMap<String, ICommonParameterProvider>();
-        ICommonParameterProvider p = new CommonParameterProvider();
-        ICommonParameterProvider p1 = new CommonParameterProvider();
-        outResponse = new ByteArrayOutputStream();
-        p.put("path", "/pass_arguments");//kjb or ktr
-        p.put("outputstream", outResponse);
-        p.put("httpresponse", null);
-        p1.put("request", "unnecessary value?");
-        p1.put("paramarg1", "value1");
-        p1.put("paramarg2", "value2");
-        p1.put("paramarg3", "value3");
-        map.put("path", p);
-        map.put("request", p1);
-
+        cpkContentGenerator = new CpkContentGenerator(environment);
     }
 
     @Test

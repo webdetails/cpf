@@ -60,6 +60,12 @@ public class CpkContentGenerator extends RestContentGenerator {
     }
     
     public CpkContentGenerator(){this.initParams();}
+    public CpkContentGenerator(ICpkEnvironment cpkEnv){//XXX
+        super();
+        //super.initParams();
+        this.cpkEnv=cpkEnv;
+        cpkPentahoEngine = CpkPentahoEngine.getInstanceWithEnv(cpkEnv);
+    }
 
     @Override
     public void createContent() throws Exception {

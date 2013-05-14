@@ -65,7 +65,7 @@ public class CpkEngineTest extends CpkEngine {
 
 
         // Start by forcing initialization of PluginUtils
-        logger.info("Initializing CPK Plugin " + environment.getPluginName().toUpperCase());
+        logger.info("Initializing CPK Plugin " + cpkEnv.getPluginName().toUpperCase());
         reload();
 
     }

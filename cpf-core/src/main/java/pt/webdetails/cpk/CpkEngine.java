@@ -37,7 +37,7 @@ public class CpkEngine {
     protected HashMap<String, IElementType> elementTypesMap;
     protected static List reserverdWords = Arrays.asList("refresh", "status", "reload");
     protected String defaultElementName = null;
-    protected ICpkEnvironment environment;
+    protected ICpkEnvironment cpkEnv;
 
 
 
@@ -47,7 +47,7 @@ public class CpkEngine {
         elementsMap = new TreeMap<String, IElement>();
         elementTypesMap = new HashMap<String, IElementType>();
 
-        this.environment = environment;
+        this.cpkEnv = environment;
         try {
             this.initialize();
         } catch (Exception ex) {
@@ -93,7 +93,7 @@ public class CpkEngine {
     protected synchronized void initialize() throws DocumentException, IOException {
 
 
-        logger.info("Initializing CPK Plugin " + environment.getPluginUtils().getPluginName().toUpperCase());
+        logger.info("Initializing CPK Plugin " + cpkEnv.getPluginUtils().getPluginName().toUpperCase());
         reload();
 
     }
@@ -101,7 +101,7 @@ public class CpkEngine {
     
     
     public ICpkEnvironment getEnvironment() {
-      return this.environment;
+      return this.cpkEnv;
     }
     
     /**
@@ -116,7 +116,7 @@ public class CpkEngine {
         elementTypesMap.clear();
         SAXReader reader;
         Document cpkDoc;
-        IRepositoryFile repFile = environment.getRepositoryAccess().getSettingsFile("cpk.xml", BaseRepositoryAccess.FileAccess.READ);
+        IRepositoryFile repFile = cpkEnv.getRepositoryAccess().getSettingsFile("cpk.xml", BaseRepositoryAccess.FileAccess.READ);
         ByteArrayInputStream bis = new ByteArrayInputStream(repFile.getData());
 
         try {
@@ -139,7 +139,7 @@ public class CpkEngine {
             IElementType elementType;
             try {
                 Object o[] = new Object[1];
-                o[0]=environment.getPluginUtils(); //Devia receber o environment
+                o[0]=cpkEnv.getPluginUtils(); //Devia receber o environment
                 elementType = (IElementType) Class.forName(clazz).getDeclaredConstructors()[0].newInstance(o);
 
                 // Store it
@@ -228,11 +228,11 @@ public class CpkEngine {
      */
     public String getStatus() {
 
-        IAccessControl accessControl = environment.getAccessControl();
+        IAccessControl accessControl = cpkEnv.getAccessControl();
         StringBuffer out = new StringBuffer();
 
         out.append("--------------------------------\n");
-        out.append("   " + environment.getPluginName() + " Status\n");
+        out.append("   " + cpkEnv.getPluginName() + " Status\n");
         out.append("--------------------------------\n");
         out.append("\n");
 
