@@ -1,7 +1,7 @@
 package pt.webdetails.cpf.repository;
 
-import pt.webdetails.cpk.testUtils.VfsRepositoryFile;
-import pt.webdetails.cpk.testUtils.VfsRepositoryAccess;
+import pt.webdetails.cpf.repository.VfsRepositoryFile;
+import pt.webdetails.cpf.repository.VfsRepositoryAccess;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;

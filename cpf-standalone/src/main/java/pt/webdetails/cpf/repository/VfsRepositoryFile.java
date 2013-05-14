@@ -1,7 +1,6 @@
 package pt.webdetails.cpf.repository;
 
 
-import pt.webdetails.cpk.testUtils.VfsRepositoryFile;
 import java.util.ArrayList;
 import java.util.List;
 
