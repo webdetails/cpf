@@ -6,7 +6,7 @@ import junit.framework.TestCase;
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.Selectors;
 import pt.webdetails.cpf.repository.BaseRepositoryAccess.FileAccess;
-import pt.webdetails.cpk.testUtils.VfsRepositoryAccess;
+import pt.webdetails.cpf.repository.VfsRepositoryAccess;
 import pt.webdetails.cpf.repository.BaseRepositoryAccess.SaveFileStatus;
 import pt.webdetails.cpf.repository.IRepositoryFile;
 
