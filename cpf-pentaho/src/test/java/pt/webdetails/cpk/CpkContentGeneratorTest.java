@@ -56,17 +56,17 @@ import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.IElement;
 import pt.webdetails.cpk.security.IAccessControl;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginResourceLoader;
-import pt.webdetails.cpk.testUtils.TestSpecificCpkContentGenerator;
+import pt.webdetails.cpk.testUtils.CpkContentGeneratorForTesting;
 
 /**
  *
  * @author joao
  */
-public class CpkContentGeneratorTestBundle {
+public class CpkContentGeneratorTest {
 
     private static IPluginUtils pluginUtils;
-    //private static CpkContentGenerator cpkContentGenerator;
-    private static TestSpecificCpkContentGenerator cpkContentGenerator;
+    private static CpkContentGenerator cpkContentGenerator;
+   // private static CpkContentGeneratorForTesting cpkContentGenerator;
     private static Map<String, ICommonParameterProvider> map;
     private static IRepositoryAccess repAccess;
     private static OutputStream out;
@@ -135,8 +135,8 @@ public class CpkContentGeneratorTestBundle {
                 return new SimpleSessionUtils(userSession, null, null);
             }
         };
-        //cpkContentGenerator = new CpkContentGenerator(environment);
-        cpkContentGenerator = new TestSpecificCpkContentGenerator(environment);
+        cpkContentGenerator = new CpkContentGenerator(environment);
+        //cpkContentGenerator = new CpkContentGeneratorForTesting(environment);
     }
 
     @Test
@@ -144,35 +144,40 @@ public class CpkContentGeneratorTestBundle {
         KettleEnvironment.init();
         outResponse = new ByteArrayOutputStream();
         cpkContentGenerator.setParameterProviders(unwrapParams(passArguments()));
-        cpkContentGenerator.wrapParameters();
+        cpkContentGenerator.initParams();
+        //cpkContentGenerator.wrapParameters();
         cpkContentGenerator.createContent();
         String pass_arguments_result = outResponse.toString();
         outResponse.close();
         outResponse = new ByteArrayOutputStream();
 
         cpkContentGenerator.setParameterProviders(unwrapParams(writeback()));
-        cpkContentGenerator.wrapParameters();
+        cpkContentGenerator.initParams();
+        //cpkContentGenerator.wrapParameters();
         cpkContentGenerator.createContent();
         String writeback_result = outResponse.toString();
         outResponse.close();
         outResponse = new ByteArrayOutputStream();
 
         cpkContentGenerator.setParameterProviders(unwrapParams(sampleTrans()));
-        cpkContentGenerator.wrapParameters();
+        cpkContentGenerator.initParams();
+        //cpkContentGenerator.wrapParameters();
         cpkContentGenerator.createContent();
         String sampleTrans_result = outResponse.toString();
         outResponse.close();
         outResponse = new ByteArrayOutputStream();
 
         cpkContentGenerator.setParameterProviders(unwrapParams(evaluateResultRows()));
-        cpkContentGenerator.wrapParameters();
+        cpkContentGenerator.initParams();
+        //cpkContentGenerator.wrapParameters();
         cpkContentGenerator.createContent();
         String evaluateResultRows_result = outResponse.toString();
         outResponse.close();
         outResponse = new ByteArrayOutputStream();
 
         cpkContentGenerator.setParameterProviders(unwrapParams(createResultRows()));
-        cpkContentGenerator.wrapParameters();
+        cpkContentGenerator.initParams();
+        //cpkContentGenerator.wrapParameters();
         cpkContentGenerator.createContent();
         String createResultRows_result = outResponse.toString();
         outResponse.close();

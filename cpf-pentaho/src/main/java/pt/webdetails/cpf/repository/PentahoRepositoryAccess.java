@@ -20,6 +20,20 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
+import org.pentaho.platform.api.engine.IAclSolutionFile;
+import org.pentaho.platform.api.engine.IFileFilter;
+import org.pentaho.platform.api.engine.IPentahoAclEntry;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.api.engine.ISolutionFile;
+import org.pentaho.platform.api.engine.ISolutionFilter;
+import org.pentaho.platform.api.engine.IUserDetailsRoleListService;
+import org.pentaho.platform.api.engine.PentahoAccessControlException;
+import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository.ISolutionRepositoryService;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.core.system.UserSession;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
@@ -484,16 +498,14 @@ public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRe
   }
 
   @Override
-  public IRepositoryFile[] listRepositoryFiles(IRepositoryFileFilter filter) {        
-    ISolutionFile baseDir = getSolutionFile("/", FileAccess.READ);
-
+  public IRepositoryFile[] listRepositoryFiles(final IRepositoryFileFilter filter) {        
     IFileFilter fileFilter = new IFileFilter () {
       @Override
       public boolean accept(ISolutionFile isf) {
-        return irff.accept(new PentahoRepositoryFile(isf));
+        return filter.accept(new PentahoRepositoryFile(isf));
       }
     };
-    ISolutionFile[] files = listSolutionFiles(baseDir, fileFilter);
+    ISolutionFile[] files = listSolutionFiles("/", fileFilter);
 
     IRepositoryFile[] result = new IRepositoryFile[files.length];
     int i = 0;
@@ -501,6 +513,8 @@ public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRe
     for (ISolutionFile f : files) {
       result[i++] = new PentahoRepositoryFile(f);
     }
+    
+    return result;
 
   }
 
