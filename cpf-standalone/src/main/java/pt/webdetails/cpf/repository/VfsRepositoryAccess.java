@@ -5,17 +5,17 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.apache.commons.vfs.FileName;
 import org.apache.commons.vfs.FileObject;
-
+import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileSystemManager;
-
+import org.apache.commons.vfs.FileType;
 import org.apache.commons.vfs.Selectors;
 import org.apache.commons.vfs.VFS;
 import org.dom4j.Document;
@@ -333,6 +333,7 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
                 if (resourceExists(file)) {
                     if (canWrite(file) && overwrite) {
                         FileObject f = resolveFile(repo, file);
+
 //                                        if (f.exists() && !overwrite) return SaveFileStatus.FAIL;
 //                                        if (!f.exists()) f.createFile();
                         f.getContent().getOutputStream().write(data);
@@ -340,6 +341,7 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 //					FileUtil.writeContent(f, bos);
 //					bos.write(data);
 //					bos.flush();
+
                         return SaveFileStatus.OK;
                     } else {
                         return SaveFileStatus.FAIL;//XXX should I return false when can't write to file? or overwrite
@@ -416,5 +418,10 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
         sett+="/cpf/settings";
         createFolder("cpf/settings");
         return sett;
-    }
+	  }
+
+
+    
+    
+    
 }

@@ -3,10 +3,8 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpf.repository;
 
-import com.sun.syndication.io.impl.PluginManager;
 import java.io.File;
 import java.io.FileNotFoundException;
-
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,28 +14,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
-import org.pentaho.platform.api.engine.IAclSolutionFile;
-import org.pentaho.platform.api.engine.IFileFilter;
-import org.pentaho.platform.api.engine.IPentahoAclEntry;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.IPluginManager;
-import org.pentaho.platform.api.engine.ISolutionFile;
-import org.pentaho.platform.api.engine.ISolutionFilter;
-import org.pentaho.platform.api.engine.IUserDetailsRoleListService;
-import org.pentaho.platform.api.engine.PentahoAccessControlException;
-import org.pentaho.platform.api.repository.ISolutionRepository;
-import org.pentaho.platform.api.repository.ISolutionRepositoryService;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.core.system.UserSession;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
@@ -46,6 +28,9 @@ import org.springframework.security.providers.anonymous.AnonymousAuthenticationT
 import pt.webdetails.cpf.PluginSettings;
 import pt.webdetails.cpf.impl.DefaultRepositoryFile;
 import pt.webdetails.cpf.plugin.Plugin;
+import pt.webdetails.cpf.repository.BaseRepositoryAccess.FileAccess;
+import pt.webdetails.cpf.repository.BaseRepositoryAccess.SaveFileStatus;
+import pt.webdetails.cpf.repository.PentahoRepositoryAccess.ExtensionFilter;
 import pt.webdetails.cpf.session.IUserSession;
 import pt.webdetails.cpf.session.PentahoSession;
 
@@ -63,7 +48,7 @@ public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRe
   }
   private static Log logger = LogFactory.getLog(PentahoRepositoryAccess.class);
 
-  /* 
+  /*
    * This wiill be used for privileged access to the repository
    */
   private static IPentahoSession getAdminSession() {
@@ -329,30 +314,30 @@ public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRe
     return new PentahoRepositoryFile(getSolutionRepository().getSolutionFile(path, fileAccess.ordinal()));
   }
 
-  
+
   private IPentahoSession getPentahoSession(){
-    IPentahoSession session = null;    
+    IPentahoSession session = null;
     if (userSession != null)
       session = ((PentahoSession) userSession).getPentahoSession();
     else
       session = PentahoSessionHolder.getSession();
     return session;
   }
-  
+
   @Override
   public String getJqueryFileTree(String dir, String fileExtensions, String access) {
-      
+
     return RepositoryFileExplorer.toJQueryFileTree(dir, getFileList(dir, fileExtensions, access, getPentahoSession()));
   }
 
-  
-  
+
+
   @Override
   public String getJSON(String dir, String fileExtensions, String access) {
     return RepositoryFileExplorer.toJSON(dir, getFileList(dir, fileExtensions, access, getPentahoSession()));
   }
 
-  
+
   @Override
   public IRepositoryFile[] getSettingsFileTree(final String dir, final String fileExtensions, FileAccess access) {
     IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, getAdminSession());
@@ -371,16 +356,16 @@ public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRe
         return name.endsWith("." + fileExtensions);
       }
     });
-    
+
     IRepositoryFile[] result = new IRepositoryFile[fileArray.length];
     int i = 0;
     for (File resultFile : fileArray)
       result[i++] = new DefaultRepositoryFile(resultFile);
-    
+
     return result;
-    
+
   }
-  
+
   @Override
   public IRepositoryFile[] getPluginFiles(String baseDir, FileAccess fa) {
     final IRepositoryFileFilter irff = plugin.getPluginFileFilter();
@@ -496,6 +481,27 @@ public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRe
     }
 
     return list.toArray(new IRepositoryFile[list.size()]);
+  }
+
+  @Override
+  public IRepositoryFile[] listRepositoryFiles(IRepositoryFileFilter filter) {        
+    ISolutionFile baseDir = getSolutionFile("/", FileAccess.READ);
+
+    IFileFilter fileFilter = new IFileFilter () {
+      @Override
+      public boolean accept(ISolutionFile isf) {
+        return irff.accept(new PentahoRepositoryFile(isf));
+      }
+    };
+    ISolutionFile[] files = listSolutionFiles(baseDir, fileFilter);
+
+    IRepositoryFile[] result = new IRepositoryFile[files.length];
+    int i = 0;
+
+    for (ISolutionFile f : files) {
+      result[i++] = new PentahoRepositoryFile(f);
+    }
+
   }
 
   public static int toResourceAction(FileAccess f) {
