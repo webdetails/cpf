@@ -22,7 +22,7 @@ import pt.webdetails.cpk.elements.IElement;
  *
  * @author joao
  */
-public class CpkCoreServiceForTest extends CpkCoreService {
+public class CpkCoreServiceForTesting extends CpkCoreService {
     
 
     private static final long serialVersionUID = 1L;
@@ -30,21 +30,21 @@ public class CpkCoreServiceForTest extends CpkCoreService {
     private static final String ENCODING = "UTF-8";
     private final String PLUGIN_UTILS = "PluginUtils";
     private IRepositoryAccess repAccess;
-    private static final Logger logger = Logger.getLogger(CpkCoreServiceForTest.class.getName());
+    private static final Logger logger = Logger.getLogger(CpkCoreServiceForTesting.class.getName());
    
-    public CpkCoreServiceForTest(ICpkEnvironment environment) {
+    public CpkCoreServiceForTesting(ICpkEnvironment environment) {
         
         // this.pluginUtils=pluginUtils;
         // this.repAccess=repAccess;
         super(environment);
         try {
-            CpkEngineForTest.init(environment);
+            CpkEngineForTesting.init(environment);
         } catch (InitializationException ex) {
-            Logger.getLogger(CpkCoreServiceForTest.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CpkCoreServiceForTesting.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(CpkCoreServiceForTest.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CpkCoreServiceForTesting.class.getName()).log(Level.SEVERE, null, ex);
         }
-        cpkEngine=CpkEngineForTest.getInstance();
+        cpkEngine=CpkEngineForTesting.getInstance();
         
     }
 

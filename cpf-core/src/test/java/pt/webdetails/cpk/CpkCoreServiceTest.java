@@ -36,7 +36,7 @@ import org.pentaho.di.core.KettleEnvironment;
 public class CpkCoreServiceTest {
 
     private static IPluginUtils pluginUtils;
-    private static CpkCoreServiceForTest cpkCore;
+    private static CpkCoreServiceForTesting cpkCore;
     private static Map<String,ICommonParameterProvider> map;
     private static IRepositoryAccess repAccess;
     private static OutputStream out;
@@ -93,7 +93,7 @@ public class CpkCoreServiceTest {
         return new SimpleSessionUtils(userSession, null, null);
       }
     };
-        cpkCore = new CpkCoreServiceForTest(environment);
+        cpkCore = new CpkCoreServiceForTesting(environment);
         map = new HashMap<String, ICommonParameterProvider>();
         ICommonParameterProvider p = new CommonParameterProvider();
         ICommonParameterProvider p1 = new CommonParameterProvider();

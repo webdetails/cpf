@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,6 +23,7 @@ import org.apache.commons.vfs.FileSystemException;
 
 import org.apache.commons.vfs.FileSystemManager;
 
+import org.apache.commons.vfs.FileType;
 import org.apache.commons.vfs.Selectors;
 import org.apache.commons.vfs.VFS;
 import org.dom4j.Document;
@@ -448,4 +451,25 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
         createFolder("cpf/settings");
         return sett;
     }
+    
+    
+    @Override
+    public IRepositoryFile[] listRepositoryFiles(IRepositoryFileFilter fileFilter) {
+        try {
+            FileObject[] files = repo.getChildren();
+            List<IRepositoryFile> repoFiles = new ArrayList<IRepositoryFile>();
+            for (FileObject file : files) {
+                if (file.exists() && file.isReadable() && file.getType().equals(FileType.FILE)) {
+                  IRepositoryFile repoFile = new VfsRepositoryFile(repo, file);
+                  if (fileFilter == null || fileFilter.accept(repoFile))
+                        repoFiles.add(repoFile);
+                }
+            }
+            return repoFiles.toArray(new IRepositoryFile[]{});
+        } catch (FileSystemException e) {
+            throw new RuntimeException("Cannot list repo files", e);
+        }
+    }     
+    
+    
 }
