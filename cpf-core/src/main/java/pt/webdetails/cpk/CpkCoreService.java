@@ -114,6 +114,11 @@ public class CpkCoreService {
     }
 
 
+    
+    public IElement[] getElements() {
+        return cpkEngine.getElementsMap().values().toArray(new IElement[0]);      
+    }
+    
     public void getElementsList(OutputStream out){
         try {
             out.write(cpkEngine.getElementsJson().getBytes(ENCODING));
