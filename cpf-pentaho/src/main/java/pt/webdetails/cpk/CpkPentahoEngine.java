@@ -137,7 +137,7 @@ public class CpkPentahoEngine extends CpkEngine {//XXX needs more attention
             }
 
             // Now that we have the class, scan the elements
-            List<IElement> elements = elementType.scanElements(getCpkDoc().selectSingleNode("/cpk/elementTypes/elementType[@class='" + clazz + "']"));
+            List<IElement> elements = elementType.scanElements(getCpkDoc().selectSingleNode("/cpk/elementTypes/elementType[@class='" + clazz + "']"));//XXX pass_arguments is onot being scanned
 
             // Register them in the map. We don't support duplicates, and we don't allow some reserved names
             for (IElement element : elements) {

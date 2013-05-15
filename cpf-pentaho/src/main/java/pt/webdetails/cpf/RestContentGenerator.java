@@ -11,16 +11,20 @@ import org.pentaho.platform.api.engine.IParameterProvider;
 import pt.webdetails.cpf.RestRequestHandler.HttpMethod;
 import pt.webdetails.cpf.http.CommonParameterProvider;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
+import pt.webdetails.cpf.utils.IPluginUtils;
 import pt.webdetails.cpf.utils.PluginUtils;
 
 public abstract class RestContentGenerator extends SimpleContentGenerator {
 
     private static final long serialVersionUID = 1L;
     protected Map<String, ICommonParameterProvider> map;
-    protected PluginUtils pluginUtils;
+    protected IPluginUtils pluginUtils;
 
-    public void initParams() {
-        pluginUtils = new PluginUtils();
+
+    public RestContentGenerator(IPluginUtils pluginUtils) {
+
+        this.pluginUtils = pluginUtils;
+
         if (parameterProviders != null) {
             Iterator it = parameterProviders.entrySet().iterator();
             map = new HashMap<String, ICommonParameterProvider>();
@@ -29,11 +33,9 @@ public abstract class RestContentGenerator extends SimpleContentGenerator {
                 map.put(e.getKey(), WrapperUtils.wrapParamProvider(e.getValue()));
             }
         }
-
     }
 
     public abstract RestRequestHandler getRequestHandler();
-
 
     @Override
     public void createContent() throws Exception {
@@ -52,7 +54,7 @@ public abstract class RestContentGenerator extends SimpleContentGenerator {
     }
 
     public HttpMethod getHttpMethod() {
-        HttpServletRequest request = pluginUtils.getRequest(map);
+        HttpServletRequest request = ((PluginUtils) pluginUtils).getRequest(map);//XXX review
         String method = (request == null) ? null : request.getMethod();
         return (method != null) ? HttpMethod.valueOf(method) : HttpMethod.GET;
     }

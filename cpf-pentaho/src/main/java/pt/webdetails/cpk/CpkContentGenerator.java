@@ -49,19 +49,10 @@ public class CpkContentGenerator extends RestContentGenerator {
     //private IPluginUtils pluginUtils;
     private IRepositoryAccess repAccess;
     private ICpkEnvironment cpkEnv;
-    @Override
-    public void initParams(){
-        
-        super.initParams();
-        repAccess = new PentahoRepositoryAccess();
-        cpkEnv = new CpkPentahoEnvironment(pluginUtils, repAccess);
-        cpkPentahoEngine = CpkPentahoEngine.getInstanceWithEnv(cpkEnv);
-        
-    }
+   
     
-    public CpkContentGenerator(){this.initParams();}
     public CpkContentGenerator(ICpkEnvironment cpkEnv){//XXX
-        super();
+        super(cpkEnv.getPluginUtils());
         //super.initParams();
         this.cpkEnv=cpkEnv;
         cpkPentahoEngine = CpkPentahoEngine.getInstanceWithEnv(cpkEnv);
