@@ -126,7 +126,7 @@ public class CpkPentahoEngine extends CpkEngine {//XXX needs more attention
 
             IElementType elementType;
             try {
-                elementType = (IElementType) Class.forName(clazz).newInstance();
+                elementType = (IElementType) Class.forName(clazz).getDeclaredConstructors()[0].newInstance(cpkEnv.getPluginUtils());//XXX changed from Class.forName(clazz).newInstance();
 
                 // Store it
                 elementTypesMap.put(elementType.getType(), elementType);
