@@ -1,4 +1,4 @@
-package pt.webdetails.cpf.repository;
+package pt.webdetails.cpk.testUtils;
 
 
 import java.util.ArrayList;
@@ -11,6 +11,8 @@ import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileType;
 import org.apache.commons.vfs.FileUtil;
 import pt.webdetails.cpf.repository.IRepositoryFile;
+import pt.webdetails.cpf.repository.IRepositoryFile;
+import pt.webdetails.cpf.repository.IRepositoryFileFilter;
 import pt.webdetails.cpf.repository.IRepositoryFileFilter;
 
 public class VfsRepositoryFile implements IRepositoryFile {

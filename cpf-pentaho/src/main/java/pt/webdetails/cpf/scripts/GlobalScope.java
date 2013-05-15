@@ -159,7 +159,7 @@ public class GlobalScope extends ImporterTopLevel {
         /* Get the repository, and get a listing of all the files in the test dir from it*/
 //        final ISolutionRepository solutionRepository = PentahoSystem.get(ISolutionRepository.class, PentahoSessionHolder.getSession());
 //        ISolutionFile dir = solutionRepository.getSolutionFile(testPath, ISolutionRepository.ACTION_EXECUTE);
-        PentahoRepositoryAccess repository = (PentahoRepositoryAccess)PentahoRepositoryAccess.getRepository();//XXX change this aproach prob
+        PentahoRepositoryAccess repository = (PentahoRepositoryAccess)PentahoRepositoryAccess.getRepository();
         ISolutionFile testDir = repository.getSolutionFile(testPath, FileAccess.EXECUTE);
 
         if (testDir != null) {

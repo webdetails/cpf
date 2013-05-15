@@ -11,6 +11,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Node;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
+import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
 
 
 
@@ -23,14 +24,14 @@ import pt.webdetails.cpf.repository.IRepositoryAccess;
 public class PluginsAnalyzer {
     
     private List<Plugin> installedPlugins;
-    private IRepositoryAccess repoAccess;//XXX nedds to be initialized
+    private IRepositoryAccess repoAccess;
     protected Log logger = LogFactory.getLog(this.getClass());
 
     public PluginsAnalyzer(IRepositoryAccess repoAccess){
         this.repoAccess=repoAccess;
         
     }
-    public PluginsAnalyzer(){}
+    public PluginsAnalyzer(){repoAccess=new PentahoRepositoryAccess();}
     public void refresh(){
         buildPluginsList();
     }

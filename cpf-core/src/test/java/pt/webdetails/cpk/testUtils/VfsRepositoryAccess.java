@@ -1,4 +1,5 @@
-package pt.webdetails.cpf.repository;
+package pt.webdetails.cpk.testUtils;
+
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -8,12 +9,18 @@ import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+
 import org.apache.commons.lang.StringUtils;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
+
 import org.apache.commons.vfs.FileSystemManager;
+
 import org.apache.commons.vfs.Selectors;
 import org.apache.commons.vfs.VFS;
 import org.dom4j.Document;
@@ -22,6 +29,9 @@ import pt.webdetails.cpf.PluginSettings;
 import pt.webdetails.cpf.plugin.Plugin;
 import pt.webdetails.cpf.repository.BaseRepositoryAccess.FileAccess;
 import pt.webdetails.cpf.repository.BaseRepositoryAccess.SaveFileStatus;
+import pt.webdetails.cpf.repository.IRepositoryAccess;
+import pt.webdetails.cpf.repository.IRepositoryFile;
+import pt.webdetails.cpf.repository.IRepositoryFileFilter;
 import pt.webdetails.cpf.session.IUserSession;
 
 public class VfsRepositoryAccess implements IRepositoryAccess {
@@ -34,9 +44,12 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
     protected Plugin plugin;
     protected IUserSession session;
 
+   
+
     public VfsRepositoryAccess() throws IOException {
         this.DEFAULT_REPO = createDefaultRepo();
         this.DEFAULT_SETTINGS = createDefaultSettings();
+
         try {
             setRepository(DEFAULT_REPO);
             setSettings(DEFAULT_SETTINGS);
@@ -44,6 +57,7 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
             log.error("Cannot initialize VfsRepository", e);
         }
     }
+
 
     public VfsRepositoryAccess(String repo, String settings) {
         this.DEFAULT_REPO = "";
@@ -350,7 +364,6 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
                 if (resourceExists(file)) {
                     if (canWrite(file) && overwrite) {
                         FileObject f = resolveFile(repo, file);
-
 //                                        if (f.exists() && !overwrite) return SaveFileStatus.FAIL;
 //                                        if (!f.exists()) f.createFile();
                         f.getContent().getOutputStream().write(data);
@@ -358,10 +371,9 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 //					FileUtil.writeContent(f, bos);
 //					bos.write(data);
 //					bos.flush();
-
                         return SaveFileStatus.OK;
                     } else {
-                        return SaveFileStatus.FAIL;//XXX should I return false when can't write to file? or overwrite
+                        return SaveFileStatus.FAIL;
                     }
                 } else {
                     FileObject f = resolveFile(repo, file);
@@ -419,25 +431,21 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
         joined = joined.replaceAll("//", "/");
         return joined;
     }
-
-    private String createDefaultRepo() throws IOException {
-
-        String repo = System.getProperty("user.dir");
+    
+    
+     private String createDefaultRepo() throws IOException {
+        
+        String repo= System.getProperty("user.dir");
         setRepository(repo);
-        repo += "/cpf/repository";
+        repo+="/cpf/repository";
         createFolder("cpf/repository");
         return repo;
     }
 
     private String createDefaultSettings() throws IOException {
-        String sett = System.getProperty("user.dir");
-        sett += "/cpf/settings";
+        String sett= System.getProperty("user.dir");
+        sett+="/cpf/settings";
         createFolder("cpf/settings");
         return sett;
-	  }
-
-
-    
-    
-    
+    }
 }

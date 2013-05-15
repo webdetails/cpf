@@ -36,8 +36,8 @@ public class CpkEngineTest extends CpkEngine {
         init(null);
         
     }
-    //XXX lacking a better name
-    public static CpkEngineTest getInstanceWithParams(ICpkEnvironment environment) {
+    
+    public static CpkEngineTest getInstanceWithEnvironment(ICpkEnvironment environment) {
 
         if (instance == null) {
             instance = new CpkEngineTest(environment);
@@ -61,11 +61,11 @@ public class CpkEngineTest extends CpkEngine {
         return instance;
     }
  
-    private synchronized void initialize() throws DocumentException, IOException {
+    protected synchronized void initialize() throws DocumentException, IOException {
 
 
         // Start by forcing initialization of PluginUtils
-        logger.info("Initializing CPK Plugin " + environment.getPluginName().toUpperCase());
+        logger.info("Initializing CPK Plugin " + cpkEnv.getPluginName().toUpperCase());
         reload();
 
     }

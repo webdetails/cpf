@@ -20,6 +20,7 @@ import org.pentaho.di.core.Result;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.exception.KettleXMLException;
+import org.pentaho.di.core.logging.LogLevel;
 import org.pentaho.di.core.parameters.UnknownParamException;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.job.Job;
@@ -198,7 +199,6 @@ public class KettleElementType extends AbstractElementType {
         }
 
         Trans transformation = new Trans(transformationMeta);
-
         /*
          * Loading parameters, if there are any.
          */
@@ -270,7 +270,6 @@ public class KettleElementType extends AbstractElementType {
             
         }
         Job job = new Job(null, jobMeta);
-
         /*
          * Loading parameters, if there are any. We'll pass them also as variables
          */
@@ -281,13 +280,13 @@ public class KettleElementType extends AbstractElementType {
             IUserSession userSession = CpkEngine.getInstance().getEnvironment().getSessionUtils().getCurrentSession();
 
             if (userSession.getUserName() != null) {
-                job.getJobMeta().setVariable("pentahoUsername", userSession.getUserName());
+                job.getJobMeta().setVariable("username", userSession.getUserName());
 
             }
             String[] authorities = userSession.getAuthorities();
             
             if (authorities != null && authorities.length > 0) {              
-                job.getJobMeta().setVariable("pentahoRoles", StringUtils.join(authorities, ","));
+                job.getJobMeta().setVariable("roles", StringUtils.join(authorities, ","));
             }            
             
 

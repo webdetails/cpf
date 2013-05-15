@@ -11,15 +11,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.dom4j.Document;
 import org.dom4j.Node;
-import org.dom4j.io.SAXReader;
-//import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
-import pt.webdetails.cpf.repository.IRepositoryAccess;
-//import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 /**
  *
@@ -32,9 +30,10 @@ public class Plugin {
     private String company;
     private String companyUrl;
     private String path;
+    private String version;
     private final String PLUGIN_XML_FILENAME = "plugin.xml";
     private final String SETTINGS_XML_FILENAME = "settings.xml";
-    private IRepositoryAccess repoAccess;//XXX needs to be initialized
+    private final String VERSION_XML_FILENAME = "version.xml";
     protected Log logger = LogFactory.getLog(this.getClass());
     
     public Plugin(String path){
@@ -129,20 +128,18 @@ public class Plugin {
         File xmlFile = null;
         Document xml = null;
         Node node = null;
-        SAXReader reader = new SAXReader();
+        
         try {
             xmlFile = new File(filePath);
             fis = new FileInputStream(xmlFile);
             bis = new BufferedInputStream(fis);
-            //xml = XmlDom4JHelper.getDocFromStream(bis, null);
-           xml =reader.read(bis);
+            xml = XmlDom4JHelper.getDocFromStream(bis, null);
             node = xml.getRootElement();
 
             bis.close();
             fis.close();
         } catch (Exception ex) {
-            //Logger.getLogger(PluginsAnalyzer.class.getName()).log(Level.SEVERE, null, ex);
-            Logger.getLogger(Plugin.class.getName()).log(Level.SEVERE,null,ex);
+            Logger.getLogger(PluginsAnalyzer.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         return node;
@@ -156,6 +153,20 @@ public class Plugin {
             setDescription(documentNode.valueOf("/plugin/content-types/content-type/description"));
             setCompany(documentNode.valueOf("/plugin/content-types/content-type/company/@name"));
             setCompanyUrl(documentNode.valueOf("/plugin/content-types/content-type/company/@url"));
+        }
+        
+        if(hasVersionXML()){
+            Node documentNode = getXmlFileContent(getPath()+VERSION_XML_FILENAME);
+            
+            String content = null;
+            
+            content = documentNode.asXML();
+            
+            this.version = content;
+            
+        }else{
+            String unspecified = "unspecified or no version.xml present in plugin directory";
+            this.version = unspecified;
         }
     }
     
@@ -193,6 +204,17 @@ public class Plugin {
         return has;
     }
     
+    @JsonIgnore
+    public boolean hasVersionXML(){
+        boolean has = false;
+        
+        if(new File(getPath()+VERSION_XML_FILENAME).exists()){
+            has = true;
+        }
+        
+        return has;
+    }
+    
     @JsonProperty("solutionPath")
     public String getPluginSolutionPath(){
         return getId()+File.separator;
@@ -200,7 +222,7 @@ public class Plugin {
     
     @JsonProperty("systemPath")
     public String getPluginRelativePath(){
-        return getPath().replace(repoAccess.getSolutionPath(""), "");
+        return getPath().replace(PentahoSystem.getApplicationContext().getSolutionPath(""), "");
     }
     
     @JsonIgnore
@@ -223,6 +245,7 @@ public class Plugin {
         return value;
     }
     
-    
-    
+    public String getVersion(){
+        return version;
+    }
 }

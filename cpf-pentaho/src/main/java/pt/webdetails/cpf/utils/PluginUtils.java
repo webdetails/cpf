@@ -69,7 +69,7 @@ public class PluginUtils implements IPluginUtils {
     }
 
     @Override
-    public void initialize() throws IOException, DocumentException {//XXX was private
+    public void initialize() throws IOException, DocumentException {
 
         // We need to get the plugin name
         IPluginResourceLoader resLoader = PentahoSystem.get(IPluginResourceLoader.class, null);
@@ -304,6 +304,6 @@ public class PluginUtils implements IPluginUtils {
 
     @Override
     public OutputStream getOutputStream(Map<String, ICommonParameterProvider> map) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); //XXX return (OutputStream) parameterProviders.get("path").getParameter("outputstream");
     }
 }

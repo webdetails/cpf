@@ -25,7 +25,7 @@ import pt.webdetails.cpf.repository.IRepositoryAccess;
 import pt.webdetails.cpk.elements.IElement;
 import pt.webdetails.cpk.security.IAccessControl;
 import pt.webdetails.cpk.testUtils.PluginUtils;
-import pt.webdetails.cpf.repository.VfsRepositoryAccess;
+import pt.webdetails.cpk.testUtils.VfsRepositoryAccess;
 import pt.webdetails.cpf.session.IUserSession;
 import org.pentaho.di.core.KettleEnvironment;
 
@@ -98,22 +98,64 @@ public class CpkCoreServiceTestBundle {
         ICommonParameterProvider p = new CommonParameterProvider();
         ICommonParameterProvider p1 = new CommonParameterProvider();
         outResponse = new ByteArrayOutputStream();
-        p.put("path", "/pass_arguments");//diferent .kjb files give diferent errors(pass_arguments,createPlugin)
-        p.put("stepname", "OUTPUT");
+        p.put("path", "/pass_arguments");//kjb or ktr
         p.put("outputstream", outResponse);
         p.put("httpresponse", null);
-        p1.put("request","random request");
+        p1.put("request","unnecessary value?");
+        p1.put("paramarg1", "value1");
+        p1.put("paramarg2", "value2");
+        p1.put("paramarg3", "value3");
         map.put("path", p);
         map.put("request", p1);
 
     }
-    
+   
     @Test
-    public void testCreateContent() throws Exception {
-        KettleEnvironment.init();
-        cpkCore.createContent(map);
-        String str = outResponse.toString();//XXX the steps seem to be runing fine, explodes in KettleElementType ln268
-        
+    public void testCreateContent() throws Exception {//start a hypersonic to test
+         KettleEnvironment.init();
+         outResponse= new ByteArrayOutputStream();
+         
+         cpkCore.createContent(passArguments());
+         String pass_arguments_result = outResponse.toString();
+         outResponse.close();
+         outResponse= new ByteArrayOutputStream();
+         
+         cpkCore.createContent(writeback());
+         String writeback_result = outResponse.toString();
+         outResponse.close();
+         outResponse= new ByteArrayOutputStream();
+
+         cpkCore.createContent(sampleTrans());
+         String sampleTrans_result = outResponse.toString();
+         outResponse.close();
+         outResponse= new ByteArrayOutputStream();
+         
+         cpkCore.createContent(evaluateResultRows());
+         String evaluateResultRows_result = outResponse.toString();
+         outResponse.close();
+         outResponse= new ByteArrayOutputStream();
+         
+         cpkCore.createContent(createResultRows());
+         String createResultRows_result = outResponse.toString();
+         outResponse.close();
+         
+         Pattern wrongPattern = Pattern.compile(".*\\{\"result\":false.*\\}.*");
+         Pattern argumentsPattern = Pattern.compile("\r\n\r\n");//passing arguments around is not suported yet, so this is the result
+         Pattern correctTransformationPattern = Pattern.compile("\\{\"queryInfo.*\\{.*\\}.*\\[.*\\].*\\}");
+         Pattern correctJobPattern = Pattern.compile(".*\"result\":true.*");
+         
+         Matcher pass_arguments_kjb=argumentsPattern.matcher(pass_arguments_result);
+         Matcher writeback_ktr=argumentsPattern.matcher(writeback_result);
+         Matcher sampleTrans_ktr=correctTransformationPattern.matcher(sampleTrans_result);
+         Matcher evaluateResultRows_kjb=correctJobPattern.matcher(evaluateResultRows_result);
+         Matcher createResultRows_ktr=correctTransformationPattern.matcher(createResultRows_result);
+         
+         
+         Assert.assertTrue(pass_arguments_kjb.matches()); 
+         Assert.assertTrue(writeback_ktr.matches());
+         Assert.assertTrue(sampleTrans_ktr.matches());
+         Assert.assertTrue(evaluateResultRows_kjb.matches());
+         Assert.assertTrue(createResultRows_ktr.matches());
         
     }
     
@@ -141,29 +183,9 @@ public class CpkCoreServiceTestBundle {
         
     }
     
-    /*@Test
-    public void testPluginList(){//XXX pass to CpkContentGeneratorTestBundle
-        out = new ByteArrayOutputStream();
-        cpkCore.pluginsList(out);///XXX needs fine tuning on vfsRepositoryAccess getSolutionPath
-        String str = out.toString();
-        
-        Assert.assertTrue(str!=null);
-        
-        
-    }*/
-    
-  /*  @Test
-   * public void testGetSitemapJson() throws IOException{//XXX pass to CpkContentGeneratorTestBundle
-        out = new ByteArrayOutputStream();
-        cpkCore.getSitemapJson(out);
-        String str = out.toString();
-        
-        Assert.assertTrue(str.equals("null"));
-        
-    }*/
-     @Test
+    @Test
     public void testGetRequestHandler(){
-         RestRequestHandler r = cpkCore.getRequestHandler();//XXX Just testing if router requesthandler is null, other way of test?
+         RestRequestHandler r = cpkCore.getRequestHandler();
          Assert.assertTrue(r!=null);
      }
      @Test
@@ -171,9 +193,93 @@ public class CpkCoreServiceTestBundle {
          
          String str = cpkCore.getPluginName();
          
-         Assert.assertTrue(str.equals("cpkSol"));//compare with a plugin i know
+         Assert.assertTrue(str.equals("cpkSol"));//compare with a plugin I know
          
      }
 
     
+     
+     
+     
+      private Map<String,ICommonParameterProvider> passArguments(){
+        Map<String,ICommonParameterProvider> map = new HashMap<String, ICommonParameterProvider>();
+        ICommonParameterProvider p = new CommonParameterProvider();
+        ICommonParameterProvider p1 = new CommonParameterProvider();
+        p.put("path", "/pass_arguments");//kjb or ktr
+        p.put("outputstream", outResponse);
+        p.put("httpresponse", null);
+        p1.put("request","random request");
+        p1.put("paramarg1", "value1");
+        p1.put("paramarg2", "value2");
+        p1.put("paramarg3", "value3");
+        map.put("path", p);
+        map.put("request", p1);
+        return map;
+    }
+       private Map<String,ICommonParameterProvider> writeback(){
+        Map<String,ICommonParameterProvider> map = new HashMap<String, ICommonParameterProvider>();
+        ICommonParameterProvider p = new CommonParameterProvider();
+        ICommonParameterProvider p1 = new CommonParameterProvider();
+        p.put("path", "/writeback");//kjb or ktr
+        p.put("outputstream", outResponse);
+        p.put("httpresponse", null);
+        p1.put("stepName", "text file output");//output stepname for ktr
+        p1.put("request","random request");
+        p1.put("paramarg1", "value1");
+        p1.put("paramarg2", "value2");
+        p1.put("paramarg3", "value3");
+        map.put("path", p);
+        map.put("request", p1);
+        return map;
+    }
+        private Map<String,ICommonParameterProvider> sampleTrans(){
+        Map<String,ICommonParameterProvider> map = new HashMap<String, ICommonParameterProvider>();
+        ICommonParameterProvider p = new CommonParameterProvider();
+        ICommonParameterProvider p1 = new CommonParameterProvider();
+        p.put("path", "/sampleTrans");//kjb or ktr
+        p.put("outputstream", outResponse);
+        p.put("httpresponse", null);
+        //p1.put("stepName", "text file output");//samplTrans has defauls OUTPUT, so no need for stepname
+        p1.put("paramarg1", "value1");
+        p1.put("paramarg2", "value2");
+        p1.put("paramarg3", "value3");
+        p1.put("kettleOutput", "Json");//not Infered kettle, so must pass Json Output
+        map.put("path", p);
+        map.put("request", p1);
+        return map;
+    }
+
+    private Map<String, ICommonParameterProvider> evaluateResultRows() {
+         Map<String,ICommonParameterProvider> map = new HashMap<String, ICommonParameterProvider>();
+        ICommonParameterProvider p = new CommonParameterProvider();
+        ICommonParameterProvider p1 = new CommonParameterProvider();
+        p.put("path", "/evaluate-result-rows");//kjb or ktr
+        p.put("outputstream", outResponse);
+        p.put("httpresponse", null);
+        //p1.put("stepName", "text file output");//samplTrans has defauls OUTPUT, so no need for stepname
+        p1.put("paramarg1", "value1");
+        p1.put("paramarg2", "value2");
+        p1.put("paramarg3", "value3");
+        map.put("path", p);
+        map.put("request", p1);
+        return map;
+    }
+     private Map<String, ICommonParameterProvider> createResultRows() {
+         Map<String,ICommonParameterProvider> map = new HashMap<String, ICommonParameterProvider>();
+        ICommonParameterProvider p = new CommonParameterProvider();
+        ICommonParameterProvider p1 = new CommonParameterProvider();
+        p.put("path", "/create-result-rows");//kjb or ktr
+        p.put("outputstream", outResponse);
+        p.put("httpresponse", null);
+        p1.put("stepName", "copy rows to result");
+        p1.put("paramarg1", "value1");
+        p1.put("paramarg2", "value2");
+        p1.put("paramarg3", "value3");
+        map.put("path", p);
+        map.put("request", p1);
+        return map;
+    }
+     
+     
+     
 }

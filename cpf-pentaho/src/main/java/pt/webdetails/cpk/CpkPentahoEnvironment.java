@@ -50,7 +50,7 @@ public class CpkPentahoEnvironment implements ICpkEnvironment{
     }
 
     @Override
-    public ISessionUtils getSessionUtils() {//XXX is this correct?
+    public ISessionUtils getSessionUtils() {
         return new PentahoSessionUtils();
     }
 
