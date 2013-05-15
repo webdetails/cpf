@@ -13,16 +13,18 @@ import org.pentaho.platform.plugin.services.pluginmgr.PluginResourceLoader;
  *
  * @author joao
  */
-public class PluginResourceLoaderTest extends PluginResourceLoader {
+public class PluginResourceLoaderForTesting extends PluginResourceLoader {
 
+    
+    
+    public PluginResourceLoaderForTesting(){
+        super();
+    }
+    
     @Override
     protected PluginClassLoader getOverrideClassloader() {
-
-        
-        File path = new File(System.getProperty("user.dir")+"/test-resources/repo/cpkSol");
-        
+        File path = new File(System.getProperty("user.dir")+"/test-resources/repo/system/cpkSol/");//must add the "/" at the end because it is a dir
         return new PluginClassLoader(path, null);
-                
     }
 
 }
