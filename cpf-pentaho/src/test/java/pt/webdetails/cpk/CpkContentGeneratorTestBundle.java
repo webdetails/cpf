@@ -4,6 +4,7 @@
 package pt.webdetails.cpk;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
@@ -47,7 +48,7 @@ import pt.webdetails.cpf.impl.SimpleSessionUtils;
 import pt.webdetails.cpf.impl.SimpleUserSession;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
 import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
-import pt.webdetails.cpk.testUtils.VfsRepositoryAccess;//XXX should use PentahoRepository?
+import pt.webdetails.cpf.repository.VfsRepositoryAccess;//XXX should use PentahoRepository?
 import pt.webdetails.cpf.session.ISessionUtils;
 import pt.webdetails.cpf.session.IUserSession;
 import pt.webdetails.cpf.session.PentahoSession;
@@ -55,6 +56,7 @@ import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.IElement;
 import pt.webdetails.cpk.security.IAccessControl;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginResourceLoader;
+import pt.webdetails.cpk.testUtils.TestSpecificCpkContentGenerator;
 
 /**
  *
@@ -63,7 +65,8 @@ import org.pentaho.platform.plugin.services.pluginmgr.PluginResourceLoader;
 public class CpkContentGeneratorTestBundle {
 
     private static IPluginUtils pluginUtils;
-    private static CpkContentGenerator cpkContentGenerator;
+    //private static CpkContentGenerator cpkContentGenerator;
+    private static TestSpecificCpkContentGenerator cpkContentGenerator;
     private static Map<String, ICommonParameterProvider> map;
     private static IRepositoryAccess repAccess;
     private static OutputStream out;
@@ -76,7 +79,7 @@ public class CpkContentGeneratorTestBundle {
     public static void setUp() throws IOException, InitializationException, ObjectFactoryException {
 
         
-        StandaloneApplicationContext appContext = new StandaloneApplicationContext("test-resources/repo", "");
+        StandaloneApplicationContext appContext = new StandaloneApplicationContext(userDir+"/"+"test-resources/repo", "");
 
         StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory();
         factory.init("test-resources/repo/system/pentahoObjects.spring.xml", null);
@@ -88,7 +91,8 @@ public class CpkContentGeneratorTestBundle {
         repAccess = new VfsRepositoryAccess(userDir + "/test-resources/repo",
                 userDir + "/test-resources/settings");
         pluginUtils = new PluginUtils();
-        pluginUtils.setPluginName("cpk");//XXX hardcode the name just to pass, try to bypass this
+        pluginUtils.setPluginName("cpkSol");//XXX hardcode the name just to pass, try to bypass this
+        pluginUtils.setPluginDirectory(new File(userDir+"/test-resources/repo/system/cpkSol"));
         final IUserSession userSession = new SimpleUserSession("userName", null, true, null);
         ICpkEnvironment environment = new ICpkEnvironment() {
             @Override
@@ -131,7 +135,8 @@ public class CpkContentGeneratorTestBundle {
                 return new SimpleSessionUtils(userSession, null, null);
             }
         };
-        cpkContentGenerator = new CpkContentGenerator(environment);
+        //cpkContentGenerator = new CpkContentGenerator(environment);
+        cpkContentGenerator = new TestSpecificCpkContentGenerator(environment);
     }
 
     @Test
@@ -139,35 +144,35 @@ public class CpkContentGeneratorTestBundle {
         KettleEnvironment.init();
         outResponse = new ByteArrayOutputStream();
         cpkContentGenerator.setParameterProviders(unwrapParams(passArguments()));
-        cpkContentGenerator.initParams();
+        cpkContentGenerator.wrapParameters();
         cpkContentGenerator.createContent();
         String pass_arguments_result = outResponse.toString();
         outResponse.close();
         outResponse = new ByteArrayOutputStream();
 
         cpkContentGenerator.setParameterProviders(unwrapParams(writeback()));
-        cpkContentGenerator.initParams();
+        cpkContentGenerator.wrapParameters();
         cpkContentGenerator.createContent();
         String writeback_result = outResponse.toString();
         outResponse.close();
         outResponse = new ByteArrayOutputStream();
 
         cpkContentGenerator.setParameterProviders(unwrapParams(sampleTrans()));
-        cpkContentGenerator.initParams();
+        cpkContentGenerator.wrapParameters();
         cpkContentGenerator.createContent();
         String sampleTrans_result = outResponse.toString();
         outResponse.close();
         outResponse = new ByteArrayOutputStream();
 
         cpkContentGenerator.setParameterProviders(unwrapParams(evaluateResultRows()));
-        cpkContentGenerator.initParams();
+        cpkContentGenerator.wrapParameters();
         cpkContentGenerator.createContent();
         String evaluateResultRows_result = outResponse.toString();
         outResponse.close();
         outResponse = new ByteArrayOutputStream();
 
         cpkContentGenerator.setParameterProviders(unwrapParams(createResultRows()));
-        cpkContentGenerator.initParams();
+        cpkContentGenerator.wrapParameters();
         cpkContentGenerator.createContent();
         String createResultRows_result = outResponse.toString();
         outResponse.close();

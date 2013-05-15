@@ -10,11 +10,11 @@ import org.dom4j.DocumentException;
  *
  * @author Pedro Alves<pedro.alves@webdetails.pt>
  */
-public class CpkEngineTest extends CpkEngine {
+public class CpkEngineForTest extends CpkEngine {
 
-    private static CpkEngineTest instance;
+    private static CpkEngineForTest instance;
 
-    public CpkEngineTest(ICpkEnvironment environment) {
+    public CpkEngineForTest(ICpkEnvironment environment) {
       super(environment);
     }
 
@@ -28,7 +28,7 @@ public class CpkEngineTest extends CpkEngine {
         if (!isInitialized()) {
 
 		  
-		  instance = new CpkEngineTest(environment);
+		  instance = new CpkEngineForTest(environment);
 	  }
     }
     private static void init() throws InitializationException, IOException{
@@ -37,15 +37,15 @@ public class CpkEngineTest extends CpkEngine {
         
     }
     
-    public static CpkEngineTest getInstanceWithEnvironment(ICpkEnvironment environment) {
+    public static CpkEngineForTest getInstanceWithEnvironment(ICpkEnvironment environment) {
 
         if (instance == null) {
-            instance = new CpkEngineTest(environment);
+            instance = new CpkEngineForTest(environment);
         }
         return instance;
     }
 
-    public static CpkEngineTest getInstance() {
+    public static CpkEngineForTest getInstance() {
 
         if (instance == null) {
             try{

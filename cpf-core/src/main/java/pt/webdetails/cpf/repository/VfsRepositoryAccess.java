@@ -1,4 +1,4 @@
-package pt.webdetails.cpk.testUtils;
+package pt.webdetails.cpf.repository;
 
 
 import java.io.File;
@@ -11,8 +11,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 import org.apache.commons.logging.Log;
@@ -21,10 +19,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
 
-import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileSystemManager;
 
-import org.apache.commons.vfs.FileType;
 import org.apache.commons.vfs.Selectors;
 import org.apache.commons.vfs.VFS;
 import org.dom4j.Document;
@@ -452,25 +448,4 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
         createFolder("cpf/settings");
         return sett;
     }
-    
-    @Override
-    public IRepositoryFile[] listRepositoryFiles(IRepositoryFileFilter filter) {
-        try {
-            FileObject[] files = repo.getChildren();
-            List<IRepositoryFile> repoFiles = new ArrayList<IRepositoryFile>();
-            for (FileObject file : files) {
-                if (file.exists() && file.isReadable() && file.getType().equals(FileType.FILE)) {
-                  IRepositoryFile repoFile = new VfsRepositoryFile(repo, file);
-                  if (filter == null || filter.accept(repoFile))
-                        repoFiles.add(repoFile);
-                }
-            }
-            return repoFiles.toArray(new IRepositoryFile[]{});
-        } catch (FileSystemException e) {
-            throw new RuntimeException("Cannot list repo files", e);
-        }
-    }    
-    
-    
-    
 }

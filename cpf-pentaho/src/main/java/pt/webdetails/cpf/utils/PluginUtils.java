@@ -115,7 +115,7 @@ public class PluginUtils implements IPluginUtils {
         IOFileFilter dirFilter = recursive.equals(Boolean.TRUE) ? TrueFileFilter.TRUE : null;
 
         // Get directory name. We need to make sure we're not allowing this to fetch other resources
-        String basePath = FilenameUtils.normalize(getPluginDirectory().getAbsolutePath());
+         String basePath = FilenameUtils.normalize(getPluginDirectory().getAbsolutePath());
         String elementFullPath = FilenameUtils.normalize(basePath + File.separator + elementPath);
 
         if (!elementFullPath.startsWith(basePath)) {
