@@ -43,25 +43,27 @@ public class CpkContentGenerator extends RestContentGenerator {
     public static final String CDW_EXTENSION = ".cdw";
     public static final String PLUGIN_NAME = "cpk";
     //private CpkEngine cpkEngine;
-    private CpkPentahoEngine cpkPentahoEngine;
+    private CpkEngine cpkEngine;
     private ICommonParameterProvider commonParameterProvider;
     //private Map<String, ICommonParameterProvider> map;
     //private IPluginUtils pluginUtils;
     private IRepositoryAccess repAccess;
     private ICpkEnvironment cpkEnv;
+    private CpkCoreService coreService;
    
     
-    public CpkContentGenerator(ICpkEnvironment cpkEnv){//XXX
+    public CpkContentGenerator(ICpkEnvironment cpkEnv){//XXX calls core service!
         super(cpkEnv.getPluginUtils());
         //super.initParams();
         this.cpkEnv=cpkEnv;
-        cpkPentahoEngine = CpkPentahoEngine.getInstanceWithEnv(cpkEnv);
+        cpkEngine = CpkEngine.getInstanceWithEnv(cpkEnv);
+        this.coreService=new CpkCoreService(cpkEnv);
     }
 
     @Override
     public void createContent() throws Exception {
-
-        // Make sure we have the engine running
+        coreService.createContent(map);
+       /* // Make sure we have the engine running
         //cpkPentahoEngine = CpkPentahoEngine.getInstance();
         cpkPentahoEngine = CpkPentahoEngine.getInstanceWithEnv(cpkEnv);
         
@@ -93,20 +95,20 @@ public class CpkContentGenerator extends RestContentGenerator {
             }
 
         } else {
-            super.createContent();
+            super.createContent(); //XXX this will not be called due to coreService
         }
 
-
+*/
     }
 
     @Exposed(accessLevel = AccessLevel.PUBLIC)
     public void reload(OutputStream out) throws DocumentException, IOException {
-
         // alias to refresh
-        refresh(out);
+        //refresh(out);
+        coreService.reload(out, map);
     }
 
-    @Exposed(accessLevel = AccessLevel.PUBLIC)
+    /*@Exposed(accessLevel = AccessLevel.PUBLIC)
     public void refresh(OutputStream out) throws DocumentException, IOException {
         //AccessControl accessControl = new AccessControl(pluginUtils);
         if(cpkEnv.getAccessControl().isAdmin()){
@@ -118,7 +120,7 @@ public class CpkContentGenerator extends RestContentGenerator {
         }
 
 
-    }
+    }*/
     
     @Exposed(accessLevel = AccessLevel.PUBLIC)
     public void version(OutputStream out){        
@@ -145,18 +147,14 @@ public class CpkContentGenerator extends RestContentGenerator {
 
     @Exposed(accessLevel = AccessLevel.PUBLIC)
     public void status(OutputStream out) throws DocumentException, IOException {
-
-        logger.info("Showing status for CPK plugin " + getPluginName());
-
-        pluginUtils.setResponseHeaders(map, "text/plain");
-        out.write(cpkPentahoEngine.getStatus().getBytes("UTF-8"));
-
+        coreService.status(out, map);
     }
 
     @Exposed(accessLevel = AccessLevel.PUBLIC)
     public void getSitemapJson(OutputStream out) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(out, cpkPentahoEngine.getSitemapJson());
+        //mapper.writeValue(out, cpkEngine.getSitemapJson());
+        mapper.writeValue(out, new CpkPentahoEngine(cpkEnv).getSitemapJson());//XXX redo this..
     }
     
     @Exposed(accessLevel = AccessLevel.PUBLIC)
@@ -166,7 +164,7 @@ public class CpkContentGenerator extends RestContentGenerator {
         ObjectMapper mapper = new ObjectMapper();
         
         try {
-            String json = mapper.writeValueAsString(cpkPentahoEngine.getPluginsList());
+            String json = mapper.writeValueAsString(CpkPentahoEngine.getPluginsList());
             writeMessage(out, json);
         } catch (IOException ex) {
             try {
@@ -180,11 +178,7 @@ public class CpkContentGenerator extends RestContentGenerator {
     
     @Exposed(accessLevel = AccessLevel.PUBLIC)
     public void getElementsList(OutputStream out){
-        try {
-            out.write(cpkPentahoEngine.getElementsJson().getBytes(ENCODING));
-        } catch (IOException ex) {
-            Logger.getLogger(CpkContentGenerator.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        coreService.getElementsList(out);
     }
     
 

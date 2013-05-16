@@ -32,6 +32,7 @@ import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.engine.core.solution.PentahoSessionParameterProvider;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.BaseSession;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
@@ -81,59 +82,19 @@ public class CpkContentGeneratorTest {
 
         
         StandaloneApplicationContext appContext = new StandaloneApplicationContext(userDir+"/"+"test-resources/repo", "");
-        //PentahoSolutionSpringApplicationContext springContext = new PentahoSolutionSpringApplicationContext();
-        
+       
         StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory();
         factory.init("test-resources/repo/system/pentahoObjects.spring.xml", null);
-        PluginResourceLoaderForTesting p = new PluginResourceLoaderForTesting();
+        
+        
+        PentahoSessionHolder.setSession(session);
         PentahoSystem.setObjectFactory(factory);
         PentahoSystem.setSystemSettingsService(factory.get(ISystemSettings.class, "systemSettingsService", session));
         PentahoSystem.init(appContext);
         repAccess = new PentahoRepositoryAccess();
-        //repAccess = new VfsRepositoryAccess(userDir + "/test-resources/repo", userDir + "/test-resources/settings");
         pluginUtils = new PluginUtils();
-        final IUserSession userSession = new SimpleUserSession("userName", null, true, null);
-        ICpkEnvironment environment = new ICpkEnvironment() {
-            @Override
-            public IPluginUtils getPluginUtils() {
-                return pluginUtils;
-            }
-
-            @Override
-            public IRepositoryAccess getRepositoryAccess() {
-                return repAccess;
-            }
-
-            @Override
-            public IAccessControl getAccessControl() {
-                return new IAccessControl() {
-                    @Override
-                    public boolean isAllowed(IElement element) {
-                        return true;
-                    }
-
-                    @Override
-                    public boolean isAdmin() {
-                        return true;
-                    }
-
-                    @Override
-                    public void throwAccessDenied(Map<String, ICommonParameterProvider> parameterProviders) {
-                        throw new UnsupportedOperationException("Not supported yet.");
-                    }
-                };
-            }
-
-            @Override
-            public String getPluginName() {
-                return pluginUtils.getPluginName();
-            }
-
-            @Override
-            public ISessionUtils getSessionUtils() {
-                return new SimpleSessionUtils(userSession, null, null);
-            }
-        };
+        //final IUserSession userSession = new SimpleUserSession("userName", null, true, null);
+        ICpkEnvironment environment = new CpkPentahoEnvironment(pluginUtils, repAccess);
         //cpkContentGenerator = new CpkContentGenerator(environment);
         cpkContentGenerator = new CpkContentGeneratorForTesting(environment);
     }

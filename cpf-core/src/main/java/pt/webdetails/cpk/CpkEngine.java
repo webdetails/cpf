@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -114,11 +116,12 @@ public class CpkEngine {
         // Clean the types
         elementsMap.clear();
         elementTypesMap.clear();
+        cpkEnv.reload();
         SAXReader reader;
         Document cpkDoc;
         IRepositoryFile repFile = cpkEnv.getRepositoryAccess().getSettingsFile("cpk.xml", BaseRepositoryAccess.FileAccess.READ);
         ByteArrayInputStream bis = new ByteArrayInputStream(repFile.getData());
-
+        
         try {
         reader = new SAXReader();
         cpkDoc = reader.read(bis);
@@ -126,7 +129,7 @@ public class CpkEngine {
         } finally {
             bis.close();
         }
-
+       
         List<Node> elementTypeNodes = cpkDoc.selectNodes("/cpk/elementTypes/elementType");
         defaultElementName = cpkDoc.selectSingleNode("/cpk/elementTypes").valueOf("@defaultElement").toLowerCase();
 

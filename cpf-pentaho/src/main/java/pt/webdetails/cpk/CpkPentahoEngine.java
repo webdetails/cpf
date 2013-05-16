@@ -33,150 +33,22 @@ import pt.webdetails.cpk.elements.IElementType;
  *
  * @author Pedro Alves<pedro.alves@webdetails.pt>
  */
-public class CpkPentahoEngine extends CpkEngine {//XXX needs more attention
+public class CpkPentahoEngine  {//XXX needs more attention
 
-    private static CpkPentahoEngine instance;
-    //private ICpkEnvironment cpkEnv;
-
+    private ICpkEnvironment cpkEnv;
    
     public CpkPentahoEngine(ICpkEnvironment cpkEnv){
-        super(cpkEnv);
-        //this.cpkEnv=cpkEnv;
-    }
-    public CpkPentahoEngine(){super();}
-    public static CpkPentahoEngine getInstanceWithEnv(ICpkEnvironment cpkEnv) {
-
-        if (instance == null) {
-            instance = new CpkPentahoEngine(cpkEnv);
-        }
-        return instance;
-    }
-    public static CpkPentahoEngine getInstance() {
-
-        if (instance == null) {
-
-            instance = new CpkPentahoEngine();
-
-        }
-
-        return instance;
-
-    }
-    @Override
-    public void reload() throws DocumentException, IOException {
-
-        // Clean the types
-        elementsMap.clear();
-        elementTypesMap.clear();
-        
-        PluginsAnalyzer pluginsAnalyzer = new PluginsAnalyzer();
-        pluginsAnalyzer.refresh();
-        
-        List<Plugin> plugins = pluginsAnalyzer.getInstalledPlugins();
-        String pluginName = cpkEnv.getPluginUtils().getPluginName();
-        Plugin plugin = null;
-        
-        for(Plugin plgn : plugins){
-            if(plgn.getName().equalsIgnoreCase(pluginName) || plgn.getId().equalsIgnoreCase(pluginName)){
-                plugin = plgn;
-                break;
-            }
-        }
-        
-        String fileName = "cpk.xml";
-        File xmlFile = new File(plugin.getPluginSolutionPath()+fileName);
-        FileInputStream fis = null;
-        BufferedInputStream bis = null;
-        InputStream is = null;
-        
-        
-        if(!xmlFile.exists()){
-            xmlFile = new File(plugin.getPath()+fileName);
-            try{
-                fis = new FileInputStream(xmlFile);
-                bis = new BufferedInputStream(fis);
-            }catch(Exception e){}
-            
-            if(!xmlFile.exists()){
-                IPluginResourceLoader resLoader = PentahoSystem.get(IPluginResourceLoader.class, null);
-                is = resLoader.getResourceAsStream(this.getClass(), fileName);
-                bis = new BufferedInputStream(is);
-
-            }
-        }else{
-            fis = new FileInputStream(xmlFile);
-            bis = new BufferedInputStream(fis);
-        }
-        
-        
-        // Buffer the is
-        
-        
-        Document cpkDoc = XmlDom4JHelper.getDocFromStream(bis, null);
-        setCpkDoc(cpkDoc);
-
-        List<Node> elementTypeNodes = cpkDoc.selectNodes("/cpk/elementTypes/elementType");
-        defaultElementName = cpkDoc.selectSingleNode("/cpk/elementTypes").valueOf("@defaultElement").toLowerCase();
-
-        for (Node node : elementTypeNodes) {
-
-            // Loop and instantiate the element types
-            String clazz = node.valueOf("./@class");
-            logger.debug("Found elementType: " + clazz);
-
-            IElementType elementType;
-            try {
-                elementType = (IElementType) Class.forName(clazz).getDeclaredConstructors()[0].newInstance(cpkEnv.getPluginUtils());//XXX changed from Class.forName(clazz).newInstance();
-
-                // Store it
-                elementTypesMap.put(elementType.getType(), elementType);
-
-            } catch (Exception ex) {
-                logger.error("Error initializing element type " + clazz + ": " + Util.getExceptionDescription(ex));
-                continue;
-            }
-
-            // Now that we have the class, scan the elements
-            List<IElement> elements = elementType.scanElements(getCpkDoc().selectSingleNode("/cpk/elementTypes/elementType[@class='" + clazz + "']"));//XXX pass_arguments is onot being scanned
-
-            // Register them in the map. We don't support duplicates, and we don't allow some reserved names
-            for (IElement element : elements) {
-
-                String key = element.getId().toLowerCase();
-
-                if (reserverdWords.contains(key)) {
-
-                    logger.warn("Element with reserved work '" + key + "' can't be registred: " + element.toString());
-
-                } else {
-                    // All ok
-                    if( !element.getName().startsWith("_")){
-                        elementsMap.put(element.getId().toLowerCase(), element);
-                    }
-                }
-
-            }
-
-
-            logger.debug("Initialization for " + elementType.getType() + " successfull. Registred " + elements.size() + " elements");
-
-        }
-
-
-        // List<Url> urls = resLoader.findResources(this.getClass(), ".");
-
-
-
+   
+        this.cpkEnv=cpkEnv;
     }
 
-    public JsonNode getSitemapJson() throws IOException {
-        LinkGenerator linkGen = new LinkGenerator(elementsMap,cpkEnv.getPluginUtils());
+    public  JsonNode getSitemapJson() throws IOException {//XXX get elementsMap somehow
+        LinkGenerator linkGen = new LinkGenerator(new TreeMap<String, IElement>(),cpkEnv.getPluginUtils());
         return linkGen.getLinksJson();
     }
-    
-  
-    
-    public List<Plugin> getPluginsList(){
+
+ 
+    public static List<Plugin> getPluginsList(){
         PluginsAnalyzer pluginsAnalyzer = new PluginsAnalyzer();
         pluginsAnalyzer.refresh();
         

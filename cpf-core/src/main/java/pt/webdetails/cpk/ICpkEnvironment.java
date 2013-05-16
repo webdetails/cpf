@@ -3,6 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpk;
 
+import org.dom4j.Document;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
 import pt.webdetails.cpf.session.ISessionUtils;
 import pt.webdetails.cpf.utils.IPluginUtils;
@@ -17,8 +18,9 @@ public interface ICpkEnvironment {
   
   public IAccessControl getAccessControl();
   
-  
   public String getPluginName();
     
   public ISessionUtils getSessionUtils();
+  
+  public void reload();
 }

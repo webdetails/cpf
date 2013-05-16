@@ -37,14 +37,7 @@ public class CpkCoreServiceForTesting extends CpkCoreService {
         // this.pluginUtils=pluginUtils;
         // this.repAccess=repAccess;
         super(environment);
-        try {
-            CpkEngineForTesting.init(environment);
-        } catch (InitializationException ex) {
-            Logger.getLogger(CpkCoreServiceForTesting.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(CpkCoreServiceForTesting.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        cpkEngine=CpkEngineForTesting.getInstance();
+        cpkEngine=CpkEngine.getInstanceWithEnv(environment);
         
     }
 
