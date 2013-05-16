@@ -72,5 +72,6 @@ public class CpkPentahoEnvironment implements ICpkEnvironment {
     public void reload() {
         PluginsAnalyzer pluginsAnalyzer = new PluginsAnalyzer();
         pluginsAnalyzer.refresh();
+        //repoAccess.setPlugin(new Plugin(getPluginName()));//XXX set plugin here?
     }
 }

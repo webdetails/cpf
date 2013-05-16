@@ -52,7 +52,7 @@ public class CpkContentGenerator extends RestContentGenerator {
     private CpkCoreService coreService;
    
     
-    public CpkContentGenerator(ICpkEnvironment cpkEnv){//XXX calls core service!
+    public CpkContentGenerator(ICpkEnvironment cpkEnv){
         super(cpkEnv.getPluginUtils());
         //super.initParams();
         this.cpkEnv=cpkEnv;

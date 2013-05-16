@@ -34,6 +34,8 @@ PentahoSystem which is initialized after Spring
 
 
   <bean id="IPluginResourceLoader" class="pt.webdetails.cpk.testUtils.PluginResourceLoaderForTesting" scope="prototype" />
+
+  <bean id="IPluginManager" class="org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginManager"/>
   
   <!--
   <bean id="IPluginResourceLoader" class="org.pentaho.platform.plugin.services.pluginmgr.PluginResourceLoader" scope="prototype" />

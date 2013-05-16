@@ -27,6 +27,7 @@ import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.api.engine.ISystemSettings;
+import org.pentaho.platform.api.engine.IUserDetailsRoleListService;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.engine.core.solution.PentahoSessionParameterProvider;
@@ -40,6 +41,8 @@ import org.pentaho.platform.engine.core.system.UserSession;
 import org.pentaho.platform.engine.core.system.boot.PentahoSystemBoot;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneObjectFactory;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
+import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.platform.engine.security.userrole.UserDetailsRoleListService;
 import org.pentaho.platform.engine.services.solution.SimpleParameterSetter;
 import org.pentaho.platform.engine.services.solution.SolutionEngine;
 import org.pentaho.platform.web.http.context.PentahoSolutionSpringApplicationContext;
@@ -49,7 +52,7 @@ import pt.webdetails.cpf.http.CommonParameterProvider;
 import pt.webdetails.cpf.impl.SimpleSessionUtils;
 import pt.webdetails.cpf.impl.SimpleUserSession;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
-import pt.webdetails.cpf.repository.PentahoRepositoryAccess;//XXX should use PentahoRepository?
+import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
 import pt.webdetails.cpf.session.ISessionUtils;
 import pt.webdetails.cpf.session.IUserSession;
 import pt.webdetails.cpf.session.PentahoSession;
@@ -57,6 +60,11 @@ import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.IElement;
 import pt.webdetails.cpk.security.IAccessControl;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginResourceLoader;
+import org.pentaho.platform.plugin.services.security.userrole.memory.InMemoryUserRoleListService;
+import org.springframework.security.Authentication;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
 import pt.webdetails.cpk.testUtils.CpkContentGeneratorForTesting;
 import pt.webdetails.cpk.testUtils.PluginResourceLoaderForTesting;
 
@@ -87,8 +95,29 @@ public class CpkContentGeneratorTest {
         factory.init("test-resources/repo/system/pentahoObjects.spring.xml", null);
         
         
+        
+        /*IUserDetailsRoleListService userDetailsRoleListService = PentahoSystem.getUserDetailsRoleListService();
+        //UserSession session = new UserSession("admin", null, false, null);
+        GrantedAuthority[] auths = userDetailsRoleListService.getUserRoleListService().getAllAuthorities();
+        Authentication auth = new AnonymousAuthenticationToken("admin", SecurityHelper.SESSION_PRINCIPAL, auths);
+        session.setAttribute(SecurityHelper.SESSION_PRINCIPAL, auth);
+        //session.doStartupActions(null);*/
+        
+        //*/
+        
+        UserDetailsRoleListService userRole = new UserDetailsRoleListService();
+        InMemoryUserRoleListService role = new InMemoryUserRoleListService();
+        GrantedAuthority aut[] = new GrantedAuthorityImpl[2];
+        aut[0]= new GrantedAuthorityImpl("admin");
+        aut[1]= new GrantedAuthorityImpl("what role");
+        
+        role.setAllAuthorities(aut);
+        userRole.setUserRoleListService(role);
+                
+                
         PentahoSessionHolder.setSession(session);
         PentahoSystem.setObjectFactory(factory);
+        PentahoSystem.setUserDetailsRoleListService(userRole);
         PentahoSystem.setSystemSettingsService(factory.get(ISystemSettings.class, "systemSettingsService", session));
         PentahoSystem.init(appContext);
         repAccess = new PentahoRepositoryAccess();
