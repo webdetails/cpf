@@ -47,9 +47,9 @@ public class KettleOutput implements IKettleOutput {
     private IPluginUtils pluginUtils;
 
     public KettleOutput(Map<String, ICommonParameterProvider> parameterProviders, IPluginUtils plug) {
-        pluginUtils=plug;
+        pluginUtils = plug;
         init(parameterProviders);
-        
+
     }
 
     protected void init(Map<String, ICommonParameterProvider> parameterProviders) {
@@ -73,15 +73,17 @@ public class KettleOutput implements IKettleOutput {
         if (rowMeta == null) {
             rowMeta = _rowMeta;
         }
-        rows.add(row);
+        Object[] rightRow = new Object[rowMeta.size()];
+        for (int i = 0; i < rowMeta.size(); i++) {
+            rightRow[i] = row[i];
+        }
+        rows.add(rightRow);
 
     }
 
     public ArrayList<Object[]> getRows() {
         return rows;
     }
-
- 
 
     @Override
     public void setResult(Result r) {
@@ -147,7 +149,7 @@ public class KettleOutput implements IKettleOutput {
                     long attachmentSize = file.getFile().getContent().getInputStream().available();
                     pluginUtils.setResponseHeaders(parameterProviders, mimeType, file.getFile().getName().getBaseName(), attachmentSize);
                 } catch (Exception e) {
-                    logger.error("Problem setting the attachment size: "+e);
+                    logger.error("Problem setting the attachment size: " + e);
                 }
             } else {
                 // set Mimetype only
@@ -166,7 +168,7 @@ public class KettleOutput implements IKettleOutput {
 
             ZipUtil zip = new ZipUtil();
             zip.buildZip(filesList);
-            
+
             pluginUtils.setResponseHeaders(parameterProviders, MimeTypes.ZIP, zip.getZipNameToDownload(), zip.getZipSize());
             try {
                 IOUtils.copy(zip.getZipInputStream(), out);
@@ -178,22 +180,20 @@ public class KettleOutput implements IKettleOutput {
 
         }
     }
-    
-    
 
     public void processSingleCell() {
 
 
         logger.debug("Process Single Cell - print it");
-        
-        
+
+
 
         // TODO - make sure this is correct
 
         try {
 
             Object result = getRows().get(0)[0];
-            if (result != null) {
+            if (result != null) {//XXX was using pluginUtils.getResponseOutputStream(parameterProviders);
                 pluginUtils.getOutputStream(parameterProviders).write(result.toString().getBytes(ENCODING));
             }
 
@@ -207,9 +207,9 @@ public class KettleOutput implements IKettleOutput {
 
     public void processJson() {
         ObjectMapper mapper = new ObjectMapper();
-        
+
         RowsJson rowsJson = new RowsJson(rows, rowMeta);
-        
+
         try {
             mapper.writeValue(out, rowsJson);
         } catch (IOException ex) {
@@ -237,9 +237,9 @@ public class KettleOutput implements IKettleOutput {
             try {
                 processResultFiles();
             } catch (Exception e) {
-                logger.error("Problem processing Result Files\n"+e);
+                logger.error("Problem processing Result Files\n" + e);
             }
-            
+
         } else {
 
             if (getKettleType() == KettleType.JOB) {
@@ -284,6 +284,4 @@ public class KettleOutput implements IKettleOutput {
     public void setRowMeta(RowMetaInterface rowMeta) {
         this.rowMeta = rowMeta;
     }
-    
-    
 }
