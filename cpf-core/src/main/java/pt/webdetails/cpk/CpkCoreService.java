@@ -113,7 +113,10 @@ public class CpkCoreService {
 
         logger.info("Showing status for CPK plugin " + getPluginName());
 
-        cpkEnvironment.getPluginUtils().setResponseHeaders(parameterProviders, "text/plain");
+        // Only set the headers if we have access to the response (via parameterProviders).
+        if (parameterProviders != null) {
+            cpkEnvironment.getPluginUtils().setResponseHeaders(parameterProviders, "text/plain");
+        }
         out.write(getCpkEngine().getStatus().getBytes("UTF-8"));
 
     }
