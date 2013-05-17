@@ -122,6 +122,10 @@ public class CpkCoreService {
     }
 
 
+    public boolean hasElement(String elementId) {
+        TreeMap<String, IElement> elementsMap = getCpkEngine().getElementsMap();
+        return elementsMap.containsKey(elementId.toLowerCase());
+    }
 
     public IElement[] getElements() {
         IElement[] elements = new IElement[]{};
