@@ -54,7 +54,7 @@ public abstract class RestContentGenerator extends SimpleContentGenerator {
     }
 
     public HttpMethod getHttpMethod() {
-        HttpServletRequest request = ((PluginUtils) pluginUtils).getRequest(map);//XXX review
+        HttpServletRequest request = ((PluginUtils) pluginUtils).getRequest(map);
         String method = (request == null) ? null : request.getMethod();
         return (method != null) ? HttpMethod.valueOf(method) : HttpMethod.GET;
     }

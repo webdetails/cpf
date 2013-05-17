@@ -6,55 +6,59 @@ package pt.webdetails.cpf.plugin;
 import pt.webdetails.cpf.repository.IRepositoryFile;
 import pt.webdetails.cpf.repository.IRepositoryFileFilter;
 
-public class Plugin {
+public class CorePlugin {
 
-  public final static Plugin CDA = new Plugin("cda", new String[]{"cda"});
-  public final static Plugin CDB = new Plugin("cdb", new String[]{"cdb"});
-  public final static Plugin CDC = new Plugin("cdc");
-  public final static Plugin CDE = new Plugin("pentaho-cdf-dd", new String[]{"cdfde"});
-  public final static Plugin CDF = new Plugin("pentaho-cdf", new String[]{"wcdf"});
-  public final static Plugin CDV = new Plugin("cdv");
-  private String name;
-  private String title;
-  private String[] fileExtensions;
+    public final static CorePlugin CDA = new CorePlugin("cda", new String[]{"cda"});
+    public final static CorePlugin CDB = new CorePlugin("cdb", new String[]{"cdb"});
+    public final static CorePlugin CDC = new CorePlugin("cdc");
+    public final static CorePlugin CDE = new CorePlugin("pentaho-cdf-dd", new String[]{"cdfde"});
+    public final static CorePlugin CDF = new CorePlugin("pentaho-cdf", new String[]{"wcdf"});
+    public final static CorePlugin CDV = new CorePlugin("cdv");
+    protected String name;
+    protected String id;//title
+    private String[] fileExtensions;
 
-  public String getName() {
-    return name;
-  }
+    public String getName() {
+        return name;
+    }
 
-  public String getTitle() {
-    return title;
-  }
+    public String getTitle() {
+        return id;
+    }
 
-  public Plugin(String id, String[] fileExtensions) {
-    this(id);
-    this.fileExtensions = fileExtensions;
-  }
+    public CorePlugin(String id, String[] fileExtensions) {
+        this(id);
+        this.fileExtensions = fileExtensions;
+    }
 
-  public Plugin(String name, String title) {
-    this.name = name;
-    this.title = title;
-  }
+    public CorePlugin(String name, String title) {
+        this.name = name;
+        this.id = title;
+    }
 
-  public Plugin(String id) {
-    this.name = id;
-    this.title = id;
-  }
+    public CorePlugin(String id) {
+        this.name = id;
+        this.id = id;
+    }
 
-  public IRepositoryFileFilter getPluginFileFilter() {
-    return new IRepositoryFileFilter() {
+    public CorePlugin() {
+        this.name = "defaultName";
+        this.id = "defaultId";
+    }
 
-      @Override
-      public boolean accept(IRepositoryFile irf) {
-        if (fileExtensions != null) {
-          for (String extension : fileExtensions) {
-            if (irf.getExtension().contains(extension)) {
-              return true;
+    public IRepositoryFileFilter getPluginFileFilter() {
+        return new IRepositoryFileFilter() {
+            @Override
+            public boolean accept(IRepositoryFile irf) {
+                if (fileExtensions != null) {
+                    for (String extension : fileExtensions) {
+                        if (irf.getExtension().contains(extension)) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
             }
-          }
-        }
-        return false;
-      }
-    };
-  }
+        };
+    }
 }

@@ -305,6 +305,5 @@ public class PluginUtils implements IPluginUtils {
     @Override
     public OutputStream getOutputStream(Map<String, ICommonParameterProvider> map) throws IOException {
         return (OutputStream) map.get("path").getParameter("outputstream");
-        //throw new UnsupportedOperationException("Not supported yet."); 
     }
 }

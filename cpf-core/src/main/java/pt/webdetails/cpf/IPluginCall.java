@@ -2,13 +2,13 @@ package pt.webdetails.cpf;
 
 import java.util.Map;
 
-import pt.webdetails.cpf.plugin.Plugin;
+import pt.webdetails.cpf.plugin.CorePlugin;
 
 public interface IPluginCall {
 
 	public final static String DEFAULT_ENCODING = "UTF-8";
 	  
-	public void init(Plugin plugin, String method, Map<String, Object> params);
+	public void init(CorePlugin plugin, String method, Map<String, Object> params);
 
 	public String getMethod();
 

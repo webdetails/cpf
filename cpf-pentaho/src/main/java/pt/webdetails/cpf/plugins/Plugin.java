@@ -18,14 +18,15 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import pt.webdetails.cpf.plugin.CorePlugin;
 
 /**
  *
  * @author Luis Paulo Silva
  */
-public class Plugin {
-    private String id;
-    private String name;
+public class Plugin extends CorePlugin{
+    //private String id;
+    //private String name;
     private String description;
     private String company;
     private String companyUrl;
@@ -37,6 +38,7 @@ public class Plugin {
     protected Log logger = LogFactory.getLog(this.getClass());
     
     public Plugin(String path){
+        super();
         if(!path.endsWith("/"))
         {
             setPath(path+"/");

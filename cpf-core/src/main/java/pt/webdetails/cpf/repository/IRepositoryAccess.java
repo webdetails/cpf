@@ -11,7 +11,7 @@ import java.io.UnsupportedEncodingException;
 
 import org.dom4j.Document;
 
-import pt.webdetails.cpf.plugin.Plugin;
+import pt.webdetails.cpf.plugin.CorePlugin;
 import pt.webdetails.cpf.repository.BaseRepositoryAccess.FileAccess;
 import pt.webdetails.cpf.repository.BaseRepositoryAccess.SaveFileStatus;
 import pt.webdetails.cpf.session.IUserSession;
@@ -85,7 +85,7 @@ public interface IRepositoryAccess {
 
     public abstract void setUserSession(IUserSession userSession);
 
-    public abstract void setPlugin(Plugin plugin);
+    public abstract void setPlugin(CorePlugin plugin);
 
     public abstract IRepositoryFile getSettingsFile(String path, FileAccess fileAccess);
     public abstract String getSettingsResourceAsString(String settingsPath)

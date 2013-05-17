@@ -65,8 +65,10 @@ import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
+import pt.webdetails.cpf.plugins.Plugin;
 import pt.webdetails.cpk.testUtils.CpkContentGeneratorForTesting;
 import pt.webdetails.cpk.testUtils.PluginResourceLoaderForTesting;
+import pt.webdetails.cpf.plugin.CorePlugin;
 
 /**
  *
@@ -97,7 +99,7 @@ public class CpkContentGeneratorTest {
         
         
         /*IUserDetailsRoleListService userDetailsRoleListService = PentahoSystem.getUserDetailsRoleListService();
-        //UserSession session = new UserSession("admin", null, false, null);
+        UserSession session = new UserSession("admin", null, false, null);
         GrantedAuthority[] auths = userDetailsRoleListService.getUserRoleListService().getAllAuthorities();
         Authentication auth = new AnonymousAuthenticationToken("admin", SecurityHelper.SESSION_PRINCIPAL, auths);
         session.setAttribute(SecurityHelper.SESSION_PRINCIPAL, auth);
@@ -114,14 +116,17 @@ public class CpkContentGeneratorTest {
         role.setAllAuthorities(aut);
         userRole.setUserRoleListService(role);
                 
-                
+        
         PentahoSessionHolder.setSession(session);
         PentahoSystem.setObjectFactory(factory);
         PentahoSystem.setUserDetailsRoleListService(userRole);
         PentahoSystem.setSystemSettingsService(factory.get(ISystemSettings.class, "systemSettingsService", session));
         PentahoSystem.init(appContext);
-        repAccess = new PentahoRepositoryAccess();
+        
         pluginUtils = new PluginUtils();
+        CorePlugin plugin = new Plugin(pluginUtils.getPluginDirectory().getPath());
+        repAccess = new PentahoRepositoryAccess();
+        repAccess.setPlugin(plugin);
         //final IUserSession userSession = new SimpleUserSession("userName", null, true, null);
         ICpkEnvironment environment = new CpkPentahoEnvironment(pluginUtils, repAccess);
         //cpkContentGenerator = new CpkContentGenerator(environment);
@@ -348,6 +353,7 @@ public class CpkContentGeneratorTest {
                 result.setParameter(name, value);
             }
             resultMap.put(e.getKey(), result);
+            result = new SimpleParameterProvider();
 
         }
         return resultMap;

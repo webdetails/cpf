@@ -30,7 +30,7 @@ import pt.webdetails.cpf.Util;
  *
  * @author Pedro Alves<pedro.alves@webdetails.pt>
  */
-public class PluginUtils implements IPluginUtils {
+public class PluginUtilsForTesting implements IPluginUtils {
 
     
     protected Log logger = LogFactory.getLog(this.getClass());
@@ -57,7 +57,7 @@ public class PluginUtils implements IPluginUtils {
         this.pluginName = pluginName;
     }
 
-    public PluginUtils() {
+    public PluginUtilsForTesting() {
         try {
             // init
             initialize();
@@ -77,7 +77,7 @@ public class PluginUtils implements IPluginUtils {
         /*
          * Verify if the index 0 is actually the file we want!
          */
-        String url ="file://"+System.getProperty("user.dir")+"/test-resources/cpkSol/plugin.xml";//XXX for testing purposes only
+        String url ="file://"+System.getProperty("user.dir")+"/test-resources/cpkSol/plugin.xml";
         
         URL pluginUrl = new URL(url);
         //URL pluginUrl = new File("plugin.xml").toURI().toURL();

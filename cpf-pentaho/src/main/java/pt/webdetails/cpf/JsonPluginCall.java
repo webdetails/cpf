@@ -7,13 +7,13 @@ package pt.webdetails.cpf;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import pt.webdetails.cpf.plugin.Plugin;
+import pt.webdetails.cpf.plugin.CorePlugin;
 
 public class JsonPluginCall {
   
   PentahoInterPluginCall internal;
   
-  public JsonPluginCall(Plugin plugin, String method) {
+  public JsonPluginCall(CorePlugin plugin, String method) {
       internal = new PentahoInterPluginCall(plugin, method);
       
 

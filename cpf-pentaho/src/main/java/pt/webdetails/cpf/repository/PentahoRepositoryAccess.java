@@ -9,10 +9,14 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -41,7 +45,7 @@ import org.springframework.security.providers.anonymous.AnonymousAuthenticationT
 
 import pt.webdetails.cpf.PluginSettings;
 import pt.webdetails.cpf.impl.DefaultRepositoryFile;
-import pt.webdetails.cpf.plugin.Plugin;
+import pt.webdetails.cpf.plugin.CorePlugin;
 import pt.webdetails.cpf.repository.BaseRepositoryAccess.FileAccess;
 import pt.webdetails.cpf.repository.BaseRepositoryAccess.SaveFileStatus;
 import pt.webdetails.cpf.repository.PentahoRepositoryAccess.ExtensionFilter;
@@ -55,7 +59,7 @@ import pt.webdetails.cpf.session.PentahoSession;
 @SuppressWarnings("deprecation")
 public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRepositoryAccess {
 
-  private Plugin plugin;
+  private CorePlugin plugin;
 
   public PentahoRepositoryAccess() {
     this(null);
@@ -427,7 +431,7 @@ public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRe
   }
 
   @Override
-  public void setPlugin(Plugin plugin) {
+  public void setPlugin(CorePlugin plugin) {
     this.plugin = plugin;
   }
 

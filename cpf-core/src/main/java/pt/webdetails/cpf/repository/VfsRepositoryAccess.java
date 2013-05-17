@@ -29,12 +29,9 @@ import org.apache.commons.vfs.VFS;
 import org.dom4j.Document;
 
 import pt.webdetails.cpf.PluginSettings;
-import pt.webdetails.cpf.plugin.Plugin;
+import pt.webdetails.cpf.plugin.CorePlugin;
 import pt.webdetails.cpf.repository.BaseRepositoryAccess.FileAccess;
 import pt.webdetails.cpf.repository.BaseRepositoryAccess.SaveFileStatus;
-import pt.webdetails.cpf.repository.IRepositoryAccess;
-import pt.webdetails.cpf.repository.IRepositoryFile;
-import pt.webdetails.cpf.repository.IRepositoryFileFilter;
 import pt.webdetails.cpf.session.IUserSession;
 
 public class VfsRepositoryAccess implements IRepositoryAccess {
@@ -44,7 +41,7 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
     protected static final Log log = LogFactory.getLog(VfsRepositoryAccess.class);
     protected FileObject settings;
     protected FileObject repo;
-    protected Plugin plugin;
+    protected CorePlugin plugin;
     protected IUserSession session;
 
    
@@ -105,7 +102,7 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
     }
 
     @Override
-    public void setPlugin(Plugin plugin) {
+    public void setPlugin(CorePlugin plugin) {
         this.plugin = plugin;
     }
 

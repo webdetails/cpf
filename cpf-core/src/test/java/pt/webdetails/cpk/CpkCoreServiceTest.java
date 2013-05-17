@@ -29,7 +29,7 @@ import pt.webdetails.cpf.impl.SimpleUserSession;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
 import pt.webdetails.cpk.elements.IElement;
 import pt.webdetails.cpk.security.IAccessControl;
-import pt.webdetails.cpk.testUtils.PluginUtils;
+import pt.webdetails.cpk.testUtils.PluginUtilsForTesting;
 import pt.webdetails.cpf.repository.VfsRepositoryAccess;
 import pt.webdetails.cpf.session.IUserSession;
 import org.pentaho.di.core.KettleEnvironment;
@@ -55,7 +55,7 @@ public class CpkCoreServiceTest {
 
         repAccess = new VfsRepositoryAccess(userDir + "/test-resources/repo",
                 userDir + "/test-resources/settings");
-        pluginUtils = new PluginUtils();
+        pluginUtils = new PluginUtilsForTesting();
         final IUserSession userSession = new SimpleUserSession("userName", null, true, null);
         ICpkEnvironment environment = new ICpkEnvironment() {
             @Override
@@ -148,6 +148,11 @@ public class CpkCoreServiceTest {
         cpkCore.createContent(createResultRows());
         String createResultRows_result = outResponse.toString();
         outResponse.close();
+        outResponse = new ByteArrayOutputStream();
+        
+        cpkCore.createContent(generateRows());
+        String generateRows_result = outResponse.toString();
+        outResponse.close();
 
         Pattern wrongPattern = Pattern.compile(".*\\{\"result\":false.*\\}.*");
         Pattern argumentsPattern = Pattern.compile("\r\n\r\n");//passing arguments around is not suported yet, so this is the result
@@ -159,13 +164,14 @@ public class CpkCoreServiceTest {
         Matcher sampleTrans_ktr = correctTransformationPattern.matcher(sampleTrans_result);
         Matcher evaluateResultRows_kjb = correctJobPattern.matcher(evaluateResultRows_result);
         Matcher createResultRows_ktr = correctTransformationPattern.matcher(createResultRows_result);
-
+        Matcher generateRows_ktr =  correctTransformationPattern.matcher(generateRows_result);
 
         Assert.assertTrue(pass_arguments_kjb.matches());
         Assert.assertTrue(writeback_ktr.matches());
         Assert.assertTrue(sampleTrans_ktr.matches());
         Assert.assertTrue(evaluateResultRows_kjb.matches());
         Assert.assertTrue(createResultRows_ktr.matches());
+        Assert.assertTrue(generateRows_ktr.matches());
 
     }
 
@@ -285,6 +291,22 @@ public class CpkCoreServiceTest {
         p1.put("paramarg1", "value1");
         p1.put("paramarg2", "value2");
         p1.put("paramarg3", "value3");
+        map.put("path", p);
+        map.put("request", p1);
+        return map;
+    }
+    private Map<String, ICommonParameterProvider> generateRows() {
+        Map<String, ICommonParameterProvider> map = new HashMap<String, ICommonParameterProvider>();
+        ICommonParameterProvider p = new CommonParameterProvider();
+        ICommonParameterProvider p1 = new CommonParameterProvider();
+        p.put("path", "/generate-rows");//kjb or ktr
+        p.put("outputstream", outResponse);
+        p.put("httpresponse", null);
+        //p1.put("request", "random request");
+        p1.put("stepName", "output");
+        //p1.put("paramarg1", "value1");
+        //p1.put("paramarg2", "value2");
+        //p1.put("paramarg3", "value3");
         map.put("path", p);
         map.put("request", p1);
         return map;

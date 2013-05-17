@@ -3,31 +3,16 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpk;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonNode;
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.Node;
-import org.pentaho.platform.api.engine.IPluginResourceLoader;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
-import pt.webdetails.cpf.Util;
 import pt.webdetails.cpf.plugins.IPluginFilter;
 import pt.webdetails.cpf.plugins.Plugin;
 import pt.webdetails.cpf.plugins.PluginsAnalyzer;
 import pt.webdetails.cpk.sitemap.LinkGenerator;
 import pt.webdetails.cpk.elements.IElement;
-import pt.webdetails.cpk.elements.IElementType;
+
 
 /**
  *

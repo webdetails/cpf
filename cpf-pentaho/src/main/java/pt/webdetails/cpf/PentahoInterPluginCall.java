@@ -30,7 +30,7 @@ import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.web.http.request.HttpRequestParameterProvider;
-import pt.webdetails.cpf.plugin.Plugin;
+import pt.webdetails.cpf.plugin.CorePlugin;
 
 
 /**
@@ -57,7 +57,7 @@ public class PentahoInterPluginCall extends AbstractInterPluginCall implements R
    * @param plugin the plugin to call
    * @param method 
    */
-  public PentahoInterPluginCall(Plugin plugin, String method){    
+  public PentahoInterPluginCall(CorePlugin plugin, String method){    
     super(plugin, method, new HashMap<String, Object>());
   }
   

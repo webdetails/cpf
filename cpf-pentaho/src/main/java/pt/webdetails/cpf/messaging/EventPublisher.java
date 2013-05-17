@@ -18,7 +18,7 @@ import pt.webdetails.cpf.AbstractInterPluginCall;
 import pt.webdetails.cpf.JsonPluginCall;
 import pt.webdetails.cpf.PentahoInterPluginCall;
 import pt.webdetails.cpf.Result;
-import pt.webdetails.cpf.plugin.Plugin;
+import pt.webdetails.cpf.plugin.CorePlugin;
 
 
 /**
@@ -43,7 +43,7 @@ public class EventPublisher implements IEventPublisher {
   
   public synchronized static boolean canPush(){
     if(cdvExists == null){
-      cdvExists = new PentahoInterPluginCall(Plugin.CDV, "whatever").pluginExists();
+      cdvExists = new PentahoInterPluginCall(CorePlugin.CDV, "whatever").pluginExists();
     }
     return cdvExists;
   }
@@ -100,7 +100,7 @@ public class EventPublisher implements IEventPublisher {
 
       @Override
       public Result call() throws Exception {
-        JsonPluginCall call = new JsonPluginCall(Plugin.CDV, "warnings");
+        JsonPluginCall call = new JsonPluginCall(CorePlugin.CDV, "warnings");
         return new Result(call.call(event.toJSON()));
       }
       

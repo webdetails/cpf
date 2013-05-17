@@ -3,25 +3,9 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpk;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.pentaho.platform.api.engine.IPluginResourceLoader;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
-import pt.webdetails.cpf.plugins.Plugin;
 import pt.webdetails.cpf.plugins.PluginsAnalyzer;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
 import pt.webdetails.cpf.session.ISessionUtils;
-import pt.webdetails.cpf.session.IUserSession;
 import pt.webdetails.cpf.session.PentahoSessionUtils;
 import pt.webdetails.cpf.utils.IPluginUtils;
 import pt.webdetails.cpk.security.AccessControl;
@@ -72,6 +56,6 @@ public class CpkPentahoEnvironment implements ICpkEnvironment {
     public void reload() {
         PluginsAnalyzer pluginsAnalyzer = new PluginsAnalyzer();
         pluginsAnalyzer.refresh();
-        //repoAccess.setPlugin(new Plugin(getPluginName()));//XXX set plugin here?
+
     }
 }
