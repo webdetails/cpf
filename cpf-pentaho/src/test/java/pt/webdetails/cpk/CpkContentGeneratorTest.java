@@ -69,6 +69,7 @@ import pt.webdetails.cpf.plugins.Plugin;
 import pt.webdetails.cpk.testUtils.CpkContentGeneratorForTesting;
 import pt.webdetails.cpk.testUtils.PluginResourceLoaderForTesting;
 import pt.webdetails.cpf.plugin.CorePlugin;
+import pt.webdetails.cpk.testUtils.PentahoRepositoryAccessForTesting;
 
 /**
  *
@@ -96,17 +97,6 @@ public class CpkContentGeneratorTest {
         StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory();
         factory.init("test-resources/repo/system/pentahoObjects.spring.xml", null);
         
-        
-        
-        /*IUserDetailsRoleListService userDetailsRoleListService = PentahoSystem.getUserDetailsRoleListService();
-        UserSession session = new UserSession("admin", null, false, null);
-        GrantedAuthority[] auths = userDetailsRoleListService.getUserRoleListService().getAllAuthorities();
-        Authentication auth = new AnonymousAuthenticationToken("admin", SecurityHelper.SESSION_PRINCIPAL, auths);
-        session.setAttribute(SecurityHelper.SESSION_PRINCIPAL, auth);
-        //session.doStartupActions(null);*/
-        
-        //*/
-        
         UserDetailsRoleListService userRole = new UserDetailsRoleListService();
         InMemoryUserRoleListService role = new InMemoryUserRoleListService();
         GrantedAuthority aut[] = new GrantedAuthorityImpl[2];
@@ -125,7 +115,7 @@ public class CpkContentGeneratorTest {
         
         pluginUtils = new PluginUtils();
         CorePlugin plugin = new Plugin(pluginUtils.getPluginDirectory().getPath());
-        repAccess = new PentahoRepositoryAccess();
+        repAccess = new PentahoRepositoryAccessForTesting();
         repAccess.setPlugin(plugin);
         //final IUserSession userSession = new SimpleUserSession("userName", null, true, null);
         ICpkEnvironment environment = new CpkPentahoEnvironment(pluginUtils, repAccess);

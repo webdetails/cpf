@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin title="cpkSol" loader="DEFAULT">
+<plugin title="cpk" loader="DEFAULT">
 	<static-paths>
 		<static-path url="/cpkSol/static" localFolder="static"/>
 		<static-path url="/cpkSol/resources" localFolder="resources"/>
@@ -10,10 +10,10 @@
 	<content-types>
 	</content-types>
 	<content-generator
-		id="cpkSol"
-		title="CPKSOL"
+		id="cpk"
+		title="CPK"
 		type="cpk"
-		class="pt.webdetails.cpk.CpkContentGenerator"/>
+		class="pt.webdetails.cpk.CpkCoreService"/>
 
 	<!-- Menu entry -->
 	<menu-items/>

@@ -11,11 +11,6 @@
   <modified_user>-</modified_user>
   <modified_date>2008&#47;04&#47;09 17:00:17.573</modified_date>
     <parameters>
-        <parameter>
-            <name>one</name>
-            <default_value>1</default_value>
-            <description>One value</description>
-        </parameter>
     </parameters>
   <connection>
     <name>Derby</name>

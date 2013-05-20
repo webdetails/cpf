@@ -85,7 +85,7 @@ public class MimeTypes {
 
     public static String getMimeType(FileType fileType) {
         if (fileType == null) {
-            return null;//XXX or return ""; ?
+            return null;
         }
         String mimeType = mimeTypes.get(fileType);
         return mimeType == null ? "" : mimeType;

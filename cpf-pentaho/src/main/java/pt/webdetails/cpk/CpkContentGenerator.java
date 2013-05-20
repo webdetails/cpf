@@ -42,11 +42,8 @@ public class CpkContentGenerator extends RestContentGenerator {
     private static final long serialVersionUID = 1L;
     public static final String CDW_EXTENSION = ".cdw";
     public static final String PLUGIN_NAME = "cpk";
-    //private CpkEngine cpkEngine;
     private CpkEngine cpkEngine;
     private ICommonParameterProvider commonParameterProvider;
-    //private Map<String, ICommonParameterProvider> map;
-    //private IPluginUtils pluginUtils;
     private IRepositoryAccess repAccess;
     private ICpkEnvironment cpkEnv;
     private CpkCoreService coreService;
@@ -103,24 +100,8 @@ public class CpkContentGenerator extends RestContentGenerator {
 
     @Exposed(accessLevel = AccessLevel.PUBLIC)
     public void reload(OutputStream out) throws DocumentException, IOException {
-        // alias to refresh
-        //refresh(out);
         coreService.reload(out, map);
     }
-
-    /*@Exposed(accessLevel = AccessLevel.PUBLIC)
-    public void refresh(OutputStream out) throws DocumentException, IOException {
-        //AccessControl accessControl = new AccessControl(pluginUtils);
-        if(cpkEnv.getAccessControl().isAdmin()){
-            logger.info("Refreshing CPK plugin " + getPluginName());
-            cpkPentahoEngine.reload();
-            status(out);
-        }else{
-            cpkEnv.getAccessControl().throwAccessDenied(map);
-        }
-
-
-    }*/
     
     @Exposed(accessLevel = AccessLevel.PUBLIC)
     public void version(OutputStream out){        
@@ -153,8 +134,10 @@ public class CpkContentGenerator extends RestContentGenerator {
     @Exposed(accessLevel = AccessLevel.PUBLIC)
     public void getSitemapJson(OutputStream out) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        //mapper.writeValue(out, cpkEngine.getSitemapJson());
-        mapper.writeValue(out, new CpkPentahoEngine(cpkEnv).getSitemapJson());//XXX redo this..
+        CpkPentahoEngine pentahoEngine = new CpkPentahoEngine(cpkEnv.getPluginUtils());
+        pentahoEngine.setElementsMap(CpkEngine.getInstance().getElementsMap());
+        
+        mapper.writeValue(out, pentahoEngine.getSitemapJson());//XXX think of a better way to do this
     }
     
     @Exposed(accessLevel = AccessLevel.PUBLIC)

@@ -10,6 +10,7 @@ import org.codehaus.jackson.JsonNode;
 import pt.webdetails.cpf.plugins.IPluginFilter;
 import pt.webdetails.cpf.plugins.Plugin;
 import pt.webdetails.cpf.plugins.PluginsAnalyzer;
+import pt.webdetails.cpf.utils.IPluginUtils;
 import pt.webdetails.cpk.sitemap.LinkGenerator;
 import pt.webdetails.cpk.elements.IElement;
 
@@ -20,16 +21,20 @@ import pt.webdetails.cpk.elements.IElement;
  */
 public class CpkPentahoEngine  {//XXX needs more attention
 
-    private ICpkEnvironment cpkEnv;
+    private IPluginUtils pluginUtils;
+    private TreeMap<String, IElement> elementsMap;
    
-    public CpkPentahoEngine(ICpkEnvironment cpkEnv){
+    public CpkPentahoEngine(IPluginUtils pluginUtils){
    
-        this.cpkEnv=cpkEnv;
+        this.pluginUtils = pluginUtils;
     }
 
-    public  JsonNode getSitemapJson() throws IOException {//XXX get elementsMap somehow
-        LinkGenerator linkGen = new LinkGenerator(new TreeMap<String, IElement>(),cpkEnv.getPluginUtils());
+    public  JsonNode getSitemapJson() throws IOException {//XXX think of a better way to do this
+        if (elementsMap != null){
+        LinkGenerator linkGen = new LinkGenerator(new TreeMap<String, IElement>(),pluginUtils);
         return linkGen.getLinksJson();
+        }
+        return null;
     }
 
  
@@ -58,6 +63,11 @@ public class CpkPentahoEngine  {//XXX needs more attention
         plugins = pluginsAnalyzer.getPlugins(pluginFilter);
         
         return plugins;
+    }
+    
+    public void setElementsMap(TreeMap<String, IElement> map){
+        
+        this.elementsMap = map;
     }
 
 }
