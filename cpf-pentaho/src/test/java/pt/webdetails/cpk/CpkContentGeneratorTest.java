@@ -28,19 +28,21 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
+import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.engine.security.userrole.UserDetailsRoleListService;
 import pt.webdetails.cpf.RestRequestHandler;
 import pt.webdetails.cpf.http.CommonParameterProvider;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
 import pt.webdetails.cpf.utils.PluginUtils;
 import org.pentaho.platform.plugin.services.security.userrole.memory.InMemoryUserRoleListService;
+import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import pt.webdetails.cpf.plugins.Plugin;
 import pt.webdetails.cpk.testUtils.CpkContentGeneratorForTesting;
 import pt.webdetails.cpf.plugin.CorePlugin;
 import pt.webdetails.cpk.testUtils.PentahoRepositoryAccessForTesting;
-
 
 /**
  *
@@ -57,33 +59,30 @@ public class CpkContentGeneratorTest {
     private static OutputStream outResponse;
     private static String userDir = System.getProperty("user.dir");
     //private static PentahoSession session = new PentahoSession();
-    private static StandaloneSession session = new StandaloneSession("test");
+    private static StandaloneSession session = new StandaloneSession("joe");
 
     @BeforeClass
     public static void setUp() throws IOException, InitializationException, ObjectFactoryException {
 
-        
-        StandaloneApplicationContext appContext = new StandaloneApplicationContext(userDir+"/"+"test-resources/repo", "");
-       
+
+        StandaloneApplicationContext appContext = new StandaloneApplicationContext(userDir + "/" + "test-resources/repo", "");
+
         StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory();
         factory.init("test-resources/repo/system/pentahoObjects.spring.xml", null);
-        
-        UserDetailsRoleListService userRole = new UserDetailsRoleListService();
-        InMemoryUserRoleListService role = new InMemoryUserRoleListService();
-        GrantedAuthority aut[] = new GrantedAuthorityImpl[2];
-        aut[0]= new GrantedAuthorityImpl("admin");
-        aut[1]= new GrantedAuthorityImpl("what role");
-        
-        role.setAllAuthorities(aut);
-        userRole.setUserRoleListService(role);
-                
-        
+
+
+        GrantedAuthority[] roles = new GrantedAuthority[2];
+        roles[0] = new GrantedAuthorityImpl("Authenticated"); //$NON-NLS-1$
+        roles[1] = new GrantedAuthorityImpl("Admin"); //$NON-NLS-1$
+        Authentication auth = new UsernamePasswordAuthenticationToken("joe", "password", roles); //$NON-NLS-1$
+        session.setAttribute(SecurityHelper.SESSION_PRINCIPAL, auth);
+
+
         PentahoSessionHolder.setSession(session);
         PentahoSystem.setObjectFactory(factory);
-        PentahoSystem.setUserDetailsRoleListService(userRole);
         PentahoSystem.setSystemSettingsService(factory.get(ISystemSettings.class, "systemSettingsService", session));
         PentahoSystem.init(appContext);
-        
+
         pluginUtils = new PluginUtils();
         CorePlugin plugin = new Plugin(pluginUtils.getPluginDirectory().getPath());
         repAccess = new PentahoRepositoryAccessForTesting();
@@ -92,10 +91,10 @@ public class CpkContentGeneratorTest {
         ICpkEnvironment environment = new CpkPentahoEnvironment(pluginUtils, repAccess);
         //cpkContentGenerator = new CpkContentGenerator(environment);
         cpkContentGenerator = new CpkContentGeneratorForTesting(environment);
-        
-        
+
+
     }
-            
+
     @Test
     public void testCreateContent() throws Exception {
         KettleEnvironment.init();

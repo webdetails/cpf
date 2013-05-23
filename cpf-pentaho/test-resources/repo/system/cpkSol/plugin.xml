@@ -13,7 +13,7 @@
 		id="cpk"
 		title="CPK"
 		type="cpk"
-		class="pt.webdetails.cpk.CpkCoreService"/>
+		class="pt.webdetails.cpk.CpkContentGenerator"/>
 
 	<!-- Menu entry -->
 	<menu-items/>

@@ -38,24 +38,24 @@ public class PentahoRepositoryAccessForTesting extends PentahoRepositoryAccess {
     @Override
     public IRepositoryFile getSettingsFile(String fileName, FileAccess fa) {
         //Get plugin dir
-//    URL resourceUrl=null;
-//      try {
-//          resourceUrl = new URL("file://"+System.getProperty("user.dir")+"/test-resources/repo/system/cpkSol/cpk.xml");
-//      } catch (MalformedURLException ex) {
-//          Logger.getLogger(PentahoRepositoryAccess.class.getName()).log(Level.SEVERE, null, ex);
-//      }
-//    File f;
-//    try {
-//      f = new File(resourceUrl.toURI());
-//    } catch (URISyntaxException ex) {
-//      logger.error("Error while opening settings file with url " + resourceUrl);
-//      return null;
-//    }
-//    return new DefaultRepositoryFile(f);
-        VfsRepositoryAccess vfsrepo = new VfsRepositoryAccess(System.getProperty("user.dir") + "/test-resources/repo/system/cpkSol/", System.getProperty("user.dir") + "/test-resources/repo/system/cpkSol/");
+    URL resourceUrl=null;
+      try {
+          resourceUrl = new URL("file://"+System.getProperty("user.dir")+"/test-resources/repo/system/cpkSol/cpk.xml");
+      } catch (MalformedURLException ex) {
+          Logger.getLogger(PentahoRepositoryAccess.class.getName()).log(Level.SEVERE, null, ex);
+      }
+    File f;
+    try {
+      f = new File(resourceUrl.toURI());
+    } catch (URISyntaxException ex) {
+      logger.error("Error while opening settings file with url " + resourceUrl);
+      return null;
+    }
+    return new DefaultRepositoryFile(f);
+       // VfsRepositoryAccess vfsrepo = new VfsRepositoryAccess(System.getProperty("user.dir") + "/test-resources/repo/system/cpkSol/", System.getProperty("user.dir") + "/test-resources/repo/system/cpkSol/");
 
 
-        return vfsrepo.getSettingsFile(fileName, fa);
+        //return vfsrepo.getSettingsFile(fileName, fa);
 
     }
 
