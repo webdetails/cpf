@@ -3,19 +3,14 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpk;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.dom4j.Document;
 import org.dom4j.DocumentException;
-import org.dom4j.io.SAXReader;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
 import pt.webdetails.cpf.session.ISessionUtils;
 import pt.webdetails.cpf.utils.IPluginUtils;
@@ -33,8 +28,6 @@ import pt.webdetails.cpk.testUtils.PluginUtilsForTesting;
 import pt.webdetails.cpf.repository.VfsRepositoryAccess;
 import pt.webdetails.cpf.session.IUserSession;
 import org.pentaho.di.core.KettleEnvironment;
-import pt.webdetails.cpf.repository.BaseRepositoryAccess;
-import pt.webdetails.cpf.repository.IRepositoryFile;
 
 /**
  *

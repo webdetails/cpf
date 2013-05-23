@@ -4,7 +4,6 @@
 package pt.webdetails.cpk;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
@@ -20,56 +19,28 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.IParameterProvider;
-import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory;
-import org.pentaho.platform.api.engine.IPentahoObjectFactory;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.api.engine.ISystemSettings;
-import org.pentaho.platform.api.engine.IUserDetailsRoleListService;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
-import org.pentaho.platform.api.engine.PentahoAccessControlException;
-import org.pentaho.platform.engine.core.solution.PentahoSessionParameterProvider;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
-import org.pentaho.platform.engine.core.system.BaseSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
-import org.pentaho.platform.engine.core.system.UserSession;
-import org.pentaho.platform.engine.core.system.boot.PentahoSystemBoot;
-import org.pentaho.platform.engine.core.system.objfac.StandaloneObjectFactory;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
-import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.engine.security.userrole.UserDetailsRoleListService;
-import org.pentaho.platform.engine.services.solution.SimpleParameterSetter;
-import org.pentaho.platform.engine.services.solution.SolutionEngine;
-import org.pentaho.platform.web.http.context.PentahoSolutionSpringApplicationContext;
-import org.springframework.context.ApplicationContext;
 import pt.webdetails.cpf.RestRequestHandler;
 import pt.webdetails.cpf.http.CommonParameterProvider;
-import pt.webdetails.cpf.impl.SimpleSessionUtils;
-import pt.webdetails.cpf.impl.SimpleUserSession;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
-import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
-import pt.webdetails.cpf.session.ISessionUtils;
-import pt.webdetails.cpf.session.IUserSession;
-import pt.webdetails.cpf.session.PentahoSession;
 import pt.webdetails.cpf.utils.PluginUtils;
-import pt.webdetails.cpk.elements.IElement;
-import pt.webdetails.cpk.security.IAccessControl;
-import org.pentaho.platform.plugin.services.pluginmgr.PluginResourceLoader;
 import org.pentaho.platform.plugin.services.security.userrole.memory.InMemoryUserRoleListService;
-import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
 import pt.webdetails.cpf.plugins.Plugin;
 import pt.webdetails.cpk.testUtils.CpkContentGeneratorForTesting;
-import pt.webdetails.cpk.testUtils.PluginResourceLoaderForTesting;
 import pt.webdetails.cpf.plugin.CorePlugin;
 import pt.webdetails.cpk.testUtils.PentahoRepositoryAccessForTesting;
+
 
 /**
  *
@@ -121,6 +92,8 @@ public class CpkContentGeneratorTest {
         ICpkEnvironment environment = new CpkPentahoEnvironment(pluginUtils, repAccess);
         //cpkContentGenerator = new CpkContentGenerator(environment);
         cpkContentGenerator = new CpkContentGeneratorForTesting(environment);
+        
+        
     }
             
     @Test

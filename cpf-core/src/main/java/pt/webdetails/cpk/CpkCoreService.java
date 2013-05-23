@@ -9,9 +9,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.dom4j.DocumentException;
-
 import pt.webdetails.cpf.RestRequestHandler;
 import pt.webdetails.cpf.Router;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
