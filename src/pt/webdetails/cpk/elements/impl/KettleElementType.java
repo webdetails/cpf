@@ -8,6 +8,7 @@ import java.lang.reflect.Constructor;
 import pt.webdetails.cpk.elements.impl.kettleOutputs.KettleOutput;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.logging.Log;
@@ -23,6 +24,7 @@ import org.pentaho.di.core.exception.KettleXMLException;
 import org.pentaho.di.core.parameters.UnknownParamException;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.job.Job;
+import org.pentaho.di.job.JobEntryResult;
 import org.pentaho.di.job.JobMeta;
 import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransMeta;
@@ -146,7 +148,7 @@ public class KettleElementType extends AbstractElementType {
                 result = executeTransformation(kettlePath, customParams, kettleOutput);
             } else if (kettlePath.endsWith(".kjb")) {
                 kettleOutput.setKettleType(KettleType.JOB);
-                result = executeJob(kettlePath, customParams);
+                result = executeJob(kettlePath, customParams, kettleOutput);
             } else {
                 logger.warn("File extension unknown: " + kettlePath);
             }
@@ -247,7 +249,7 @@ public class KettleElementType extends AbstractElementType {
      * @throws KettleException
      * @throws KettleXMLException
      */
-    private Result executeJob(String kettlePath, HashMap<String, String> customParams) throws UnknownParamException, KettleException, KettleXMLException {
+    private Result executeJob(String kettlePath, HashMap<String, String> customParams, IKettleOutput kettleOutput) throws UnknownParamException, KettleException, KettleXMLException {
 
 
         JobMeta jobMeta;
@@ -294,7 +296,25 @@ public class KettleElementType extends AbstractElementType {
         job.start();
         setMimeType(job.getVariable("mimeType"), job.getParameterValue("mimeType"));
         job.waitUntilFinished();
-        return job.getResult();
+        
+        Result result = job.getResult();
+        JobEntryResult entryResult = null;
+        
+        List<JobEntryResult> jobEntryResultList = job.getJobEntryResults();
+        if(jobEntryResultList.size() > 0){
+            for(int i = 0; i < jobEntryResultList.size(); i++){
+                entryResult = jobEntryResultList.get(i);
+                if(entryResult != null){
+                    if(entryResult.getJobEntryName().equals(kettleOutput.getOutputStepName())){
+                        result = entryResult.getResult();
+                        break;
+                    }
+                }
+            }
+        }
+        
+        
+        return result;
 
     }
 
