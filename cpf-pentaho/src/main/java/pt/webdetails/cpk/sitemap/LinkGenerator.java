@@ -9,7 +9,6 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-//import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +18,6 @@ import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import pt.webdetails.cpf.utils.IPluginUtils;
-//import pt.webdetails.cpk.security.AccessControl;
 
 /**
  *
@@ -33,8 +31,8 @@ public class LinkGenerator {
 
 
     public LinkGenerator(Map<String,IElement> elementsMap,IPluginUtils pluginUtils) {
-        generateLinks(elementsMap);
         this.pluginUtils=pluginUtils;
+        generateLinks(elementsMap);  
     }
     
     private Map<String,File> getTopLevelDirectories(Map<String,IElement> elementsMap){
@@ -86,7 +84,7 @@ public class LinkGenerator {
                 if(elementsMap.containsKey(filename)){
                     IElement element = elementsMap.get(filename);
                     if(isDashboard(element)){
-                        l = new Link(elementsMap.get(filename));
+                        l = new Link(elementsMap.get(filename),pluginUtils);
                         if(!linkExists(dashboardLinks, l)){
                             dashboardLinks.add(l);
                         }

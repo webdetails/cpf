@@ -10,8 +10,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 import org.dom4j.DocumentException;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
 import pt.webdetails.cpf.utils.IPluginUtils;
@@ -198,13 +203,36 @@ public class CpkContentGeneratorTest {
     }
 
     @Test
-    public void testGetSitemapJson() throws IOException {
+    public void testGetSitemapJson() throws IOException, JSONException {
+
+        boolean successful = true;
         out = new ByteArrayOutputStream();
         cpkContentGenerator.getSitemapJson(out);
         String str = out.toString();
+        System.out.println(str);
         out.close();
 
-        Assert.assertTrue(str.equals(" not done yet "));//XXX todo
+        JSONArray json = null;
+        try {
+            json = new JSONArray(str);
+        } catch (JSONException ex) {
+            Logger.getLogger(CpkContentGeneratorTest.class.getName()).log(Level.SEVERE, null, ex);
+            Assert.fail(" # - Error parsing the JSON string");
+        }
+
+        for (int i = 0; i < json.length(); i++) {
+            JSONObject obj = json.getJSONObject(i);
+            String name = obj.getString("name");
+            String id = obj.getString("id");
+            String link = obj.getString("link");
+            if (!"null".equals(name) && !" null".equals(id) && !"null".equals(link)) {//XXX check test - wrong, no sublinks
+            } else {
+                successful= false;
+                break;
+            }
+        }
+        //Assert.assertTrue(successful);
+        Assert.fail();
 
     }
 
