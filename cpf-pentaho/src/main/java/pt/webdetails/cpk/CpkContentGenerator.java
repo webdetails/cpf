@@ -5,15 +5,9 @@ package pt.webdetails.cpk;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.AbstractMap;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.dom4j.DocumentException;
 import pt.webdetails.cpf.RestContentGenerator;
@@ -21,21 +15,12 @@ import pt.webdetails.cpf.RestRequestHandler;
 import pt.webdetails.cpf.Router;
 import pt.webdetails.cpf.annotations.AccessLevel;
 import pt.webdetails.cpf.annotations.Exposed;
-import pt.webdetails.cpf.http.CommonParameterProvider;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
-import pt.webdetails.cpk.security.IAccessControl;
-import pt.webdetails.cpf.utils.IPluginUtils;
-import pt.webdetails.cpf.utils.PluginUtils;
-import pt.webdetails.cpk.elements.IElement;
-import org.pentaho.platform.api.engine.IParameterProvider;
-import pt.webdetails.cpf.WrapperUtils;
 import pt.webdetails.cpf.plugins.IPluginFilter;
 import pt.webdetails.cpf.plugins.Plugin;
 import pt.webdetails.cpf.plugins.PluginsAnalyzer;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
-import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
-import pt.webdetails.cpk.security.AccessControl;
-import pt.webdetails.cpk.CpkCoreService;
+
 
 public class CpkContentGenerator extends RestContentGenerator {
 
@@ -59,43 +44,9 @@ public class CpkContentGenerator extends RestContentGenerator {
 
     @Override
     public void createContent() throws Exception {
-        coreService.createContent(map);
-       /* // Make sure we have the engine running
-        //cpkPentahoEngine = CpkPentahoEngine.getInstance();
-        cpkPentahoEngine = CpkPentahoEngine.getInstanceWithEnv(cpkEnv);
         
-        //AccessControl accessControl = new AccessControl(pluginUtils);
+        coreService.createContent(map); //XXX catch an exception here to call super.createContent()
         
-        debug("Creating content");
-
-        // Get the path, remove leading slash
-        String path = pluginUtils.getPathParameters(map).getStringParameter("path", null);
-        IElement element = null;
-
-
-        if (path == null || path.equals("/")) {
-
-            String url = cpkPentahoEngine.getDefaultElement().getId().toLowerCase();
-            if (path == null) {
-                // We need to put the http redirection on the right level
-                url = pluginUtils.getPluginName() + "/" + url;
-            }
-            pluginUtils.redirect(map, url);
-        }
-
-        element = cpkPentahoEngine.getElement(path.substring(1));
-        if (element != null) {
-            if (cpkEnv.getAccessControl().isAllowed(element)) {
-                element.processRequest(map);
-            } else {
-                cpkEnv.getAccessControl().throwAccessDenied(map);
-            }
-
-        } else {
-            super.createContent(); //XXX this will not be called due to coreService
-        }
-
-*/
     }
 
     @Exposed(accessLevel = AccessLevel.PUBLIC)
@@ -137,27 +88,10 @@ public class CpkContentGenerator extends RestContentGenerator {
         CpkPentahoEngine pentahoEngine = new CpkPentahoEngine(cpkEnv.getPluginUtils());
         pentahoEngine.setElementsMap(CpkEngine.getInstance().getElementsMap());
         
-        mapper.writeValue(out, pentahoEngine.getSitemapJson());//XXX think of a better way to do this
+        mapper.writeValue(out, pentahoEngine.getSitemapJson());//XXX better way to do this - copy paste from engine to here and delete engine
     }
     
-    @Exposed(accessLevel = AccessLevel.PUBLIC)
-    public void pluginsList(OutputStream out){
-        
-        
-        ObjectMapper mapper = new ObjectMapper();
-        
-        try {
-            String json = mapper.writeValueAsString(CpkPentahoEngine.getPluginsList());
-            writeMessage(out, json);
-        } catch (IOException ex) {
-            try {
-                out.write("Error getting JSON".getBytes(ENCODING));
-            } catch (IOException ex1) {
-                Logger.getLogger(CpkContentGenerator.class.getName()).log(Level.SEVERE, null, ex1);
-            }
-        }
-        
-    }
+    
     
     @Exposed(accessLevel = AccessLevel.PUBLIC)
     public void getElementsList(OutputStream out){

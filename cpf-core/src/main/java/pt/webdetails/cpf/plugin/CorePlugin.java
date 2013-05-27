@@ -23,7 +23,7 @@ public class CorePlugin {
     }
 
     public String getTitle() {
-        return id;
+        return getId();
     }
 
     public CorePlugin(String id, String[] fileExtensions) {
@@ -50,8 +50,8 @@ public class CorePlugin {
         return new IRepositoryFileFilter() {
             @Override
             public boolean accept(IRepositoryFile irf) {
-                if (fileExtensions != null) {
-                    for (String extension : fileExtensions) {
+                if (getFileExtensions() != null) {
+                    for (String extension : getFileExtensions()) {
                         if (irf.getExtension().contains(extension)) {
                             return true;
                         }
@@ -60,5 +60,40 @@ public class CorePlugin {
                 return false;
             }
         };
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @return the id
+     */
+    public String getId() {
+        return id;
+    }
+
+    /**
+     * @param id the id to set
+     */
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    /**
+     * @return the fileExtensions
+     */
+    public String[] getFileExtensions() {
+        return fileExtensions;
+    }
+
+    /**
+     * @param fileExtensions the fileExtensions to set
+     */
+    public void setFileExtensions(String[] fileExtensions) {
+        this.fileExtensions = fileExtensions;
     }
 }

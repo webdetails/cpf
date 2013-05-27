@@ -19,7 +19,7 @@ import pt.webdetails.cpk.CpkEngine;
  *
  * @author Pedro Alves<pedro.alves@webdetails.pt>
  */
-public class CpkPentahoEngine {//XXX needs more attention
+public class CpkPentahoEngine {
 
     private IPluginUtils pluginUtils;
     private TreeMap<String, IElement> elementsMap;
@@ -29,38 +29,12 @@ public class CpkPentahoEngine {//XXX needs more attention
         this.pluginUtils = pluginUtils;
     }
 
-    public JsonNode getSitemapJson() throws IOException {//XXX think of a better way to do this
+    public JsonNode getSitemapJson() throws IOException {
         if (elementsMap != null) {
             LinkGenerator linkGen = new LinkGenerator(elementsMap, pluginUtils);
             return linkGen.getLinksJson();
         }
         return null;
-    }
-
-    public static List<Plugin> getPluginsList() {
-        PluginsAnalyzer pluginsAnalyzer = new PluginsAnalyzer();
-        pluginsAnalyzer.refresh();
-
-        List<Plugin> plugins = pluginsAnalyzer.getInstalledPlugins();
-
-        IPluginFilter pluginFilter = new IPluginFilter() {
-            @Override
-            public boolean include(Plugin plugin) {
-                boolean is = false;
-                String xmlValue = plugin.getXmlValue("/plugin/content-generator/@class", "plugin.xml");
-                String className = "pt.webdetails.cpk.CpkContentGenerator";
-
-                if (xmlValue.equals(className)) {
-                    is = true;
-                }
-
-                return is;
-            }
-        };
-
-        plugins = pluginsAnalyzer.getPlugins(pluginFilter);
-
-        return plugins;
     }
 
     public void setElementsMap(TreeMap<String, IElement> map) {

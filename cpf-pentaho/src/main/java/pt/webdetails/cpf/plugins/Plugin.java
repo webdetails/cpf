@@ -48,7 +48,7 @@ public class Plugin extends CorePlugin{
         pluginSelfBuild();
     }
     
-
+        
     /**
      * 
      * @return Returns the path to the plugin directory (system) 
@@ -58,7 +58,7 @@ public class Plugin extends CorePlugin{
         return path;
     }
 
-    private void setPath(String path) {
+    public void setPath(String path) {
         this.path = path;
     }
     
@@ -71,7 +71,7 @@ public class Plugin extends CorePlugin{
         return company;
     }
 
-    private void setCompany(String company) {
+    public void setCompany(String company) {
         this.company = company;
     }
 
@@ -84,7 +84,7 @@ public class Plugin extends CorePlugin{
         return companyUrl;
     }
 
-    private void setCompanyUrl(String companyUrl) {
+    public void setCompanyUrl(String companyUrl) {
         this.companyUrl = companyUrl;
     }
 
@@ -97,7 +97,7 @@ public class Plugin extends CorePlugin{
         return description;
     }
 
-    private void setDescription(String description) {
+    public void setDescription(String description) {
         this.description = description;
     }
 
@@ -107,21 +107,17 @@ public class Plugin extends CorePlugin{
      */
     @JsonProperty("id")
     public String getId() {
-        return id;
+        return this.id;
     }
 
-    private void setId(String id) {
-        this.id = id;
-    }
+  
 
     @JsonProperty("name")
     public String getName() {
-        return name;
+        return this.name;
     }
 
-    private void setName(String name) {
-        this.name = name;
-    }
+
     
     @JsonIgnore
     private Node getXmlFileContent(String filePath){

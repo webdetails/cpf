@@ -49,14 +49,8 @@ public class Link {
 
     }
 
-    /*public Link(IElement element) {
-        this.name = getTextFromWcdf(element.getLocation(), "description");
-        this.link = "/pentaho/content/" + pluginUtils.getPluginName() + "/" + element.getId().toLowerCase();
-        this.id = element.getLocation().split("/")[element.getLocation().split("/").length - 1];
-        subLinks = new ArrayList<Link>();
-    }//*/
 
-    public Link(IElement element, IPluginUtils plug) {//XXX we need plugin utils, remove constructor above?
+    public Link(IElement element, IPluginUtils plug) {
         this.pluginUtils = plug;
         this.name = getTextFromWcdf(element.getLocation(), "description");
         this.link = "/pentaho/content/" + pluginUtils.getPluginName() + "/" + element.getId().toLowerCase();

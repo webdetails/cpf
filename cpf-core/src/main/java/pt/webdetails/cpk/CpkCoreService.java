@@ -73,7 +73,7 @@ public class CpkCoreService {
 
         } else {
             logger.log(Level.SEVERE, "Unable to get element!");
-            //XXX confirm error message
+            
         }
     }
 

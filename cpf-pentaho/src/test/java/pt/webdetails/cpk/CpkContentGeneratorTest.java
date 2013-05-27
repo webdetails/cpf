@@ -34,12 +34,10 @@ import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
 import org.pentaho.platform.engine.security.SecurityHelper;
-import org.pentaho.platform.engine.security.userrole.UserDetailsRoleListService;
 import pt.webdetails.cpf.RestRequestHandler;
 import pt.webdetails.cpf.http.CommonParameterProvider;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
 import pt.webdetails.cpf.utils.PluginUtils;
-import org.pentaho.platform.plugin.services.security.userrole.memory.InMemoryUserRoleListService;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
@@ -58,7 +56,7 @@ public class CpkContentGeneratorTest {
     private static IPluginUtils pluginUtils;
     //private static CpkContentGenerator cpkContentGenerator;
     private static CpkContentGeneratorForTesting cpkContentGenerator;
-    private static Map<String, ICommonParameterProvider> map;
+    //private static Map<String, ICommonParameterProvider> map;
     private static IRepositoryAccess repAccess;
     private static OutputStream out;
     private static OutputStream outResponse;
@@ -206,6 +204,7 @@ public class CpkContentGeneratorTest {
     public void testGetSitemapJson() throws IOException, JSONException {
 
         boolean successful = true;
+        boolean sublinksExist = false;
         out = new ByteArrayOutputStream();
         cpkContentGenerator.getSitemapJson(out);
         String str = out.toString();
@@ -225,25 +224,18 @@ public class CpkContentGeneratorTest {
             String name = obj.getString("name");
             String id = obj.getString("id");
             String link = obj.getString("link");
-            if (!"null".equals(name) && !" null".equals(id) && !"null".equals(link)) {//XXX check test - wrong, no sublinks
+            JSONArray sublinks = obj.getJSONArray("sublinks");
+            if (sublinks.length() > 0) {
+                sublinksExist = true;
+            }
+            if (!"null".equals(name) && !" null".equals(id) && !"null".equals(link)) {
             } else {
-                successful= false;
+                successful = false;
                 break;
             }
         }
-        //Assert.assertTrue(successful);
-        Assert.fail();
+        Assert.assertTrue(successful && sublinksExist);
 
-    }
-
-    @Test
-    public void testPluginsList() throws IOException {
-        out = new ByteArrayOutputStream();
-        cpkContentGenerator.pluginsList(out);
-        String str = out.toString();
-        out.close();
-
-        Assert.assertTrue(str.equals(" not done yet "));//XXX todo
 
     }
 
