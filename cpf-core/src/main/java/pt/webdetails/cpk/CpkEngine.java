@@ -70,7 +70,6 @@ public class CpkEngine {
         }
 
     }
-    //XXX lacking a better name
 
     public static CpkEngine getInstanceWithEnv(ICpkEnvironment environment) {
 

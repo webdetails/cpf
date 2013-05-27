@@ -148,7 +148,7 @@ public class CpkCoreServiceTest {
         outResponse.close();
 
         Pattern wrongPattern = Pattern.compile(".*\\{\"result\":false.*\\}.*");
-        Pattern argumentsPattern = Pattern.compile("\r\n\r\n");//passing arguments around is not suported yet, so this is the result
+        Pattern argumentsPattern = Pattern.compile("\r\n\r\n");//XXX probably wrong, check 
         Pattern correctTransformationPattern = Pattern.compile("\\{\"queryInfo.*\\{.*\\}.*\\[.*\\].*\\}");
         Pattern correctJobPattern = Pattern.compile(".*\"result\":true.*");
 

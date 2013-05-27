@@ -80,7 +80,7 @@ public class CpkContentGeneratorTest {
         Authentication auth = new UsernamePasswordAuthenticationToken("joe", "password", roles); //$NON-NLS-1$
         session.setAttribute(SecurityHelper.SESSION_PRINCIPAL, auth);
 
-
+        
         PentahoSessionHolder.setSession(session);
         PentahoSystem.setObjectFactory(factory);
         PentahoSystem.setSystemSettingsService(factory.get(ISystemSettings.class, "systemSettingsService", session));
@@ -142,7 +142,7 @@ public class CpkContentGeneratorTest {
         outResponse.close();
 
         Pattern wrongPattern = Pattern.compile(".*\\{\"result\":false.*\\}.*");
-        Pattern argumentsPattern = Pattern.compile("\r\n\r\n");//passing arguments around is not suported yet, so this is the result
+        Pattern argumentsPattern = Pattern.compile("\r\n\r\n");//XXX probably wrong, check
         Pattern correctTransformationPattern = Pattern.compile("\\{\"queryInfo.*\\{.*\\}.*\\[.*\\].*\\}");
         Pattern correctJobPattern = Pattern.compile(".*\"result\":true.*");
 

@@ -264,7 +264,6 @@ public class KettleElementType extends AbstractElementType {
             jobMeta = jobMetaStorage.get(kettlePath);
         } else {
             logger.debug("No existent metadata found for " + kettlePath);
-            StackTraceElement[] trace = Thread.currentThread().getStackTrace();
             jobMeta = new JobMeta(kettlePath, null);
             jobMetaStorage.put(kettlePath, jobMeta);
             logger.debug("Added metadata to the storage.");

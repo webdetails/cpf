@@ -90,7 +90,7 @@ public class LinkGenerator {
                 }
 
                 for (File dir : getDirectories(directory)) {
-                    if (!directories.containsValue(dir)) {//XXX  "toplevel" directories shouldn't be added to dashboardLinks
+                    if (!directories.containsValue(dir)) {
                         l = new Link(dir, elementsMap, pluginUtils);
                         if (!linkExists(dashboardLinks, l)) {
                             dashboardLinks.add(l);

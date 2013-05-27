@@ -37,7 +37,7 @@ public class PentahoRepositoryAccessForTesting extends PentahoRepositoryAccess {
 
     @Override
     public IRepositoryFile getSettingsFile(String fileName, FileAccess fa) {
-        //Get plugin dir
+       //Get plugin dir
     URL resourceUrl=null;
       try {
           resourceUrl = new URL("file://"+System.getProperty("user.dir")+"/test-resources/repo/system/cpkSol/cpk.xml");
@@ -52,11 +52,8 @@ public class PentahoRepositoryAccessForTesting extends PentahoRepositoryAccess {
       return null;
     }
     return new DefaultRepositoryFile(f);
-       // VfsRepositoryAccess vfsrepo = new VfsRepositoryAccess(System.getProperty("user.dir") + "/test-resources/repo/system/cpkSol/", System.getProperty("user.dir") + "/test-resources/repo/system/cpkSol/");
-
-
-        //return vfsrepo.getSettingsFile(fileName, fa);
-
+//*/
+    //return super.getSettingsFile(fileName, fa);
     }
 
     private static IPentahoSession getAdminSession() {
