@@ -3,6 +3,9 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpk;
 
+import java.util.List;
+import pt.webdetails.cpf.plugin.CorePlugin;
+import pt.webdetails.cpf.plugins.Plugin;
 import pt.webdetails.cpf.plugins.PluginsAnalyzer;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
 import pt.webdetails.cpf.session.ISessionUtils;
@@ -56,6 +59,14 @@ public class CpkPentahoEnvironment implements ICpkEnvironment {
     public void reload() {
         PluginsAnalyzer pluginsAnalyzer = new PluginsAnalyzer();
         pluginsAnalyzer.refresh();
-
+        List<Plugin> plugins = pluginsAnalyzer.getInstalledPlugins();
+        String pluginName = pluginUtils.getPluginName();
+        for (Plugin plgn : plugins) {
+            if (plgn.getName().equalsIgnoreCase(pluginName) || plgn.getId().equalsIgnoreCase(pluginName)) {
+                plgn.setName(pluginName);//XXX fail safe, may come with no name
+                repoAccess.setPlugin(plgn);
+                break;
+            }
+        }
     }
 }

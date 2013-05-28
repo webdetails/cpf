@@ -1,15 +1,8 @@
 package pt.webdetails.cpf;
 
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import javax.servlet.http.HttpServletRequest;
-
-
-import org.pentaho.platform.api.engine.IParameterProvider;
 import pt.webdetails.cpf.RestRequestHandler.HttpMethod;
-import pt.webdetails.cpf.http.CommonParameterProvider;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
 import pt.webdetails.cpf.utils.IPluginUtils;
 import pt.webdetails.cpf.utils.PluginUtils;
@@ -20,20 +13,6 @@ public abstract class RestContentGenerator extends SimpleContentGenerator {
     protected Map<String, ICommonParameterProvider> map;
     protected IPluginUtils pluginUtils;
 
-
-    public RestContentGenerator(IPluginUtils pluginUtils) {
-
-        this.pluginUtils = pluginUtils;
-
-        if (parameterProviders != null) {
-            Iterator it = parameterProviders.entrySet().iterator();
-            map = new HashMap<String, ICommonParameterProvider>();
-            while (it.hasNext()) {
-                Entry<String, IParameterProvider> e = (Entry<String, IParameterProvider>) it.next();
-                map.put(e.getKey(), WrapperUtils.wrapParamProvider(e.getValue()));
-            }
-        }
-    }
 
     public abstract RestRequestHandler getRequestHandler();
 

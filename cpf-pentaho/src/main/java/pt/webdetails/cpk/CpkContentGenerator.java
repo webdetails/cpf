@@ -5,16 +5,21 @@ package pt.webdetails.cpk;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.dom4j.DocumentException;
+import org.pentaho.platform.api.engine.IParameterProvider;
 import pt.webdetails.cpf.RestContentGenerator;
 import pt.webdetails.cpf.RestRequestHandler;
 import pt.webdetails.cpf.Router;
+import pt.webdetails.cpf.WrapperUtils;
 import pt.webdetails.cpf.annotations.AccessLevel;
 import pt.webdetails.cpf.annotations.Exposed;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
@@ -22,6 +27,8 @@ import pt.webdetails.cpf.plugins.IPluginFilter;
 import pt.webdetails.cpf.plugins.Plugin;
 import pt.webdetails.cpf.plugins.PluginsAnalyzer;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
+import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
+import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.IElement;
 import pt.webdetails.cpk.sitemap.LinkGenerator;
 
@@ -30,24 +37,25 @@ public class CpkContentGenerator extends RestContentGenerator {
     private static final long serialVersionUID = 1L;
     public static final String CDW_EXTENSION = ".cdw";
     public static final String PLUGIN_NAME = "cpk";
-    private CpkEngine cpkEngine;
-    private ICommonParameterProvider commonParameterProvider;
-    private IRepositoryAccess repAccess;
-    private ICpkEnvironment cpkEnv;
-    private CpkCoreService coreService;
+    protected CpkCoreService coreService;//XXX debug only, change to private later
+    protected ICpkEnvironment cpkEnv;//XXX debug only, change to private later
 
-    public CpkContentGenerator(ICpkEnvironment cpkEnv) {
-        super(cpkEnv.getPluginUtils());
-        //super.initParams();
-        this.cpkEnv = cpkEnv;
-        cpkEngine = CpkEngine.getInstanceWithEnv(cpkEnv);
+    /*public CpkContentGenerator(ICpkEnvironment cpkEnv) {
+     super(cpkEnv.getPluginUtils());
+     CpkEngine.getInstanceWithEnv(cpkEnv);
+     this.coreService = new CpkCoreService(cpkEnv);
+     }//*/
+    public CpkContentGenerator() {
+        this.pluginUtils = new PluginUtils();
+        this.cpkEnv = new CpkPentahoEnvironment(pluginUtils, new PentahoRepositoryAccess());
         this.coreService = new CpkCoreService(cpkEnv);
     }
 
     @Override
     public void createContent() throws Exception {
+        wrapParams();//XXX 
         try {
-            coreService.createContent(map); //XXX catch an exception here to call super.createContent()
+            coreService.createContent(map);
         } catch (NoElementException e) {
             super.createContent();
         }
@@ -56,6 +64,11 @@ public class CpkContentGenerator extends RestContentGenerator {
     @Exposed(accessLevel = AccessLevel.PUBLIC)
     public void reload(OutputStream out) throws DocumentException, IOException {
         coreService.reload(out, map);
+    }
+    
+    @Exposed(accessLevel = AccessLevel.PUBLIC)
+    public void refresh(OutputStream out) throws DocumentException, IOException {
+        coreService.refresh(out, map);
     }
 
     @Exposed(accessLevel = AccessLevel.PUBLIC)
@@ -120,5 +133,16 @@ public class CpkContentGenerator extends RestContentGenerator {
     @Override
     public RestRequestHandler getRequestHandler() {
         return Router.getBaseRouter();
+    }
+
+    private void wrapParams() {
+        if (parameterProviders != null) {
+            Iterator it = parameterProviders.entrySet().iterator();
+            map = new HashMap<String, ICommonParameterProvider>();
+            while (it.hasNext()) {
+                Map.Entry<String, IParameterProvider> e = (Map.Entry<String, IParameterProvider>) it.next();
+                map.put(e.getKey(), WrapperUtils.wrapParamProvider(e.getValue()));
+            }
+        }
     }
 }

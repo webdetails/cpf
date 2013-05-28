@@ -61,7 +61,7 @@ public class Link {
     public void buildLink(File directory) {
         List<File> directories = null;
         List<File> files = null;
-        Link l = null;
+        Link link = null;
 
         if (!getTopLevelDirectories(elements).containsValue(directory)) {
 
@@ -75,8 +75,8 @@ public class Link {
 
             if (directories != null) {
                 for (File dir : directories) {
-                    l = new Link(dir, elements, pluginUtils);
-                    subLinks.add(l);
+                    link = new Link(dir, elements, pluginUtils);
+                    subLinks.add(link);
                 }
             }
 
@@ -86,10 +86,10 @@ public class Link {
                     String filename = file.getName().substring(0, index).toLowerCase();
                     if (elements.containsKey(filename)) {
                         IElement myElement = elements.get(filename);
-                        l = new Link(myElement, pluginUtils);
+                        link = new Link(myElement, pluginUtils);
 
-                        if (!subLinkExists((ArrayList) subLinks, l)) {
-                            subLinks.add(l);
+                        if (!subLinkExists((ArrayList) subLinks, link)) {
+                            subLinks.add(link);
                         }
                     }
                 }

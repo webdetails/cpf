@@ -33,7 +33,6 @@ import pt.webdetails.cpf.http.ICommonParameterProvider;
  */
 public class PluginUtils implements IPluginUtils {
 
-    
     protected Log logger = LogFactory.getLog(this.getClass());
     private String pluginName;
     private File pluginDirectory;
@@ -61,7 +60,7 @@ public class PluginUtils implements IPluginUtils {
     public PluginUtils() {
         try {
             // init
-             initialize();
+            initialize();
         } catch (Exception e) {
             logger.error("Can't initialize PluginUtils: " + Util.getExceptionDescription(e));
         }
@@ -115,7 +114,7 @@ public class PluginUtils implements IPluginUtils {
         IOFileFilter dirFilter = recursive.equals(Boolean.TRUE) ? TrueFileFilter.TRUE : null;
 
         // Get directory name. We need to make sure we're not allowing this to fetch other resources
-         String basePath = FilenameUtils.normalize(getPluginDirectory().getAbsolutePath());
+        String basePath = FilenameUtils.normalize(getPluginDirectory().getAbsolutePath());
         String elementFullPath = FilenameUtils.normalize(basePath + File.separator + elementPath);
 
         if (!elementFullPath.startsWith(basePath)) {
@@ -192,17 +191,15 @@ public class PluginUtils implements IPluginUtils {
         setResponseHeaders(parameterProviders, mimeType, 0, null, 0);
     }
 
-
     public void setResponseHeaders(Map<String, ICommonParameterProvider> parameterProviders, final String mimeType, final String attachmentName) {
         setResponseHeaders(parameterProviders, mimeType, 0, attachmentName, 0);
     }
-    
-    @Override
-    public void setResponseHeaders(Map<String, ICommonParameterProvider> parameterProviders, final String mimeType, final String attachmentName, long attachmentSize){
-        setResponseHeaders(parameterProviders, mimeType, 0, attachmentName, attachmentSize);
-        
-    }
 
+    @Override
+    public void setResponseHeaders(Map<String, ICommonParameterProvider> parameterProviders, final String mimeType, final String attachmentName, long attachmentSize) {
+        setResponseHeaders(parameterProviders, mimeType, 0, attachmentName, attachmentSize);
+
+    }
 
     public void setResponseHeaders(Map<String, ICommonParameterProvider> parameterProviders, final String mimeType, final int cacheDuration, final String attachmentName, long attachmentSize) {
         // Make sure we have the correct mime type
@@ -232,8 +229,8 @@ public class PluginUtils implements IPluginUtils {
         if (attachmentName != null) {
             response.setHeader("content-disposition", "attachment; filename=" + attachmentName);
         } // Cache?
-        
-        if (attachmentSize > 0){
+
+        if (attachmentSize > 0) {
             response.setHeader("Content-Length", String.valueOf(attachmentSize));
         }
 
@@ -276,11 +273,9 @@ public class PluginUtils implements IPluginUtils {
         }
     }
 
-
     public HttpServletRequest getRequest(Map<String, ICommonParameterProvider> parameterProviders) {
         return (HttpServletRequest) parameterProviders.get("path").getParameter("httprequest");
     }
-
 
     public HttpServletResponse getResponse(Map<String, ICommonParameterProvider> parameterProviders) {
         return (HttpServletResponse) parameterProviders.get("path").getParameter("httpresponse");
@@ -296,7 +291,6 @@ public class PluginUtils implements IPluginUtils {
         return parameterProviders.get("path");
     }
 
-
     public OutputStream getResponseOutputStream(Map<String, ICommonParameterProvider> parameterProviders) throws IOException {
 
         return getResponse(parameterProviders).getOutputStream();
@@ -304,6 +298,12 @@ public class PluginUtils implements IPluginUtils {
 
     @Override
     public OutputStream getOutputStream(Map<String, ICommonParameterProvider> map) throws IOException {
-        return (OutputStream) map.get("path").getParameter("outputstream");
+        OutputStream out = (OutputStream) map.get("path").getParameter("outputstream");//XXX cover both ways?
+        if (out != null) {
+            return out;
+        } else {
+            return getResponseOutputStream(map);
+        }
+        //return (OutputStream) map.get("path").getParameter("outputstream");
     }
 }

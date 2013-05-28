@@ -87,13 +87,12 @@ public class CpkContentGeneratorTest {
         PentahoSystem.init(appContext);
 
         pluginUtils = new PluginUtils();
-        CorePlugin plugin = new Plugin(pluginUtils.getPluginDirectory().getPath());
+        //CorePlugin plugin = new Plugin(pluginUtils.getPluginDirectory().getPath());
         repAccess = new PentahoRepositoryAccessForTesting();
-        repAccess.setPlugin(plugin);
-        //final IUserSession userSession = new SimpleUserSession("userName", null, true, null);
+        //repAccess.setPlugin(plugin);
         ICpkEnvironment environment = new CpkPentahoEnvironment(pluginUtils, repAccess);
-        //cpkContentGenerator = new CpkContentGenerator(environment);
-        cpkContentGenerator = new CpkContentGeneratorForTesting(environment);
+        //cpkContentGenerator = new CpkContentGeneratorForTesting(environment);
+        cpkContentGenerator = new CpkContentGeneratorForTesting();
 
 
     }
@@ -143,6 +142,7 @@ public class CpkContentGeneratorTest {
 
         Pattern wrongPattern = Pattern.compile(".*\\{\"result\":false.*\\}.*");
         Pattern argumentsPattern = Pattern.compile("\r\n\r\n");//XXX probably wrong, check
+        
         Pattern correctTransformationPattern = Pattern.compile("\\{\"queryInfo.*\\{.*\\}.*\\[.*\\].*\\}");
         Pattern correctJobPattern = Pattern.compile(".*\"result\":true.*");
 
@@ -211,13 +211,8 @@ public class CpkContentGeneratorTest {
         System.out.println(str);
         out.close();
 
-        JSONArray json = null;
-        try {
-            json = new JSONArray(str);
-        } catch (JSONException ex) {
-            Logger.getLogger(CpkContentGeneratorTest.class.getName()).log(Level.SEVERE, null, ex);
-            Assert.fail(" # - Error parsing the JSON string");
-        }
+        JSONArray json = new JSONArray(str);
+        
 
         for (int i = 0; i < json.length(); i++) {
             JSONObject obj = json.getJSONObject(i);

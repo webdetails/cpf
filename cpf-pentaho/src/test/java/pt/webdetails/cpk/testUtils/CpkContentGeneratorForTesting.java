@@ -10,13 +10,19 @@ import org.pentaho.platform.api.engine.IParameterProvider;
 import pt.webdetails.cpf.WrapperUtils;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
 import pt.webdetails.cpk.CpkContentGenerator;
-import pt.webdetails.cpk.ICpkEnvironment;
+import pt.webdetails.cpk.CpkCoreService;
+import pt.webdetails.cpk.CpkPentahoEnvironment;
 
 
 public class CpkContentGeneratorForTesting extends CpkContentGenerator {
 
-    public CpkContentGeneratorForTesting(ICpkEnvironment environment) {
+    /*public CpkContentGeneratorForTesting(ICpkEnvironment environment) {
         super(environment);
+    }//*/
+    public CpkContentGeneratorForTesting( ) {
+        super();
+        this.cpkEnv = new CpkPentahoEnvironment(pluginUtils, new PentahoRepositoryAccessForTesting());
+        this.coreService = new CpkCoreService(cpkEnv);
     }
     
 public void wrapParameters(){
