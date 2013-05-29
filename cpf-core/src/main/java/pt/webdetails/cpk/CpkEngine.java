@@ -10,8 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -42,39 +40,31 @@ public class CpkEngine {
     protected ICpkEnvironment cpkEnv;
 
 
-
-    public CpkEngine(ICpkEnvironment environment) {
+    
+    private CpkEngine() {
         // Starting elementEngine
         logger.debug("Starting ElementEngine");
         elementsMap = new TreeMap<String, IElement>();
         elementTypesMap = new HashMap<String, IElementType>();
+    }
+    
+    
 
+    private CpkEngine(ICpkEnvironment environment) {
+        this();
         this.cpkEnv = environment;
-        try {
-            this.initialize();
-        } catch (Exception ex) {
-            logger.fatal("Error initializing CpkEngine: " + Util.getExceptionDescription(ex));
-        }
     }
 
-    public CpkEngine() {
-        // Starting elementEngine
-        logger.debug("Starting ElementEngine");
-        elementsMap = new TreeMap<String, IElement>();
-        elementTypesMap = new HashMap<String, IElementType>();
-
-        try {
-            this.initialize();
-        } catch (Exception ex) {
-            logger.fatal("Error initializing CpkEngine: " + Util.getExceptionDescription(ex));
-        }
-
-    }
 
     public static CpkEngine getInstanceWithEnv(ICpkEnvironment environment) {
-
         if (instance == null) {
             instance = new CpkEngine(environment);
+            try {
+              instance.initialize();
+            } catch (Exception ex) {
+              logger.fatal("Error initializing CpkEngine: " + Util.getExceptionDescription(ex));
+            }                                    
+            
         }
         return instance;
     }
@@ -84,7 +74,11 @@ public class CpkEngine {
         if (instance == null) {
 
             instance = new CpkEngine();
-
+            try {
+              instance.initialize();
+            } catch (Exception ex) {
+              logger.fatal("Error initializing CpkEngine: " + Util.getExceptionDescription(ex));
+            }                                    
         }
 
         return instance;
@@ -92,8 +86,6 @@ public class CpkEngine {
     }
 
     protected synchronized void initialize() throws DocumentException, IOException {
-
-
         logger.info("Initializing CPK Plugin " + cpkEnv.getPluginUtils().getPluginName().toUpperCase());
         reload();
 
@@ -141,7 +133,7 @@ public class CpkEngine {
             IElementType elementType;
             try {
                 Object o[] = new Object[1];
-                o[0]=cpkEnv.getPluginUtils(); //Devia receber o environment
+                o[0]=cpkEnv.getPluginUtils(); //Should get the environment
                 elementType = (IElementType) Class.forName(clazz).getDeclaredConstructors()[0].newInstance(o);
 
                 // Store it
@@ -231,16 +223,16 @@ public class CpkEngine {
     public String getStatus() {
 
         IAccessControl accessControl = cpkEnv.getAccessControl();
-        StringBuffer out = new StringBuffer();
+        StringBuilder out = new StringBuilder();
 
         out.append("--------------------------------\n");
-        out.append("   " + cpkEnv.getPluginName() + " Status\n");
+        out.append("   ").append(cpkEnv.getPluginName()).append(" Status\n");
         out.append("--------------------------------\n");
         out.append("\n");
 
         // Show the different entities
 
-        out.append(elementTypesMap.size() + " registered entity types\nDefault element: [" + defaultElementName + "]\n");
+        out.append(elementTypesMap.size()).append(" registered entity types\nDefault element: [").append(defaultElementName).append("]\n");
         out.append("\n");
         out.append("End Points\n");
 
@@ -248,7 +240,7 @@ public class CpkEngine {
 
             IElement myElement = elementsMap.get(key);
             if (accessControl.isAllowed(myElement)) {
-                out.append("   [" + key + "]: \t" + myElement.toString() + "\n\n");
+                out.append("   [").append(key).append("]: \t").append(myElement.toString()).append("\n\n");
             }
 
         }

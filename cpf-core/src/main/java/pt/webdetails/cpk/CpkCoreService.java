@@ -7,8 +7,10 @@ import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.dom4j.DocumentException;
 import pt.webdetails.cpf.RestRequestHandler;
 import pt.webdetails.cpf.Router;
@@ -22,11 +24,11 @@ import pt.webdetails.cpk.security.IAccessControl;
  * @author joao
  */
 public class CpkCoreService {
-    public static final String CDW_EXTENSION = ".cdw";
-    public static final String PLUGIN_NAME = "cpk";
+
+    private static final Log logger = LogFactory.getLog(CpkCoreService.class);
     private static final String ENCODING = "UTF-8";
-    protected CpkEngine cpkEngine;
-    private static final Logger logger = Logger.getLogger(CpkCoreService.class.getName());
+
+    protected CpkEngine cpkEngine;    
     protected ICpkEnvironment cpkEnvironment;
 
     public CpkCoreService(ICpkEnvironment environment){
@@ -47,7 +49,7 @@ public class CpkCoreService {
         CpkEngine engine = getCpkEngine();
         IAccessControl accessControl = cpkEnvironment.getAccessControl();
 
-        logger.log(Level.WARNING,"Creating content");
+        logger.debug("Creating content");
 
         // Get the path, remove leading slash
         IPluginUtils pluginUtils = cpkEnvironment.getPluginUtils();
@@ -72,7 +74,7 @@ public class CpkCoreService {
             }
 
         } else {
-            logger.log(Level.SEVERE, "Unable to get element!");
+            logger.error( "Unable to get element!");
             throw new NoElementException("Unable to get element!");
         }
     }
@@ -121,7 +123,7 @@ public class CpkCoreService {
                 }
             }
         } else {
-            logger.severe("cpkEngine is null...");
+            logger.error("cpkEngine is null...");
         }
 
         return elements;
@@ -139,7 +141,7 @@ public class CpkCoreService {
         try {
             out.write(message.getBytes(ENCODING));
         } catch (IOException ex) {
-            logger.log(Level.SEVERE, "Error writing message", ex);
+            logger.error( "Error writing message", ex);
         }
     }
 

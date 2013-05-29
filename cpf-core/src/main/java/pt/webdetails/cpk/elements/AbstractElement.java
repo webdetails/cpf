@@ -21,6 +21,7 @@ public class AbstractElement implements IElement {
     private  boolean adminOnly;
     private String topLevel;
 
+    @Override
     public String getTopLevel() {
         return topLevel;
     }
@@ -65,6 +66,7 @@ public class AbstractElement implements IElement {
         this.elementType = elementType;
     }
     
+    @Override
     public boolean isAdminOnly(){
         return this.adminOnly;
     }
@@ -113,14 +115,11 @@ public class AbstractElement implements IElement {
      * Processes the request
      */
     public void processRequest(Map<String, ICommonParameterProvider> parameterProviders) {
-
         // Get the elementType and process it
-
-        CpkEngine.getInstance().getElementType(this.getElementType()).processRequest(parameterProviders, this);
-
-        
+        CpkEngine.getInstance().getElementType(this.getElementType()).processRequest(parameterProviders, this);        
     }
 
+    @Override
     public ElementInfo getElementInfo() {
         return elementInfo;
     }
