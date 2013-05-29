@@ -180,7 +180,7 @@ public class KettleElementType extends AbstractElementType {
     private Result executeTransformation(final String kettlePath, HashMap<String, String> customParams, final IKettleOutput kettleOutput) throws KettleXMLException, UnknownParamException, KettleException {
 
 
-
+        Result result = null;
         TransMeta transformationMeta = new TransMeta();
 
         if (transMetaStorage.containsKey(kettlePath)) {
@@ -218,11 +218,18 @@ public class KettleElementType extends AbstractElementType {
             transformation.activateParameters();
 
         }
-        transformation.prepareExecution(null);
-
+        transformation.prepareExecution(null); //Get the step threads after this line
+        
+        
+        
         StepInterface step = transformation.findRunThread(kettleOutput.getOutputStepName());
-        transformation.startThreads();
-
+                
+        if(step == null){
+            step = transformation.findRunThread(stepName); //TODO add getDefaultStepName to KettleOutput
+        }
+        
+        transformation.startThreads(); // All the operations to get stepNames are suposed to be placed above this line
+        
         if (kettleOutput.needsRowListener()) {
 
             step.addRowListener(new RowAdapter() {
@@ -236,7 +243,14 @@ public class KettleElementType extends AbstractElementType {
         setMimeType(transformation.getVariable("mimeType"), transformation.getParameterValue("mimeType"));
 
         transformation.waitUntilFinished();
-        return transformation.getResult();
+        
+        result = step.getTrans().getResult();
+        
+        if(result == null){
+            result = transformation.getResult();
+        }
+        
+        return result;
     }
 
     /**
