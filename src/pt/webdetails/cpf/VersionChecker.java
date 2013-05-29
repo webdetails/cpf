@@ -71,7 +71,7 @@ public abstract class VersionChecker {
     //get installed version
     Version installed = null;
     try {
-      Document versionXml = RepositoryAccess.getRepository().getResourceAsDocument("system/" + settings.getPluginSystemDir() + "version.xml", FileAccess.NONE);
+      Document versionXml = RepositoryAccess.getRepository().getResourceAsDocument("system/" + settings.getPluginSystemDir() + "version.xml", FileAccess.READ);
       installed = new Version(versionXml);
     } catch (Exception e) {
       String msg = "Error attempting to read version.xml";
@@ -207,14 +207,26 @@ public abstract class VersionChecker {
       
       Node versionNode = xml.selectSingleNode("//version"); 
       
-      branchStr = getStringValue(versionNode, "@branch", branchStr);
-      version = getStringValue(versionNode, "/version", version);
+      branchStr = getStringValue(versionNode, "branch", branchStr);
       version = getStringValue(versionNode, "version", version);
       buildId = getStringValue(versionNode, "buildId", buildId);
-      buildId = getStringValue(versionNode, "@buildId", buildId);
-      downloadUrl = getStringValue(versionNode, "downloadUrl", null);
+      downloadUrl = getStringValue(versionNode, "package_url", null);
       
-//      if(StringUtils)//TODO:check if parse was valid
+      if(branchStr == null){
+        branchStr = getStringValue(versionNode, "@branch", branchStr);
+      }
+      if(version == null){
+        version = getStringValue(versionNode, "/version", version);
+      }
+      if(buildId == null){
+        buildId = getStringValue(versionNode, "@buildId", buildId);
+      }
+      if(downloadUrl == null){
+        downloadUrl = getStringValue(versionNode, "downloadUrl", null);
+      }
+      
+      
+      //if(StringUtils)//TODO:check if parse was valid
     }
 
     public Branch getBranch(){
