@@ -31,7 +31,9 @@ import pt.webdetails.cpk.elements.impl.KettleElementType.KettleType;
 
 /**
  *
- * @author Pedro Alves<pedro.alves@webdetails.pt>
+ * @author
+ * Pedro
+ * Alves<pedro.alves@webdetails.pt>
  */
 public class KettleOutput implements IKettleOutput {
 
@@ -66,19 +68,23 @@ public class KettleOutput implements IKettleOutput {
 
     @Override
     public void storeRow(Object[] row, RowMetaInterface _rowMeta) {
-
+        
         if (rowMeta == null) {
             rowMeta = _rowMeta;
         }
-        rows.add(row);
-
+        
+        Object[] rightRow = new Object[rowMeta.size()];
+        
+        for (int i = 0; i < rowMeta.size(); i++) {
+            rightRow[i] = row[i];
+        }
+        
+        rows.add(rightRow);
     }
 
     public ArrayList<Object[]> getRows() {
         return rows;
     }
-
- 
 
     @Override
     public void setResult(Result r) {
@@ -144,7 +150,7 @@ public class KettleOutput implements IKettleOutput {
                     long attachmentSize = file.getFile().getContent().getInputStream().available();
                     PluginUtils.getInstance().setResponseHeaders(parameterProviders, mimeType, file.getFile().getName().getBaseName(), attachmentSize);
                 } catch (Exception e) {
-                    logger.error("Problem setting the attachment size: "+e);
+                    logger.error("Problem setting the attachment size: " + e);
                 }
             } else {
                 // set Mimetype only
@@ -163,7 +169,7 @@ public class KettleOutput implements IKettleOutput {
 
             ZipUtil zip = new ZipUtil();
             zip.buildZip(filesList);
-            
+
             PluginUtils.getInstance().setResponseHeaders(parameterProviders, MimeTypes.ZIP, zip.getZipNameToDownload(), zip.getZipSize());
             try {
                 IOUtils.copy(zip.getZipInputStream(), out);
@@ -175,15 +181,13 @@ public class KettleOutput implements IKettleOutput {
 
         }
     }
-    
-    
 
     public void processSingleCell() {
 
 
         logger.debug("Process Single Cell - print it");
-        
-        
+
+
 
         // TODO - make sure this is correct
 
@@ -204,9 +208,9 @@ public class KettleOutput implements IKettleOutput {
 
     public void processJson() {
         ObjectMapper mapper = new ObjectMapper();
-        
+
         RowsJson rowsJson = new RowsJson(rows, rowMeta);
-        
+
         try {
             mapper.writeValue(out, rowsJson);
         } catch (IOException ex) {
@@ -234,9 +238,9 @@ public class KettleOutput implements IKettleOutput {
             try {
                 processResultFiles();
             } catch (Exception e) {
-                logger.error("Problem processing Result Files\n"+e);
+                logger.error("Problem processing Result Files\n" + e);
             }
-            
+
         } else {
 
             if (getKettleType() == KettleType.JOB) {
@@ -281,6 +285,4 @@ public class KettleOutput implements IKettleOutput {
     public void setRowMeta(RowMetaInterface rowMeta) {
         this.rowMeta = rowMeta;
     }
-    
-    
 }

@@ -1,10 +1,126 @@
 
-/* This Source Code Form is subject to the terms of the Mozilla Public
+/* This Source Code Form is subject to the terms of the Mozil
+            @Override
+            public int size() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public boolean isEmpty() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public boolean contains(Object o) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public Iterator<RowMetaAndData> iterator() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public Object[] toArray() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public <T> T[] toArray(T[] a) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public boolean add(RowMetaAndData e) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public boolean remove(Object o) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public boolean containsAll(Collection<?> c) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public boolean addAll(Collection<? extends RowMetaAndData> c) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public boolean addAll(int index, Collection<? extends RowMetaAndData> c) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public boolean removeAll(Collection<?> c) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public boolean retainAll(Collection<?> c) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public void clear() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public RowMetaAndData get(int index) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public RowMetaAndData set(int index, RowMetaAndData element) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public void add(int index, RowMetaAndData element) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public RowMetaAndData remove(int index) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public int indexOf(Object o) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public int lastIndexOf(Object o) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public ListIterator<RowMetaAndData> listIterator() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public ListIterator<RowMetaAndData> listIterator(int index) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public List<RowMetaAndData> subList(int fromIndex, int toIndex) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+        }a Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpk.elements.impl;
 
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import pt.webdetails.cpk.elements.impl.kettleOutputs.KettleOutput;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -13,11 +129,13 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.di.core.KettleEnvironment;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import pt.webdetails.cpk.elements.AbstractElementType;
 import pt.webdetails.cpk.elements.ElementInfo;
 import pt.webdetails.cpk.elements.IElement;
 import org.pentaho.di.core.Result;
+import org.pentaho.di.core.ResultFile;
 import org.pentaho.di.core.RowMetaAndData;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleStepException;
@@ -146,7 +264,7 @@ public class KettleElementType extends AbstractElementType {
 
             if (kettlePath.endsWith(".ktr")) {
                 kettleOutput.setKettleType(KettleType.TRANSFORMATION);
-                result = executeTransformation(kettlePath, customParams, kettleOutput);
+                result = executeTransformation(kettlePath, customParams, kettleOutput, true);
             } else if (kettlePath.endsWith(".kjb")) {
                 kettleOutput.setKettleType(KettleType.JOB);
                 result = executeJob(kettlePath, customParams, kettleOutput);
@@ -178,15 +296,18 @@ public class KettleElementType extends AbstractElementType {
      * @throws UnknownParamException
      * @throws KettleException
      */
-    private Result executeTransformation(final String kettlePath, HashMap<String, String> customParams, final IKettleOutput kettleOutput) throws KettleXMLException, UnknownParamException, KettleException {
+    private Result executeTransformation(final String kettlePath, HashMap<String, String> customParams, final IKettleOutput kettleOutput, boolean useStepName) throws KettleXMLException, UnknownParamException, KettleException {
 
-
+        KettleEnvironment.init();
+        
         Result result = null;
-        TransMeta transformationMeta = new TransMeta();
+        TransMeta transformationMeta = null;
 
         if (transMetaStorage.containsKey(kettlePath)) {
             logger.debug("Existent metadata found for " + kettlePath);
             transformationMeta = transMetaStorage.get(kettlePath);
+            transformationMeta.setResultRows(new ArrayList<RowMetaAndData>());
+            transformationMeta.setResultFiles(new ArrayList<ResultFile>());
         } else {
             logger.debug("No existent metadata found for " + kettlePath);
             transformationMeta = new TransMeta(kettlePath);
@@ -219,45 +340,50 @@ public class KettleElementType extends AbstractElementType {
             transformation.activateParameters();
 
         }
-        transformation.prepareExecution(null); //Get the step threads after this line
         
-        
-        
-        StepInterface step = transformation.findRunThread(kettleOutput.getOutputStepName());
-                
-        if(step == null){
-            step = transformation.findRunThread(stepName); //TODO add getDefaultStepName to KettleOutput
-        }
-        
-        
-        if (kettleOutput.needsRowListener() && step != null) {
-        
-            step.addRowListener(new RowAdapter() {
-
-                @Override
-                public void rowWrittenEvent(RowMetaInterface rowMeta, Object[] row) throws KettleStepException {
-                    kettleOutput.storeRow(row, rowMeta);
-                }
-            });
+        if(useStepName){
             
-            transformation.startThreads(); // All the operations to get stepNames are suposed to be placed above this line
+            transformation.prepareExecution(null); //Get the step threads after this line
+            StepInterface step = transformation.findRunThread(kettleOutput.getOutputStepName());
+
+            if(step == null){
+                step = transformation.findRunThread(stepName); //TODO add getDefaultStepName method to KettleOutput
+            }
+
+
+            if (kettleOutput.needsRowListener() && step != null) {
+
+                step.addRowListener(new RowAdapter() {
+
+                    @Override
+                    public void rowWrittenEvent(RowMetaInterface rowMeta, Object[] row) throws KettleStepException {
+                        kettleOutput.storeRow(row, rowMeta);
+                    }
+                });
+
+                transformation.startThreads(); // All the operations to get stepNames are suposed to be placed above this line
+                transformation.waitUntilFinished();
+                
+                
+                result = step.getTrans().getResult();
+                
+
+            }else{
+                result = executeTransformation(kettlePath, customParams, kettleOutput, false);
+            }
             
         }else{
             transformation.execute(null);
-        }
-        
-        transformation.waitUntilFinished();
-        setMimeType(transformation.getVariable("mimeType"), transformation.getParameterValue("mimeType"));
-        
-        if(step != null){
-            result = step.getTrans().getResult();
-        }else{
+            transformation.waitUntilFinished();
+            
             result = transformation.getResult();
             for(RowMetaAndData rowMetaAndData : result.getRows()){
                 kettleOutput.storeRow(rowMetaAndData.getData(), rowMetaAndData.getRowMeta());
             }
         }
         
+        setMimeType(transformation.getVariable("mimeType"), transformation.getParameterValue("mimeType"));
+                
         return result;
     }
 
