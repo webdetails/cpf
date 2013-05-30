@@ -8,9 +8,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.dom4j.DocumentException;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
 import pt.webdetails.cpf.session.ISessionUtils;
 import pt.webdetails.cpf.utils.IPluginUtils;
@@ -93,7 +94,6 @@ public class CpkCoreServiceTest {
 
             @Override
             public void reload() {
-               
             }
         };
         cpkCore = new CpkCoreServiceForTesting(environment);
@@ -118,15 +118,6 @@ public class CpkCoreServiceTest {
         KettleEnvironment.init();
         outResponse = new ByteArrayOutputStream();
 
-        cpkCore.createContent(passArguments());
-        String pass_arguments_result = outResponse.toString();
-        outResponse.close();
-        outResponse = new ByteArrayOutputStream();
-
-        cpkCore.createContent(writeback());
-        String writeback_result = outResponse.toString();
-        outResponse.close();
-        outResponse = new ByteArrayOutputStream();
 
         cpkCore.createContent(sampleTrans());
         String sampleTrans_result = outResponse.toString();
@@ -142,54 +133,70 @@ public class CpkCoreServiceTest {
         String createResultRows_result = outResponse.toString();
         outResponse.close();
         outResponse = new ByteArrayOutputStream();
-        
+
         cpkCore.createContent(generateRows());
         String generateRows_result = outResponse.toString();
         outResponse.close();
 
-        Pattern wrongPattern = Pattern.compile(".*\\{\"result\":false.*\\}.*");
-        Pattern argumentsPattern = Pattern.compile("\r\n\r\n");//XXX probably wrong, check 
-        Pattern correctTransformationPattern = Pattern.compile("\\{\"queryInfo.*\\{.*\\}.*\\[.*\\].*\\}");
-        Pattern correctJobPattern = Pattern.compile(".*\"result\":true.*");
 
-        Matcher pass_arguments_kjb = argumentsPattern.matcher(pass_arguments_result);
-        Matcher writeback_ktr = argumentsPattern.matcher(writeback_result);
-        Matcher sampleTrans_ktr = correctTransformationPattern.matcher(sampleTrans_result);
-        Matcher evaluateResultRows_kjb = correctJobPattern.matcher(evaluateResultRows_result);
-        Matcher createResultRows_ktr = correctTransformationPattern.matcher(createResultRows_result);
-        Matcher generateRows_ktr =  correctTransformationPattern.matcher(generateRows_result);
+        boolean sampletrans, evaluateResultRows, createResultRows, generateRows;
+        sampletrans = evaluateResultRows = createResultRows = generateRows = true;
 
-        Assert.assertTrue(pass_arguments_kjb.matches());
-        Assert.assertTrue(writeback_ktr.matches());
-        Assert.assertTrue(sampleTrans_ktr.matches());
-        Assert.assertTrue(evaluateResultRows_kjb.matches());
-        Assert.assertTrue(createResultRows_ktr.matches());
-        Assert.assertTrue(generateRows_ktr.matches());
+        JSONObject sampletransJson = new JSONObject(sampleTrans_result);
+        JSONObject evaluateResultRowsJson = new JSONObject(evaluateResultRows_result);
+        JSONObject createResultRowsJson = new JSONObject(createResultRows_result);
+        JSONObject generateRowsJson = new JSONObject(generateRows_result);
+
+        if (sampletransJson.getJSONObject("queryInfo").length() < 1) {
+            sampletrans = false;
+        }
+        if (generateRowsJson.getJSONObject("queryInfo").length() < 1) {
+            generateRows = false;
+        }
+        if (createResultRowsJson.getJSONObject("queryInfo").length() < 1) {
+            createResultRows = false;
+        }
+        if (!evaluateResultRowsJson.getBoolean("result")) {
+            evaluateResultRows = false;
+        }
+
+        Assert.assertTrue(sampletrans);
+        Assert.assertTrue(evaluateResultRows);
+        Assert.assertTrue(createResultRows);
+        Assert.assertTrue(generateRows);
 
     }
 
     @Test
-    public void testGetElementsList() throws IOException {
-        Pattern p = Pattern.compile("\\[\\{.....*\\}\\]");
+    public void testGetElementsList() throws IOException, JSONException {
+        boolean successful = true;
 
         out = new ByteArrayOutputStream();
         cpkCore.getElementsList(out);
         String str = out.toString();
-        Matcher m = p.matcher(str);
-        Assert.assertTrue(m.matches());
+
+        JSONArray elementsListJson = new JSONArray(str);
+
+        for (int i = 0; i < elementsListJson.length(); i++) {
+            JSONObject obj = elementsListJson.getJSONObject(i);
+            String id = obj.getString("id");
+            if (id.length() < 1) {
+                successful = false;
+            }
+        }
+
+        Assert.assertTrue(successful);
         out.close();
     }
 
     @Test
-    public void testReloadRefreshStatus() throws DocumentException, IOException {
-        Pattern p = Pattern.compile("---.*.\\[.*.\\].*.\\{.*.\\}.*.");//XXX maybe not enough to check
+    public void testReloadRefreshStatus() throws DocumentException, IOException, JSONException {
         out = new ByteArrayOutputStream();
         cpkCore.reload(out, map);
         String str = out.toString();
-        String less = str.replaceAll("\n", " ");
-        Matcher m = p.matcher(less);
-        Assert.assertTrue(m.matches());
-
+        out.close();
+        Assert.assertTrue(str.contains("cpkSol Status"));
+        Assert.assertTrue(!str.contains("null"));
     }
 
     @Test
@@ -202,42 +209,8 @@ public class CpkCoreServiceTest {
     public void testGetPluginName() {
 
         String str = cpkCore.getPluginName();
+        Assert.assertTrue(str.equals("cpkSol"));
 
-        Assert.assertTrue(str.equals("cpkSol"));//compare with a plugin I know
-
-    }
-
-    private Map<String, ICommonParameterProvider> passArguments() {
-        Map<String, ICommonParameterProvider> map = new HashMap<String, ICommonParameterProvider>();
-        ICommonParameterProvider p = new CommonParameterProvider();
-        ICommonParameterProvider p1 = new CommonParameterProvider();
-        p.put("path", "/pass_arguments");//kjb or ktr
-        p.put("outputstream", outResponse);
-        p.put("httpresponse", null);
-        p1.put("request", "random request");
-        p1.put("paramarg1", "value1");
-        p1.put("paramarg2", "value2");
-        p1.put("paramarg3", "value3");
-        map.put("path", p);
-        map.put("request", p1);
-        return map;
-    }
-
-    private Map<String, ICommonParameterProvider> writeback() {
-        Map<String, ICommonParameterProvider> map = new HashMap<String, ICommonParameterProvider>();
-        ICommonParameterProvider p = new CommonParameterProvider();
-        ICommonParameterProvider p1 = new CommonParameterProvider();
-        p.put("path", "/writeback");//kjb or ktr
-        p.put("outputstream", outResponse);
-        p.put("httpresponse", null);
-        p1.put("stepName", "text file output");//output stepname for ktr
-        p1.put("request", "random request");
-        p1.put("paramarg1", "value1");
-        p1.put("paramarg2", "value2");
-        p1.put("paramarg3", "value3");
-        map.put("path", p);
-        map.put("request", p1);
-        return map;
     }
 
     private Map<String, ICommonParameterProvider> sampleTrans() {
@@ -247,7 +220,6 @@ public class CpkCoreServiceTest {
         p.put("path", "/sampleTrans");//kjb or ktr
         p.put("outputstream", outResponse);
         p.put("httpresponse", null);
-        //p1.put("stepName", "text file output");//samplTrans has defauls OUTPUT, so no need for stepname
         p1.put("paramarg1", "value1");
         p1.put("paramarg2", "value2");
         p1.put("paramarg3", "value3");
@@ -264,7 +236,6 @@ public class CpkCoreServiceTest {
         p.put("path", "/evaluate-result-rows");//kjb or ktr
         p.put("outputstream", outResponse);
         p.put("httpresponse", null);
-        //p1.put("stepName", "text file output");//samplTrans has defauls OUTPUT, so no need for stepname
         p1.put("paramarg1", "value1");
         p1.put("paramarg2", "value2");
         p1.put("paramarg3", "value3");
@@ -288,6 +259,7 @@ public class CpkCoreServiceTest {
         map.put("request", p1);
         return map;
     }
+
     private Map<String, ICommonParameterProvider> generateRows() {
         Map<String, ICommonParameterProvider> map = new HashMap<String, ICommonParameterProvider>();
         ICommonParameterProvider p = new CommonParameterProvider();
@@ -295,11 +267,7 @@ public class CpkCoreServiceTest {
         p.put("path", "/generate-rows");//kjb or ktr
         p.put("outputstream", outResponse);
         p.put("httpresponse", null);
-        //p1.put("request", "random request");
         p1.put("stepName", "output");
-        //p1.put("paramarg1", "value1");
-        //p1.put("paramarg2", "value2");
-        //p1.put("paramarg3", "value3");
         map.put("path", p);
         map.put("request", p1);
         return map;
