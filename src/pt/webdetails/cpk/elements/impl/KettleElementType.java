@@ -230,9 +230,8 @@ public class KettleElementType extends AbstractElementType {
         }
         
         
-        
         if (kettleOutput.needsRowListener() && step != null) {
-            transformation.startThreads(); // All the operations to get stepNames are suposed to be placed above this line
+        
             step.addRowListener(new RowAdapter() {
 
                 @Override
@@ -240,26 +239,23 @@ public class KettleElementType extends AbstractElementType {
                     kettleOutput.storeRow(row, rowMeta);
                 }
             });
+            
+            transformation.startThreads(); // All the operations to get stepNames are suposed to be placed above this line
+            
         }else{
             transformation.execute(null);
         }
         
-        setMimeType(transformation.getVariable("mimeType"), transformation.getParameterValue("mimeType"));
-
         transformation.waitUntilFinished();
-        
-        
+        setMimeType(transformation.getVariable("mimeType"), transformation.getParameterValue("mimeType"));
         
         if(step != null){
             result = step.getTrans().getResult();
         }else{
-            for(RowMetaAndData rowMetaAndData : transformation.getResult().getRows()){
+            result = transformation.getResult();
+            for(RowMetaAndData rowMetaAndData : result.getRows()){
                 kettleOutput.storeRow(rowMetaAndData.getData(), rowMetaAndData.getRowMeta());
             }
-        }
-        
-        if(result == null){
-            result = transformation.getResult();
         }
         
         return result;
