@@ -18,6 +18,7 @@ import pt.webdetails.cpk.elements.AbstractElementType;
 import pt.webdetails.cpk.elements.ElementInfo;
 import pt.webdetails.cpk.elements.IElement;
 import org.pentaho.di.core.Result;
+import org.pentaho.di.core.RowMetaAndData;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.exception.KettleXMLException;
@@ -228,10 +229,10 @@ public class KettleElementType extends AbstractElementType {
             step = transformation.findRunThread(stepName); //TODO add getDefaultStepName to KettleOutput
         }
         
-        transformation.startThreads(); // All the operations to get stepNames are suposed to be placed above this line
         
-        if (kettleOutput.needsRowListener()) {
-
+        
+        if (kettleOutput.needsRowListener() && step != null) {
+            transformation.startThreads(); // All the operations to get stepNames are suposed to be placed above this line
             step.addRowListener(new RowAdapter() {
 
                 @Override
@@ -239,12 +240,23 @@ public class KettleElementType extends AbstractElementType {
                     kettleOutput.storeRow(row, rowMeta);
                 }
             });
+        }else{
+            transformation.execute(null);
         }
+        
         setMimeType(transformation.getVariable("mimeType"), transformation.getParameterValue("mimeType"));
 
         transformation.waitUntilFinished();
         
-        result = step.getTrans().getResult();
+        
+        
+        if(step != null){
+            result = step.getTrans().getResult();
+        }else{
+            for(RowMetaAndData rowMetaAndData : transformation.getResult().getRows()){
+                kettleOutput.storeRow(rowMetaAndData.getData(), rowMetaAndData.getRowMeta());
+            }
+        }
         
         if(result == null){
             result = transformation.getResult();
