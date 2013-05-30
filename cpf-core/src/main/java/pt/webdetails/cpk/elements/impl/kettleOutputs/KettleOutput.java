@@ -193,7 +193,7 @@ public class KettleOutput implements IKettleOutput {
         try {
 
             Object result = getRows().get(0)[0];
-            if (result != null) {//XXX was using pluginUtils.getResponseOutputStream(parameterProviders);
+            if (result != null) {
                 pluginUtils.getOutputStream(parameterProviders).write(result.toString().getBytes(ENCODING));
             }
 

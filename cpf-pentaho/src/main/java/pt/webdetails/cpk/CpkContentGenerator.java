@@ -37,8 +37,8 @@ public class CpkContentGenerator extends RestContentGenerator {
     private static final long serialVersionUID = 1L;
     public static final String CDW_EXTENSION = ".cdw";
     public static final String PLUGIN_NAME = "cpk";
-    protected CpkCoreService coreService;//XXX debug only, change to private later
-    protected ICpkEnvironment cpkEnv;//XXX debug only, change to private later
+    protected CpkCoreService coreService;
+    protected ICpkEnvironment cpkEnv;
 
     /*public CpkContentGenerator(ICpkEnvironment cpkEnv) {
      super(cpkEnv.getPluginUtils());
@@ -48,7 +48,7 @@ public class CpkContentGenerator extends RestContentGenerator {
     public CpkContentGenerator() {
         this.pluginUtils = new PluginUtils();
         this.cpkEnv = new CpkPentahoEnvironment(pluginUtils, new PentahoRepositoryAccess());
-        this.coreService = new CpkCoreService(cpkEnv);
+        this.coreService = new CpkCoreService(cpkEnv); 
     }
 
     @Override

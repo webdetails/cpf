@@ -74,7 +74,7 @@ public class CpkCoreService {
             }
 
         } else {
-            logger.error( "Unable to get element!");
+            logger.info("Unable to get element!");//XXX info or debug? 
             throw new NoElementException("Unable to get element!");
         }
     }

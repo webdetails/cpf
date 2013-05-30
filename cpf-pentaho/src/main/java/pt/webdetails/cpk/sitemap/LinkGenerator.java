@@ -127,7 +127,7 @@ public class LinkGenerator {
         for (Link l : lnks) {
             try {
                 if (l.getName() == null) {
-                } else if (!l.getId().equals("") && l.getId().equals(lnk.getId())) { //XXX id = "" probably a dir, compare by name
+                } else if (!l.getId().equals("") && l.getId().equals(lnk.getId())) {
                     exists = true;
                 } else if (l.getId().equals("") && l.getName().equals(lnk.getName())) {
                     exists = true;

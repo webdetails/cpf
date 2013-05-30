@@ -120,7 +120,8 @@ public class CpkContentGeneratorTest {
         cpkContentGenerator.createContent();
         String createResultRows_result = outResponse.toString();
         outResponse.close();
-
+        outResponse = new ByteArrayOutputStream();
+        
         cpkContentGenerator.setParameterProviders(unwrapParams(generateRows()));
         cpkContentGenerator.wrapParameters();
         cpkContentGenerator.createContent();
