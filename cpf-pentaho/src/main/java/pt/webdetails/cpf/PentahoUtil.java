@@ -7,13 +7,13 @@ package pt.webdetails.cpf;
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginClassLoader;
 
-public class Util {
+public class PentahoUtil {
 
     /* Detecting whether we were loaded with the PluginClassLoader is a decent
      * proxy for determining whether we are inside Pentaho. If so, we can go
      * look for the global CPF settings in the solution
      */
-    private static boolean isPlugin = Util.class.getClassLoader() instanceof PluginClassLoader;
+    private static boolean isPlugin = PentahoUtil.class.getClassLoader() instanceof PluginClassLoader;
 
     public static String getExceptionDescription(final Exception e) {
 

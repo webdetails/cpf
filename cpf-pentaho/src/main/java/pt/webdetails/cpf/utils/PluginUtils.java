@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.dom4j.DocumentException;
 import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import pt.webdetails.cpf.Util;
+import pt.webdetails.cpf.PentahoUtil;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
 
 /**
@@ -62,7 +62,7 @@ public class PluginUtils implements IPluginUtils {
             // init
             initialize();
         } catch (Exception e) {
-            logger.error("Can't initialize PluginUtils: " + Util.getExceptionDescription(e));
+            logger.error("Can't initialize PluginUtils: " + PentahoUtil.getExceptionDescription(e));
         }
 
     }

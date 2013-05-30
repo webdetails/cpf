@@ -11,7 +11,7 @@ import java.util.Map;
 import javax.servlet.ServletRequest;
 import org.apache.commons.lang.StringUtils;
 import pt.webdetails.cpf.InterPluginCall;
-import pt.webdetails.cpf.Util;
+import pt.webdetails.cpf.PentahoUtil;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
 import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.AbstractElementType;
@@ -46,7 +46,7 @@ public class DashboardElementType extends AbstractElementType {
             // element = (DashboardElement) element;
             callCDE(parameterProviders, element);
         } catch (Exception ex) {
-            logger.error("Error while calling CDE: "+ Util.getExceptionDescription(ex));
+            logger.error("Error while calling CDE: "+ PentahoUtil.getExceptionDescription(ex));
         }    
     }
 

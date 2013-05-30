@@ -61,5 +61,4 @@ public abstract class Util {
         return StringUtils.defaultString(StringUtils.join(paths, "/")).replaceAll("\\\\", "/").replaceAll("/+", "/");
     }
 
-    public abstract boolean isPlugin();
 }

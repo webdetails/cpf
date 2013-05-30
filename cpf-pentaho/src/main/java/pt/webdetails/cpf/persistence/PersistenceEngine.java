@@ -39,7 +39,7 @@ import org.pentaho.reporting.libraries.base.util.StringUtils;
 
 import pt.webdetails.cpf.InvalidOperationException;
 import pt.webdetails.cpf.CpfProperties;
-import pt.webdetails.cpf.Util;
+import pt.webdetails.cpf.PentahoUtil;
 import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
 
 /**
@@ -70,14 +70,14 @@ public class PersistenceEngine {
             logger.info("Creating PersistenceEngine instance");
             initialize();
         } catch (Exception ex) {
-            logger.fatal("Could not create PersistenceEngine: " + Util.getExceptionDescription(ex)); //$NON-NLS-1$
+            logger.fatal("Could not create PersistenceEngine: " + PentahoUtil.getExceptionDescription(ex)); //$NON-NLS-1$
             return;
         }
 
     }
 
     private String getOrientPath() {
-        return Util.isPlugin() ? PentahoSystem.getApplicationContext().getSolutionPath("/system/.orient") : ".";
+        return PentahoUtil.isPlugin() ? PentahoSystem.getApplicationContext().getSolutionPath("/system/.orient") : ".";
     }
 
     private void initialize() throws Exception {
@@ -496,7 +496,7 @@ public class PersistenceEngine {
                     List<ODocument> result = executeQuery("select * from " + className + " where @rid = :id", params);
                     if (result.size() == 1) {
                         doc = result.get(0);
-                        if (Util.isPlugin()) {
+                        if (PentahoUtil.isPlugin()) {
                             String user = PentahoSessionHolder.getSession().getName();
                             if (doc.field("userid") != null && !doc.field("userid").toString().equals(user)) {
                                 json.put("result", Boolean.FALSE);
@@ -560,7 +560,7 @@ public class PersistenceEngine {
 
         ODocument doc = new ODocument(className);
         fillDocument(doc, data);
-        if (Util.isPlugin()) {
+        if (PentahoUtil.isPlugin()) {
             String user = PentahoSessionHolder.getSession().getName();
             doc.field("userid", user);
         }

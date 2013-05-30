@@ -43,7 +43,7 @@ public class CpfProperties extends Properties {
         } catch (IOException ioe) {
             logger.warn("Failed to sread CPF base settings");
         }
-        if (Util.isPlugin()) {
+        if (PentahoUtil.isPlugin()) {
             IRepositoryAccess repository = PentahoRepositoryAccess.getRepository();
             try {
                 if (repository.resourceExists("/cpf/config.properties")) {
@@ -60,7 +60,7 @@ public class CpfProperties extends Properties {
     }
 
     private void loadPluginSettings() {
-        if (Util.isPlugin()) {
+        if (PentahoUtil.isPlugin()) {
             try {
                 File pluginCpfSettings = new File(getPluginPath() + "/cpf.properties");
                 if (pluginCpfSettings.exists()) {
