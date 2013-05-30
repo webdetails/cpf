@@ -29,6 +29,7 @@ public class PentahoSession implements IUserSession {
     
     @Override
     public boolean isAdministrator() {
+      this.userSession = PentahoSessionHolder.getSession();
       return SecurityHelper.isPentahoAdministrator(userSession);
     }
     
