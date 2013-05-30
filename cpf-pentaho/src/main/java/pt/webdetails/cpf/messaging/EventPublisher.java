@@ -48,7 +48,7 @@ public class EventPublisher implements IEventPublisher {
     return cdvExists;
   }
 
-  private EventPublisher() {}
+  public EventPublisher() {}
   
   
   public static EventPublisher getPublisher(){
