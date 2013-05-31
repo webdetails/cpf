@@ -5,9 +5,11 @@
 package pt.webdetails.cpk.elements.impl;
 
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import pt.webdetails.cpk.elements.impl.kettleOutputs.KettleOutput;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang.StringUtils;
@@ -17,6 +19,7 @@ import pt.webdetails.cpk.elements.AbstractElementType;
 import pt.webdetails.cpk.elements.ElementInfo;
 import pt.webdetails.cpk.elements.IElement;
 import org.pentaho.di.core.Result;
+import org.pentaho.di.core.RowMetaAndData;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.exception.KettleXMLException;
@@ -24,6 +27,7 @@ import org.pentaho.di.core.logging.LogLevel;
 import org.pentaho.di.core.parameters.UnknownParamException;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.job.Job;
+import org.pentaho.di.job.JobEntryResult;
 import org.pentaho.di.job.JobMeta;
 import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransMeta;
@@ -36,8 +40,6 @@ import pt.webdetails.cpf.utils.IPluginUtils;
 import pt.webdetails.cpf.utils.MimeTypes;
 import pt.webdetails.cpk.CpkEngine;
 import pt.webdetails.cpk.elements.impl.kettleOutputs.IKettleOutput;
-
-
 
 /**
  *
@@ -55,8 +57,6 @@ public class KettleElementType extends AbstractElementType {
     private ConcurrentHashMap<String, JobMeta> jobMetaStorage = new ConcurrentHashMap<String, JobMeta>();//Stores the metadata of the kjb files. [Key=path]&[Value=jobMeta]
     private String stepName = "OUTPUT";
     private String mimeType = null;
-
-    
 
     public KettleElementType(IPluginUtils plug) {
 
@@ -77,7 +77,7 @@ public class KettleElementType extends AbstractElementType {
 
         String kettlePath = element.getLocation();
         String kettleFilename = element.getName();
-                
+
 
         logger.debug("Processing request for: " + kettlePath);
 
@@ -134,8 +134,8 @@ public class KettleElementType extends AbstractElementType {
         try {
             // Get defined kettleOutput class name
 
-            Constructor constructor = Class.forName("pt.webdetails.cpk.elements.impl.kettleOutputs." + clazz).getConstructor(Map.class,IPluginUtils.class);
-            kettleOutput = (IKettleOutput) constructor.newInstance(parameterProviders,pluginUtils);
+            Constructor constructor = Class.forName("pt.webdetails.cpk.elements.impl.kettleOutputs." + clazz).getConstructor(Map.class, IPluginUtils.class);
+            kettleOutput = (IKettleOutput) constructor.newInstance(parameterProviders, pluginUtils);
 
         } catch (Exception ex) {
             logger.error("Error initializing Kettle output type " + clazz + ", reverting to KettleOutput: " + Util.getExceptionDescription(ex));
@@ -151,10 +151,10 @@ public class KettleElementType extends AbstractElementType {
 
             if (kettlePath.endsWith(".ktr")) {
                 kettleOutput.setKettleType(KettleType.TRANSFORMATION);
-                result = executeTransformation(kettlePath, customParams, kettleOutput);
+                result = executeTransformation(kettlePath, customParams, kettleOutput, true);
             } else if (kettlePath.endsWith(".kjb")) {
                 kettleOutput.setKettleType(KettleType.JOB);
-                result = executeJob(kettlePath, customParams);
+                result = executeJob(kettlePath, customParams, kettleOutput);
             } else {
                 logger.warn("File extension unknown: " + kettlePath);
             }
@@ -183,10 +183,10 @@ public class KettleElementType extends AbstractElementType {
      * @throws UnknownParamException
      * @throws KettleException
      */
-    private Result executeTransformation(final String kettlePath, HashMap<String, String> customParams, final IKettleOutput kettleOutput) throws KettleXMLException, UnknownParamException, KettleException {
+    private Result executeTransformation(final String kettlePath, HashMap<String, String> customParams, final IKettleOutput kettleOutput, boolean useStepName) throws KettleXMLException, UnknownParamException, KettleException {
 
 
-
+        Result result = null;
         TransMeta transformationMeta = new TransMeta();
 
         if (transMetaStorage.containsKey(kettlePath)) {
@@ -212,36 +212,61 @@ public class KettleElementType extends AbstractElementType {
             IUserSession userSession = CpkEngine.getInstance().getEnvironment().getSessionUtils().getCurrentSession();
 
             if (userSession.getUserName() != null) {
-                transformation.getTransMeta().setVariable("pentahoUsername", userSession.getUserName());
+                transformation.getTransMeta().setVariable("username", userSession.getUserName());
             }
 
             String[] authorities = userSession.getAuthorities();
-            if (authorities != null && authorities.length > 0) {              
-                transformation.getTransMeta().setVariable("pentahoRoles", StringUtils.join(authorities, ","));
+            if (authorities != null && authorities.length > 0) {
+                transformation.getTransMeta().setVariable("roles", StringUtils.join(authorities, ","));
             }
 
             transformation.copyVariablesFrom(transformation.getTransMeta());
             transformation.activateParameters();
 
         }
-        transformation.prepareExecution(null);
+        if (useStepName) {
 
-        StepInterface step = transformation.findRunThread(kettleOutput.getOutputStepName());
-        transformation.startThreads();
+            transformation.prepareExecution(null); //Get the step threads after this line
+            StepInterface step = transformation.findRunThread(kettleOutput.getOutputStepName());
 
-        if (kettleOutput.needsRowListener()) {
+            if (step == null) {
+                step = transformation.findRunThread(stepName); //TODO add getDefaultStepName method to KettleOutput
+            }
 
-            step.addRowListener(new RowAdapter() {
-                @Override
-                public void rowWrittenEvent(RowMetaInterface rowMeta, Object[] row) throws KettleStepException {
-                    kettleOutput.storeRow(row, rowMeta);
-                }
-            });
+
+            if (kettleOutput.needsRowListener() && step != null) {
+
+                step.addRowListener(new RowAdapter() {
+                    @Override
+                    public void rowWrittenEvent(RowMetaInterface rowMeta, Object[] row) throws KettleStepException {
+                        kettleOutput.storeRow(row, rowMeta);
+                    }
+                });
+
+                transformation.startThreads(); // All the operations to get stepNames are suposed to be placed above this line
+                transformation.waitUntilFinished();
+
+
+                result = step.getTrans().getResult();
+
+
+            } else {
+                result = executeTransformation(kettlePath, customParams, kettleOutput, false);
+            }
+
+        } else {
+            transformation.execute(null);
+            transformation.waitUntilFinished();
+
+            result = transformation.getResult();
+            for (RowMetaAndData rowMetaAndData : result.getRows()) {
+                kettleOutput.storeRow(rowMetaAndData.getData(), rowMetaAndData.getRowMeta());
+            }
         }
+
         setMimeType(transformation.getVariable("mimeType"), transformation.getParameterValue("mimeType"));
 
-        transformation.waitUntilFinished();
-        return transformation.getResult();
+        return result;
     }
 
     /**
@@ -254,7 +279,7 @@ public class KettleElementType extends AbstractElementType {
      * @throws KettleException
      * @throws KettleXMLException
      */
-    private Result executeJob(String kettlePath, HashMap<String, String> customParams) throws UnknownParamException, KettleException, KettleXMLException {
+    private Result executeJob(String kettlePath, HashMap<String, String> customParams, IKettleOutput kettleOutput) throws UnknownParamException, KettleException, KettleXMLException {
 
 
         JobMeta jobMeta;
@@ -267,7 +292,7 @@ public class KettleElementType extends AbstractElementType {
             jobMeta = new JobMeta(kettlePath, null);
             jobMetaStorage.put(kettlePath, jobMeta);
             logger.debug("Added metadata to the storage.");
-            
+
         }
         Job job = new Job(null, jobMeta);
         /*
@@ -284,11 +309,11 @@ public class KettleElementType extends AbstractElementType {
 
             }
             String[] authorities = userSession.getAuthorities();
-            
-            if (authorities != null && authorities.length > 0) {              
+
+            if (authorities != null && authorities.length > 0) {
                 job.getJobMeta().setVariable("roles", StringUtils.join(authorities, ","));
-            }            
-            
+            }
+
 
             job.copyParametersFrom(jobMeta);
             job.copyVariablesFrom(job.getJobMeta());
@@ -300,7 +325,24 @@ public class KettleElementType extends AbstractElementType {
         job.start();
         setMimeType(job.getVariable("mimeType"), job.getParameterValue("mimeType"));
         job.waitUntilFinished();
-        return job.getResult();
+        Result result = job.getResult();
+        JobEntryResult entryResult = null;
+
+        List<JobEntryResult> jobEntryResultList = job.getJobEntryResults();
+        if (jobEntryResultList.size() > 0) {
+            for (int i = 0; i < jobEntryResultList.size(); i++) {
+                entryResult = jobEntryResultList.get(i);
+                if (entryResult != null) {
+                    if (entryResult.getJobEntryName().equals(kettleOutput.getOutputStepName())) {
+                        result = entryResult.getResult();
+                        break;
+                    }
+                }
+            }
+        }
+        result.setRows(new ArrayList<RowMetaAndData>());
+
+        return result;
 
     }
 
