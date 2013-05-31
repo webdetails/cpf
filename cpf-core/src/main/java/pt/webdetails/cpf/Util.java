@@ -53,10 +53,6 @@ public abstract class Util {
         return source.substring(startIdx, endIdx);
     }
 
-    public static final boolean IsNullOrEmpty(final String str) {
-        return (str == null || str.trim().length() == 0);
-    }
-
     public static String joinPath(String... paths) {
         return StringUtils.defaultString(StringUtils.join(paths, "/")).replaceAll("\\\\", "/").replaceAll("/+", "/");
     }
