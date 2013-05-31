@@ -25,7 +25,7 @@ public abstract class SpringEnabledContentGenerator extends SimpleContentGenerat
 
     private static final Log logger = LogFactory
             .getLog(SpringEnabledContentGenerator.class);
-    private IPluginManager pm = PentahoSystem.get(IPluginManager.class);
+    protected IPluginManager pm = PentahoSystem.get(IPluginManager.class);
     protected static ConfigurableApplicationContext pluginContext;
 
     public SpringEnabledContentGenerator() {
