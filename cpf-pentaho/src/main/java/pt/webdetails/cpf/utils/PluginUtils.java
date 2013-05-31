@@ -298,12 +298,6 @@ public class PluginUtils implements IPluginUtils {
 
     @Override
     public OutputStream getOutputStream(Map<String, ICommonParameterProvider> map) throws IOException {
-        OutputStream out = (OutputStream) map.get("path").getParameter("outputstream");//XXX cover both ways?
-        if (out != null) {
-            return out;
-        } else {
             return getResponseOutputStream(map);
-        }
-        //return (OutputStream) map.get("path").getParameter("outputstream");
     }
 }

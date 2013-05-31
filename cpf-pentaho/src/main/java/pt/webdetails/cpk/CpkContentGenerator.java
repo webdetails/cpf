@@ -26,7 +26,6 @@ import pt.webdetails.cpf.http.ICommonParameterProvider;
 import pt.webdetails.cpf.plugins.IPluginFilter;
 import pt.webdetails.cpf.plugins.Plugin;
 import pt.webdetails.cpf.plugins.PluginsAnalyzer;
-import pt.webdetails.cpf.repository.IRepositoryAccess;
 import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
 import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.IElement;
@@ -53,7 +52,7 @@ public class CpkContentGenerator extends RestContentGenerator {
 
     @Override
     public void createContent() throws Exception {
-        wrapParams();//XXX 
+        wrapParams();
         try {
             coreService.createContent(map);
         } catch (NoElementException e) {

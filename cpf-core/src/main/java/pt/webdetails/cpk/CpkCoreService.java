@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpk;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
@@ -27,11 +28,10 @@ public class CpkCoreService {
 
     private static final Log logger = LogFactory.getLog(CpkCoreService.class);
     private static final String ENCODING = "UTF-8";
-
-    protected CpkEngine cpkEngine;    
+    protected CpkEngine cpkEngine;
     protected ICpkEnvironment cpkEnvironment;
 
-    public CpkCoreService(ICpkEnvironment environment){
+    public CpkCoreService(ICpkEnvironment environment) {
         this.cpkEnvironment = environment;
     }
 
@@ -43,7 +43,7 @@ public class CpkCoreService {
         return cpkEngine;
     }
 
-    public void createContent(Map<String,ICommonParameterProvider> parameterProviders) throws Exception {
+    public void createContent(Map<String, ICommonParameterProvider> parameterProviders) throws Exception {
 
         //Make sure the instance is first set so we have pluginUtils
         CpkEngine engine = getCpkEngine();
@@ -64,8 +64,9 @@ public class CpkCoreService {
             }
             pluginUtils.redirect(parameterProviders, url);
         }
-
-        element = engine.getElement(path.substring(1).toLowerCase());
+        if (path != null) {
+            element = engine.getElement(path.substring(1).toLowerCase());
+        }
         if (element != null) {
             if (accessControl.isAllowed(element)) {
                 element.processRequest(parameterProviders);
@@ -74,17 +75,17 @@ public class CpkCoreService {
             }
 
         } else {
-            logger.info("Unable to get element!");//XXX info or debug? 
+            logger.info("Unable to get element: "+path+". This is probably a call to a control CPK operation (reload, status)");
             throw new NoElementException("Unable to get element!");
         }
     }
 
     // alias to refresh
-    public void reload(OutputStream out,Map<String,ICommonParameterProvider> parameterProviders) throws DocumentException, IOException {
+    public void reload(OutputStream out, Map<String, ICommonParameterProvider> parameterProviders) throws DocumentException, IOException {
         refresh(out, parameterProviders);
     }
 
-    public void refresh(OutputStream out, Map<String,ICommonParameterProvider> parameterProviders) throws DocumentException, IOException {
+    public void refresh(OutputStream out, Map<String, ICommonParameterProvider> parameterProviders) throws DocumentException, IOException {
         IAccessControl accessControl = cpkEnvironment.getAccessControl();
         if (accessControl.isAdmin()) {
             logger.info("Refreshing CPK plugin " + getPluginName());
@@ -95,7 +96,7 @@ public class CpkCoreService {
         }
     }
 
-    public void status(OutputStream out, Map<String,ICommonParameterProvider> parameterProviders) throws DocumentException, IOException {
+    public void status(OutputStream out, Map<String, ICommonParameterProvider> parameterProviders) throws DocumentException, IOException {
         logger.info("Showing status for CPK plugin " + getPluginName());
 
         // Only set the headers if we have access to the response (via parameterProviders).
@@ -134,14 +135,14 @@ public class CpkCoreService {
     }
 
     public String getPluginName() {
-      return cpkEnvironment.getPluginName();
+        return cpkEnvironment.getPluginName();
     }
 
     private void writeMessage(OutputStream out, String message) {
         try {
             out.write(message.getBytes(ENCODING));
         } catch (IOException ex) {
-            logger.error( "Error writing message", ex);
+            logger.error("Error writing message", ex);
         }
     }
 
