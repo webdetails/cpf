@@ -46,7 +46,7 @@ public class CpkContentGenerator extends RestContentGenerator {
         IElement element = null;
 
 
-        if (path == null || path.equals("/")) {
+        if (path == null || path.equals("/") || path.equals("")) {
 
             String url = cpkEngine.getDefaultElement().getId().toLowerCase();
             if (path == null) {
@@ -56,7 +56,10 @@ public class CpkContentGenerator extends RestContentGenerator {
             pluginUtils.redirect(parameterProviders, url);
         }
 
-        element = cpkEngine.getElement(path.substring(1));
+        if(path != null){
+            element = cpkEngine.getElement(path.substring(1));
+        }
+        
         if (element != null) {
             if (accessControl.isAllowed(element)) {
                 element.processRequest(parameterProviders);

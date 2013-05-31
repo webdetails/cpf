@@ -16,9 +16,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileType;
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.pentaho.di.core.Result;
 import org.pentaho.di.core.ResultFile;
+import org.pentaho.di.core.RowMetaAndData;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.vfs.KettleVFS;
 import org.pentaho.platform.api.engine.IParameterProvider;
@@ -121,9 +123,46 @@ public class KettleOutput implements IKettleOutput {
     public void processResultOnly() {
 
         ObjectMapper mapper = new ObjectMapper();
+        
+        class ResultStruct {
+            boolean result;
+            int exitStatus, nrRows,nrErrors;
+            
+            public ResultStruct(Result result){
+                this.result = result.getResult();
+                this.exitStatus = result.getExitStatus();
+                this.nrRows = (result.getRows() == null) ? 0 : result.getRows().size();
+                this.nrErrors = (int)result.getNrErrors();
+            }
 
-        try {
-            mapper.writeValue(out, result);
+            @JsonProperty("result")
+            public boolean isResult() {
+                return result;
+            }
+            
+            @JsonProperty("exitStatus")
+            public int getExitStatus() {
+                return exitStatus;
+            }
+
+            @JsonProperty("nrRows")
+            public int getNrRows() {
+                return nrRows;
+            }
+
+            @JsonProperty("nrErrors")
+            public int getNrErrors() {
+                return nrErrors;
+            }
+            
+            
+        }
+        
+        ResultStruct resultStruct = new ResultStruct(result);
+        
+        try{
+            
+            mapper.writeValue(out, resultStruct);
         } catch (IOException ex) {
             Logger.getLogger(KettleElementType.class.getName()).log(Level.SEVERE, null, ex);
         }

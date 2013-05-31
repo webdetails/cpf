@@ -215,7 +215,7 @@ public class CpkEngine {
     }
 
     /**
-     * Gets the element corresponding to the registred key
+     * Gets the element corresponding to the registered key
      *
      * @param key
      * @return
@@ -225,7 +225,7 @@ public class CpkEngine {
     }
 
     /**
-     * Gets the element corresponding to the registred key
+     * Gets the element corresponding to the registered key
      *
      * @param key
      * @return
