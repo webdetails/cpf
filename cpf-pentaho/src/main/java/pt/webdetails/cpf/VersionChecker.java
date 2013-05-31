@@ -39,7 +39,7 @@ public abstract class VersionChecker {
      * Abstract methods */
     /**
      * @param branch The branch to check
-     * @return The URL for the XML version file of the latest release in *
+     * @return The URL for the XML version file of the latest release in
      * this <code>branch</code>
      */
     protected abstract String getVersionCheckUrl(Branch branch);
@@ -194,7 +194,6 @@ public abstract class VersionChecker {
 
         public Version(Document xml) {
 
-
             if (xml == null) {
                 throw new IllegalArgumentException("no document");
             }
@@ -218,7 +217,9 @@ public abstract class VersionChecker {
             if (downloadUrl == null) {
                 downloadUrl = getStringValue(versionNode, "downloadUrl", null);
             }
-//      if(StringUtils)//TODO:check if parse was valid
+
+
+            //TODO:check if parse was valid
         }
 
         public Branch getBranch() {

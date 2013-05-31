@@ -19,11 +19,11 @@ import pt.webdetails.cpk.elements.AbstractElementType;
 import pt.webdetails.cpk.elements.ElementInfo;
 import pt.webdetails.cpk.elements.IElement;
 import org.pentaho.di.core.Result;
+import org.pentaho.di.core.ResultFile;
 import org.pentaho.di.core.RowMetaAndData;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.exception.KettleXMLException;
-import org.pentaho.di.core.logging.LogLevel;
 import org.pentaho.di.core.parameters.UnknownParamException;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.job.Job;
@@ -192,6 +192,8 @@ public class KettleElementType extends AbstractElementType {
         if (transMetaStorage.containsKey(kettlePath)) {
             logger.debug("Existent metadata found for " + kettlePath);
             transformationMeta = transMetaStorage.get(kettlePath);
+            transformationMeta.setResultRows(new ArrayList<RowMetaAndData>());
+            transformationMeta.setResultFiles(new ArrayList<ResultFile>());
         } else {
             logger.debug("No existent metadata found for " + kettlePath);
             transformationMeta = new TransMeta(kettlePath);
