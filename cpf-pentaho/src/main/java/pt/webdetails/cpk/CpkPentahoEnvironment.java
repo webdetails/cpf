@@ -22,12 +22,10 @@ public class CpkPentahoEnvironment implements ICpkEnvironment {
 
     private IPluginUtils pluginUtils;
     private IRepositoryAccess repoAccess;
-    private IAccessControl accessControl;
-
+    
     public CpkPentahoEnvironment(IPluginUtils pluginUtils, IRepositoryAccess repoAccess) {
         this.pluginUtils = pluginUtils;
         this.repoAccess = repoAccess;
-        this.accessControl = new AccessControl(pluginUtils);
     }
 
     @Override
@@ -42,7 +40,7 @@ public class CpkPentahoEnvironment implements ICpkEnvironment {
 
     @Override
     public IAccessControl getAccessControl() {
-        return accessControl;
+        return new AccessControl(pluginUtils);
     }
 
     @Override
