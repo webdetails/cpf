@@ -20,7 +20,7 @@
   <dependencies defaultconf="default->default">
 
     <!--  common dependencies -->
-    <dependency org="commons-logging" name="commons-logging" rev="1.1.1"/>    
+    <dependency org="commons-logging" name="commons-logging" rev="1.1.1" />    
     <dependency org="commons-lang" name="commons-lang" rev="2.6"/>    
     <dependency org="commons-io" name="commons-io" rev="2.4"/>    
     <dependency org="commons-vfs" name="commons-vfs" rev="1.0"/>    
@@ -41,6 +41,8 @@
     <dependency org="pentaho-kettle" name="kettle-db" rev="${dependency.kettle.revision}" changing="true" transitive="false" />        
 
     
+    
+    <dependency org="org.mozilla" name="rhino" rev="1.7R4" conf="runtime->default"/>                           
 
     <dependency org="junit" name="junit" conf="test->default" rev='4.10'/>
     <dependency org="commons-httpclient" name="commons-httpclient" conf="test->default" rev='3.1'/>    
