@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 package pt.webdetails.cpf.persistence;
 
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentPool;
@@ -39,7 +38,7 @@ import org.pentaho.reporting.libraries.base.util.StringUtils;
 
 import pt.webdetails.cpf.InvalidOperationException;
 import pt.webdetails.cpf.CpfProperties;
-import pt.webdetails.cpf.PentahoUtil;
+import pt.webdetails.cpf.Util;
 import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
 
 /**
@@ -70,14 +69,14 @@ public class PersistenceEngine {
             logger.info("Creating PersistenceEngine instance");
             initialize();
         } catch (Exception ex) {
-            logger.fatal("Could not create PersistenceEngine: " + PentahoUtil.getExceptionDescription(ex)); //$NON-NLS-1$
+            logger.fatal("Could not create PersistenceEngine: " + Util.getExceptionDescription(ex)); //$NON-NLS-1$
             return;
         }
 
     }
 
     private String getOrientPath() {
-        return PentahoUtil.isPlugin() ? PentahoSystem.getApplicationContext().getSolutionPath("/system/.orient") : ".";
+        return PentahoSystem.getApplicationContext().getSolutionPath("/system/.orient");
     }
 
     private void initialize() throws Exception {
@@ -100,7 +99,7 @@ public class PersistenceEngine {
                 case DELETE:
                     reply = deleteRecord(requestParams, userSession);
                     break;
-                case GET: 
+                case GET:
                     logger.error("get requests to PersistenceEngine are no longer supported. please use the SimplePersistence API.");
                     return "{'result': false}";
                 case STORE:
@@ -311,54 +310,52 @@ public class PersistenceEngine {
         return json;
     }
 
-    
     /*
-    private JSONObject get(IParameterProvider requestParams, IPentahoSession userSession) throws JSONException {
-        final String id = requestParams.getStringParameter("rid", "");
-        return get(id);
-    }
+     private JSONObject get(IParameterProvider requestParams, IPentahoSession userSession) throws JSONException {
+     final String id = requestParams.getStringParameter("rid", "");
+     return get(id);
+     }
 
-    public JSONObject get(String id) throws JSONException {
-        JSONObject json = new JSONObject(), resultJson;
-
-
-        try {
-            json.put("result", Boolean.TRUE);
-            String user = PentahoSessionHolder.getSession().getName();
-            Map<String, Object> params = new HashMap<String, Object>();
-            params.put("id", id);
-            params.put("user", user);
-            List<ODocument> result = executeQuery("select * from Query where @rid = :id and userid = :user", params);
-
-            ODocument doc;
-
-            if (result.size() == 1) {
-                json.put("object", new JSONObject(result.get(0).toJSON()));
-            } else {
-                json.put("result", Boolean.FALSE);
-                json.put("errorMessage", "Multiple elements found with id " + id);
+     public JSONObject get(String id) throws JSONException {
+     JSONObject json = new JSONObject(), resultJson;
 
 
-            }
-        } catch (ODatabaseException orne) {
+     try {
+     json.put("result", Boolean.TRUE);
+     String user = PentahoSessionHolder.getSession().getName();
+     Map<String, Object> params = new HashMap<String, Object>();
+     params.put("id", id);
+     params.put("user", user);
+     List<ODocument> result = executeQuery("select * from Query where @rid = :id and userid = :user", params);
 
-            if (orne.getCause().getClass() == ORecordNotFoundException.class) {
-                logger.error(
-                        "Record with id " + id + " not found");
-                json.put(
-                        "result", Boolean.FALSE);
-                json.put(
-                        "errorMessage", "No record found with id " + id);
-            } else {
-                logger.error(getExceptionDescription(orne));
-                throw orne;
-            }
-        }
+     ODocument doc;
 
-        return json;
-    }
-*/
-    
+     if (result.size() == 1) {
+     json.put("object", new JSONObject(result.get(0).toJSON()));
+     } else {
+     json.put("result", Boolean.FALSE);
+     json.put("errorMessage", "Multiple elements found with id " + id);
+
+
+     }
+     } catch (ODatabaseException orne) {
+
+     if (orne.getCause().getClass() == ORecordNotFoundException.class) {
+     logger.error(
+     "Record with id " + id + " not found");
+     json.put(
+     "result", Boolean.FALSE);
+     json.put(
+     "errorMessage", "No record found with id " + id);
+     } else {
+     logger.error(getExceptionDescription(orne));
+     throw orne;
+     }
+     }
+
+     return json;
+     }
+     */
     private JSONObject deleteRecord(IParameterProvider requestParams, IPentahoSession userSession) throws JSONException {
         final String id = requestParams.getStringParameter("rid", "");
         return deleteRecord(id);
@@ -496,13 +493,12 @@ public class PersistenceEngine {
                     List<ODocument> result = executeQuery("select * from " + className + " where @rid = :id", params);
                     if (result.size() == 1) {
                         doc = result.get(0);
-                        if (PentahoUtil.isPlugin()) {
-                            String user = PentahoSessionHolder.getSession().getName();
-                            if (doc.field("userid") != null && !doc.field("userid").toString().equals(user)) {
-                                json.put("result", Boolean.FALSE);
-                                json.put("errorMessage", "Object id " + id + " belongs to another user");
-                                return json;
-                            }
+                        //this part was marked as pentaho specific
+                        String user = PentahoSessionHolder.getSession().getName();
+                        if (doc.field("userid") != null && !doc.field("userid").toString().equals(user)) {
+                            json.put("result", Boolean.FALSE);
+                            json.put("errorMessage", "Object id " + id + " belongs to another user");
+                            return json;
                         }
 
                         fillDocument(doc, data);
@@ -560,10 +556,8 @@ public class PersistenceEngine {
 
         ODocument doc = new ODocument(className);
         fillDocument(doc, data);
-        if (PentahoUtil.isPlugin()) {
-            String user = PentahoSessionHolder.getSession().getName();
-            doc.field("userid", user);
-        }
+        String user = PentahoSessionHolder.getSession().getName();
+        doc.field("userid", user);
         return doc;
     }
 

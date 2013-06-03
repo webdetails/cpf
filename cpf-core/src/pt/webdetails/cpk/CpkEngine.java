@@ -32,12 +32,12 @@ public class CpkEngine {
 
     private static CpkEngine instance;
     protected static Log logger = LogFactory.getLog(CpkEngine.class);
-    protected Document cpkDoc;
-    protected TreeMap<String, IElement> elementsMap;
-    protected HashMap<String, IElementType> elementTypesMap;
-    protected static List reserverdWords = Arrays.asList("refresh", "status", "reload");
-    protected String defaultElementName = null;
-    protected ICpkEnvironment cpkEnv;
+    private Document cpkDoc;
+    private TreeMap<String, IElement> elementsMap;
+    private HashMap<String, IElementType> elementTypesMap;
+    private static List reserverdWords = Arrays.asList("refresh", "status", "reload");
+    private String defaultElementName = null;
+    private ICpkEnvironment cpkEnv;
 
 
     
@@ -46,9 +46,7 @@ public class CpkEngine {
         logger.debug("Starting ElementEngine");
         elementsMap = new TreeMap<String, IElement>();
         elementTypesMap = new HashMap<String, IElementType>();
-    }
-    
-    
+    } 
 
     private CpkEngine(ICpkEnvironment environment) {
         this();
@@ -96,7 +94,7 @@ public class CpkEngine {
     public ICpkEnvironment getEnvironment() {
       return this.cpkEnv;
     }
-    
+
     /**
      *
      * Reloads or initializes the ElementManager
@@ -198,7 +196,7 @@ public class CpkEngine {
     }
 
     /**
-     * Gets the element corresponding to the registred key
+     * Gets the element corresponding to the registered key
      *
      * @param key
      * @return
@@ -248,7 +246,6 @@ public class CpkEngine {
         return out.toString();
 
     }
-   
 
     public Map<String, IElementType> getElementTypes() {
         return this.elementTypesMap;
@@ -266,8 +263,6 @@ public class CpkEngine {
 
         return json;
     }
-
-    
     
 
 }

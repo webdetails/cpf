@@ -12,6 +12,7 @@ import pt.webdetails.cpf.http.ICommonParameterProvider;
 import pt.webdetails.cpk.CpkContentGenerator;
 import pt.webdetails.cpk.CpkCoreService;
 import pt.webdetails.cpk.CpkPentahoEnvironment;
+import pt.webdetails.cpk.ICpkEnvironment;
 
 
 public class CpkContentGeneratorForTesting extends CpkContentGenerator {
@@ -19,6 +20,7 @@ public class CpkContentGeneratorForTesting extends CpkContentGenerator {
     /*public CpkContentGeneratorForTesting(ICpkEnvironment environment) {
         super(environment);
     }//*/
+
     public CpkContentGeneratorForTesting( ) {
         super();
         this.cpkEnv = new CpkPentahoEnvironment(pluginUtils, new PentahoRepositoryAccessForTesting());
