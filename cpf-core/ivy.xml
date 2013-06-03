@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ivy-module version="2.0" xmlns:m="http://ant.apache.org/ivy/maven">
 
-  <info organisation="pentaho" module="${ivy.artifact.id}" revision="${project.revision}"/>
+  <info organisation="pt.webdetails" module="${ivy.artifact.id}" revision="${project.revision}"/>
 
   <configurations>
     <conf name="default"/>
@@ -20,47 +20,36 @@
   <dependencies defaultconf="default->default">
 
     <!--  common dependencies -->
-<!--    <dependency org="commons-logging" name="commons-logging" rev="1.1.1" transitive="false" />
-    <dependency org="dom4j" name="dom4j" rev="1.6.1" transitive="false"/>
-    <dependency org="commons-lang" name="commons-lang" rev="2.2"/>
-    <dependency org="commons-io" name="commons-io" rev="2.2"/>-->
-    <!--  pentaho dependencies -->
-    <dependency org="pentaho" name="pentaho-bi-platform-plugin-services"
-                rev="${dependency.bi-platform.revision}" changing="true" transitive="false" />
-    <dependency org="pentaho" name="pentaho-bi-platform-plugin-actions"
-                rev="${dependency.bi-platform.revision}" changing="true" transitive="true" />
-    <dependency org="pentaho" name="pentaho-bi-platform-web-servlet"
-                rev="${dependency.bi-platform.revision}" transitive="false"  changing="true"/>
-    <dependency org="pentaho" name="pentaho-bi-platform-web"
-                rev="${dependency.bi-platform.revision}" transitive="false"  changing="true"/>
-    <dependency org="org.json" name="json" rev="3.1.1"/>
-    <dependency org="net.sf.flexjson" name="flexjson" rev="2.1" transitive="false"/>
+    <dependency org="commons-logging" name="commons-logging" rev="1.1.1"/>    
+    <dependency org="commons-lang" name="commons-lang" rev="2.6"/>    
+    <dependency org="commons-io" name="commons-io" rev="2.4"/>    
+    <dependency org="commons-vfs" name="commons-vfs" rev="1.0"/>    
+    <dependency org="dom4j" name="dom4j" rev="1.6.1"/>
+    <dependency org="javax.servlet" name="servlet-api" rev="2.4"/>                       
+    <dependency org="jaxen" name="jaxen" rev="1.1"/>                           
+    <dependency org="log4j" name="log4j" rev="1.2.14"/>          
+    <dependency org="org.codehaus.jackson" name="jackson-core-asl" rev="1.8.2"/>              
+    <dependency org="org.codehaus.jackson" name="jackson-mapper-asl" rev="1.8.2"/>                  
+    <dependency org="org.json" name="json" rev="20090211"/>
+    <dependency org="org.mozilla" name="rhino" rev="1.7R4"/>                       
+    <dependency org="org.kohsuke.stapler" name="json-lib" rev="2.1-rev6"/>    
+    <dependency org="org.springframework" name="spring-beans" rev="3.0.3.RELEASE"/>                     
+    <dependency org="org.springframework" name="spring-core" rev="2.5.6"/>           
+    <dependency org="org.springframework.security" name="spring-security-core" rev="2.0.5.RELEASE"/>               
+    <dependency org="pentaho-kettle" name="kettle-core" rev="${dependency.kettle.revision}" changing="true" transitive="false" />    
+    <dependency org="pentaho-kettle" name="kettle-engine" rev="${dependency.kettle.revision}" changing="true" transitive="false" />        
+    <dependency org="pentaho-kettle" name="kettle-db" rev="${dependency.kettle.revision}" changing="true" transitive="false" />        
 
-                <!--
-    <dependency org="pentaho-reporting-engine" name="pentaho-reporting-engine-classic-core-platform-plugin" 
-                rev="${dependency.pentaho-reporting-engine-classic-core-platform-plugin.revision}" changing="true" transitive="false"/>-->
-    <!-- orient db (persistence) -->
-<!--    <dependency org="com.orientechnologies" name="orient-commons" rev="1.0.1" transitive="false" conf="legacy->default;default->default"/>
-    <dependency org="com.orientechnologies" name="orientdb-core" rev="1.0.1" transitive="false" conf="legacy->default;default->default"/>
-    <dependency org="com.orientechnologies" name="orientdb-server" rev="1.0.1" transitive="false" conf="legacy->default;default->default" />-->
     
-    <!-- legacy -->
-    <dependency org="pentaho" name="pentaho-bi-platform-plugin-services"
-      rev="3.6.0-stable" changing="true" transitive="false" conf="legacy->default" />
-    <dependency org="pentaho" name="pentaho-bi-platform-plugin-actions"
-      rev="3.6.0-stable" changing="true" transitive="true" conf="legacy->default" />
-    <dependency org="pentaho" name="pentaho-bi-platform-web-servlet"
-      rev="3.6.0-stable" transitive="false"  changing="true" conf="legacy->default" />
-    <dependency org="pentaho" name="pentaho-bi-platform-web"
-      rev="3.6.0-stable" transitive="false"  changing="true" conf="legacy->default" />
 
-
-  <dependency org="com.orientechnologies" name="orient-commons" conf="runtime->default" rev="1.3.0"/>
-  <dependency org="com.orientechnologies" name="orientdb-core" conf="runtime->default" rev="1.3.0"/>
-  <dependency org="com.orientechnologies" name="orientdb-server" conf="runtime->default" rev="1.3.0"/>
-
-  <dependency org="junit" name="junit" conf="test->default" rev='4.10'/>
-
+    <dependency org="junit" name="junit" conf="test->default" rev='4.10'/>
+    <dependency org="commons-httpclient" name="commons-httpclient" conf="test->default" rev='3.1'/>    
+    <dependency org="hsqldb" name="hsqldb" conf="test->default" rev='1.8.0.10'/>        
+    <dependency org="org.apache.clerezza.ext" name="org.json.simple" conf="test->default" rev='0.3-incubating'/>            
+    <dependency org="org.safehaus.jug" name="jug" conf="test->default" rev='2.0.0'>
+     <artifact name="jug" type="jar" ext="jar" conf="" m:classifier="asl"/>
+     </dependency>
+    
   </dependencies>
 
 </ivy-module>
