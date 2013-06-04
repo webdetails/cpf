@@ -4,6 +4,7 @@
 package pt.webdetails.cpf.plugin;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
 import pt.webdetails.cpf.repository.IRepositoryFile;
 import pt.webdetails.cpf.repository.IRepositoryFileFilter;
 
@@ -19,7 +20,7 @@ public class CorePlugin {
     protected String id;//title
     private String[] fileExtensions;
 
-    @JsonIgnore
+    @JsonProperty("name")
     public String getName() {
         return name;
     }
@@ -76,7 +77,7 @@ public class CorePlugin {
     /**
      * @return the id
      */
-    @JsonIgnore
+    @JsonProperty("id")
     public String getId() {
         return id;
     }
