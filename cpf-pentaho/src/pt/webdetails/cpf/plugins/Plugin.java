@@ -30,6 +30,7 @@ public class Plugin extends CorePlugin{
     private String description;
     private String company;
     private String companyUrl;
+    private String companyLogo;
     private String path;
     private String version;
     private final String PLUGIN_XML_FILENAME = "plugin.xml";
@@ -87,7 +88,15 @@ public class Plugin extends CorePlugin{
     public void setCompanyUrl(String companyUrl) {
         this.companyUrl = companyUrl;
     }
+    
+    @JsonProperty("companyLogo")
+    public String getCompanyLogo() {
+        return companyLogo;
+    }
 
+    public void setCompanyLogo(String companyLogo) {
+        this.companyLogo = companyLogo;
+    }
     /**
      * 
      * @return Returns the plugin description if defined on the Plugin.xml 
@@ -152,6 +161,7 @@ public class Plugin extends CorePlugin{
             setDescription(documentNode.valueOf("/plugin/content-types/content-type/description"));
             setCompany(documentNode.valueOf("/plugin/content-types/content-type/company/@name"));
             setCompanyUrl(documentNode.valueOf("/plugin/content-types/content-type/company/@url"));
+            setCompanyLogo(documentNode.valueOf("/plugin/content-types/content-type/company/@logo"));
         }
         
         if(hasVersionXML()){
