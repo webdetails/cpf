@@ -103,7 +103,19 @@ public class CpkCoreService {
         if (parameterProviders != null) {
             cpkEnvironment.getPluginUtils().setResponseHeaders(parameterProviders, "text/plain");
         }
-        out.write(getCpkEngine().getStatus().getBytes("UTF-8"));
+        
+        writeMessage(out, getCpkEngine().getStatus());
+    }
+    
+    public void statusJson(OutputStream out, Map<String, ICommonParameterProvider> parameterProviders) throws DocumentException, IOException {
+        logger.info("Showing status for CPK plugin " + getPluginName());
+
+        // Only set the headers if we have access to the response (via parameterProviders).
+        if (parameterProviders != null) {
+            cpkEnvironment.getPluginUtils().setResponseHeaders(parameterProviders, "text/plain");
+        }
+        
+        writeMessage(out, getCpkEngine().getStatusJson());
     }
 
     public boolean hasElement(String elementId) {

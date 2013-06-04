@@ -35,7 +35,7 @@ public class CpkEngine {
     private Document cpkDoc;
     private TreeMap<String, IElement> elementsMap;
     private HashMap<String, IElementType> elementTypesMap;
-    private static List reserverdWords = Arrays.asList("refresh", "status", "reload");
+    private static List reserverdWords = Arrays.asList("refresh", "status", "reload","getElementsList","getSitemapJson","version","getPluginMetadata");
     private String defaultElementName = null;
     private ICpkEnvironment cpkEnv;
 
@@ -219,32 +219,11 @@ public class CpkEngine {
      * @return
      */
     public String getStatus() {
-
-        IAccessControl accessControl = cpkEnv.getAccessControl();
-        StringBuilder out = new StringBuilder();
-
-        out.append("--------------------------------\n");
-        out.append("   ").append(cpkEnv.getPluginName()).append(" Status\n");
-        out.append("--------------------------------\n");
-        out.append("\n");
-
-        // Show the different entities
-
-        out.append(elementTypesMap.size()).append(" registered entity types\nDefault element: [").append(defaultElementName).append("]\n");
-        out.append("\n");
-        out.append("End Points\n");
-
-        for (String key : elementsMap.keySet()) {
-
-            IElement myElement = elementsMap.get(key);
-            if (accessControl.isAllowed(myElement)) {
-                out.append("   [").append(key).append("]: \t").append(myElement.toString()).append("\n\n");
-            }
-
-        }
-
-        return out.toString();
-
+        return new Status(elementsMap, elementTypesMap, defaultElementName, reserverdWords, cpkEnv).getStatus();
+    }
+    
+    public String getStatusJson(){
+        return new Status(elementsMap, elementTypesMap, defaultElementName, reserverdWords, cpkEnv).getStatusJson();
     }
 
     public Map<String, IElementType> getElementTypes() {

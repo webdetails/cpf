@@ -143,6 +143,7 @@ public class Plugin extends CorePlugin{
         return node;
     }
     
+    @JsonIgnore
     private void pluginSelfBuild(){
         if(hasPluginXML()){
             Node documentNode = getXmlFileContent(getPath()+PLUGIN_XML_FILENAME);
