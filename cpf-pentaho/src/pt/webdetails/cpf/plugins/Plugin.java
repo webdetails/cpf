@@ -18,6 +18,7 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import pt.webdetails.cpf.VersionChecker;
 import pt.webdetails.cpf.plugin.CorePlugin;
 
 /**
@@ -164,15 +165,8 @@ public class Plugin extends CorePlugin{
             setCompanyLogo(documentNode.valueOf("/plugin/content-types/content-type/company/@logo"));
         }
         
-        if(hasVersionXML()){
-            Node documentNode = getXmlFileContent(getPath()+VERSION_XML_FILENAME);
-            
-            String content = null;
-            
-            content = documentNode.asXML();
-            
-            this.version = content;
-            
+        if(hasVersionXML()){            
+            this.version = new VersionChecker.Version(getXmlFileContent(getPath()+VERSION_XML_FILENAME).getDocument()).toString();
         }else{
             String unspecified = "unspecified or no version.xml present in plugin directory";
             this.version = unspecified;
@@ -255,6 +249,6 @@ public class Plugin extends CorePlugin{
     }
     
     public String getVersion(){
-        return version;
+        return version.toString();
     }
 }
