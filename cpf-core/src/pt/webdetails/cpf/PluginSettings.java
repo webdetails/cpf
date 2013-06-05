@@ -4,22 +4,20 @@
 
 package pt.webdetails.cpf;
 
-import java.io.File;
-import java.io.FileWriter;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
+import org.dom4j.io.SAXReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
 import pt.webdetails.cpf.repository.BaseRepositoryAccess.FileAccess;
@@ -118,9 +116,17 @@ public abstract class PluginSettings {
     @SuppressWarnings("unchecked")
     protected List<Element> getSettingsXmlSection(String section) {
         Document doc = null;
+        ByteArrayInputStream bis;
+        SAXReader reader;
         try {
-            doc = repository.getResourceAsDocument("system/" + getPluginSystemDir() + SETTINGS_FILE);
+            String resource = repository.getResourceAsString("system/" + getPluginSystemDir() + SETTINGS_FILE);
+            bis = new ByteArrayInputStream(resource.getBytes());
+            reader = new SAXReader();
+            
+            doc = reader.read(bis);
         } catch (IOException ex) {
+            Logger.getLogger(PluginSettings.class.getName()).log(Level.SEVERE, null, ex);
+        }catch (DocumentException ex){
             Logger.getLogger(PluginSettings.class.getName()).log(Level.SEVERE, null, ex);
         }
         if(doc != null){
