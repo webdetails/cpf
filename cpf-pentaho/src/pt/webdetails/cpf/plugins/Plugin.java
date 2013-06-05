@@ -18,6 +18,7 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import pt.webdetails.cpf.VersionChecker;
 import pt.webdetails.cpf.plugin.CorePlugin;
 
 /**
@@ -30,6 +31,7 @@ public class Plugin extends CorePlugin{
     private String description;
     private String company;
     private String companyUrl;
+    private String companyLogo;
     private String path;
     private String version;
     private final String PLUGIN_XML_FILENAME = "plugin.xml";
@@ -87,7 +89,15 @@ public class Plugin extends CorePlugin{
     public void setCompanyUrl(String companyUrl) {
         this.companyUrl = companyUrl;
     }
+    
+    @JsonProperty("companyLogo")
+    public String getCompanyLogo() {
+        return companyLogo;
+    }
 
+    public void setCompanyLogo(String companyLogo) {
+        this.companyLogo = companyLogo;
+    }
     /**
      * 
      * @return Returns the plugin description if defined on the Plugin.xml 
@@ -143,6 +153,7 @@ public class Plugin extends CorePlugin{
         return node;
     }
     
+    @JsonIgnore
     private void pluginSelfBuild(){
         if(hasPluginXML()){
             Node documentNode = getXmlFileContent(getPath()+PLUGIN_XML_FILENAME);
@@ -151,17 +162,11 @@ public class Plugin extends CorePlugin{
             setDescription(documentNode.valueOf("/plugin/content-types/content-type/description"));
             setCompany(documentNode.valueOf("/plugin/content-types/content-type/company/@name"));
             setCompanyUrl(documentNode.valueOf("/plugin/content-types/content-type/company/@url"));
+            setCompanyLogo(documentNode.valueOf("/plugin/content-types/content-type/company/@logo"));
         }
         
-        if(hasVersionXML()){
-            Node documentNode = getXmlFileContent(getPath()+VERSION_XML_FILENAME);
-            
-            String content = null;
-            
-            content = documentNode.asXML();
-            
-            this.version = content;
-            
+        if(hasVersionXML()){            
+            this.version = new VersionChecker.Version(getXmlFileContent(getPath()+VERSION_XML_FILENAME).getDocument()).toString();
         }else{
             String unspecified = "unspecified or no version.xml present in plugin directory";
             this.version = unspecified;
@@ -244,6 +249,6 @@ public class Plugin extends CorePlugin{
     }
     
     public String getVersion(){
-        return version;
+        return version.toString();
     }
 }

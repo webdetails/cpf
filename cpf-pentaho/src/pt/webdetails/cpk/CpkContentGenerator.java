@@ -12,7 +12,9 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.dom4j.DocumentException;
 import org.pentaho.platform.api.engine.IParameterProvider;
@@ -94,7 +96,47 @@ public class CpkContentGenerator extends RestContentGenerator {
 
     @Exposed(accessLevel = AccessLevel.PUBLIC)
     public void status(OutputStream out) throws DocumentException, IOException {
-        coreService.status(out, map);
+        if(map.get("request").hasParameter("json")){
+            coreService.statusJson(out,map);
+        }else{
+            coreService.status(out, map);
+        }
+    }
+    
+    @Exposed(accessLevel = AccessLevel.PUBLIC)
+    public void getPluginMetadata(OutputStream out){
+        ObjectMapper mapper = new ObjectMapper();
+        String json = null;
+        IPluginFilter pluginFilter = new IPluginFilter() {
+
+            @Override
+            public boolean include(Plugin plugin) {
+                return plugin.getId().equals(pluginUtils.getPluginName());
+            }
+        };
+        
+        PluginsAnalyzer pluginsAnalyzer = new PluginsAnalyzer();
+        pluginsAnalyzer.refresh();
+        
+        List<Plugin> plugins = pluginsAnalyzer.getPlugins(pluginFilter);
+        
+        Plugin plugin = null;
+        
+        if(!plugins.isEmpty()){
+            plugin = plugins.get(0);
+            
+            try {
+                json = mapper.writeValueAsString(plugin);
+            } catch (IOException ex) {
+                Logger.getLogger(CpkContentGenerator.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+        if(json == null){
+            json = "{\"error\":\"There was a problem getting the plugin metadata into JSON. The result was 'null'\"}";
+        }
+        
+        writeMessage(out, json);
     }
 
     @Exposed(accessLevel = AccessLevel.PUBLIC)

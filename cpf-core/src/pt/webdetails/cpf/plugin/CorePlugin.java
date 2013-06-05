@@ -3,6 +3,8 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpf.plugin;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
 import pt.webdetails.cpf.repository.IRepositoryFile;
 import pt.webdetails.cpf.repository.IRepositoryFileFilter;
 
@@ -18,10 +20,12 @@ public class CorePlugin {
     protected String id;//title
     private String[] fileExtensions;
 
+    @JsonProperty("name")
     public String getName() {
         return name;
     }
 
+    @JsonIgnore
     public String getTitle() {
         return getId();
     }
@@ -46,6 +50,7 @@ public class CorePlugin {
         this.id = "defaultId";
     }
 
+    @JsonIgnore
     public IRepositoryFileFilter getPluginFileFilter() {
         return new IRepositoryFileFilter() {
             @Override
@@ -72,6 +77,7 @@ public class CorePlugin {
     /**
      * @return the id
      */
+    @JsonProperty("id")
     public String getId() {
         return id;
     }
@@ -86,6 +92,7 @@ public class CorePlugin {
     /**
      * @return the fileExtensions
      */
+    @JsonIgnore
     public String[] getFileExtensions() {
         return fileExtensions;
     }
