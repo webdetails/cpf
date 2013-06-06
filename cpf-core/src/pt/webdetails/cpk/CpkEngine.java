@@ -5,6 +5,7 @@ package pt.webdetails.cpk;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -108,15 +109,22 @@ public class CpkEngine {
         cpkEnv.reload();
         SAXReader reader;
         Document cpkDoc;
-        IRepositoryFile repFile = cpkEnv.getRepositoryAccess().getSettingsFile("cpk.xml", BaseRepositoryAccess.FileAccess.READ);
-        ByteArrayInputStream bis = new ByteArrayInputStream(repFile.getData());
+        
+        InputStream is = null;
+        
+        try{
+            IRepositoryFile repFile = cpkEnv.getRepositoryAccess().getSettingsFile("cpk.xml", BaseRepositoryAccess.FileAccess.READ);
+            is = new ByteArrayInputStream(repFile.getData());
+        }catch(Exception e){
+            is = getClass().getResourceAsStream("/cpk.xml");
+        }
         
         try {
         reader = new SAXReader();
-        cpkDoc = reader.read(bis);
+        cpkDoc = reader.read(is);
         setCpkDoc(cpkDoc);
         } finally {
-            bis.close();
+            is.close();
         }
        
         List<Node> elementTypeNodes = cpkDoc.selectNodes("/cpk/elementTypes/elementType");
@@ -143,6 +151,7 @@ public class CpkEngine {
             }
 
             // Now that we have the class, scan the elements
+            
             List<IElement> elements = elementType.scanElements(getCpkDoc().selectSingleNode("/cpk/elementTypes/elementType[@class='" + clazz + "']"));
 
             // Register them in the map. We don't support duplicates, and we don't allow some reserved names
