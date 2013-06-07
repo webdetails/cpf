@@ -176,8 +176,12 @@ public class CpkCoreService {
         return elements;
     }
 
-    public void getElementsList(OutputStream out) {
-        writeMessage(out, getCpkEngine().getElementsJson());
+    public void getElementsList(OutputStream out, Map<String, ICommonParameterProvider> parameterProviders) {
+        final String key = "elementsList";
+        boolean success = runSystemKettle(key, false, parameterProviders);
+        if(!success){
+            writeMessage(out, getCpkEngine().getElementsJson());
+        }
     }
 
     public String getPluginName() {

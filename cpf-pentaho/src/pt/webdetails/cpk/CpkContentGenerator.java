@@ -153,7 +153,7 @@ public class CpkContentGenerator extends RestContentGenerator {
     }
 
     @Exposed(accessLevel = AccessLevel.PUBLIC)
-    public void getElementsList(OutputStream out) {
+    public void elementsList(OutputStream out) {
         coreService.getElementsList(out);
     }
 

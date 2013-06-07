@@ -162,7 +162,7 @@ public class CpkContentGeneratorTest {
 
         boolean successful = true;
         out = new ByteArrayOutputStream();
-        cpkContentGenerator.getElementsList(out);
+        cpkContentGenerator.elementsList(out);
         String str = out.toString();
 
         JSONArray elementsListJson = new JSONArray(str);

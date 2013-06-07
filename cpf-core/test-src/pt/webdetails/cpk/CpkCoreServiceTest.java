@@ -172,7 +172,7 @@ public class CpkCoreServiceTest {
         boolean successful = true;
 
         out = new ByteArrayOutputStream();
-        cpkCore.getElementsList(out);
+        cpkCore.getElementsList(out, map);
         String str = out.toString();
 
         JSONArray elementsListJson = new JSONArray(str);
