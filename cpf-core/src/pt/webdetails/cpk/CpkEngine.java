@@ -6,6 +6,7 @@ package pt.webdetails.cpk;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +24,6 @@ import pt.webdetails.cpf.repository.BaseRepositoryAccess;
 import pt.webdetails.cpf.repository.IRepositoryFile;
 import pt.webdetails.cpk.elements.IElement;
 import pt.webdetails.cpk.elements.IElementType;
-import pt.webdetails.cpk.security.IAccessControl;
 
 /**
  *
@@ -71,7 +71,6 @@ public class CpkEngine {
     public static CpkEngine getInstance() {
 
         if (instance == null) {
-
             instance = new CpkEngine();
             try {
               instance.initialize();
@@ -90,10 +89,25 @@ public class CpkEngine {
 
     }
 
-    
+    public List getReservedWords(){
+        return reserverdWords;
+    }
     
     public ICpkEnvironment getEnvironment() {
       return this.cpkEnv;
+    }
+    
+    private Document getDocument(InputStream is) throws IOException, DocumentException{
+        SAXReader reader;
+        Document doc = null;
+        reader = new SAXReader();
+        try {
+            doc = reader.read(is);
+        } finally{
+            is.close();
+        }
+        
+        return doc;
     }
 
     /**
@@ -107,8 +121,7 @@ public class CpkEngine {
         elementsMap.clear();
         elementTypesMap.clear();
         cpkEnv.reload();
-        SAXReader reader;
-        Document cpkDoc;
+        Document cpkDoc = null;
         
         InputStream is = null;
         
@@ -119,13 +132,9 @@ public class CpkEngine {
             is = getClass().getResourceAsStream("/cpk.xml");
         }
         
-        try {
-        reader = new SAXReader();
-        cpkDoc = reader.read(is);
-        setCpkDoc(cpkDoc);
-        } finally {
-            is.close();
-        }
+        cpkDoc = getDocument(is);
+        
+        
        
         List<Node> elementTypeNodes = cpkDoc.selectNodes("/cpk/elementTypes/elementType");
         defaultElementName = cpkDoc.selectSingleNode("/cpk/elementTypes").valueOf("@defaultElement").toLowerCase();
@@ -149,11 +158,13 @@ public class CpkEngine {
                 logger.error("Error initializing element type " + clazz + ": " + Util.getExceptionDescription(ex));
                 continue;
             }
-
+            List<IElement> elements = new ArrayList<IElement>();
             // Now that we have the class, scan the elements
+            for(Node elementNode : (List<Node>)cpkDoc.selectNodes("/cpk/elementTypes/elementType[@class='" + clazz + "']")){
+                elements.addAll(elementType.scanElements(elementNode));
+            }
             
-            List<IElement> elements = elementType.scanElements(getCpkDoc().selectSingleNode("/cpk/elementTypes/elementType[@class='" + clazz + "']"));
-
+            
             // Register them in the map. We don't support duplicates, and we don't allow some reserved names
             for (IElement element : elements) {
 
@@ -161,7 +172,7 @@ public class CpkEngine {
 
                 if (reserverdWords.contains(key)) {
 
-                    logger.warn("Element with reserved work '" + key + "' can't be registred: " + element.toString());
+                    logger.warn("Element with reserved word '" + key + "' can't be registred: " + element.toString());
 
                 } else {
                     // All ok

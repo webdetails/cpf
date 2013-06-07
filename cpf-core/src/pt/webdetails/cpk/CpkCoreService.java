@@ -3,6 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpk;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
@@ -17,6 +18,7 @@ import pt.webdetails.cpf.RestRequestHandler;
 import pt.webdetails.cpf.Router;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
 import pt.webdetails.cpf.utils.IPluginUtils;
+import pt.webdetails.cpk.elements.AbstractElement;
 import pt.webdetails.cpk.elements.IElement;
 import pt.webdetails.cpk.security.IAccessControl;
 
@@ -75,7 +77,7 @@ public class CpkCoreService {
             }
 
         } else {
-            logger.info("Unable to get element: "+path+". This is probably a call to a control CPK operation (reload, status)");
+            logger.debug("Unable to get element: "+path+". This is probably a call to a control CPK operation (reload, status)");
             throw new NoElementException("Unable to get element!");
         }
     }
@@ -95,16 +97,48 @@ public class CpkCoreService {
             accessControl.throwAccessDenied(parameterProviders);
         }
     }
+    
+    private boolean runSystemKettle(String filename, boolean adminOnly, Map<String, ICommonParameterProvider> parameterProviders){
+        boolean success = false;
+        AbstractElement element = new AbstractElement();
+        element.setAdminOnly(adminOnly);
+        element.setElementType("Kettle");
+        
+        
+        try{
+            File kettleFile = new File(cpkEnvironment.getPluginUtils().getPluginDirectory().getAbsolutePath()+"/system/"+filename+".kjb");
+            
+            if(kettleFile.exists()){
+                element.setLocation(kettleFile.getAbsolutePath());
+            }else{
+                kettleFile = new File(cpkEnvironment.getPluginUtils().getPluginDirectory().getAbsolutePath()+"/system/"+filename+".ktr");
+                if(kettleFile.exists()){
+                    element.setLocation(kettleFile.getAbsolutePath());
+                }else{
+                    return false;
+                }
+            }
+            element.processRequest(parameterProviders);
+            success = true;
+        
+        }catch(Exception e){}
+        
+        return success;
+    }
 
     public void status(OutputStream out, Map<String, ICommonParameterProvider> parameterProviders) throws DocumentException, IOException {
-        logger.info("Showing status for CPK plugin " + getPluginName());
-
-        // Only set the headers if we have access to the response (via parameterProviders).
-        if (parameterProviders != null) {
-            cpkEnvironment.getPluginUtils().setResponseHeaders(parameterProviders, "text/plain");
-        }
+        final String key = "status";
         
-        writeMessage(out, getCpkEngine().getStatus());
+        boolean success = runSystemKettle(key, false, parameterProviders);
+        
+        if(!success){
+            logger.info("Showing status for CPK plugin " + getPluginName());
+            // Only set the headers if we have access to the response (via parameterProviders).
+            if (parameterProviders != null) {
+                cpkEnvironment.getPluginUtils().setResponseHeaders(parameterProviders, "text/plain");
+            }
+            writeMessage(out, getCpkEngine().getStatus());
+        }
     }
     
     public void statusJson(OutputStream out, Map<String, ICommonParameterProvider> parameterProviders) throws DocumentException, IOException {

@@ -151,7 +151,7 @@ public class KettleElementType extends AbstractElementType {
 
             if (kettlePath.endsWith(".ktr")) {
                 kettleOutput.setKettleType(KettleType.TRANSFORMATION);
-                result = executeTransformation(kettlePath, customParams, kettleOutput, true);
+                result = executeTransformation(kettlePath, customParams, kettleOutput);
             } else if (kettlePath.endsWith(".kjb")) {
                 kettleOutput.setKettleType(KettleType.JOB);
                 result = executeJob(kettlePath, customParams, kettleOutput);
@@ -183,7 +183,7 @@ public class KettleElementType extends AbstractElementType {
      * @throws UnknownParamException
      * @throws KettleException
      */
-    private Result executeTransformation(final String kettlePath, HashMap<String, String> customParams, final IKettleOutput kettleOutput, boolean useStepName) throws KettleXMLException, UnknownParamException, KettleException {
+    private Result executeTransformation(final String kettlePath, HashMap<String, String> customParams, final IKettleOutput kettleOutput) throws KettleXMLException, UnknownParamException, KettleException {
 
 
         Result result = null;
@@ -201,70 +201,55 @@ public class KettleElementType extends AbstractElementType {
         }
 
         Trans transformation = new Trans(transformationMeta);
+        IUserSession userSession = CpkEngine.getInstance().getEnvironment().getSessionUtils().getCurrentSession();
+        if (userSession.getUserName() != null) {
+            transformation.getTransMeta().setVariable("username", userSession.getUserName());
+        }
+
+        String[] authorities = userSession.getAuthorities();
+        if (authorities != null && authorities.length > 0) {
+            transformation.getTransMeta().setVariable("roles", StringUtils.join(authorities, ","));
+        }
+        
         /*
          * Loading parameters, if there are any.
          */
         if (customParams.size() > 0) {
             for (String arg : customParams.keySet()) {
-
                 transformation.getTransMeta().setParameterValue(arg, customParams.get(arg));
-
             }
+            
             transformation.copyParametersFrom(transformation.getTransMeta());
-            IUserSession userSession = CpkEngine.getInstance().getEnvironment().getSessionUtils().getCurrentSession();
-
-            if (userSession.getUserName() != null) {
-                transformation.getTransMeta().setVariable("username", userSession.getUserName());
-            }
-
-            String[] authorities = userSession.getAuthorities();
-            if (authorities != null && authorities.length > 0) {
-                transformation.getTransMeta().setVariable("roles", StringUtils.join(authorities, ","));
-            }
-
             transformation.copyVariablesFrom(transformation.getTransMeta());
             transformation.activateParameters();
-
         }
-        if (useStepName) {
 
-            transformation.prepareExecution(null); //Get the step threads after this line
-            StepInterface step = transformation.findRunThread(kettleOutput.getOutputStepName());
+               
 
-            if (step == null) {
-                step = transformation.findRunThread(stepName); //TODO add getDefaultStepName method to KettleOutput
-            }
+        transformation.prepareExecution(null); //Get the step threads after this line
+        StepInterface step = transformation.findRunThread(kettleOutput.getOutputStepName());
 
+        if (kettleOutput.needsRowListener() && step != null) {
 
-            if (kettleOutput.needsRowListener() && step != null) {
+            step.addRowListener(new RowAdapter() {
+                @Override
+                public void rowWrittenEvent(RowMetaInterface rowMeta, Object[] row) throws KettleStepException {
+                    kettleOutput.storeRow(row, rowMeta);
+                }
+            });
 
-                step.addRowListener(new RowAdapter() {
-                    @Override
-                    public void rowWrittenEvent(RowMetaInterface rowMeta, Object[] row) throws KettleStepException {
-                        kettleOutput.storeRow(row, rowMeta);
-                    }
-                });
-
-                transformation.startThreads(); // All the operations to get stepNames are suposed to be placed above this line
-                transformation.waitUntilFinished();
-
-
-                result = step.getTrans().getResult();
-
-
-            } else {
-                result = executeTransformation(kettlePath, customParams, kettleOutput, false);
-            }
-
-        } else {
-            transformation.execute(null);
+            transformation.startThreads(); // All the operations to get stepNames are suposed to be placed above this line
             transformation.waitUntilFinished();
 
-            result = transformation.getResult();
-            for (RowMetaAndData rowMetaAndData : result.getRows()) {
-                kettleOutput.storeRow(rowMetaAndData.getData(), rowMetaAndData.getRowMeta());
-            }
+
+            result = step.getTrans().getResult();
+
+
+        } else {
+            result = null;
         }
+
+        
 
         setMimeType(transformation.getVariable("mimeType"), transformation.getParameterValue("mimeType"));
 
