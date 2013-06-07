@@ -98,6 +98,14 @@ public class CpkCoreService {
         }
     }
     
+    /**
+     * This method runs a Job or Transformation (in this order) if it exists inside the "system" folder of the plugin
+     * 
+     * @param filename Name of the file without extension
+     * @param adminOnly to specify if everyone is supposed to run it
+     * @param parameterProviders Required by processRequest of the AbstractElement class
+     * @return Returns true if the file exists and there was no problem reading it, false otherwise
+     */
     private boolean runSystemKettle(String filename, boolean adminOnly, Map<String, ICommonParameterProvider> parameterProviders){
         boolean success = false;
         AbstractElement element = new AbstractElement();

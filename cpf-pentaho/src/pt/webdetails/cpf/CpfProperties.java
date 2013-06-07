@@ -40,7 +40,7 @@ public class CpfProperties extends Properties {
         try {
             loadAndClose(getClass().getResourceAsStream("config.properties"));
         } catch (IOException ioe) {
-            logger.warn("Failed to sread CPF base settings");
+            logger.warn("Failed to read CPF base settings");
         }
 
         IRepositoryAccess repository = PentahoRepositoryAccess.getRepository();
