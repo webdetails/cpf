@@ -4,6 +4,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpk.elements.impl;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import pt.webdetails.cpk.elements.impl.kettleOutputs.KettleOutput;
@@ -52,18 +53,31 @@ public class KettleElementType extends AbstractElementType {
         JOB, TRANSFORMATION
     };
     protected Log logger = LogFactory.getLog(this.getClass());
-    private static final String PARAM_PREFIX = "param";
+    private static final String PARAM_PREFIX = "param",MIMETYPE = "MIMETYPE";
     private ConcurrentHashMap<String, TransMeta> transMetaStorage = new ConcurrentHashMap<String, TransMeta>();//Stores the metadata of the ktr files. [Key=path]&[Value=transMeta]
     private ConcurrentHashMap<String, JobMeta> jobMetaStorage = new ConcurrentHashMap<String, JobMeta>();//Stores the metadata of the kjb files. [Key=path]&[Value=jobMeta]
     private String stepName = "OUTPUT";
     private String mimeType = null;
+    private String CPK_SOLUTION_SYSTEM_DIR = null, CPK_SOLUTION_DIR = null, CPK_PLUGIN_DIR = null, CPK_PLUGIN_ID = null, CPK_PLUGIN_SYSTEM_DIR = null;
 
     public KettleElementType(IPluginUtils plug) {
 
         super(plug);
+        init(plug);
         transMetaStorage = new ConcurrentHashMap<String, TransMeta>();//Stores the metadata of the ktr files. [Key=path]&[Value=transMeta]
         jobMetaStorage = new ConcurrentHashMap<String, JobMeta>();//Stores the metadata of the kjb files. [Key=path]&[Value=jobMeta]
-
+    }
+    
+    private void init(IPluginUtils pluginUtils){
+        File pluginDirFile = pluginUtils.getPluginDirectory();
+        
+        CPK_PLUGIN_DIR = pluginDirFile.getAbsolutePath();
+        CPK_PLUGIN_SYSTEM_DIR = pluginDirFile.getAbsolutePath()+File.separator+"system";
+        CPK_PLUGIN_ID = pluginDirFile.getName();
+        try{CPK_SOLUTION_DIR = CpkEngine.getInstance().getEnvironment().getRepositoryAccess().getSolutionPath("");}catch(Exception e){}
+        CPK_SOLUTION_SYSTEM_DIR = pluginDirFile.getParentFile().getAbsolutePath();
+        
+        
     }
 
     @Override
@@ -210,6 +224,11 @@ public class KettleElementType extends AbstractElementType {
         if (authorities != null && authorities.length > 0) {
             transformation.getTransMeta().setVariable("roles", StringUtils.join(authorities, ","));
         }
+        transformation.getTransMeta().setVariable("cpk.solution.system.dir", CPK_SOLUTION_SYSTEM_DIR); // eg: project-X/solution/system
+        transformation.getTransMeta().setVariable("cpk.solution.dir", CPK_SOLUTION_DIR); // eg: project-X/solution
+        transformation.getTransMeta().setVariable("cpk.plugin.dir", CPK_PLUGIN_DIR); // eg: project-X/solution/system/cpk
+        transformation.getTransMeta().setVariable("cpk.plugin.id", CPK_PLUGIN_ID); // eg: "cpk"
+        transformation.getTransMeta().setVariable("cpk.plugin.system.dir", CPK_PLUGIN_SYSTEM_DIR); //eg: project-X/solution/system/cpk/system
         
         /*
          * Loading parameters, if there are any.
@@ -217,13 +236,12 @@ public class KettleElementType extends AbstractElementType {
         if (customParams.size() > 0) {
             for (String arg : customParams.keySet()) {
                 transformation.getTransMeta().setParameterValue(arg, customParams.get(arg));
-            }
-            
-            transformation.copyParametersFrom(transformation.getTransMeta());
-            transformation.copyVariablesFrom(transformation.getTransMeta());
-            transformation.activateParameters();
+            }    
         }
-
+        
+        transformation.copyParametersFrom(transformation.getTransMeta());
+        transformation.copyVariablesFrom(transformation.getTransMeta());
+        transformation.activateParameters();
                
 
         transformation.prepareExecution(null); //Get the step threads after this line
@@ -251,7 +269,7 @@ public class KettleElementType extends AbstractElementType {
 
         
 
-        setMimeType(transformation.getVariable("mimeType"), transformation.getParameterValue("mimeType"));
+        setMimeType(transformation.getVariable(MIMETYPE), transformation.getParameterValue(MIMETYPE));
 
         return result;
     }
@@ -268,7 +286,7 @@ public class KettleElementType extends AbstractElementType {
      */
     private Result executeJob(String kettlePath, HashMap<String, String> customParams, IKettleOutput kettleOutput) throws UnknownParamException, KettleException, KettleXMLException {
 
-
+        
         JobMeta jobMeta;
 
         if (jobMetaStorage.containsKey(kettlePath)) {
@@ -282,6 +300,25 @@ public class KettleElementType extends AbstractElementType {
 
         }
         Job job = new Job(null, jobMeta);
+        
+        IUserSession userSession = CpkEngine.getInstance().getEnvironment().getSessionUtils().getCurrentSession();
+
+        if (userSession.getUserName() != null) {
+            job.getJobMeta().setVariable("username", userSession.getUserName());
+
+        }
+        String[] authorities = userSession.getAuthorities();
+
+        if (authorities != null && authorities.length > 0) {
+            job.getJobMeta().setVariable("roles", StringUtils.join(authorities, ","));
+        }
+        
+        job.getJobMeta().setVariable("cpk.solution.system.dir", CPK_SOLUTION_SYSTEM_DIR); // eg: project-X/solution/system
+        job.getJobMeta().setVariable("cpk.solution.dir", CPK_SOLUTION_DIR); // eg: project-X/solution
+        job.getJobMeta().setVariable("cpk.plugin.dir", CPK_PLUGIN_DIR); // eg: project-X/solution/system/cpk
+        job.getJobMeta().setVariable("cpk.plugin.id", CPK_PLUGIN_ID); // eg: "cpk"
+        job.getJobMeta().setVariable("cpk.plugin.system.dir", CPK_PLUGIN_SYSTEM_DIR); //eg: project-X/solution/system/cpk/system
+
         /*
          * Loading parameters, if there are any. We'll pass them also as variables
          */
@@ -289,28 +326,14 @@ public class KettleElementType extends AbstractElementType {
             for (String arg : customParams.keySet()) {
                 job.getJobMeta().setParameterValue(arg, customParams.get(arg));
             }
-            IUserSession userSession = CpkEngine.getInstance().getEnvironment().getSessionUtils().getCurrentSession();
-
-            if (userSession.getUserName() != null) {
-                job.getJobMeta().setVariable("username", userSession.getUserName());
-
-            }
-            String[] authorities = userSession.getAuthorities();
-
-            if (authorities != null && authorities.length > 0) {
-                job.getJobMeta().setVariable("roles", StringUtils.join(authorities, ","));
-            }
-
-
-            job.copyParametersFrom(jobMeta);
-            job.copyVariablesFrom(job.getJobMeta());
-            job.activateParameters();
-
         }
-
+        
+        job.copyParametersFrom(jobMeta);
+        job.copyVariablesFrom(job.getJobMeta());
+        job.activateParameters();
 
         job.start();
-        setMimeType(job.getVariable("mimeType"), job.getParameterValue("mimeType"));
+        setMimeType(job.getVariable(MIMETYPE), job.getParameterValue(MIMETYPE));
         job.waitUntilFinished();
         Result result = job.getResult();
         JobEntryResult entryResult = null;
