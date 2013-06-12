@@ -131,7 +131,7 @@ public abstract class PluginSettings {
         }
         
         if(doc != null){
-            List<Element> elements = doc.selectNodes(section);
+            List<Element> elements = doc.selectNodes("/settings/" + section);
             return elements;
         } 
         return new ArrayList<Element>();  
