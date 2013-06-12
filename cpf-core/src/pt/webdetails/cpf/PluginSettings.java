@@ -125,10 +125,11 @@ public abstract class PluginSettings {
             
             doc = reader.read(bis);
         } catch (IOException ex) {
-            Logger.getLogger(PluginSettings.class.getName()).log(Level.SEVERE, null, ex);
+          logger.error("Error while reading settings.xml", ex);
         }catch (DocumentException ex){
-            Logger.getLogger(PluginSettings.class.getName()).log(Level.SEVERE, null, ex);
+          logger.error("Error while reading settings.xml", ex);
         }
+        
         if(doc != null){
             List<Element> elements = doc.selectNodes(section);
             return elements;
