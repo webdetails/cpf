@@ -58,8 +58,15 @@ public class KettleElementType extends AbstractElementType {
     private ConcurrentHashMap<String, JobMeta> jobMetaStorage = new ConcurrentHashMap<String, JobMeta>();//Stores the metadata of the kjb files. [Key=path]&[Value=jobMeta]
     private String stepName = "OUTPUT";
     private String mimeType = null;
-    private String CPK_SOLUTION_SYSTEM_DIR = null, CPK_SOLUTION_DIR = null, CPK_PLUGIN_DIR = null, CPK_PLUGIN_ID = null, CPK_PLUGIN_SYSTEM_DIR = null;
-
+    private String cpkSolutionSystemDir = null, cpkSolutionDir = null, cpkPluginDir = null, cpkPluginId = null, cpkPluginSystemDir = null;
+    private final String CPK_SOLUTION_SYSTEM_DIR = "cpk.solution.system.dir",
+            CPK_SOLUTION_DIR = "cpk.solution.dir",
+            CPK_PLUGIN_DIR = "cpk.plugin.dir",
+            CPK_PLUGIN_ID = "cpk.plugin.id",
+            CPK_PLUGIN_SYSTEM_DIR = "cpk.plugin.system.dir",
+            CPK_SESSION_USERNAME = "cpk.session.username",
+            CPK_SESSION_ROLES = "cpk.session.roles";
+    
     public KettleElementType(IPluginUtils plug) {
 
         super(plug);
@@ -71,11 +78,11 @@ public class KettleElementType extends AbstractElementType {
     private void init(IPluginUtils pluginUtils){
         File pluginDirFile = pluginUtils.getPluginDirectory();
         
-        CPK_PLUGIN_DIR = pluginDirFile.getAbsolutePath();
-        CPK_PLUGIN_SYSTEM_DIR = pluginDirFile.getAbsolutePath()+File.separator+"system";
-        CPK_PLUGIN_ID = pluginDirFile.getName();
-        try{CPK_SOLUTION_DIR = CpkEngine.getInstance().getEnvironment().getRepositoryAccess().getSolutionPath("");}catch(Exception e){}
-        CPK_SOLUTION_SYSTEM_DIR = pluginDirFile.getParentFile().getAbsolutePath();
+        cpkPluginDir = pluginDirFile.getAbsolutePath();
+        cpkPluginSystemDir = pluginDirFile.getAbsolutePath()+File.separator+"system";
+        cpkPluginId = pluginDirFile.getName();
+        try{cpkSolutionDir = CpkEngine.getInstance().getEnvironment().getRepositoryAccess().getSolutionPath("");}catch(Exception e){}
+        cpkSolutionSystemDir = pluginDirFile.getParentFile().getAbsolutePath();
         
         
     }
@@ -217,18 +224,18 @@ public class KettleElementType extends AbstractElementType {
         Trans transformation = new Trans(transformationMeta);
         IUserSession userSession = CpkEngine.getInstance().getEnvironment().getSessionUtils().getCurrentSession();
         if (userSession.getUserName() != null) {
-            transformation.getTransMeta().setVariable("cpk.session.username", userSession.getUserName());
+            transformation.getTransMeta().setVariable(CPK_SESSION_USERNAME, userSession.getUserName());
         }
 
         String[] authorities = userSession.getAuthorities();
         if (authorities != null && authorities.length > 0) {
-            transformation.getTransMeta().setVariable("cpk.session.roles", StringUtils.join(authorities, ","));
+            transformation.getTransMeta().setVariable(CPK_SESSION_ROLES, StringUtils.join(authorities, ","));
         }
-        transformation.getTransMeta().setVariable("cpk.solution.system.dir", CPK_SOLUTION_SYSTEM_DIR); // eg: project-X/solution/system
-        transformation.getTransMeta().setVariable("cpk.solution.dir", CPK_SOLUTION_DIR); // eg: project-X/solution
-        transformation.getTransMeta().setVariable("cpk.plugin.dir", CPK_PLUGIN_DIR); // eg: project-X/solution/system/cpk
-        transformation.getTransMeta().setVariable("cpk.plugin.id", CPK_PLUGIN_ID); // eg: "cpk"
-        transformation.getTransMeta().setVariable("cpk.plugin.system.dir", CPK_PLUGIN_SYSTEM_DIR); //eg: project-X/solution/system/cpk/system
+        transformation.getTransMeta().setVariable(CPK_SOLUTION_SYSTEM_DIR, cpkSolutionSystemDir); // eg: project-X/solution/system
+        transformation.getTransMeta().setVariable(CPK_SOLUTION_DIR, cpkSolutionDir); // eg: project-X/solution
+        transformation.getTransMeta().setVariable(CPK_PLUGIN_DIR, cpkPluginDir); // eg: project-X/solution/system/cpk
+        transformation.getTransMeta().setVariable(CPK_PLUGIN_ID, cpkPluginId); // eg: "cpk"
+        transformation.getTransMeta().setVariable(CPK_PLUGIN_SYSTEM_DIR, cpkPluginSystemDir); //eg: project-X/solution/system/cpk/system
         
         /*
          * Loading parameters, if there are any.
@@ -304,20 +311,20 @@ public class KettleElementType extends AbstractElementType {
         IUserSession userSession = CpkEngine.getInstance().getEnvironment().getSessionUtils().getCurrentSession();
 
         if (userSession.getUserName() != null) {
-            job.getJobMeta().setVariable("cpk.session.username", userSession.getUserName());
+            job.getJobMeta().setVariable(CPK_SESSION_USERNAME, userSession.getUserName());
 
         }
         String[] authorities = userSession.getAuthorities();
 
         if (authorities != null && authorities.length > 0) {
-            job.getJobMeta().setVariable("cpk.session.roles", StringUtils.join(authorities, ","));
+            job.getJobMeta().setVariable(CPK_SESSION_ROLES, StringUtils.join(authorities, ","));
         }
         
-        job.getJobMeta().setVariable("cpk.solution.system.dir", CPK_SOLUTION_SYSTEM_DIR); // eg: project-X/solution/system
-        job.getJobMeta().setVariable("cpk.solution.dir", CPK_SOLUTION_DIR); // eg: project-X/solution
-        job.getJobMeta().setVariable("cpk.plugin.dir", CPK_PLUGIN_DIR); // eg: project-X/solution/system/cpk
-        job.getJobMeta().setVariable("cpk.plugin.id", CPK_PLUGIN_ID); // eg: "cpk"
-        job.getJobMeta().setVariable("cpk.plugin.system.dir", CPK_PLUGIN_SYSTEM_DIR); //eg: project-X/solution/system/cpk/system
+        job.getJobMeta().setVariable(CPK_SOLUTION_SYSTEM_DIR, cpkSolutionSystemDir); // eg: project-X/solution/system
+        job.getJobMeta().setVariable(CPK_SOLUTION_DIR, cpkSolutionDir); // eg: project-X/solution
+        job.getJobMeta().setVariable(CPK_PLUGIN_DIR, cpkPluginDir); // eg: project-X/solution/system/cpk
+        job.getJobMeta().setVariable(CPK_PLUGIN_ID, cpkPluginId); // eg: "cpk"
+        job.getJobMeta().setVariable(CPK_PLUGIN_SYSTEM_DIR, cpkPluginSystemDir); //eg: project-X/solution/system/cpk/system
 
         /*
          * Loading parameters, if there are any. We'll pass them also as variables
