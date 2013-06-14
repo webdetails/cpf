@@ -217,12 +217,12 @@ public class KettleElementType extends AbstractElementType {
         Trans transformation = new Trans(transformationMeta);
         IUserSession userSession = CpkEngine.getInstance().getEnvironment().getSessionUtils().getCurrentSession();
         if (userSession.getUserName() != null) {
-            transformation.getTransMeta().setVariable("username", userSession.getUserName());
+            transformation.getTransMeta().setVariable("cpk.session.username", userSession.getUserName());
         }
 
         String[] authorities = userSession.getAuthorities();
         if (authorities != null && authorities.length > 0) {
-            transformation.getTransMeta().setVariable("roles", StringUtils.join(authorities, ","));
+            transformation.getTransMeta().setVariable("cpk.session.roles", StringUtils.join(authorities, ","));
         }
         transformation.getTransMeta().setVariable("cpk.solution.system.dir", CPK_SOLUTION_SYSTEM_DIR); // eg: project-X/solution/system
         transformation.getTransMeta().setVariable("cpk.solution.dir", CPK_SOLUTION_DIR); // eg: project-X/solution
@@ -304,13 +304,13 @@ public class KettleElementType extends AbstractElementType {
         IUserSession userSession = CpkEngine.getInstance().getEnvironment().getSessionUtils().getCurrentSession();
 
         if (userSession.getUserName() != null) {
-            job.getJobMeta().setVariable("username", userSession.getUserName());
+            job.getJobMeta().setVariable("cpk.session.username", userSession.getUserName());
 
         }
         String[] authorities = userSession.getAuthorities();
 
         if (authorities != null && authorities.length > 0) {
-            job.getJobMeta().setVariable("roles", StringUtils.join(authorities, ","));
+            job.getJobMeta().setVariable("cpk.session.roles", StringUtils.join(authorities, ","));
         }
         
         job.getJobMeta().setVariable("cpk.solution.system.dir", CPK_SOLUTION_SYSTEM_DIR); // eg: project-X/solution/system
