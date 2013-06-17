@@ -224,13 +224,20 @@ public class KettleElementType extends AbstractElementType {
         Trans transformation = new Trans(transformationMeta);
         IUserSession userSession = CpkEngine.getInstance().getEnvironment().getSessionUtils().getCurrentSession();
         if (userSession.getUserName() != null) {
+            transformation.getTransMeta().setParameterValue(CPK_SESSION_USERNAME, userSession.getUserName());
             transformation.getTransMeta().setVariable(CPK_SESSION_USERNAME, userSession.getUserName());
         }
 
         String[] authorities = userSession.getAuthorities();
         if (authorities != null && authorities.length > 0) {
+            transformation.getTransMeta().setParameterValue(CPK_SESSION_ROLES, StringUtils.join(authorities, ","));
             transformation.getTransMeta().setVariable(CPK_SESSION_ROLES, StringUtils.join(authorities, ","));
         }
+        transformation.getTransMeta().setParameterValue(CPK_SOLUTION_SYSTEM_DIR, cpkSolutionSystemDir); // eg: project-X/solution/system
+        transformation.getTransMeta().setParameterValue(CPK_SOLUTION_DIR, cpkSolutionDir); // eg: project-X/solution
+        transformation.getTransMeta().setParameterValue(CPK_PLUGIN_DIR, cpkPluginDir); // eg: project-X/solution/system/cpk
+        transformation.getTransMeta().setParameterValue(CPK_PLUGIN_ID, cpkPluginId); // eg: "cpk"
+        transformation.getTransMeta().setParameterValue(CPK_PLUGIN_SYSTEM_DIR, cpkPluginSystemDir); //eg: project-X/solution/system/cpk/system        
         transformation.getTransMeta().setVariable(CPK_SOLUTION_SYSTEM_DIR, cpkSolutionSystemDir); // eg: project-X/solution/system
         transformation.getTransMeta().setVariable(CPK_SOLUTION_DIR, cpkSolutionDir); // eg: project-X/solution
         transformation.getTransMeta().setVariable(CPK_PLUGIN_DIR, cpkPluginDir); // eg: project-X/solution/system/cpk
@@ -311,15 +318,21 @@ public class KettleElementType extends AbstractElementType {
         IUserSession userSession = CpkEngine.getInstance().getEnvironment().getSessionUtils().getCurrentSession();
 
         if (userSession.getUserName() != null) {
+            job.getJobMeta().setParameterValue(CPK_SESSION_USERNAME, userSession.getUserName());
             job.getJobMeta().setVariable(CPK_SESSION_USERNAME, userSession.getUserName());
-
         }
         String[] authorities = userSession.getAuthorities();
 
         if (authorities != null && authorities.length > 0) {
+            job.getJobMeta().setParameterValue(CPK_SESSION_ROLES, StringUtils.join(authorities, ","));
             job.getJobMeta().setVariable(CPK_SESSION_ROLES, StringUtils.join(authorities, ","));
         }
         
+        job.getJobMeta().setParameterValue(CPK_SOLUTION_SYSTEM_DIR, cpkSolutionSystemDir); // eg: project-X/solution/system
+        job.getJobMeta().setParameterValue(CPK_SOLUTION_DIR, cpkSolutionDir); // eg: project-X/solution
+        job.getJobMeta().setParameterValue(CPK_PLUGIN_DIR, cpkPluginDir); // eg: project-X/solution/system/cpk
+        job.getJobMeta().setParameterValue(CPK_PLUGIN_ID, cpkPluginId); // eg: "cpk"
+        job.getJobMeta().setParameterValue(CPK_PLUGIN_SYSTEM_DIR, cpkPluginSystemDir); //eg: project-X/solution/system/cpk/system
         job.getJobMeta().setVariable(CPK_SOLUTION_SYSTEM_DIR, cpkSolutionSystemDir); // eg: project-X/solution/system
         job.getJobMeta().setVariable(CPK_SOLUTION_DIR, cpkSolutionDir); // eg: project-X/solution
         job.getJobMeta().setVariable(CPK_PLUGIN_DIR, cpkPluginDir); // eg: project-X/solution/system/cpk
