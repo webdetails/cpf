@@ -8,3 +8,5 @@ runtime-lib/
 override.properties
 target/
 test-lib/
+.metadata/
+*~
