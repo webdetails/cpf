@@ -35,7 +35,7 @@ import pt.webdetails.cpf.datasources.DatasourceFactory;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
 import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
 import pt.webdetails.cpf.persistence.PersistenceEngine;
-import pt.webdetails.cpk.CpkContentGenerator;
+//import pt.webdetails.cpk.CpkContentGenerator;
 import pt.webdetails.cpf.repository.BaseRepositoryAccess.FileAccess;
 
 /**
@@ -44,18 +44,14 @@ import pt.webdetails.cpf.repository.BaseRepositoryAccess.FileAccess;
  */
 public class GlobalScope extends ImporterTopLevel {
 
-  
-    
-    
-    
-    
-    
     private static final long serialVersionUID = -3528272077278611074L;
     private static final int START_LINE = 1;
     protected static final Log logger = LogFactory.getLog(GlobalScope.class);
     private static GlobalScope _instance;
     private static ContextFactory contextFactory;
     private final static String systemPath = "/system/cdv/js/";
+    //XXX jesus...
+    //TODO: just send this back to CDV
     private final static String testPath = "/cdv/tests/";
     private static IPentahoSession session;
 
@@ -257,10 +253,10 @@ public class GlobalScope extends ImporterTopLevel {
         return Context.toBoolean(true);
     }
 
-    public static Object getPluginSetting(Context cx, Scriptable thisObj,
-            Object[] args, Function funObj) {
+    public static Object getPluginSetting(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
         String path = args[0].toString();
         final IPluginResourceLoader resLoader = PentahoSystem.get(IPluginResourceLoader.class, null);
+        //XXX ..sigh..
         String settingValue = resLoader.getPluginSetting(CpkContentGenerator.class, path);
         return Context.toString(settingValue);
     }
