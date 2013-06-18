@@ -278,6 +278,9 @@ public class KettleElementType extends AbstractElementType {
 
 
         } else {
+            if(step == null){
+                logger.error("The stepname \""+kettleOutput.getOutputStepName()+"\" does not exist!");
+            }
             result = null;
         }
 

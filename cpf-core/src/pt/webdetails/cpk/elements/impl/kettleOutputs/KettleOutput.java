@@ -301,7 +301,15 @@ public class KettleOutput implements IKettleOutput {
 
     @Override
     public void processResult() {
-        processInfered();
+        if(this.result != null){
+            processInfered();
+        }else{
+            try {
+                out.write(("The result is null, please check the server logs for a more detailed message.").getBytes(ENCODING));
+            } catch (IOException ex) {
+                Logger.getLogger(KettleOutput.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
     @Override
