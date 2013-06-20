@@ -322,13 +322,16 @@ public class KettleElementType extends AbstractElementType {
             int cacheDuration = 3600; //Default value
             String kettleCacheDuration = transformation.getParameterValue(CACHEDURATION);
             
-            for(int i = 0 ; i < 2; i++){
-                if(kettleCacheDuration != null && !kettleCacheDuration.isEmpty()){
-                    cacheDuration = Integer.parseInt(kettleCacheDuration);
-                }else{
-                    kettleCacheDuration = transformation.getVariable(CACHEDURATION);
-                }
+            //Checks if the parameter value is null or empty
+            if(kettleCacheDuration == null || kettleCacheDuration.isEmpty()){
+                kettleCacheDuration = transformation.getVariable(CACHEDURATION);
             }
+            
+            //Checks if the variable value is not null and empty
+            if(kettleCacheDuration != null && !kettleCacheDuration.isEmpty()){
+                cacheDuration = Integer.parseInt(kettleCacheDuration);
+            }
+            
             logger.debug("Result stored in cache for "+cacheDuration+" seconds");
             ResultCacheManager.getInstance().putResult(cacheKey, result.clone(), kettleOutput.getRows(), kettleOutput.getRowMeta() , cacheDuration);
         }
@@ -429,13 +432,18 @@ public class KettleElementType extends AbstractElementType {
             int cacheDuration = 3600; //Default value
             String kettleCacheDuration = job.getParameterValue(CACHEDURATION);
             
-            for(int i = 0 ; i < 2; i++){
-                if(kettleCacheDuration != null && !kettleCacheDuration.isEmpty()){
-                    cacheDuration = Integer.parseInt(kettleCacheDuration);
-                }else{
-                    kettleCacheDuration = job.getVariable(CACHEDURATION);
-                }
+            //Checks if the parameter value is null or empty
+            if(kettleCacheDuration == null || kettleCacheDuration.isEmpty()){
+                kettleCacheDuration = job.getVariable(CACHEDURATION);
             }
+            
+            //Checks if the variable value is not null and empty
+            if(kettleCacheDuration != null && !kettleCacheDuration.isEmpty()){
+                cacheDuration = Integer.parseInt(kettleCacheDuration);
+            }
+            
+            
+            
             logger.debug("Result stored in cache for "+cacheDuration+" seconds");
             ResultCacheManager.getInstance().putResult(cacheKey, result.clone(), kettleOutput.getRows(), kettleOutput.getRowMeta(), cacheDuration);
         }
