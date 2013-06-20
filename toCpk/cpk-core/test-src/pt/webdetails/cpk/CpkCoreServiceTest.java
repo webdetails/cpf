@@ -26,7 +26,7 @@ import pt.webdetails.cpf.repository.IRepositoryAccess;
 import pt.webdetails.cpk.elements.IElement;
 import pt.webdetails.cpk.security.IAccessControl;
 import pt.webdetails.cpk.testUtils.PluginUtilsForTesting;
-import pt.webdetails.cpf.repository.VfsRepositoryAccess;
+import pt.webdetails.cpf.repository.vfs.VfsRepositoryAccess;
 import pt.webdetails.cpf.session.IUserSession;
 import org.pentaho.di.core.KettleEnvironment;
 

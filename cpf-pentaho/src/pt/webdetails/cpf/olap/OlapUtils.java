@@ -21,7 +21,6 @@ import org.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.commons.connection.IPentahoResultSet;
 import mondrian.olap.Util;
 import mondrian.rolap.RolapConnectionProperties;
 import mondrian.rolap.RolapMember;
@@ -52,7 +51,6 @@ public class OlapUtils {
   private final IMondrianCatalogService mondrianCatalogService = MondrianCatalogHelper.getInstance();
   Connection nativeConnection = null;
   String lastQuery = null;
-  IPentahoResultSet resultSet = null;
 
   private static final String DIRECTION_DOWN = "down";
 

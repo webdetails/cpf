@@ -1,13 +1,16 @@
 package pt.webdetails.cpf.repository;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+
 import junit.framework.TestCase;
 
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.Selectors;
 
-import pt.webdetails.cpf.repository.BaseRepositoryAccess.FileAccess;
-import pt.webdetails.cpf.repository.BaseRepositoryAccess.SaveFileStatus;
+import pt.webdetails.cpf.repository.IRepositoryAccess.FileAccess;
+import pt.webdetails.cpf.repository.IRepositoryAccess.SaveFileStatus;
+import pt.webdetails.cpf.repository.vfs.VfsRepositoryAccess;
 
 public class VfsRepositoryTest extends TestCase {
 
@@ -20,208 +23,138 @@ public class VfsRepositoryTest extends TestCase {
         this.repository = new VfsRepositoryAccessForTests(userDir + "/test-resources/repository", userDir + "/test-resources/settings");
     }
 
-    public void testBasicRepo() {
-        try {
-            repository.publishFile("testsolutionfile", "testcontent", true);
-            String content = repository.getResourceAsString("testsolutionfile", FileAccess.READ);
-            assertEquals("testcontent", content);
-            String settingContent = repository.getSettingsResourceAsString("testsettingsfile");
-            assertEquals("testsetting", settingContent);
-            repository.removeUnsafe(".");
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            fail();
-        }
+    public void testBasicRepo() throws IOException {
+        repository.publishFile("testsolutionfile", "testcontent", true);
+        String content = repository.getResourceAsString("testsolutionfile", FileAccess.READ);
+        assertEquals("testcontent", content);
+        String settingContent = repository.getSettingsResourceAsString("testsettingsfile");
+        assertEquals("testsetting", settingContent);
+        repository.removeUnsafe(".");
+    }
+
+    public void testFolderCreation() throws IOException {
+          boolean create = repository.createFolder("testFolderCreation");//creates a folder
+          assertTrue(create);
+          boolean folderCeption = repository.createFolder("folder/within/a/folder/with/folders/inside/other/folders");//folders within folders
+          assertTrue(folderCeption);
+          boolean doNothing = repository.createFolder("testFolderCreation");//do nothing because folder exists
+          assertTrue(doNothing);
+
+          //cleanup after the test
+          repository.removeUnsafe(".");
 
     }
 
-    public void testFolderCreation() {
-        try {
-            boolean create = repository.createFolder("testFolderCreation");//creates a folder
-            assertTrue(create);
-            boolean folderCeption = repository.createFolder("folder/within/a/folder/with/folders/inside/other/folders");//folders within folders
-            assertTrue(folderCeption);
-            boolean doNothing = repository.createFolder("testFolderCreation");//do nothing because folder exists
-            assertTrue(doNothing);
+    public void testResourceExists() throws IOException {
+        repository.createFolder("testFolderCreation");
+        boolean exists = repository.resourceExists("testFolderCreation");
+        boolean notExists = repository.resourceExists("IAmNotAFolder!");
+        assertTrue(exists && !notExists);
 
-            //cleanup after the test
-            repository.removeUnsafe(".");
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail();
-        }
-
+        //cleanup after the test
+        repository.removeUnsafe(".");
     }
 
-    public void testResourceExists() {
-        try {
-            repository.createFolder("testFolderCreation");
-            boolean exists = repository.resourceExists("testFolderCreation");
-            boolean notExists = repository.resourceExists("IAmNotAFolder!");
-            assertTrue(exists && !notExists);
-
-            //cleanup after the test
-            repository.removeUnsafe(".");
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail();
-        }
+    public void testPublishFile() throws UnsupportedEncodingException {
+        boolean publishCreate = SaveFileStatus.OK == repository.publishFile("fileNameCreate", "fileContent", true);//creates a file
+        assertTrue(publishCreate);
+        repository.publishFile("fileName", "fileContent", true);
+        //overwrite = false
+        assertEquals(repository.publishFile("fileName", "contentOverwrite", false), SaveFileStatus.FAIL);
+        repository.publishFile("fileToOverwrite", "I shall be overwritten", false);//creates a file wich will be overwriten
+        // overwrite=true
+        assertEquals(repository.publishFile("fileToOverwrite", "Overwrite Sucessfull!", true), SaveFileStatus.OK);
+        //cleanup after the test
+        repository.removeUnsafe(".");
     }
 
-    public void testPublishFile() {
-        try {
-            boolean publishCreate = SaveFileStatus.OK == repository.publishFile("fileNameCreate", "fileContent", true);//creates a file
-            assertTrue(publishCreate);
-            repository.publishFile("fileName", "fileContent", true);
-            boolean publishOverwriteFalse = SaveFileStatus.FAIL == repository.publishFile("fileName", "contentOverwrite", false);//overwrite = false
-            assertTrue(publishOverwriteFalse);
-            repository.publishFile("fileToOverwrite", "I shall be overwritten", false);//creates a file wich will be overwriten
-            boolean publishOverwriteTrue = SaveFileStatus.OK == repository.publishFile("fileToOverwrite", "Overwrite Sucessfull!", true);//overwrites a file
-            assertTrue(publishOverwriteTrue);
+    public void testCopyFile() throws IOException {
+        repository.publishFile("from", "My contents shall be copied to the other file", false);
+        repository.publishFile("to", "no matter, these contents will be deleted", false);
 
-            //cleanup after the test
-            repository.removeUnsafe(".");
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail();
-        }
+        boolean copy = SaveFileStatus.OK == repository.copySolutionFile("from", "to");
+
+        assertTrue(copy);//was copied
+        assertEquals("My contents shall be copied to the other file", repository.getResourceAsString("to"));//the content was correctly copied
+        boolean createsFileTo = SaveFileStatus.OK == repository.copySolutionFile("from", "createdOnCopy");//creates the destination file
+        assertTrue(createsFileTo);
+        boolean cantFindFile = SaveFileStatus.FAIL == repository.copySolutionFile("nonExistingFile", "to");//wont find nonExistingFile
+        assertTrue(cantFindFile);
+
+        //cleanup after the test
+        repository.removeUnsafe(".");
     }
 
-    public void testCopyFile() {
-        try {
+    public void testFileRemoval() throws IOException {
+        repository.publishFile("fileToDelete", "", true);
+        repository.createFolder("folderToDelete");
+        boolean fileRemoval = repository.removeFileIfExists("fileToDelete");//will remove file
+        assertTrue(fileRemoval);
+        boolean folderRemoval = repository.removeFileIfExists("folderToDelete");//will remove folder
+        assertTrue(folderRemoval);
+        repository.publishFile("cantDeleteMe/imSafeHere", "", true);
+        boolean cantRemoveFolderWithFiles = !repository.removeFileIfExists("cantDeleteMe");//wont remove a folder with files
+        assertTrue(cantRemoveFolderWithFiles);
 
-            repository.publishFile("from", "My contents shall be copied to the other file", false);
-            repository.publishFile("to", "no matter, these contents will be deleted", false);
-
-            boolean copy = SaveFileStatus.OK == repository.copySolutionFile("from", "to");
-
-            assertTrue(copy);//was copied
-            assertEquals("My contents shall be copied to the other file", repository.getResourceAsString("to"));//the content was correctly copied
-            boolean createsFileTo = SaveFileStatus.OK == repository.copySolutionFile("from", "createdOnCopy");//creates the destination file
-            assertTrue(createsFileTo);
-            boolean cantFindFile = SaveFileStatus.FAIL == repository.copySolutionFile("nonExistingFile", "to");//wont find nonExistingFile
-            assertTrue(cantFindFile);
-
-            //cleanup after the test
-            repository.removeUnsafe(".");
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail();
-        }
+        //cleanup after the test
+        repository.removeUnsafe(".");
     }
 
-    public void testFileRemoval() {
-        try {
-            repository.publishFile("fileToDelete", "", true);
-            repository.createFolder("folderToDelete");
-            boolean fileRemoval = repository.removeFileIfExists("fileToDelete");//will remove file
-            assertTrue(fileRemoval);
-            boolean folderRemoval = repository.removeFileIfExists("folderToDelete");//will remove folder
-            assertTrue(folderRemoval);
-            repository.publishFile("cantDeleteMe/imSafeHere", "", true);
-            boolean cantRemoveFolderWithFiles = !repository.removeFileIfExists("cantDeleteMe");//wont remove a folder with files
-            assertTrue(cantRemoveFolderWithFiles);
+    public void testGetRepositoryFile() throws IOException {
+        repository.publishFile("repoFolder/repoFile", "repo file content", true);
 
-            //cleanup after the test
-            repository.removeUnsafe(".");
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail();
-        }
-    }
+        IRepositoryFile repoFile = repository.getRepositoryFile("repoFolder/repoFile", FileAccess.READ);
+        IRepositoryFile repoFolder = repository.getRepositoryFile("repoFolder", FileAccess.READ);
+        IRepositoryFile nonExistent = repository.getRepositoryFile("wrongName", FileAccess.READ);
+        assertTrue(repoFile.exists());//file exists
+        assertFalse(repoFile.isDirectory());//is not directory
+        assertFalse(repoFile.isRoot());//not root
+        assertTrue(repoFolder.exists());//folder exists
+        assertTrue(repoFolder.isDirectory());//is directory
+        assertFalse(repoFolder.isRoot());//not root
+        assertTrue(repoFolder.listFiles().length > 0);//folder has children
 
-    public void testGetRepositoryFile() {
-        try {
-            repository.publishFile("repoFolder/repoFile", "repo file content", true);
-
-            IRepositoryFile repoFile = repository.getRepositoryFile("repoFolder/repoFile", FileAccess.READ);
-            IRepositoryFile repoFolder = repository.getRepositoryFile("repoFolder", FileAccess.READ);
-            IRepositoryFile nonExistent = repository.getRepositoryFile("wrongName", FileAccess.READ);
-            assertTrue(repoFile.exists());//file exists
-            assertFalse(repoFile.isDirectory());//is not directory
-            assertFalse(repoFile.isRoot());//not root
-            assertTrue(repoFolder.exists());//folder exists
-            assertTrue(repoFolder.isDirectory());//is directory
-            assertFalse(repoFolder.isRoot());//not root
-            assertTrue(repoFolder.listFiles().length > 0);//folder has children
-
-            assertFalse(nonExistent.exists());
-
-
-
-            //cleanup after the test
-            repository.removeUnsafe(".");
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail();
-        }
+        assertFalse(nonExistent.exists());
+        //cleanup after the test
+        repository.removeUnsafe(".");
     }
 
     public void testGetSettingsFile() {
-        try {
-
-            assertTrue(repository.getSettingsFile("testFile", FileAccess.READ).exists());//this one exists
-            assertFalse(repository.getSettingsFile("random", FileAccess.READ).exists());//this one doesnt
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail();
-        }
+        assertTrue(repository.getSettingsFile("testFile", FileAccess.READ).exists());//this one exists
+        assertFalse(repository.getSettingsFile("random", FileAccess.READ).exists());//this one doesnt
     }
 
     public void testGetSettingsFileTree() {
-        try {
-            //create dir testFolder and inside, at leat 2 files, one with name.extension and another with name.anotherExtension
-            IRepositoryFile[] files0 = repository.getSettingsFileTree("testFolder", "extension", FileAccess.READ);
-            IRepositoryFile[] files1 = repository.getSettingsFileTree("testFolder", "anotherExtension", FileAccess.READ);
-            IRepositoryFile[] files2 = repository.getSettingsFileTree("testFolder", "notAnExtension", FileAccess.READ);
-            IRepositoryFile[] files3 = repository.getSettingsFileTree("notEvenAFolder", "extension", FileAccess.READ);
+        //create dir testFolder and inside, at leat 2 files, one with name.extension and another with name.anotherExtension
+        IRepositoryFile[] files0 = repository.getSettingsFileTree("testFolder", "extension", FileAccess.READ);
+        IRepositoryFile[] files1 = repository.getSettingsFileTree("testFolder", "anotherExtension", FileAccess.READ);
+        IRepositoryFile[] files2 = repository.getSettingsFileTree("testFolder", "notAnExtension", FileAccess.READ);
+        IRepositoryFile[] files3 = repository.getSettingsFileTree("notEvenAFolder", "extension", FileAccess.READ);
 
-            assertTrue(files0.length > 0);
-            assertTrue(files1.length > 0);
-            assertFalse(files2.length > 0);
-            assertFalse(files3.length > 0);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail();
-        }
+        assertTrue(files0.length > 0);
+        assertTrue(files1.length > 0);
+        assertFalse(files2.length > 0);
+        assertFalse(files3.length > 0);
     }
 
     public void testGetPluginFiles() {
-        try {
-            //created manually
-            IRepositoryFile[] files = repository.getPluginFiles("pluginDir", FileAccess.READ);
-            IRepositoryFile[] files1 = repository.getPluginFiles("wrongDir", FileAccess.READ);
+        //created manually
+        IRepositoryFile[] files = repository.getPluginFiles("pluginDir", FileAccess.READ);
+        IRepositoryFile[] files1 = repository.getPluginFiles("wrongDir", FileAccess.READ);
 
-
-            assertTrue(files.length > 0);
-            assertFalse(files1.length > 0);
-
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail();
-        }
+        assertTrue(files.length > 0);
+        assertFalse(files1.length > 0);
     }
 
-    public void testFileUnsafeRemoval() {
-        try {
-            repository.publishFile("folderToDelete/anotherFolder/fileToDelete", "", true);
-            repository.publishFile("folderToDelete/plusOne/file", "", true);
-            repository.publishFile("folderToDelete/plusTwo/child/fileToDelete", "", true);
-            repository.publishFile("folderToDelete/anotherFolder/folderAsInFolder/anotherFile", "", true);
-            assertTrue(repository.resourceExists("folderToDelete"));//folder exists
-            assertTrue(repository.resourceExists("folderToDelete/plusOne"));//just testing for one child
-            assertTrue(repository.removeUnsafe("folderToDelete") >= 0);//removal
-            assertFalse(repository.resourceExists("folderToDelete"));//folder and children no longer exist
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail();
-        }
+    public void testFileUnsafeRemoval() throws UnsupportedEncodingException {
+        repository.publishFile("folderToDelete/anotherFolder/fileToDelete", "", true);
+        repository.publishFile("folderToDelete/plusOne/file", "", true);
+        repository.publishFile("folderToDelete/plusTwo/child/fileToDelete", "", true);
+        repository.publishFile("folderToDelete/anotherFolder/folderAsInFolder/anotherFile", "", true);
+        assertTrue(repository.resourceExists("folderToDelete"));//folder exists
+        assertTrue(repository.resourceExists("folderToDelete/plusOne"));//just testing for one child
+        assertTrue(repository.removeUnsafe("folderToDelete") >= 0);//removal
+        assertFalse(repository.resourceExists("folderToDelete"));//folder and children no longer exist
     }
 
     public void testGetSolutionPath() throws IOException {
@@ -250,7 +183,6 @@ class VfsRepositoryAccessForTests extends VfsRepositoryAccess {
     /**
      * Please do note this will remove the folder and all subfolders and files
      * Used for testing purposes only
-     *
      * @param file
      * @return
      */

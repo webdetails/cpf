@@ -1,4 +1,4 @@
-package pt.webdetails.cpf;
+package pt.webdetails.cpf.scripting;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
@@ -7,11 +7,13 @@ import org.mozilla.javascript.Scriptable;
 import pt.webdetails.cpf.session.IUserSession;
 
 /**
- * @deprecated use {@link pt.webdetails.cpf.scripting.IGlobalScope} if you must
+ *
  * @author joao
  */
 public interface IGlobalScope extends Scriptable{
     
+
+
     public IGlobalScope getInstance() ;
     
     public IGlobalScope reset() ;

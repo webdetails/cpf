@@ -26,16 +26,14 @@ public class Status {
     private TreeMap<String,IElement> elementsMap;
     private HashMap<String, IElementType> elementTypesMap;
     private String defaultElementName;
-    private List reservedWords;
+    private List<String> reservedWords;
     private ICpkEnvironment cpkEnv;
     
-    private Status(){}
-    
-    public Status(TreeMap<String,IElement> elementsMap,HashMap<String, IElementType> elementTypesMap, String defaultElementName, List reservedWords, ICpkEnvironment cpkEnv){
+    public Status(TreeMap<String,IElement> elementsMap,HashMap<String, IElementType> elementTypesMap, String defaultElementName, List<String> reservedWords, ICpkEnvironment cpkEnv){
         init(elementsMap, elementTypesMap, defaultElementName, reservedWords, cpkEnv);
     }
     
-    private void init(TreeMap<String,IElement> elementsMap,HashMap<String, IElementType> elementTypesMap, String defaultElementName, List reservedWords, ICpkEnvironment cpkEnv){
+    private void init(TreeMap<String,IElement> elementsMap,HashMap<String, IElementType> elementTypesMap, String defaultElementName, List<String> reservedWords, ICpkEnvironment cpkEnv){
      setCpkEnv(cpkEnv);
      setDefaultElementName(defaultElementName);
      setElementTypesMap(elementTypesMap);
@@ -136,12 +134,12 @@ public class Status {
     }
 
     @JsonProperty("reservedWords")
-    public List getReservedWords() {
+    public List<String> getReservedWords() {
         return reservedWords;
     }
 
     @JsonIgnore
-    public void setReservedWords(List reservedWords) {
+    public void setReservedWords(List<String> reservedWords) {
         this.reservedWords = reservedWords;
     }
     

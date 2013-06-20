@@ -9,14 +9,10 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -43,31 +39,26 @@ import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
 
-import pt.webdetails.cpf.PluginSettings;
 import pt.webdetails.cpf.impl.DefaultRepositoryFile;
 import pt.webdetails.cpf.plugin.CorePlugin;
-import pt.webdetails.cpf.repository.BaseRepositoryAccess.FileAccess;
-import pt.webdetails.cpf.repository.BaseRepositoryAccess.SaveFileStatus;
-import pt.webdetails.cpf.repository.PentahoRepositoryAccess.ExtensionFilter;
 import pt.webdetails.cpf.session.IUserSession;
 import pt.webdetails.cpf.session.PentahoSession;
+import pt.webdetails.cpf.utils.CharsetHelper;
 
-/**
- * Attempt to centralize CTools repository access Facilitate transtion to a
- * post-ISolutionRepository world
- */
 @SuppressWarnings("deprecation")
-public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRepositoryAccess {
+//TODO: extra layer to encompass pre/post sugar approaches
+public class PentahoRepositoryAccess implements IRepositoryAccess {
 
   private CorePlugin plugin;
+  private IUserSession userSession;
 
   public PentahoRepositoryAccess() {
     this(null);
   }
   private static Log logger = LogFactory.getLog(PentahoRepositoryAccess.class);
 
-  /*
-   * This wiill be used for privileged access to the repository
+  /**
+   * This will be used for privileged access to the repository
    */
   private static IPentahoSession getAdminSession() {
     IUserDetailsRoleListService userDetailsRoleListService = PentahoSystem.getUserDetailsRoleListService();
@@ -81,7 +72,7 @@ public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRe
 
   @Override
   public String getEncoding() {
-    return PluginSettings.ENCODING;
+    return CharsetHelper.getEncoding();
   }
 
   protected PentahoRepositoryAccess(IPentahoSession userSession) {
@@ -96,33 +87,21 @@ public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRe
     return new PentahoRepositoryAccess(userSession);
   }
 
-  /* (non-Javadoc)
-   * @see pt.webdetails.cpf.repository.IRepositoryAccess#publishFile(java.lang.String, java.lang.String, boolean)
-   */
   @Override
   public SaveFileStatus publishFile(String fileAndPath, String contents, boolean overwrite) throws UnsupportedEncodingException {
     return publishFile(fileAndPath, contents.getBytes(getEncoding()), overwrite);
   }
 
-  /* (non-Javadoc)
-   * @see pt.webdetails.cpf.repository.IRepositoryAccess#publishFile(java.lang.String, byte[], boolean)
-   */
   @Override
   public SaveFileStatus publishFile(String fileAndPath, byte[] data, boolean overwrite) {
     return publishFile(FilenameUtils.getFullPath(fileAndPath), FilenameUtils.getName(fileAndPath), data, overwrite);
   }
 
-  /* (non-Javadoc)
-   * @see pt.webdetails.cpf.repository.IRepositoryAccess#publishFile(java.lang.String, java.lang.String, byte[], boolean)
-   */
   @Override
   public SaveFileStatus publishFile(String solutionPath, String fileName, byte[] data, boolean overwrite) {
     return publishFile(PentahoSystem.getApplicationContext().getSolutionPath(""), solutionPath, fileName, data, overwrite);
   }
 
-  /* (non-Javadoc)
-   * @see pt.webdetails.cpf.repository.IRepositoryAccess#publishFile(java.lang.String, java.lang.String, java.lang.String, byte[], boolean)
-   */
   @Override
   public SaveFileStatus publishFile(String baseUrl, String path, String fileName, byte[] data, boolean overwrite) {
     try {
@@ -143,9 +122,6 @@ public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRe
     }
   }
 
-  /* (non-Javadoc)
-   * @see pt.webdetails.cpf.repository.IRepositoryAccess#removeFile(java.lang.String)
-   */
   @Override
   public boolean removeFile(String solutionPath) {
     if (hasAccess(solutionPath, FileAccess.DELETE)) {
@@ -154,25 +130,16 @@ public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRe
     return false;
   }
 
-  /* (non-Javadoc)
-   * @see pt.webdetails.cpf.repository.IRepositoryAccess#removeFileIfExists(java.lang.String)
-   */
   @Override
   public boolean removeFileIfExists(String solutionPath) {
     return !resourceExists(solutionPath) || removeFile(solutionPath);
   }
 
-  /* (non-Javadoc)
-   * @see pt.webdetails.cpf.repository.IRepositoryAccess#resourceExists(java.lang.String)
-   */
   @Override
   public boolean resourceExists(String solutionPath) {
     return getSolutionRepository().resourceExists(solutionPath, ISolutionRepository.ACTION_EXECUTE);
   }
 
-  /* (non-Javadoc)
-   * @see pt.webdetails.cpf.repository.IRepositoryAccess#createFolder(java.lang.String)
-   */
   @Override
   public boolean createFolder(String solutionFolderPath) throws IOException {
     solutionFolderPath = StringUtils.chomp(solutionFolderPath, "/");//strip trailing / if there
@@ -181,9 +148,6 @@ public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRe
     return getSolutionRepositoryService().createFolder(((PentahoSession) userSession).getPentahoSession(), "", folderPath, folderName, "");
   }
 
-  /* (non-Javadoc)
-   * @see pt.webdetails.cpf.repository.IRepositoryAccess#canWrite(java.lang.String)
-   */
   @Override
   public boolean canWrite(String filePath) {
     ISolutionRepository solutionRepository = getSolutionRepository();
@@ -197,9 +161,6 @@ public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRe
     }
   }
 
-  /* (non-Javadoc)
-   * @see pt.webdetails.cpf.repository.IRepositoryAccess#hasAccess(java.lang.String, pt.webdetails.cpf.repository.RepositoryAccess.FileAccess)
-   */
   @Override
   public boolean hasAccess(String filePath, FileAccess access) {
     ISolutionFile file = getSolutionRepository().getSolutionFile(filePath, toResourceAction(access));
@@ -344,7 +305,6 @@ public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRe
 
   @Override
   public String getJqueryFileTree(String dir, String fileExtensions, String access) {
-
     return RepositoryFileExplorer.toJQueryFileTree(dir, getFileList(dir, fileExtensions, access, getPentahoSession()));
   }
 
@@ -386,12 +346,12 @@ public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRe
 
   @Override
   public IRepositoryFile[] getPluginFiles(String baseDir, FileAccess fa) {
-    final IRepositoryFileFilter irff = plugin.getPluginFileFilter();
+    final IRepositoryFileFilter filter = plugin.getPluginFileFilter();
     IFileFilter fileFilter = new IFileFilter() {
 
       @Override
-      public boolean accept(ISolutionFile isf) {
-        return irff.accept(new PentahoRepositoryFile(isf));
+      public boolean accept(ISolutionFile file) {
+        return filter.accept(new PentahoRepositoryFile(file));
       }
     };
     ISolutionFile[] files = listSolutionFiles(baseDir, fileFilter);
@@ -399,8 +359,8 @@ public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRe
     IRepositoryFile[] result = new IRepositoryFile[files.length];
     int i = 0;
 
-    for (ISolutionFile f : files) {
-      result[i++] = new PentahoRepositoryFile(f);
+    for (ISolutionFile file : files) {
+      result[i++] = new PentahoRepositoryFile(file);
     }
 
     return result;
@@ -408,7 +368,7 @@ public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRe
   }
 
   @Override
-  public IRepositoryFile getSettingsFile(String fileName, FileAccess fa) {
+  public IRepositoryFile getSettingsFile(String fileName, FileAccess access) {
     //Get plugin dir
     IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, getAdminSession());
     URL resourceUrl = pluginManager.getClassLoader(plugin.getName()).getResource(fileName);

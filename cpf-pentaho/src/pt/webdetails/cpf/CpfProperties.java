@@ -16,8 +16,9 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginClassLoader;
 
 import pt.webdetails.cpf.repository.IRepositoryAccess;
+import pt.webdetails.cpf.repository.IRepositoryAccess.FileAccess;
 import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
-import pt.webdetails.cpf.repository.BaseRepositoryAccess.FileAccess;
+
 
 /**
  *

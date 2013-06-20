@@ -1,4 +1,4 @@
-package pt.webdetails.cpf.repository;
+package pt.webdetails.cpf.repository.vfs;
 
 
 import java.io.File;
@@ -30,21 +30,21 @@ import org.dom4j.Document;
 
 import pt.webdetails.cpf.PluginSettings;
 import pt.webdetails.cpf.plugin.CorePlugin;
-import pt.webdetails.cpf.repository.BaseRepositoryAccess.FileAccess;
-import pt.webdetails.cpf.repository.BaseRepositoryAccess.SaveFileStatus;
+import pt.webdetails.cpf.repository.IRepositoryAccess;
+import pt.webdetails.cpf.repository.IRepositoryFile;
+import pt.webdetails.cpf.repository.IRepositoryFileFilter;
 import pt.webdetails.cpf.session.IUserSession;
 
 public class VfsRepositoryAccess implements IRepositoryAccess {
 
+    protected static final Log log = LogFactory.getLog(VfsRepositoryAccess.class);
+
     private final String DEFAULT_REPO;
     private final String DEFAULT_SETTINGS;
-    protected static final Log log = LogFactory.getLog(VfsRepositoryAccess.class);
     protected FileObject settings;
     protected FileObject repo;
     protected CorePlugin plugin;
     protected IUserSession session;
-
-   
 
     public VfsRepositoryAccess() throws IOException {
         this.DEFAULT_REPO = createDefaultRepo();
@@ -357,20 +357,14 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 
     @Override
     public SaveFileStatus publishFile(String solution, String path, String fileName, byte[] data, boolean overwrite) {
-        //ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
             if (data != null) {
                 String file = getRelativePath(path, solution, fileName);
                 if (resourceExists(file)) {
                     if (canWrite(file) && overwrite) {
-                        FileObject f = resolveFile(repo, file);
-//                                        if (f.exists() && !overwrite) return SaveFileStatus.FAIL;
-//                                        if (!f.exists()) f.createFile();
-                        f.getContent().getOutputStream().write(data);
-                        f.getContent().close();
-//					FileUtil.writeContent(f, bos);
-//					bos.write(data);
-//					bos.flush();
+                        FileObject fileObject = resolveFile(repo, file);
+                        fileObject.getContent().getOutputStream().write(data);
+                        fileObject.getContent().close();
                         return SaveFileStatus.OK;
                     } else {
                         return SaveFileStatus.FAIL;
@@ -385,10 +379,6 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
             }
         } catch (Exception e) {
             throw new RuntimeException("Cannot publish file! solution: " + solution + " path: " + path + " file: " + fileName, e);
-            //	} finally {
-            //		try {
-            //			bos.close();
-            //		} catch (Exception e) {}
         }
         return SaveFileStatus.FAIL;
     }
@@ -419,11 +409,9 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
         } catch (Exception e) {
             throw new RuntimeException("Cannot check if repo file exists: " + file, e);
         }
-
     }
 
     private String getRelativePath(final String originalPath, final String solution, final String file) throws UnsupportedEncodingException {
-
         String joined = "";
         joined += (StringUtils.isEmpty(solution) ? "" : solution + "/");
         joined += (StringUtils.isEmpty(originalPath) ? "" : originalPath + "/");
@@ -431,25 +419,23 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
         joined = joined.replaceAll("//", "/");
         return joined;
     }
-    
-    
+
      private String createDefaultRepo() throws IOException {
-        
-        String repo= System.getProperty("user.dir");
+        String repo = System.getProperty("user.dir");
         setRepository(repo);
-        repo+="/cpf/repository";
+        repo += "/cpf/repository";
         createFolder("cpf/repository");
         return repo;
     }
 
     private String createDefaultSettings() throws IOException {
-        String sett= System.getProperty("user.dir");
-        sett+="/cpf/settings";
+        String sett = System.getProperty("user.dir");
+        sett += "/cpf/settings";
         createFolder("cpf/settings");
         return sett;
     }
-    
-    
+
+
     @Override
     public IRepositoryFile[] listRepositoryFiles(IRepositoryFileFilter fileFilter) {
         try {

@@ -103,7 +103,7 @@ public class KettleElementType extends AbstractElementType {
         logger.debug("Processing request for: " + kettlePath);
 
         //This gets all the params inserted in the URL
-        Iterator customParamsIter = pluginUtils.getRequestParameters(parameterProviders).getParameterNames();
+        Iterator<String> customParamsIter = pluginUtils.getRequestParameters(parameterProviders).getParameterNames();
         HashMap<String, String> customParams = new HashMap<String, String>();
         String key, value;
 

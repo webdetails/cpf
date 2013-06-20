@@ -13,12 +13,14 @@ import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
+import pt.webdetails.cpf.utils.CharsetHelper;
 import pt.webdetails.cpf.utils.MimeTypes;
 
 /**
  *
  * @author pdpi
  */
+//TODO: move, rename
 public class Router implements RestRequestHandler {
 
     private Map<Key, Callable> javaScriptHandlers;
@@ -70,7 +72,7 @@ public class Router implements RestRequestHandler {
                         rParams = cx.getWrapFactory().wrapAsJavaObject(cx, scope, requestParams, null);
 
                 Object[] params = {out, pParams, rParams};
-                handler.call(cx, scope, thiz, params).toString().getBytes("utf-8");
+                handler.call(cx, scope, thiz, params).toString().getBytes(CharsetHelper.getEncoding());
             } catch (Exception e) {
                 logger.error(e);
             } finally {

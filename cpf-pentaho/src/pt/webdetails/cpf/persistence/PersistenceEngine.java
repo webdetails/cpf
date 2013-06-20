@@ -3,20 +3,6 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpf.persistence;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentPool;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.sql.OCommandSQL;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-
-import com.orientechnologies.orient.server.OServerMain;
-import com.orientechnologies.orient.server.OServer;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
@@ -25,22 +11,38 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
+
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
-import org.pentaho.reporting.libraries.base.util.StringUtils;
 
-import pt.webdetails.cpf.InvalidOperationException;
 import pt.webdetails.cpf.CpfProperties;
+import pt.webdetails.cpf.InvalidOperationException;
 import pt.webdetails.cpf.Util;
 import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
+import pt.webdetails.cpf.utils.CharsetHelper;
 
+
+import com.orientechnologies.orient.core.db.document.ODatabaseDocumentPool;
+import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.sql.OCommandSQL;
+import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+import com.orientechnologies.orient.server.OServer;
+import com.orientechnologies.orient.server.OServerMain;
 /**
  *
  * @author pdpi
@@ -599,12 +601,12 @@ public class PersistenceEngine {
         try {
             tx = getConnection();
         } catch (Exception e) {
-
+            final String enc = CharsetHelper.getEncoding();
             //Change the default database location to orientPath
-            String confAsString = IOUtils.toString(conf, "UTF-8");
+            String confAsString = IOUtils.toString(conf, enc);
             confAsString = confAsString.replaceAll(Matcher.quoteReplacement("$PATH$"), getOrientPath() + "/");
             conf.close();
-            conf = new ByteArrayInputStream(confAsString.getBytes("UTF-8"));
+            conf = new ByteArrayInputStream(confAsString.getBytes(enc));
 
             OServer server = OServerMain.create();
             server.startup(conf);

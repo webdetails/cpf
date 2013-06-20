@@ -20,7 +20,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import pt.webdetails.cpf.Util;
-import pt.webdetails.cpf.repository.BaseRepositoryAccess;
+import pt.webdetails.cpf.repository.IRepositoryAccess.FileAccess;
 import pt.webdetails.cpf.repository.IRepositoryFile;
 import pt.webdetails.cpk.elements.IElement;
 import pt.webdetails.cpk.elements.IElementType;
@@ -36,7 +36,7 @@ public class CpkEngine {
     private Document cpkDoc;
     private TreeMap<String, IElement> elementsMap;
     private HashMap<String, IElementType> elementTypesMap;
-    private static List reserverdWords = Arrays.asList("refresh", "status", "reload","getElementsList","getSitemapJson","version","getPluginMetadata");
+    private static List<String> reserverdWords = Arrays.asList("refresh", "status", "reload","getElementsList","getSitemapJson","version","getPluginMetadata");
     private String defaultElementName = null;
     private ICpkEnvironment cpkEnv;
 
@@ -89,7 +89,7 @@ public class CpkEngine {
 
     }
 
-    public List getReservedWords(){
+    public List<String> getReservedWords(){
         return reserverdWords;
     }
     
@@ -113,29 +113,27 @@ public class CpkEngine {
     /**
      *
      * Reloads or initializes the ElementManager
-     *
+     * TODO: redo this
      */
     public void reload() throws DocumentException, IOException {
-
         // Clean the types
         elementsMap.clear();
         elementTypesMap.clear();
         cpkEnv.reload();
-        Document cpkDoc = null;
+        Document cpkDoc = null; // <-- why?
         
+        // XXX and who is closing this stream?
         InputStream is = null;
         
         try{
-            IRepositoryFile repFile = cpkEnv.getRepositoryAccess().getSettingsFile("cpk.xml", BaseRepositoryAccess.FileAccess.READ);
+            IRepositoryFile repFile = cpkEnv.getRepositoryAccess().getSettingsFile("cpk.xml", FileAccess.READ);
             is = new ByteArrayInputStream(repFile.getData());
-        }catch(Exception e){
+        }catch(Exception e){ // XXX NO
             is = getClass().getResourceAsStream("/cpk.xml");
         }
         
         cpkDoc = getDocument(is);
-        
-        
-       
+
         List<Node> elementTypeNodes = cpkDoc.selectNodes("/cpk/elementTypes/elementType");
         defaultElementName = cpkDoc.selectSingleNode("/cpk/elementTypes").valueOf("@defaultElement").toLowerCase();
 

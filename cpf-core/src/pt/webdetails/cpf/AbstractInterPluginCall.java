@@ -37,12 +37,8 @@ public abstract class AbstractInterPluginCall implements IPluginCall {
     init(plugin, method, params);    
   }
   
-  
-  /* (non-Javadoc)
- * @see pt.webdetails.cpf.IPluginCall#init(pt.webdetails.cpf.AbstractInterPluginCall.Plugin, java.lang.String, java.util.Map)
- */
-@Override
-public void init(CorePlugin plugin, String method, Map<String, Object>params) {
+
+  public void init(CorePlugin plugin, String method, Map<String, Object>params) {
     if(plugin == null) throw new IllegalArgumentException("Plugin must be specified");
     
     this.plugin = plugin;
@@ -54,26 +50,16 @@ public void init(CorePlugin plugin, String method, Map<String, Object>params) {
           params :
           new HashMap<String, Object>());    
   }
-  
-  /* (non-Javadoc)
- * @see pt.webdetails.cpf.IPluginCall#getMethod()
- */
-@Override
-public String getMethod() {
-    return method;
-  }
 
-  /* (non-Javadoc)
- * @see pt.webdetails.cpf.IPluginCall#setMethod(java.lang.String)
- */
-@Override
-public void setMethod(String method) {
-    this.method = method;
-  }
-  
-  /* (non-Javadoc)
- * @see pt.webdetails.cpf.IPluginCall#call()
- */
-@Override
-public  abstract String call();
+  public String getMethod() {
+      return method;
+    }
+
+  public void setMethod(String method) {
+      this.method = method;
+    }
+    
+  @Override
+  public  abstract String call();
+
 }

@@ -11,21 +11,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.vfs.FileObject;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.IPluginManager;
-import org.pentaho.platform.api.engine.IUserDetailsRoleListService;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.core.system.UserSession;
-import org.pentaho.platform.engine.security.SecurityHelper;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
+//import org.pentaho.platform.api.engine.IPentahoSession;
+//import org.pentaho.platform.api.engine.IUserDetailsRoleListService;
+//import org.pentaho.platform.engine.core.system.PentahoSystem;
+//import org.pentaho.platform.engine.core.system.UserSession;
+//import org.pentaho.platform.engine.security.SecurityHelper;
+//import org.springframework.security.Authentication;
+//import org.springframework.security.GrantedAuthority;
+//import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
 import pt.webdetails.cpf.impl.DefaultRepositoryFile;
 import pt.webdetails.cpf.repository.IRepositoryFile;
 import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
-import pt.webdetails.cpf.repository.VfsRepositoryAccess;
-import pt.webdetails.cpf.repository.VfsRepositoryFile;
 
 /**
  *
@@ -37,32 +33,32 @@ public class PentahoRepositoryAccessForTesting extends PentahoRepositoryAccess {
 
     @Override
     public IRepositoryFile getSettingsFile(String fileName, FileAccess fa) {
-       //Get plugin dir
-    URL resourceUrl=null;
+      //Get plugin dir
+      URL resourceUrl=null;
       try {
           resourceUrl = new URL("file://"+System.getProperty("user.dir")+"/test-resources/repo/system/cpkSol/cpk.xml");
       } catch (MalformedURLException ex) {
           Logger.getLogger(PentahoRepositoryAccess.class.getName()).log(Level.SEVERE, null, ex);
       }
-    File f;
-    try {
-      f = new File(resourceUrl.toURI());
-    } catch (URISyntaxException ex) {
-      logger.error("Error while opening settings file with url " + resourceUrl);
-      return null;
-    }
-    return new DefaultRepositoryFile(f);
+      File f;
+      try {
+        f = new File(resourceUrl.toURI());
+      } catch (URISyntaxException ex) {
+        logger.error("Error while opening settings file with url " + resourceUrl);
+        return null;
+      }
+      return new DefaultRepositoryFile(f);
 //*/
     //return super.getSettingsFile(fileName, fa);
     }
 
-    private static IPentahoSession getAdminSession() {
-        IUserDetailsRoleListService userDetailsRoleListService = PentahoSystem.getUserDetailsRoleListService();
-        UserSession session = new UserSession("admin", null, false, null);
-        GrantedAuthority[] auths = userDetailsRoleListService.getUserRoleListService().getAllAuthorities();
-        Authentication auth = new AnonymousAuthenticationToken("admin", SecurityHelper.SESSION_PRINCIPAL, auths);
-        session.setAttribute(SecurityHelper.SESSION_PRINCIPAL, auth);
-        session.doStartupActions(null);
-        return session;
-    }
+//    private static IPentahoSession getAdminSession() {
+//        IUserDetailsRoleListService userDetailsRoleListService = PentahoSystem.getUserDetailsRoleListService();
+//        UserSession session = new UserSession("admin", null, false, null);
+//        GrantedAuthority[] auths = userDetailsRoleListService.getUserRoleListService().getAllAuthorities();
+//        Authentication auth = new AnonymousAuthenticationToken("admin", SecurityHelper.SESSION_PRINCIPAL, auths);
+//        session.setAttribute(SecurityHelper.SESSION_PRINCIPAL, auth);
+//        session.doStartupActions(null);
+//        return session;
+//    }
 }

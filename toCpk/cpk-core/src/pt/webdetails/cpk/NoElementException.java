@@ -9,6 +9,8 @@ package pt.webdetails.cpk;
  */
 public class NoElementException extends Exception {
 
+    private static final long serialVersionUID = 1L;
+
     public NoElementException() {
         super();
     }

@@ -13,6 +13,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.pentaho.platform.api.engine.IParameterProvider;
 
+import pt.webdetails.cpf.utils.CharsetHelper;
+
 
 public abstract class JsonRequestHandler implements RequestHandler {
 
@@ -32,7 +34,7 @@ public abstract class JsonRequestHandler implements RequestHandler {
       } catch (JSONException e) {
         String msg = "Error deserializing JSON request '" + request + "'";
         try {
-          IOUtils.write(msg, out, PluginSettings.ENCODING);
+          IOUtils.write(msg, out, CharsetHelper.getEncoding());
         } catch (IOException e1) {
           
         }
@@ -42,7 +44,7 @@ public abstract class JsonRequestHandler implements RequestHandler {
     
     try {
       JSONObject result = call(jsonRequest);
-      IOUtils.write(result.toString(), out, PluginSettings.ENCODING);
+      IOUtils.write(result.toString(), out, CharsetHelper.getEncoding());
     } catch (Exception e) {
       LogFactory.getLog(this.getClass()).error("", e);
     }

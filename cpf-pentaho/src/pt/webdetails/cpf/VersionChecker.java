@@ -15,16 +15,13 @@ import org.dom4j.io.SAXReader;
 import org.json.JSONException;
 import org.json.JSONObject;
 import pt.webdetails.cpf.messaging.JsonSerializable;
-import pt.webdetails.cpf.repository.BaseRepositoryAccess.FileAccess;
 
 import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
-import pt.webdetails.cpf.repository.IRepositoryAccess;
+import pt.webdetails.cpf.repository.IRepositoryAccess.FileAccess;
 
 /**
  * Version checker for a standard marketplace plugin. Checks the local version
  * from version.xml in the plugin folder.
- *
- *
  */
 public abstract class VersionChecker {
 
@@ -57,6 +54,7 @@ public abstract class VersionChecker {
 
     /* ****************
      * Public methods */
+
     public String[] getBranches() {
         return branches;
     }
@@ -127,6 +125,8 @@ public abstract class VersionChecker {
 
     /* public methods *
      ******************/
+
+
     public static class CheckVersionResponse implements JsonSerializable {
 
         public CheckVersionResponse(Type responseType, String message, String downloadUrl) {
@@ -136,7 +136,6 @@ public abstract class VersionChecker {
         }
 
         public enum Type {
-
             LATEST,
             UPDATE,
             INCONCLUSIVE,
@@ -177,7 +176,6 @@ public abstract class VersionChecker {
     }
 
     public enum Branch {
-
         STABLE,
         TRUNK,
         LOCAL,

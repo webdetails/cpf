@@ -31,6 +31,8 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.web.http.request.HttpRequestParameterProvider;
 
+import pt.webdetails.cpf.utils.CharsetHelper;
+
 
 /**
  * Call to another pentaho plugin through its content generator.
@@ -45,7 +47,7 @@ public class InterPluginCall implements Runnable, Callable<String> {
   public final static Plugin CDF = new Plugin("pentaho-cdf");
   public final static Plugin CDV = new Plugin("cdv");
   
-  private final static String DEFAULT_ENCODING = "UTF-8";
+  private final static String DEFAULT_ENCODING = CharsetHelper.getEncoding();
   
   public static class Plugin {
     
