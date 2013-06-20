@@ -4,6 +4,8 @@
  */
 package pt.webdetails.cpk.elements.impl.kettleOutputs;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.pentaho.di.core.Result;
 import org.pentaho.di.core.row.RowMetaInterface;
 import pt.webdetails.cpk.elements.impl.KettleElementType;
@@ -31,4 +33,12 @@ public interface IKettleOutput {
     public void setOutputStepName(String stepName);
     
     public String getOutputStepName();
+    
+    public List<Object[]> getRows();
+    
+    public RowMetaInterface getRowMeta();
+    
+    public void setRows(ArrayList<Object[]> aRowList);
+    
+    public void setRowMeta(RowMetaInterface aRowMeta);
 }

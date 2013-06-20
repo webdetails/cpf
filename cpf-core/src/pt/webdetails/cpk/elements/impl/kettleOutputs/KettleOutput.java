@@ -82,6 +82,7 @@ public class KettleOutput implements IKettleOutput {
 
     }
 
+    @Override
     public ArrayList<Object[]> getRows() {
         return rows;
     }
@@ -305,7 +306,7 @@ public class KettleOutput implements IKettleOutput {
             processInfered();
         }else{
             try {
-                out.write(("The result is null, please check the server logs for a more detailed message.").getBytes(ENCODING));
+                out.write(("The stepname \""+getOutputStepName()+"\" does not exist!").getBytes(ENCODING));
             } catch (IOException ex) {
                 Logger.getLogger(KettleOutput.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -322,11 +323,19 @@ public class KettleOutput implements IKettleOutput {
         this.outputStepName = outputStepName;
     }
 
+    @Override
     public RowMetaInterface getRowMeta() {
         return rowMeta;
     }
 
+    @Override
     public void setRowMeta(RowMetaInterface rowMeta) {
         this.rowMeta = rowMeta;
     }
+    
+    @Override
+    public void setRows(ArrayList<Object[]> aRowList){
+        this.rows = aRowList;
+    }
+    
 }

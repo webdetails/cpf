@@ -12,9 +12,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.dom4j.DocumentException;
 import org.pentaho.platform.api.engine.IParameterProvider;
@@ -31,6 +29,7 @@ import pt.webdetails.cpf.plugins.PluginsAnalyzer;
 import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
 import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.IElement;
+import pt.webdetails.cpk.elements.impl.kettleOutputs.cache.ResultCacheManager;
 import pt.webdetails.cpk.sitemap.LinkGenerator;
 
 public class CpkContentGenerator extends RestContentGenerator {
@@ -150,6 +149,14 @@ public class CpkContentGenerator extends RestContentGenerator {
         }
         ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(out, sitemap);
+    }
+    
+    @Exposed(accessLevel = AccessLevel.PUBLIC)
+    public void clearCache(OutputStream out){
+        String message = "ResultCache cleared.";
+        ResultCacheManager.getInstance().clearCache();
+        writeMessage(out, message);
+        logger.info(message);
     }
 
     @Exposed(accessLevel = AccessLevel.PUBLIC)
