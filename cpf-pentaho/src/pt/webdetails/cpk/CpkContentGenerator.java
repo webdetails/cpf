@@ -36,7 +36,7 @@ public class CpkContentGenerator extends RestContentGenerator {
 
     private static final long serialVersionUID = 1L;
     public static final String CDW_EXTENSION = ".cdw";
-    public static final String PLUGIN_NAME = "cpk";
+    public static final String PLUGIN_NAME = "sparkl";
     protected CpkCoreService coreService;
     protected ICpkEnvironment cpkEnv;
 

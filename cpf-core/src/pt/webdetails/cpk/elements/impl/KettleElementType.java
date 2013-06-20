@@ -183,17 +183,15 @@ public class KettleElementType extends AbstractElementType {
         }
         
         
-        
+        KettleType kettleType = (kettlePath.endsWith(".ktr")) ? KettleType.TRANSFORMATION : KettleType.JOB;
         ResultCacheKey cacheKey = new ResultCacheKey(kettlePath ,customParamsTreeMap , kettleOutput.getOutputStepName());
         
         if(ResultCacheManager.getInstance().getResultCache(cacheKey) == null || bypassCache){
             try {
 
                 if (kettlePath.endsWith(".ktr")) {
-                    kettleOutput.setKettleType(KettleType.TRANSFORMATION);
                     result = executeTransformation(kettlePath, customParams, kettleOutput);
                 } else if (kettlePath.endsWith(".kjb")) {
-                    kettleOutput.setKettleType(KettleType.JOB);
                     result = executeJob(kettlePath, customParams, kettleOutput);
                 } else {
                     logger.warn("File extension unknown: " + kettlePath);
@@ -211,7 +209,7 @@ public class KettleElementType extends AbstractElementType {
             
         }
         
-        
+        kettleOutput.setKettleType(kettleType);
         kettleOutput.setResult(result);
 
         logger.info(" Kettle " + kettlePath + " execution complete: " + kettleOutput.getResult());
