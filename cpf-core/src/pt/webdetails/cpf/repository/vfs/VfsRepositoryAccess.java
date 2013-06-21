@@ -28,12 +28,12 @@ import org.apache.commons.vfs.Selectors;
 import org.apache.commons.vfs.VFS;
 import org.dom4j.Document;
 
-import pt.webdetails.cpf.PluginSettings;
 import pt.webdetails.cpf.plugin.CorePlugin;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
 import pt.webdetails.cpf.repository.IRepositoryFile;
 import pt.webdetails.cpf.repository.IRepositoryFileFilter;
 import pt.webdetails.cpf.session.IUserSession;
+import pt.webdetails.cpf.utils.CharsetHelper;
 
 public class VfsRepositoryAccess implements IRepositoryAccess {
 
@@ -44,7 +44,10 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
     protected FileObject settings;
     protected FileObject repo;
     protected CorePlugin plugin;
-    protected IUserSession session;
+//    protected IUserSession session;
+
+    //TODO: unused should be removed from interface
+    private IUserSession session;
 
     public VfsRepositoryAccess() throws IOException {
         this.DEFAULT_REPO = createDefaultRepo();
@@ -106,10 +109,9 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
         this.plugin = plugin;
     }
 
-    @Override
+//    @Override
     public void setUserSession(IUserSession session) {
         this.session = session;
-
     }
 
     protected FileObject resolveFile(FileObject folder, String file) throws Exception {
@@ -160,7 +162,7 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 
     @Override
     public String getEncoding() {
-        return PluginSettings.ENCODING;
+        return CharsetHelper.getEncoding();
     }
 
     @Override

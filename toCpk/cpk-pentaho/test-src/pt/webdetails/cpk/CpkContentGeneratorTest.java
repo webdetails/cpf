@@ -244,7 +244,7 @@ public class CpkContentGeneratorTest {
         ICommonParameterProvider p = new CommonParameterProvider();
         ICommonParameterProvider p1 = new CommonParameterProvider();
         p.put("path", "/sampleTrans");//kjb or ktr
-        p.put("httpresponse", buildAResponse(outResponse));
+        p.put("httpresponse", buildResponse(outResponse));
         p1.put("paramarg1", "value1");
         p1.put("paramarg2", "value2");
         p1.put("paramarg3", "value3");
@@ -259,7 +259,7 @@ public class CpkContentGeneratorTest {
         ICommonParameterProvider p = new CommonParameterProvider();
         ICommonParameterProvider p1 = new CommonParameterProvider();
         p.put("path", "/evaluate-result-rows");//kjb or ktr
-        p.put("httpresponse", buildAResponse(outResponse));
+        p.put("httpresponse", buildResponse(outResponse));
         p1.put("paramarg1", "value1");
         p1.put("paramarg2", "value2");
         p1.put("paramarg3", "value3");
@@ -273,7 +273,7 @@ public class CpkContentGeneratorTest {
         ICommonParameterProvider p = new CommonParameterProvider();
         ICommonParameterProvider p1 = new CommonParameterProvider();
         p.put("path", "/create-result-rows");//kjb or ktr
-        p.put("httpresponse", buildAResponse(outResponse));
+        p.put("httpresponse", buildResponse(outResponse));
         p1.put("stepName", "copy rows to result");
         p1.put("paramarg1", "value1");
         p1.put("paramarg2", "value2");
@@ -288,7 +288,7 @@ public class CpkContentGeneratorTest {
         ICommonParameterProvider p = new CommonParameterProvider();
         ICommonParameterProvider p1 = new CommonParameterProvider();
         p.put("path", "/generate-rows");//kjb or ktr
-        p.put("httpresponse", buildAResponse(outResponse));
+        p.put("httpresponse", buildResponse(outResponse));
         p1.put("stepName", "output");
         map.put("path", p);
         map.put("request", p1);
@@ -316,7 +316,8 @@ public class CpkContentGeneratorTest {
 
     }
 
-    private HttpServletResponse buildAResponse(final OutputStream output) {
+    //XXX auto-comments...
+    private HttpServletResponse buildResponse(final OutputStream output) {
         return new HttpServletResponse() {
             @Override
             public ServletOutputStream getOutputStream() throws IOException {

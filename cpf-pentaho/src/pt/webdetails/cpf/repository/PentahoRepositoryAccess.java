@@ -46,7 +46,7 @@ import pt.webdetails.cpf.session.PentahoSession;
 import pt.webdetails.cpf.utils.CharsetHelper;
 
 @SuppressWarnings("deprecation")
-//TODO: extra layer to encompass pre/post sugar approaches
+//TODO: extra class to encompass pre/post sugar approaches
 public class PentahoRepositoryAccess implements IRepositoryAccess {
 
   private CorePlugin plugin;
@@ -283,7 +283,7 @@ public class PentahoRepositoryAccess implements IRepositoryAccess {
     return PentahoSystem.getApplicationContext().getSolutionPath(path);
   }
 
-  @Override
+//  @Override
   public void setUserSession(IUserSession userSession) {
     this.userSession = userSession;
   }

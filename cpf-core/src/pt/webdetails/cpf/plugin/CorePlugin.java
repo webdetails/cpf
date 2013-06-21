@@ -8,6 +8,11 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import pt.webdetails.cpf.repository.IRepositoryFile;
 import pt.webdetails.cpf.repository.IRepositoryFileFilter;
 
+/**
+ * This only exists for locating a plugin.
+ *
+ */
+//TODO: where is this going?
 public class CorePlugin {
 
     public final static CorePlugin CDA = new CorePlugin("cda", new String[]{"cda"});
@@ -18,6 +23,7 @@ public class CorePlugin {
     public final static CorePlugin CDV = new CorePlugin("cdv");
     protected String name;
     protected String id;//title
+    //TODO: why reimplement file associations here?
     private String[] fileExtensions;
 
     @JsonProperty("name")
@@ -30,6 +36,7 @@ public class CorePlugin {
         return getId();
     }
 
+    @Deprecated
     public CorePlugin(String id, String[] fileExtensions) {
         this(id);
         this.fileExtensions = fileExtensions;
@@ -51,6 +58,7 @@ public class CorePlugin {
     }
 
     @JsonIgnore
+    @Deprecated
     public IRepositoryFileFilter getPluginFileFilter() {
         return new IRepositoryFileFilter() {
             @Override
@@ -92,6 +100,7 @@ public class CorePlugin {
     /**
      * @return the fileExtensions
      */
+    @Deprecated
     @JsonIgnore
     public String[] getFileExtensions() {
         return fileExtensions;
@@ -100,6 +109,7 @@ public class CorePlugin {
     /**
      * @param fileExtensions the fileExtensions to set
      */
+    @Deprecated
     public void setFileExtensions(String[] fileExtensions) {
         this.fileExtensions = fileExtensions;
     }

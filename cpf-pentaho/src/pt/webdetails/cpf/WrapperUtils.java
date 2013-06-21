@@ -11,9 +11,7 @@ import org.pentaho.platform.api.engine.IParameterProvider;
 import pt.webdetails.cpf.http.CommonParameterProvider;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
 
-/**
- * XXX depends on CommonParameterProvider, which isn't done
- */
+@Deprecated
 public class WrapperUtils {
 
     @SuppressWarnings("unchecked")

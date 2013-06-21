@@ -8,6 +8,9 @@ import java.util.Date;
 import java.util.Iterator;
 import org.pentaho.platform.api.engine.IParameterProvider;
 
+/**
+ * @deprecated only advantage here is to get getParameterNames to use generics. not worth it
+ */
 public class PentahoParameterProvider implements ICommonParameterProvider {
   private final IParameterProvider provider;
 

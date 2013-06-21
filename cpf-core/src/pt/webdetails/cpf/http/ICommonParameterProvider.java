@@ -8,6 +8,9 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Iterator;
 
+/**
+ * @deprecated why would we want to remake IParameterProvider?
+ */
 public interface ICommonParameterProvider {
 	
 	public void put(String name, Object value);
@@ -18,11 +21,9 @@ public interface ICommonParameterProvider {
 
 	public Date getDateParameter(String name, Date defaultValue);
 
-	public BigDecimal getDecimalParameter(String name,
-			BigDecimal defaultValue);
+	public BigDecimal getDecimalParameter(String name, BigDecimal defaultValue);
 
-	public Object[] getArrayParameter(String name,
-			Object[] defaultValue);
+	public Object[] getArrayParameter(String name, Object[] defaultValue);
 
 	public String[] getStringArrayParameter(String name,
 			String[] defaultValue);

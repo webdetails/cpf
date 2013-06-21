@@ -10,9 +10,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+// FIXME this doesn't actually work
+@Deprecated
 public class CommonParameterProvider implements ICommonParameterProvider {
 
-	@SuppressWarnings("unused")
 	private Map<String,Object> params;
 
 	public CommonParameterProvider() {

@@ -4,35 +4,17 @@
 
 package pt.webdetails.cpf.repository;
 
-import org.apache.commons.lang.StringUtils;
 import pt.webdetails.cpf.session.IUserSession;
 
+/**
+ * This existed basically to hold enums, which didn't make sense.
+ * Sorry about breaking your code.<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;--tgf
+ * @deprecated
+ */
 public abstract class BaseRepositoryAccess implements IRepositoryAccess {
+
+    protected IUserSession userSession;//TODO: we don't really need this here
+
     
-    protected IUserSession userSession;
-
-    public enum FileAccess {//TODO:use masks?
-
-        READ,
-        EDIT,
-        EXECUTE,
-        DELETE,
-        CREATE,
-        NONE;
-
-        public static FileAccess parse(String fileAccess) {
-            try {
-                return FileAccess.valueOf(StringUtils.upperCase(fileAccess));
-            } catch (Exception e) {
-                return null;
-            }
-        }
-    }
-
-    public enum SaveFileStatus {
-        //TODO: do we need more than this? use bool?
-
-        OK,
-        FAIL
-    }
 }

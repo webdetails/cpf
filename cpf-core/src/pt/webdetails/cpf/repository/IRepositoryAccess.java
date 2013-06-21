@@ -9,104 +9,138 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
+import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 
 import pt.webdetails.cpf.plugin.CorePlugin;
-import pt.webdetails.cpf.repository.BaseRepositoryAccess.FileAccess;
-import pt.webdetails.cpf.repository.BaseRepositoryAccess.SaveFileStatus;
 import pt.webdetails.cpf.session.IUserSession;
 
+//TODO: breathe and decide what this should do
+//XXX: why on earth are there abstract methods in an interface?!
 public interface IRepositoryAccess {
 
-    public abstract String getEncoding();
+    // warning: enums will only leave here if there is an interface left behind
+    // along with a good justification
+    public enum FileAccess {//TODO:use masks?
+  //TODO: simplify to 3?
+      READ,
+      EDIT,
+      EXECUTE,
+      DELETE,
+      @Deprecated
+      CREATE,
+      NONE;
+  
+      public static FileAccess parse(String fileAccess) {
+          try {
+              return FileAccess.valueOf(StringUtils.upperCase(fileAccess));
+          } catch (Exception e) {
+              return null;
+          }
+      }
+    }
 
-    public abstract SaveFileStatus publishFile(String fileAndPath,
+    public enum SaveFileStatus {
+        OK,
+        FAIL
+    }
+
+    public String getEncoding();
+
+    public SaveFileStatus publishFile(String fileAndPath,
             String contents, boolean overwrite)
             throws UnsupportedEncodingException;
 
-    public abstract SaveFileStatus publishFile(String fileAndPath, byte[] data,
+    public SaveFileStatus publishFile(String fileAndPath, byte[] data,
             boolean overwrite);
 
-    public abstract SaveFileStatus publishFile(String solutionPath,
+    public SaveFileStatus publishFile(String solutionPath,
             String fileName, byte[] data, boolean overwrite);
 
     // TODO: do we really need that one as well? i think we have enough?
     @Deprecated
-    public abstract SaveFileStatus publishFile(String baseUrl, String path,
+    public SaveFileStatus publishFile(String baseUrl, String path,
             String fileName, byte[] data, boolean overwrite);
 
-    public abstract boolean removeFile(String solutionPath);
+    public boolean removeFile(String solutionPath);
 
-    public abstract boolean removeFileIfExists(String solutionPath);
+    public boolean removeFileIfExists(String solutionPath);
 
-    public abstract boolean resourceExists(String solutionPath);
+    public boolean resourceExists(String solutionPath);
 
-    public abstract boolean createFolder(String solutionFolderPath)
+    public boolean createFolder(String solutionFolderPath)
             throws IOException;
 
-    public abstract boolean canWrite(String filePath);
+    public boolean canWrite(String filePath);
 
-    public abstract boolean hasAccess(String filePath, FileAccess access);
+    public boolean hasAccess(String filePath, FileAccess access);
 
-    public abstract InputStream getResourceInputStream(String filePath)
+    public InputStream getResourceInputStream(String filePath)
             throws FileNotFoundException;
 
-    public abstract InputStream getResourceInputStream(String filePath,
+    public InputStream getResourceInputStream(String filePath,
             FileAccess fileAccess) throws FileNotFoundException;
 
-    public abstract InputStream getResourceInputStream(String filePath,
+    public InputStream getResourceInputStream(String filePath,
             FileAccess fileAccess, boolean getLocalizedResource)
             throws FileNotFoundException;
 
     @Deprecated
-    public abstract Document getResourceAsDocument(String solutionPath)
+    public Document getResourceAsDocument(String solutionPath)
             throws IOException;
 
     @Deprecated
-    public abstract Document getResourceAsDocument(String solutionPath,
+    /**
+     * @deprecated use {@link #getResourceAsString(String solutionPath, FileAccess fileAccess)}
+     */
+    public Document getResourceAsDocument(String solutionPath,
             FileAccess fileAccess) throws IOException;
 
-    public abstract String getResourceAsString(String solutionPath)
+    @Deprecated
+    public String getResourceAsString(String solutionPath)
             throws IOException;
 
-    public abstract String getResourceAsString(String solutionPath,
-            FileAccess fileAccess) throws IOException;
+    public String getResourceAsString(String solutionPath, FileAccess fileAccess) throws IOException;
 
-    public abstract SaveFileStatus copySolutionFile(String fromFilePath,
+    public SaveFileStatus copySolutionFile(String fromFilePath,
             String toFilePath) throws IOException;
 
-    public abstract String getSolutionPath(String path);
+    public String getSolutionPath(String path);
 
     /*
      * TODO: This getrepository / getsolution should be consistent
      * Best would be to remove the whole "solution" concept
+     * ^ No, best would be to have a solution and a system concept
+     *   ..and not this bloated interface
      */
-    public abstract IRepositoryFile getRepositoryFile(String path, FileAccess fileAccess);
+    public IRepositoryFile getRepositoryFile(String path, FileAccess fileAccess);
 
-    public abstract void setUserSession(IUserSession userSession);
+//    // and how would we set a user session for file access in a single user environment
+//    public void setUserSession(IUserSession userSession);
 
-    public abstract void setPlugin(CorePlugin plugin);
-
-    public abstract IRepositoryFile getSettingsFile(String path, FileAccess fileAccess);
-    public abstract String getSettingsResourceAsString(String settingsPath)
+    //TODO: is there another way?
+    public void setPlugin(CorePlugin plugin);
+    public IRepositoryFile getSettingsFile(String path, FileAccess fileAccess);
+    public String getSettingsResourceAsString(String settingsPath)
             throws IOException;
 
     /*
      * TODO: This should really be getSettingsFiles ? make those two methods consistent
+     * ^ no, it doesn't make sense as well but it isn't getSettingFiles
      */
     @Deprecated
-    public abstract IRepositoryFile[] getPluginFiles(String baseDir, FileAccess accessMode);
+    public IRepositoryFile[] getPluginFiles(String baseDir, FileAccess accessMode);
 
-    public abstract IRepositoryFile[] listRepositoryFiles(IRepositoryFileFilter filter);
+    public IRepositoryFile[] listRepositoryFiles(IRepositoryFileFilter filter);
 
-     public abstract IRepositoryFile[] getSettingsFileTree(final String dir, final String fileExtensions, FileAccess access);
+    public IRepositoryFile[] getSettingsFileTree(final String dir, final String fileExtensions, FileAccess access);
 
 
     @Deprecated
-    public abstract String getJqueryFileTree(final String dir, final String fileExtensions, final String access) ;
+    public String getJqueryFileTree(final String dir, final String fileExtensions, final String access) ;
     @Deprecated
-    public abstract String getJSON(final String dir, final String fileExtensions, final String access);
-    
+    public String getJSON(final String dir, final String fileExtensions, final String access);
+
 
 
 }

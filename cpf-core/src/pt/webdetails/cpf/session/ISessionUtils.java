@@ -4,7 +4,9 @@
 
 package pt.webdetails.cpf.session;
 
-
+/**
+ * @deprecated Utils bean + Methods not related to session.
+ */
 public interface ISessionUtils {
   public IUserSession getCurrentSession();
   public String[] getSystemPrincipals();

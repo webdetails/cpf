@@ -4,7 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import pt.webdetails.cpf.session.IUserSession;
-
+/**
+ * @deprecated yet to see this being used right
+ */
 public class SimpleUserSession implements IUserSession {
 
 	private String userName;
