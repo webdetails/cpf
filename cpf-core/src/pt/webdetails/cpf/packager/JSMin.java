@@ -277,12 +277,15 @@ public class JSMin {
 		out.flush();
 	}
 
+	@SuppressWarnings("serial")
 	class UnterminatedCommentException extends Exception {
 	}
 
+	@SuppressWarnings("serial")
 	class UnterminatedStringLiteralException extends Exception {
 	}
 
+	@SuppressWarnings("serial")
 	class UnterminatedRegExpLiteralException extends Exception {
 	}
 
