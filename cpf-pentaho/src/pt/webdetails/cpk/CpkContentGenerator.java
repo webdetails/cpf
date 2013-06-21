@@ -29,7 +29,7 @@ import pt.webdetails.cpf.plugins.PluginsAnalyzer;
 import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
 import pt.webdetails.cpf.utils.PluginUtils;
 import pt.webdetails.cpk.elements.IElement;
-import pt.webdetails.cpk.elements.impl.kettleOutputs.cache.ResultCacheManager;
+import pt.webdetails.cpk.elements.impl.kettleOutputs.cache.CacheManager;
 import pt.webdetails.cpk.sitemap.LinkGenerator;
 
 public class CpkContentGenerator extends RestContentGenerator {
@@ -154,7 +154,7 @@ public class CpkContentGenerator extends RestContentGenerator {
     @Exposed(accessLevel = AccessLevel.PUBLIC)
     public void clearCache(OutputStream out){
         String message = "ResultCache cleared.";
-        ResultCacheManager.getInstance().clearCache();
+        CacheManager.getInstance().clearCache();
         writeMessage(out, message);
         logger.info(message);
     }

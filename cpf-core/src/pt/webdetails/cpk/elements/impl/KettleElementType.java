@@ -7,7 +7,6 @@ package pt.webdetails.cpk.elements.impl;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
-import java.util.Collections;
 import pt.webdetails.cpk.elements.impl.kettleOutputs.KettleOutput;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -43,9 +42,8 @@ import pt.webdetails.cpf.utils.IPluginUtils;
 import pt.webdetails.cpf.utils.MimeTypes;
 import pt.webdetails.cpk.CpkEngine;
 import pt.webdetails.cpk.elements.impl.kettleOutputs.IKettleOutput;
-import pt.webdetails.cpk.elements.impl.kettleOutputs.cache.ResultCache;
-import pt.webdetails.cpk.elements.impl.kettleOutputs.cache.ResultCacheKey;
-import pt.webdetails.cpk.elements.impl.kettleOutputs.cache.ResultCacheManager;
+import pt.webdetails.cpk.elements.impl.kettleOutputs.cache.CacheKey;
+import pt.webdetails.cpk.elements.impl.kettleOutputs.cache.CacheManager;
 
 /**
  *
@@ -184,9 +182,10 @@ public class KettleElementType extends AbstractElementType {
         
         
         KettleType kettleType = (kettlePath.endsWith(".ktr")) ? KettleType.TRANSFORMATION : KettleType.JOB;
-        ResultCacheKey cacheKey = new ResultCacheKey(kettlePath ,customParamsTreeMap , kettleOutput.getOutputStepName());
+        CacheKey cacheKey = new CacheKey(kettlePath ,customParamsTreeMap , kettleOutput.getOutputStepName());
+        Object cachedObject = CacheManager.getInstance().getCachedObject(cacheKey);
         
-        if(ResultCacheManager.getInstance().getResultCache(cacheKey) == null || bypassCache){
+        if(cachedObject == null || bypassCache){
             try {
 
                 if (kettlePath.endsWith(".ktr")) {
@@ -202,10 +201,16 @@ public class KettleElementType extends AbstractElementType {
             }
         }else{
             logger.debug("Cache found for element \""+element.getName()+"\" with key \""+cacheKey.toString()+"\".\n\tUsing cache instead of running the "+ (kettlePath.endsWith(".ktr") ? KettleType.TRANSFORMATION: KettleType.JOB));
-            ResultCache resultCache = ResultCacheManager.getInstance().getResultCache(cacheKey);
-            result = resultCache.getResult();
-            kettleOutput.setRows((ArrayList)resultCache.getRows());
-            kettleOutput.setRowMeta(resultCache.getRowMeta());
+            ResultCache resultCache = null;
+            
+            if(cachedObject instanceof ResultCache){
+                resultCache = (ResultCache)cachedObject;
+                result = resultCache.getResult();
+                kettleOutput.setRows((ArrayList)resultCache.getRows());
+                kettleOutput.setRowMeta(resultCache.getRowMeta());
+            }
+            
+            
             
         }
         
@@ -233,7 +238,7 @@ public class KettleElementType extends AbstractElementType {
 
         Result result = null;
         TransMeta transformationMeta = new TransMeta();
-        ResultCacheKey cacheKey = null;
+        CacheKey cacheKey = null;
 
         if (transMetaStorage.containsKey(kettlePath)) {
             logger.debug("Existent metadata found for " + kettlePath);
@@ -317,7 +322,7 @@ public class KettleElementType extends AbstractElementType {
         if((transformation.getParameterValue(CACHE) != null && transformation.getParameterValue(CACHE).equalsIgnoreCase("true")) || (transformation.getVariable(CACHE) != null && transformation.getVariable(CACHE).equalsIgnoreCase("true"))){
             TreeMap<String,String> customParamsTreeMap = new TreeMap<String,String>();
             customParamsTreeMap.putAll(customParams);
-            cacheKey = new ResultCacheKey(kettlePath, customParamsTreeMap, kettleOutput.getOutputStepName());
+            cacheKey = new CacheKey(kettlePath, customParamsTreeMap, kettleOutput.getOutputStepName());
             
             int cacheDuration = 3600; //Default value
             String kettleCacheDuration = transformation.getParameterValue(CACHEDURATION);
@@ -333,7 +338,8 @@ public class KettleElementType extends AbstractElementType {
             }
             
             logger.debug("Result stored in cache for "+cacheDuration+" seconds");
-            ResultCacheManager.getInstance().putResult(cacheKey, result.clone(), kettleOutput.getRows(), kettleOutput.getRowMeta() , cacheDuration);
+            
+            CacheManager.getInstance().putObject(cacheKey, new ResultCache(result.clone(), kettleOutput.getRows(), kettleOutput.getRowMeta()), cacheDuration);
         }
 
         return result;
@@ -351,7 +357,7 @@ public class KettleElementType extends AbstractElementType {
      */
     private Result executeJob(String kettlePath, HashMap<String, String> customParams, IKettleOutput kettleOutput) throws UnknownParamException, KettleException, KettleXMLException {
 
-        ResultCacheKey cacheKey = null;
+        CacheKey cacheKey = null;
         JobMeta jobMeta;
 
         if (jobMetaStorage.containsKey(kettlePath)) {
@@ -427,7 +433,7 @@ public class KettleElementType extends AbstractElementType {
         if((job.getParameterValue(CACHE) != null &&job.getParameterValue(CACHE).equalsIgnoreCase("true")) || (job.getVariable(CACHE) != null &&job.getVariable(CACHE).equalsIgnoreCase("true"))){
             TreeMap<String,String> customParamsTreeMap = new TreeMap<String,String>();
             customParamsTreeMap.putAll(customParams);
-            cacheKey = new ResultCacheKey(kettlePath, customParamsTreeMap, kettleOutput.getOutputStepName());
+            cacheKey = new CacheKey(kettlePath, customParamsTreeMap, kettleOutput.getOutputStepName());
             
             int cacheDuration = 3600; //Default value
             String kettleCacheDuration = job.getParameterValue(CACHEDURATION);
@@ -444,8 +450,8 @@ public class KettleElementType extends AbstractElementType {
             
             
             
-            logger.debug("Result stored in cache for "+cacheDuration+" seconds");
-            ResultCacheManager.getInstance().putResult(cacheKey, result.clone(), kettleOutput.getRows(), kettleOutput.getRowMeta(), cacheDuration);
+            logger.debug("Result stored in cache for "+cacheDuration+" seconds"); 
+            CacheManager.getInstance().putObject(cacheKey, new ResultCache(result.clone(), kettleOutput.getRows(), kettleOutput.getRowMeta()), cacheDuration);
         }
 
         return result;
@@ -467,5 +473,23 @@ public class KettleElementType extends AbstractElementType {
     @Override
     public boolean isShowInSitemap() {
         return false;
+    }
+    
+    private class ResultCache{
+        private Result result;
+        private List<Object[]> rows;
+        private RowMetaInterface rowMeta;
+        
+        public ResultCache(Result aResult, List<Object[]> aRowList, RowMetaInterface aRowMeta){
+            this.result = aResult;
+            this.rows = aRowList;
+            this.rowMeta = aRowMeta;
+        }
+        
+        public Result getResult(){return this.result;}
+        
+        public List<Object[]> getRows(){return this.rows;}
+        
+        public RowMetaInterface getRowMeta(){return this.rowMeta;}
     }
 }

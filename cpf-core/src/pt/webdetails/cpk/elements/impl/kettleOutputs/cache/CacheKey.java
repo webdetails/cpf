@@ -12,12 +12,12 @@ import java.util.SortedMap;
  *
  * @author Luis Paulo Silva<luis.silva@webdetails.pt>
  */
-public class ResultCacheKey {
+public class CacheKey {
     
     private String path, stepName;
     private SortedMap<String,String> parameters;
     
-    public ResultCacheKey(String aPath, SortedMap<String,String> aParamsList, String aStepName){
+    public CacheKey(String aPath, SortedMap<String,String> aParamsList, String aStepName){
         setPath(aPath);
         setStepName(aStepName);
         setParameters(aParamsList);
@@ -48,25 +48,20 @@ public class ResultCacheKey {
         this.parameters = parameters;
     }
     
-    public boolean equals(ResultCacheKey key){
-        boolean equals = false;
-        
-            if(key == null){
-                //Does nothing, just makes sure that if a key is null the result is false
-            }else if(key.getPath().equals(getPath()) && key.getParameters().equals(getParameters()) && key.getStepName().equals(getStepName())){
-                equals = true;
-            }
-        
-        return equals;
-    }
-    
     @Override
     public boolean equals(Object obj){
-        ResultCacheKey key = null;
-        if(obj instanceof ResultCacheKey){
-            key = (ResultCacheKey)obj;
+        CacheKey key = null;
+        boolean equals = false;
+        
+        if(obj instanceof CacheKey){
+            key = (CacheKey)obj;
         }
-        return equals(key);
+        
+        if(key != null && key.getPath().equals(getPath()) && key.getParameters().equals(getParameters()) && key.getStepName().equals(getStepName())){
+            equals = true;
+        }
+        
+        return equals;
     }
 
     @Override
@@ -84,12 +79,12 @@ public class ResultCacheKey {
     }
     
     private String getParametersMapToString(){
-        String params = new String();
+        StringBuilder stringBuilder = new StringBuilder();
         
         for(Map.Entry<String,String> entry : parameters.entrySet()){
-            params += "["+entry.getKey()+" = "+entry.getValue()+"],";
+            stringBuilder.append("["+entry.getKey()+" = "+entry.getValue()+"],");
         }
         
-        return params.isEmpty() ? "[NO PARAMETERS]" : params.substring(0, params.length()-1);
+        return stringBuilder.length() == 0 ? "[NO PARAMETERS]" : stringBuilder.substring(0, stringBuilder.length()-1);
     }
 }

@@ -12,10 +12,10 @@ import org.pentaho.di.core.row.RowMetaInterface;
  *
  * @author Luís Paulo Silva<luis.silva@webdetails.pt>
  */
-public interface IResultCacheManager {
-    void putResult(ResultCacheKey aKey, Result aResult, List<Object[]> aRowList, RowMetaInterface aRowMeta, long aTimeToLive);
-    ResultCache getResultCache(ResultCacheKey aKey);
-    void remove(ResultCacheKey aKey);
+public interface ICacheManager {
+    void putObject(CacheKey aKey, Object anObjectToCache, long aTimeToLive);
+    Object getCachedObject(CacheKey aKey);
+    void remove(CacheKey aKey);
     void clearCache();
-    List<ResultCacheKey> getKeys();
+    List<CacheKey> getKeys();
 }
