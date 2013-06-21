@@ -1,0 +1,213 @@
+<!--===========================================================================
+  This is the build file for the Community Dashboard Framework Plugin project.
+
+  This build file will use the common_build.xml file as the default build
+  process and should only override the tasks that need to differ from
+  the common build file.
+
+  See common_build.xml for more details
+============================================================================-->
+<project name="Community Plugin Kickstarter" basedir="." default="jar"
+         xmlns:ivy="antlib:org.apache.ivy.ant">
+
+  <description>
+    This build file is used to create the CPK project
+    and works with the common_build.xml file.
+  </description>
+
+  <!-- Import the subfloor.xml file which contains all the default tasks -->
+  <!-- TODO: change to subfloor and see what happens -->
+  <import file="common_build.xml"/>
+  <!--<import file="build-res/subfloor.xml"/>-->
+
+  <!--
+      AS STATED ABOVE, THE ONLY TASKS THAT SHOULD EXIST IN THIS BUILD FILE ARE
+      THE TASKS THAT NEED TO DIFFER FROM THE DEFAULT IMPLEMENTATION OF THE TASKS
+      FOUND IN common_build.xml.
+    -->
+
+
+ <!-- Define the Sonar task if this hasn't been done in a common script -->
+  <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
+    <classpath path="sonar-ant-task-1.3.jar" />
+  </taskdef>
+
+  <target name="compile.compile" depends="init" description="Performs the actual javac compile">
+    <javac destdir="${classes.dir}"
+           debug="${javac.debug}"
+           deprecation="${javac.deprecation}"
+           fork="true"
+           source="${javac.source}"
+           target="${javac.target}">
+      <classpath>
+        <path refid="classpath"/>
+      </classpath>
+      <src path="${src.dir}"/>
+    </javac>
+  </target>
+
+  <property name="plugin.name"
+            value="cpk"
+            description="Name of the plugin"/>
+
+  <property name="resource.dir"
+            value="resources"
+            description="Name of the resource directory"/>
+
+  <property name="stage.dir"
+            value="${bin.dir}/stage"
+            description="Name of the resource directory"/>
+
+  <property name="samples.stage.dir"
+            value="${bin.dir}/stage-samples"
+            description="Name of the resource directory" />
+
+
+  <tstamp/>
+
+  <!-- Build the project.revision property -->
+  <property name="distribution.version" value="${project.stage}-${project.version}"/>
+
+
+  <echo>distribution.version = ${distribution.version}</echo>
+
+  <target name="dist" depends="clean,resolve,jar,source.jar,dist-plugin"/>
+  <target name="dist-compile" depends="jar,dist-plugin"/>
+
+  <property name="plugin.artifact.id" value="${plugin.name}"/>
+  <property name="plugin.zipfile" value="${plugin.artifact.id}-${distribution.version}.zip"/>
+  <property name="plugin.samples.zipfile" value="${plugin.artifact.id}-samples-${distribution.version}.zip"/>
+  <property name="plugin.solution.zipfile" value="${plugin.artifact.id}-solution-${distribution.version}.zip"/>
+
+
+
+ <!-- Add the target -->
+ 
+ <target name="check-sonar-props">
+      <available file="/home/tomcat/sonar.properties" property="sonar.props"/>    
+      <echo>${sonar.props}</echo>
+ </target>
+
+
+<target name="read-sonar-props" depends="check-sonar-props" if="sonar.props">
+<echo>Prop file exists</echo>
+<loadproperties srcFile="/home/tomcat/sonar.properties"/>
+</target>
+ 
+  <target name="sonar" depends='read-sonar-props'>
+    <!-- list of mandatories Sonar properties -->
+    <property name="sonar.sources" value="${src.dir}" />
+ 
+    <!-- list of optional Sonar properties -->
+    <property name="sonar.binaries" value="${classes.dir}" />
+    
+    <sonar:sonar key="pt.webdetails:CPK" version="${distribution.version}" xmlns:sonar="antlib:org.sonar.ant"/>
+  </target>
+
+
+
+  <target name="resolve"
+          depends="resolve-default, resolve-test, resolve-runtime, ivy.check-releasable"
+          description="Retrieves all the dependent libraries" />
+
+
+  <target name="resolve-runtime" depends="resolve-init">
+    <ivy:resolve file="ivy.xml" conf="runtime" />
+    <ivy:retrieve conf="runtime" pattern="runtime-lib/[module]-[revision](-[classifier]).[ext]" />
+  </target>
+
+
+  <!-- ================ 
+        Legacy Compat
+       ================ -->
+  <target name="resolve-legacy" depends="resolve-init">
+    <ivy:resolve file="ivy.xml" conf="legacy" />
+    <ivy:retrieve conf="legacy" pattern="${lib.dir}/[module]-[revision](-[classifier]).[ext]" />
+  </target>
+  <target name="dist-legacy" depends="clean,resolve-legacy,jar,dist-plugin"/>
+  <!-- ================= --> 
+
+  <!--=======================================================================
+              dist
+
+              Creates a distribution of this project's plugin zip
+              ====================================================================-->
+  <target name="dist-plugin" depends="jar" description="Creates a distribution">
+
+    <!-- delete and re-create the plugin dist folder tree -->
+    <mkdir dir="${stage.dir}"/>
+    <mkdir dir="${stage.dir}/${plugin.name}"/>
+    <mkdir dir="${stage.dir}/${plugin.name}/lib"/>
+
+    <!-- copy the plugin jar to the plugin dist lib folder -->
+    <copy todir="${stage.dir}/${plugin.name}/lib" overwrite="true">
+      <fileset dir="${dist.dir}">
+        <include name="${ivy.artifact.id}-${project.revision}.jar"/>
+      </fileset>
+      <fileset dir="${devlib.dir}">
+        <include name="**/*.jar"/>
+      </fileset>
+    </copy>
+
+
+    <!-- Copy the plugin.xml and any other files from the resource dir -->
+<!--    <copy todir="${stage.dir}/${plugin.name}" overwrite="true">
+      <fileset dir="${resource.dir}">
+        <include name="**/*"/>
+      </fileset>
+    </copy>-->
+
+    <copy todir="${stage.dir}/${plugin.name}" overwrite="true">
+      <fileset dir="${basedir}">
+        <include name="readme.txt"/>
+      </fileset>
+    </copy>
+
+    <!-- create the version file -->
+	<tstamp/>			
+	<property name="sequential.build.id" value="manual-${DSTAMP}"/>
+
+	<echo file="${stage.dir}/${plugin.name}/version.xml" message="&lt;version branch='TRUNK'  buildId='${sequential.build.id}'>${distribution.version}&lt;/version>"/>		   
+
+         <!-- TODO: at some point make sure this works -->
+	<echo file="${dist.dir}/marketplace.xml">&lt;version branch="TRUNK">
+		&lt;version>${distribution.version}&lt;/version>
+		&lt;name>Trunk&lt;/name>
+		&lt;downloadUrl>http://ci.analytical-labs.com/job/Webdetails-CPK/lastSuccessfulBuild/artifact/dist/cpk-TRUNK-SNAPSHOT.zip&lt;/downloadUrl>
+		&lt;samplesDownloadUrl>http://ci.analytical-labs.com/job/Webdetails-CPK/lastSuccessfulBuild/artifact/dist/cpk-samples-TRUNK-SNAPSHOT.zip&lt;/samplesDownloadUrl>
+		&lt;description>Trunk Snapshot. Install at your own risk....&lt;/description>
+		&lt;buildId>${sequential.build.id}&lt;/buildId>
+		&lt;/version>	</echo>         
+
+  </target>
+
+
+  <!--=======================================================================
+          publish-pentaho-nojar (override)
+
+          Publishes the jar and plugin zip package to the Maven repository
+          ====================================================================-->
+  <target name="publish-pentaho-nojar"
+          depends="install-antcontrib,create-pom,ivy.deliver">
+    <ant antfile="common_build.xml" target="publish-pentaho-nojar"/>
+
+    <ivy:makepom ivyfile="package-ivy.xml" pomfile="plugin-pom.xml"/>
+<!--    <ivy:makepom ivyfile="package-ivy.xml" pomfile="samples-pom.xml"/>
+    <ivy:makepom ivyfile="package-ivy.xml" pomfile="solution-pom.xml"/>-->
+
+<!--    <replace file="plugin-pom.xml" token="jar" value="zip"/>-->
+    <replace file="plugin-pom.xml" token="%artifact-name%" value="${plugin.artifact.id}"/>
+    <antcall target="maven-publish-artifact">
+      <param name="publish.pomFile" value="plugin-pom.xml"/>
+      <param name="publish.file" value="${dist.dir}/${ivy.artifact.id}-${project.revision}.jar"/>
+    </antcall>
+
+<!--    <replace file="samples-pom.xml" token="jar" value="zip"/>-->
+<!--    <replace file="samples-pom.xml" token="%artifact-name%" value="${plugin.artifact.id}-samples"/>-->
+<!--    <antcall target="maven-publish-artifact">
+      <param name="publish.pomFile" value="samples-pom.xml"/>
+      <param name="publish.file" value="${dist.dir}/${plugin.samples.zipfile}"/>
+    </antcall>-->
+
+  </target>
+</project>
