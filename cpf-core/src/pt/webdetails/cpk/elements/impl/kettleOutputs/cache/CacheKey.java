@@ -82,7 +82,11 @@ public class CacheKey {
         StringBuilder stringBuilder = new StringBuilder();
         
         for(Map.Entry<String,String> entry : parameters.entrySet()){
-            stringBuilder.append("["+entry.getKey()+" = "+entry.getValue()+"],");
+            stringBuilder.append("[");
+            stringBuilder.append(entry.getKey());
+            stringBuilder.append(" = ");
+            stringBuilder.append(entry.getValue());
+            stringBuilder.append("],");
         }
         
         return stringBuilder.length() == 0 ? "[NO PARAMETERS]" : stringBuilder.substring(0, stringBuilder.length()-1);

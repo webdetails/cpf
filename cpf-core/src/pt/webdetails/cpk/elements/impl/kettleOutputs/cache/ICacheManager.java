@@ -5,8 +5,6 @@
 package pt.webdetails.cpk.elements.impl.kettleOutputs.cache;
 
 import java.util.List;
-import org.pentaho.di.core.Result;
-import org.pentaho.di.core.row.RowMetaInterface;
 
 /**
  *
