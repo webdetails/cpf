@@ -6,3 +6,9 @@ build/
 /lib/
 runtime-lib/
 override.properties
+test-lib/*
+
+#Eclipse project files
+.project
+.classpath
+.settings
