@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 package pt.webdetails.cpf;
 
 import java.io.ByteArrayInputStream;
@@ -28,7 +27,6 @@ public abstract class PluginSettings {
 
     public static final String ENCODING = "utf-8";
     protected static Log logger = LogFactory.getLog(PluginSettings.class);
-    
     @Autowired
     private IRepositoryAccess repository;
 
@@ -47,12 +45,15 @@ public abstract class PluginSettings {
         Document doc;
         try {
             doc = repository.getResourceAsDocument("system/" + getPluginSystemDir() + SETTINGS_FILE);
-            return doc.selectSingleNode(section).getStringValue();
+            Node node = doc.selectSingleNode("settings/" + section);
+            if (node != null) {
+                return node.getStringValue();
+            }
         } catch (IOException ex) {
             Logger.getLogger(PluginSettings.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        return "";
+
+        return defaultValue;//return "";
     }
 
     protected boolean getBooleanSetting(String section, boolean nullValue) {
@@ -83,7 +84,7 @@ public abstract class PluginSettings {
         String nodePath = "settings/" + section;
         Document settings = null;
         try {
-        	settings = DocumentHelper.parseText(new String(settingsFile.getData()));
+            settings = DocumentHelper.parseText(new String(settingsFile.getData()));
         } catch (Exception e) {
             logger.error(e);
         }
@@ -96,9 +97,9 @@ public abstract class PluginSettings {
                     String contents = settings.asXML();
                     SaveFileStatus ss = repository.publishFile(settingsFile.getSolutionPath(), contents, true);
                     if (ss.equals(SaveFileStatus.OK)) {
-                    	//TODO: in future should only refresh relevant cache, not the whole thing
-                    	logger.debug("changed '" + section + "' from '" + oldValue + "' to '" + value + "'");
-                    	return true;
+                        //TODO: in future should only refresh relevant cache, not the whole thing
+                        logger.debug("changed '" + section + "' from '" + oldValue + "' to '" + value + "'");
+                        return true;
                     }
                     throw new Exception("Error converting settings document to string and publishing to repository: " + settingsFile.getSolutionPath());
                 } catch (Exception e) {
@@ -122,19 +123,19 @@ public abstract class PluginSettings {
             String resource = repository.getResourceAsString("system/" + getPluginSystemDir() + SETTINGS_FILE);
             bis = new ByteArrayInputStream(resource.getBytes());
             reader = new SAXReader();
-            
+
             doc = reader.read(bis);
         } catch (IOException ex) {
-          logger.error("Error while reading settings.xml", ex);
-        }catch (DocumentException ex){
-          logger.error("Error while reading settings.xml", ex);
+            logger.error("Error while reading settings.xml", ex);
+        } catch (DocumentException ex) {
+            logger.error("Error while reading settings.xml", ex);
         }
-        
-        if(doc != null){
+
+        if (doc != null) {
             List<Element> elements = doc.selectNodes("/settings/" + section);
             return elements;
-        } 
-        return new ArrayList<Element>();  
+        }
+        return new ArrayList<Element>();
     }
 
     @SuppressWarnings("unchecked")
