@@ -329,7 +329,8 @@ public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRe
 
   @Override
   public IRepositoryFile getRepositoryFile(String path, FileAccess fileAccess) {
-    return new PentahoRepositoryFile(getSolutionRepository().getSolutionFile(path, fileAccess.ordinal()));
+	ISolutionFile file = getSolutionRepository().getSolutionFile(path, fileAccess.ordinal());
+    return file != null ? new PentahoRepositoryFile(file) : null;
   }
 
 
