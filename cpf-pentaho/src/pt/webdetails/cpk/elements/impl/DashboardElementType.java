@@ -70,7 +70,7 @@ public class DashboardElementType extends AbstractElementType {
         params.put("inferScheme", "false");
         params.put("root", root);
         ICommonParameterProvider requestParams = pluginUtils.getRequestParameters(parameterProviders);
-        pluginUtils.copyParametersFromProvider(params, requestParams);
+        PluginUtils.copyParametersFromProvider(params, requestParams);
 
         if (requestParams.hasParameter("mode") && requestParams.getStringParameter("mode", "Render").equals("edit")) {
             redirectToCdeEditor(parameterProviders, params);

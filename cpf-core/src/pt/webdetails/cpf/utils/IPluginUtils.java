@@ -40,8 +40,7 @@ public interface IPluginUtils {
     public void setResponseHeaders(Map<String, ICommonParameterProvider> parameterProviders, final String mimeType);
        
     public void setResponseHeaders(Map<String, ICommonParameterProvider> parameterProviders, final String mimeType, final String attachmentName, long attachmentSize);
-
-    public void copyParametersFromProvider(Map<String, Object> params, ICommonParameterProvider provider);
+    
     
     public void redirect(Map<String, ICommonParameterProvider> parameterProviders, String url);
     
