@@ -7,17 +7,20 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.codehaus.jackson.JsonGenerationException;
+
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.dom4j.DocumentException;
 import org.pentaho.platform.api.engine.IParameterProvider;
+
 import pt.webdetails.cpf.RestContentGenerator;
 import pt.webdetails.cpf.RestRequestHandler;
 import pt.webdetails.cpf.Router;
@@ -30,8 +33,15 @@ import pt.webdetails.cpf.plugins.Plugin;
 import pt.webdetails.cpf.plugins.PluginsAnalyzer;
 import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
 import pt.webdetails.cpf.utils.PluginUtils;
+import pt.webdetails.cpk.datasources.CpkDataSourceMetadata;
+import pt.webdetails.cpk.datasources.DataSource;
+import pt.webdetails.cpk.datasources.DataSourceDefinition;
+import pt.webdetails.cpk.datasources.DataSourceMetadata;
 import pt.webdetails.cpk.elements.IElement;
+import pt.webdetails.cpk.elements.impl.KettleElementType;
 import pt.webdetails.cpk.sitemap.LinkGenerator;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 public class CpkContentGenerator extends RestContentGenerator {
 
@@ -41,11 +51,6 @@ public class CpkContentGenerator extends RestContentGenerator {
     protected CpkCoreService coreService;
     protected ICpkEnvironment cpkEnv;
 
-    /*public CpkContentGenerator(ICpkEnvironment cpkEnv) {
-     super(cpkEnv.getPluginUtils());
-     CpkEngine.getInstanceWithEnv(cpkEnv);
-     this.coreService = new CpkCoreService(cpkEnv);
-     }//*/
     public CpkContentGenerator() {
         this.pluginUtils = new PluginUtils();
         this.cpkEnv = new CpkPentahoEnvironment(pluginUtils, new PentahoRepositoryAccess());
@@ -185,5 +190,49 @@ public class CpkContentGenerator extends RestContentGenerator {
                 map.put(e.getKey(), WrapperUtils.wrapParamProvider(e.getValue()));
             }
         }
+    }
+
+    static final com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+    static {
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+    }
+
+    @Exposed(accessLevel = AccessLevel.PUBLIC, outputType = MimeType.JSON)
+    public void listDataAccessTypes(final OutputStream out) throws Exception {
+        // boolean refreshCache = Boolean.parseBoolean(getRequestParameters().getStringParameter("refreshCache", "false"));
+
+        Set<DataSource> dataSources = new LinkedHashSet<DataSource>();
+        StringBuilder dsDeclarations = new StringBuilder("{");
+        IElement[] endpoints = coreService.getElements();
+        
+        if (endpoints != null) {
+          for (IElement endpoint : endpoints) {
+
+            // filter endpoints that aren't of kettle type
+            if (!(endpoint instanceof KettleElementType || endpoint.getElementType().equalsIgnoreCase("kettle"))) {
+              continue;
+            }
+
+            logger.info(String.format("CPK Kettle Endpoint found: %s)", endpoint));
+
+            String pluginId = coreService.getPluginName();
+            String endpointName = endpoint.getName();
+
+            DataSourceMetadata metadata = new CpkDataSourceMetadata(pluginId, endpointName);
+            DataSourceDefinition definition = new DataSourceDefinition();
+
+            DataSource dataSource = new DataSource().setMetadata(metadata).setDefinition(definition);
+            dataSources.add(dataSource);
+
+            dsDeclarations.append(String.format("\"cpkEndpoint_%s_%s\": ", pluginId, endpoint.getId()));
+            dsDeclarations.append(mapper.writeValueAsString(dataSource));
+            dsDeclarations.append(",");
+          }
+        }
+
+        dsDeclarations.deleteCharAt(dsDeclarations.lastIndexOf(","));
+        dsDeclarations.append("}");
+        out.write(dsDeclarations.toString().getBytes());
     }
 }

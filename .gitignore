@@ -8,3 +8,9 @@ runtime-lib/
 override.properties
 target/
 test-lib/
+.ant*
+
+#Eclipse Project files
+.classpath
+.project
+.settings
