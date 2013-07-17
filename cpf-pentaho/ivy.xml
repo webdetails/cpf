@@ -26,7 +26,7 @@
     <dependency org="commons-io" name="commons-io" rev="2.4"/>       
     <dependency org="org.codehaus.jackson" name="jackson-mapper-asl" rev="1.8.2"/>                  
     <dependency org="org.mozilla" name="rhino" rev="1.7R4"/>                       
-
+    <dependency org="commons-lang" name="commons-lang" rev="2.6" />
 
     
     <!--  pentaho dependencies -->
