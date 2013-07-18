@@ -117,8 +117,7 @@ public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRe
    */
   @Override
   public SaveFileStatus publishFile(String solutionPath, String fileName, byte[] data, boolean overwrite) {
-    return publishFile(StringUtils.replace(PentahoSystem.getApplicationContext().getSolutionPath(""), "\\", "/"), 
-    solutionPath, fileName, data, overwrite);
+    return publishFile(getSolutionPath(""), solutionPath, fileName, data, overwrite);
   }
 
   /* (non-Javadoc)
@@ -311,12 +310,12 @@ public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRe
   }
 
   public static String getSystemDir() {
-      return StringUtils.replace(PentahoSystem.getApplicationContext().getSolutionPath("system"), "\\", "/");
+      return getPentahoSolutionPath("system");
   }
 
   @Override
   public String getSolutionPath(String path) {
-    return StringUtils.replace(PentahoSystem.getApplicationContext().getSolutionPath(path), "\\", "/");
+    return getPentahoSolutionPath(path);
   }
 
   public static String getPentahoSolutionPath(String path) {
