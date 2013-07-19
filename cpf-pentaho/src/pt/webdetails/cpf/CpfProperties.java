@@ -43,33 +43,39 @@ public class CpfProperties extends Properties {
             logger.warn("Failed to read CPF base settings");
         }
 
-        IRepositoryAccess repository = PentahoRepositoryAccess.getRepository();
-        try {
-            if (repository.resourceExists("/cpf/config.properties")) {
-                loadAndClose(repository.getResourceInputStream("/cpf/config.properties", FileAccess.NONE));
-            } else {
-                logger.info("No global CPF settings.");
-            }
+        if (this.getClass().getClassLoader() instanceof PluginClassLoader) {
+            IRepositoryAccess repository = PentahoRepositoryAccess.getRepository();
+            try {
+                if (repository.resourceExists("/cpf/config.properties")) {
+                    loadAndClose(repository.getResourceInputStream("/cpf/config.properties", FileAccess.NONE));
+                } else {
+                    logger.info("No global CPF settings.");
+                }
 
-        } catch (Exception e) {
-            logger.error("Failed to read global CPF settings:" + e.toString());
+            } catch (Exception e) {
+                logger.error("Failed to read global CPF settings:" + e.toString());
+            }
+        } else {
+            logger.warn(this.getClass().getClassLoader().toString() + "is not instanceof PluginClassLoader");
         }
 
     }
 
     private void loadPluginSettings() {
-
-        try {
-            File pluginCpfSettings = new File(getPluginPath() + "/cpf.properties");
-            if (pluginCpfSettings.exists()) {
-                loadAndClose(FileUtils.openInputStream(pluginCpfSettings));
-            } else {
-                logger.info("No plugin-specific CPF settings.");
+        if (this.getClass().getClassLoader() instanceof PluginClassLoader) {
+            try {
+                File pluginCpfSettings = new File(getPluginPath() + "/cpf.properties");
+                if (pluginCpfSettings.exists()) {
+                    loadAndClose(FileUtils.openInputStream(pluginCpfSettings));
+                } else {
+                    logger.info("No plugin-specific CPF settings.");
+                }
+            } catch (IOException ioe) {
+                logger.error("Failed to read plugin-specific CPF base settings");
             }
-        } catch (IOException ioe) {
-            logger.error("Failed to read plugin-specific CPF base settings");
+        } else {
+            logger.warn(this.getClass().getClassLoader().toString() + "is not instanceof PluginClassLoader");
         }
-
     }
 
     public static CpfProperties getInstance() {

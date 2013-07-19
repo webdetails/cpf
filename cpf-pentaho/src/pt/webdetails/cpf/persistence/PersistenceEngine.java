@@ -34,6 +34,7 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.platform.plugin.services.pluginmgr.PluginClassLoader;
 import org.pentaho.reporting.libraries.base.util.StringUtils;
 
 import pt.webdetails.cpf.InvalidOperationException;
@@ -76,7 +77,8 @@ public class PersistenceEngine {
     }
 
     private String getOrientPath() {
-        return PentahoSystem.getApplicationContext().getSolutionPath("/system/.orient");
+        return (this.getClass().getClassLoader() instanceof PluginClassLoader)
+                ? PentahoSystem.getApplicationContext().getSolutionPath("/system/.orient") : ".";
     }
 
     private void initialize() throws Exception {
@@ -494,11 +496,13 @@ public class PersistenceEngine {
                     if (result.size() == 1) {
                         doc = result.get(0);
                         //this part was marked as pentaho specific
-                        String user = PentahoSessionHolder.getSession().getName();
-                        if (doc.field("userid") != null && !doc.field("userid").toString().equals(user)) {
-                            json.put("result", Boolean.FALSE);
-                            json.put("errorMessage", "Object id " + id + " belongs to another user");
-                            return json;
+                        if (this.getClass().getClassLoader() instanceof PluginClassLoader) {
+                            String user = PentahoSessionHolder.getSession().getName();
+                            if (doc.field("userid") != null && !doc.field("userid").toString().equals(user)) {
+                                json.put("result", Boolean.FALSE);
+                                json.put("errorMessage", "Object id " + id + " belongs to another user");
+                                return json;
+                            }
                         }
 
                         fillDocument(doc, data);
@@ -556,8 +560,10 @@ public class PersistenceEngine {
 
         ODocument doc = new ODocument(className);
         fillDocument(doc, data);
-        String user = PentahoSessionHolder.getSession().getName();
-        doc.field("userid", user);
+        if (this.getClass().getClassLoader() instanceof PluginClassLoader) {
+            String user = PentahoSessionHolder.getSession().getName();
+            doc.field("userid", user);
+        }
         return doc;
     }
 
