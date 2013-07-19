@@ -425,11 +425,17 @@ public class PentahoRepositoryAccess extends BaseRepositoryAccess implements IRe
   }
 
   @Override
-  public String getSettingsResourceAsString(String fileName) throws IOException {
-    IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, getAdminSession());
-    URL resourceUrl = pluginManager.getClassLoader(plugin.getName()).getResource(fileName);
-    return resourceUrl.getContent().toString();
-  }
+    public String getSettingsResourceAsString(String fileName) throws IOException {
+        IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, getAdminSession());
+        URL resourceUrl = pluginManager.getClassLoader(plugin.getName()).getResource(fileName);
+        // TODO: when we can assume a newer ioutils, change to toString(URL)
+        InputStream input = resourceUrl.openStream();
+        try {
+            return IOUtils.toString(input);
+        } finally {
+            IOUtils.closeQuietly(input);
+        }
+    }
 
   @Override
   public void setPlugin(CorePlugin plugin) {
