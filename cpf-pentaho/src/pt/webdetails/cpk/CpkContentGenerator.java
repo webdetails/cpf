@@ -10,7 +10,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -41,12 +40,9 @@ import pt.webdetails.cpk.elements.IElement;
 import pt.webdetails.cpk.elements.impl.KettleElementType;
 import pt.webdetails.cpk.sitemap.LinkGenerator;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 public class CpkContentGenerator extends RestContentGenerator {
 
     private static final long serialVersionUID = 1L;
-    public static final String CDW_EXTENSION = ".cdw";
     public static final String PLUGIN_NAME = "cpk";
     protected CpkCoreService coreService;
     protected ICpkEnvironment cpkEnv;
@@ -186,21 +182,23 @@ public class CpkContentGenerator extends RestContentGenerator {
             Iterator it = parameterProviders.entrySet().iterator();
             map = new HashMap<String, ICommonParameterProvider>();
             while (it.hasNext()) {
+                @SuppressWarnings("unchecked")
                 Map.Entry<String, IParameterProvider> e = (Map.Entry<String, IParameterProvider>) it.next();
                 map.put(e.getKey(), WrapperUtils.wrapParamProvider(e.getValue()));
             }
         }
     }
 
+    // New Jackson API (version 2.x)
     static final com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
     static {
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        mapper.setSerializationInclusion(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL);
+        mapper.setSerializationInclusion(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY);
     }
 
     @Exposed(accessLevel = AccessLevel.PUBLIC, outputType = MimeType.JSON)
     public void listDataAccessTypes(final OutputStream out) throws Exception {
-        // boolean refreshCache = Boolean.parseBoolean(getRequestParameters().getStringParameter("refreshCache", "false"));
+        //boolean refreshCache = Boolean.parseBoolean(getRequestParameters().getStringParameter("refreshCache", "false"));
 
         Set<DataSource> dataSources = new LinkedHashSet<DataSource>();
         StringBuilder dsDeclarations = new StringBuilder("{");
@@ -225,7 +223,7 @@ public class CpkContentGenerator extends RestContentGenerator {
             DataSource dataSource = new DataSource().setMetadata(metadata).setDefinition(definition);
             dataSources.add(dataSource);
 
-            dsDeclarations.append(String.format("\"cpkEndpoint_%s_%s\": ", pluginId, endpoint.getId()));
+            dsDeclarations.append(String.format("\"%s_%s_CPKENDPOINT\": ", pluginId, endpointName));
             dsDeclarations.append(mapper.writeValueAsString(dataSource));
             dsDeclarations.append(",");
           }
