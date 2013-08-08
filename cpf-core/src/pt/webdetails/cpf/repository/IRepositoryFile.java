@@ -9,6 +9,7 @@ package pt.webdetails.cpf.repository;
  * @author dfscm
  */
 public interface IRepositoryFile {
+
     public boolean isDirectory();
 
     public String getFileName();
@@ -24,6 +25,7 @@ public interface IRepositoryFile {
 
     public IRepositoryFile[] listFiles(IRepositoryFileFilter iff);
 
+    //TODO: root of what?
     public boolean isRoot();
 
     public IRepositoryFile retrieveParent();

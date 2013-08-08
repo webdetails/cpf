@@ -42,6 +42,7 @@ import pt.webdetails.cpf.annotations.Exposed;
 import pt.webdetails.cpf.audit.CpfAuditHelper;
 import pt.webdetails.cpf.messaging.JsonSerializable;
 import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
+import pt.webdetails.cpf.utils.CharsetHelper;
 
 /**
  *
@@ -52,7 +53,7 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
     private static final long serialVersionUID = 1L;
     protected Log logger = LogFactory.getLog(this.getClass());
    
-    protected static final String ENCODING = PluginSettings.ENCODING;
+    protected static final String ENCODING = CharsetHelper.getEncoding();
     protected static String getEncoding() { return ENCODING; }
     
     public enum FileType

@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package pt.webdetails.cpf.utils;
 
 import java.io.File;
@@ -17,8 +13,9 @@ import pt.webdetails.cpf.http.ICommonParameterProvider;
  *
  * @author joao
  */
+//TODO: Utils names generally used for static helper classes, change this to something descriptive
 public interface IPluginUtils {
-      
+
     public File getPluginDirectory();
 
     public void setPluginDirectory(File pluginDirectory);
@@ -26,7 +23,7 @@ public interface IPluginUtils {
     public String getPluginName();
 
     public void setPluginName(String pluginName);
-    
+
     public void initialize() throws IOException, DocumentException;
 
     public Collection<File> getPluginResources(String elementPath, Boolean recursive, String pattern);
@@ -41,15 +38,12 @@ public interface IPluginUtils {
        
     public void setResponseHeaders(Map<String, ICommonParameterProvider> parameterProviders, final String mimeType, final String attachmentName, long attachmentSize);
     
-    
     public void redirect(Map<String, ICommonParameterProvider> parameterProviders, String url);
-    
 
     public ICommonParameterProvider getRequestParameters(Map<String, ICommonParameterProvider> parameterProviders);
     
     public ICommonParameterProvider getPathParameters(Map<String, ICommonParameterProvider> parameterProviders);
 
-    
     public OutputStream getOutputStream(Map<String, ICommonParameterProvider> parameterProviders) throws IOException ;
-    
+
 }

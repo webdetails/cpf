@@ -1,13 +1,14 @@
 package pt.webdetails.cpf.repository;
 
+import pt.webdetails.cpf.repository.vfs.VfsRepositoryAccess;
 import java.io.IOException;
 import junit.framework.TestCase;
 
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.Selectors;
 
-import pt.webdetails.cpf.repository.BaseRepositoryAccess.FileAccess;
-import pt.webdetails.cpf.repository.BaseRepositoryAccess.SaveFileStatus;
+import pt.webdetails.cpf.repository.IRepositoryAccess.FileAccess;
+import pt.webdetails.cpf.repository.IRepositoryAccess.SaveFileStatus;
 
 public class VfsRepositoryTest extends TestCase {
 

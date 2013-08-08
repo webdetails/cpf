@@ -3,6 +3,7 @@ package pt.webdetails.cpf.impl;
 import pt.webdetails.cpf.session.ISessionUtils;
 import pt.webdetails.cpf.session.IUserSession;
 
+//TODO: do we actually need this anywhere? CDA's usage of this as a dummy doesn't count
 public class SimpleSessionUtils implements ISessionUtils {
 
 	

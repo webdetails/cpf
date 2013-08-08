@@ -4,10 +4,15 @@
 
 package pt.webdetails.cpf.repository;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class RepositoryFileExplorer {
+
+    private static final Log logger = LogFactory.getLog(RepositoryFileExplorer.class);
 
     public static String toJQueryFileTree(String baseDir, IRepositoryFile[] files) {
         StringBuilder out = new StringBuilder();
@@ -36,20 +41,24 @@ public class RepositoryFileExplorer {
 
         for (IRepositoryFile file : files) {
             JSONObject json = new JSONObject();
-
-            json.put("path", baseDir);
-            json.put("name", file.getFileName());
-            json.put("label", file.getFileName());
-
-            if (file.isDirectory()) {
-                json.put("type", "dir");
-            } else {
-                int dotIndex = file.getFileName().lastIndexOf('.');
-                String ext = dotIndex > 0 ? file.getFileName().substring(dotIndex + 1) : "";
-                json.put("ext", ext);
-                json.put("type", "file");
+            try {
+                json.put("path", baseDir);
+    
+                json.put("name", file.getFileName());
+                json.put("label", file.getFileName());
+    
+                if (file.isDirectory()) {
+                    json.put("type", "dir");
+                } else {
+                    int dotIndex = file.getFileName().lastIndexOf('.');
+                    String ext = dotIndex > 0 ? file.getFileName().substring(dotIndex + 1) : "";
+                    json.put("ext", ext);
+                    json.put("type", "file");
+                }
+                arr.put(json);
+            } catch (JSONException e) {
+                logger.error(e);
             }
-            arr.add(json);
         }
 
         return arr.toString();

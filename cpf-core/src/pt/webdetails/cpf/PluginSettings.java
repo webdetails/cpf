@@ -19,15 +19,15 @@ import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
-import pt.webdetails.cpf.repository.BaseRepositoryAccess.FileAccess;
-import pt.webdetails.cpf.repository.BaseRepositoryAccess.SaveFileStatus;
+import pt.webdetails.cpf.repository.IRepositoryAccess.FileAccess;
+import pt.webdetails.cpf.repository.IRepositoryAccess.SaveFileStatus;
 import pt.webdetails.cpf.repository.IRepositoryFile;
 
+//TODO: decide how plugin configuration will behave and have a proper config hierarchy
 public abstract class PluginSettings {
 
-    public static final String ENCODING = "utf-8";
     protected static Log logger = LogFactory.getLog(PluginSettings.class);
-    @Autowired
+    @Autowired //TODO: do we really want this?
     private IRepositoryAccess repository;
 
     public void setRepository(IRepositoryAccess repository) {
@@ -45,15 +45,17 @@ public abstract class PluginSettings {
         Document doc;
         try {
             doc = repository.getResourceAsDocument("system/" + getPluginSystemDir() + SETTINGS_FILE);
-            Node node = doc.selectSingleNode("settings/" + section);
-            if (node != null) {
+            Node node = doc.selectSingleNode(getNodePath(section));
+            if (node == null) {
+                return defaultValue;
+            } else {
                 return node.getStringValue();
             }
         } catch (IOException ex) {
             Logger.getLogger(PluginSettings.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        return defaultValue;//return "";
+        return "";
     }
 
     protected boolean getBooleanSetting(String section, boolean nullValue) {
@@ -72,16 +74,18 @@ public abstract class PluginSettings {
      * @return whether value was written
      */
     // TODO: do we ever use that?
-    @Deprecated
+    //yes, we do use this; and should
     protected boolean writeSetting(String section, String value) {
         IRepositoryFile settingsFile = repository.getSettingsFile(SETTINGS_FILE, FileAccess.READ);
         return writeSetting(section, value, settingsFile);
     }
 
-    // TODO: do we ever use that?
-    @Deprecated
+    private String getNodePath(String section) {
+        return "settings/" + section;
+    }
+
     protected boolean writeSetting(String section, String value, IRepositoryFile settingsFile) {
-        String nodePath = "settings/" + section;
+        //String nodePath = "settings/" + section;
         Document settings = null;
         try {
             settings = DocumentHelper.parseText(new String(settingsFile.getData()));
@@ -89,7 +93,7 @@ public abstract class PluginSettings {
             logger.error(e);
         }
         if (settings != null) {
-            Node node = settings.selectSingleNode(nodePath);
+            Node node = settings.selectSingleNode(getNodePath(section));
             if (node != null) {
                 String oldValue = node.getText();
                 node.setText(value);

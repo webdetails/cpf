@@ -20,8 +20,7 @@ public abstract class AbstractInterPluginCall implements IPluginCall {
 
   protected Map<String, Object> requestParameters;
   
-  public AbstractInterPluginCall(){
-  }
+	public AbstractInterPluginCall(){}
   
   
   /**
@@ -37,43 +36,36 @@ public abstract class AbstractInterPluginCall implements IPluginCall {
     init(plugin, method, params);    
   }
   
-  
-  /* (non-Javadoc)
- * @see pt.webdetails.cpf.IPluginCall#init(pt.webdetails.cpf.AbstractInterPluginCall.Plugin, java.lang.String, java.util.Map)
- */
-@Override
-public void init(CorePlugin plugin, String method, Map<String, Object>params) {
-    if(plugin == null) throw new IllegalArgumentException("Plugin must be specified");
-    
-    this.plugin = plugin;
-    this.method = method;
-    if (this.requestParameters == null)
-      this.requestParameters = new HashMap<String, Object>();
-    this.requestParameters.putAll(
-      params != null ?
-          params :
-          new HashMap<String, Object>());    
-  }
-  
-  /* (non-Javadoc)
- * @see pt.webdetails.cpf.IPluginCall#getMethod()
- */
-@Override
-public String getMethod() {
-    return method;
-  }
 
-  /* (non-Javadoc)
- * @see pt.webdetails.cpf.IPluginCall#setMethod(java.lang.String)
- */
-@Override
-public void setMethod(String method) {
-    this.method = method;
-  }
-  
-  /* (non-Javadoc)
- * @see pt.webdetails.cpf.IPluginCall#call()
- */
-@Override
-public  abstract String call();
+
+    @Override
+    public void init(CorePlugin plugin, String method, Map<String, Object> params) {
+        if (plugin == null) {
+            throw new IllegalArgumentException("Plugin must be specified");
+        }
+
+        this.plugin = plugin;
+        this.method = method;
+        if (this.requestParameters == null) {
+            this.requestParameters = new HashMap<String, Object>();
+        }
+        this.requestParameters.putAll(
+                params != null
+                ? params
+                : new HashMap<String, Object>());
+    }
+
+    @Override
+    public String getMethod() {
+        return method;
+    }
+
+    @Override
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
+    @Override
+	public abstract String call();
+
 }

@@ -1,20 +1,26 @@
 package pt.webdetails.cpf.impl;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import pt.webdetails.cpf.repository.IRepositoryFile;
 import pt.webdetails.cpf.repository.IRepositoryFileFilter;
 
 public class DefaultRepositoryFile implements IRepositoryFile {
 
+  	private static Log log = LogFactory.getLog(DefaultRepositoryFile.class);
+
 	private File file;
 
 	public DefaultRepositoryFile(File file) {
 		this.file = file;
 	}
+
 	@Override
 	public boolean isDirectory() {
 		return file.isDirectory();
@@ -40,20 +46,24 @@ public class DefaultRepositoryFile implements IRepositoryFile {
 		return file.getAbsolutePath();
 	}
 
-	@Override
-	public IRepositoryFile[] listFiles() {
-		return new IRepositoryFile[0];
-	}
+  @Override
+  public IRepositoryFile[] listFiles() {
+    throw new UnsupportedOperationException();//FIXME
+//    return new IRepositoryFile[0];
+  }
 
-	@Override
-	public IRepositoryFile[] listFiles(IRepositoryFileFilter iff) {
-		return new IRepositoryFile[0];
-	}
+  @Override
+  public IRepositoryFile[] listFiles(IRepositoryFileFilter iff) {
+    throw new UnsupportedOperationException();//FIXME
+//    return new IRepositoryFile[0];
+  }
 
-	@Override
-	public boolean isRoot() {
-		return false;
-	}
+  @Override
+  public boolean isRoot() {
+    throw new UnsupportedOperationException();//FIXME
+//    // why?
+//    return false;
+  }
 
 	@Override
 	public IRepositoryFile retrieveParent() {
@@ -62,15 +72,17 @@ public class DefaultRepositoryFile implements IRepositoryFile {
 
 	@Override
 	public byte[] getData() {
-		try {
-			if (file != null && file.exists() && file.canRead()) {
-				return FileUtils.readFileToByteArray(file);
-			}
-		} catch (Exception e) {
-			e.printStackTrace(); // XXX - we should throw an exception or log at least?
-		}
-		return new byte[0];
-	}
+
+    if (file != null && file.exists() && file.canRead()) {
+      try {
+        return FileUtils.readFileToByteArray(file);
+      } catch (IOException e) {
+        log.error(e);
+      }
+    }
+    // this should throw something
+    return null;
+  }
 
 	@Override
 	public boolean exists() {

@@ -4,7 +4,6 @@
 
 package pt.webdetails.cpf.packager;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.File;
@@ -19,11 +18,12 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import pt.webdetails.cpf.utils.CharsetHelper;
 
 /**
  *
@@ -166,19 +166,19 @@ class FileSet
     {
       InputStream concatenatedStream;
       Reader freader;
-      FileWriter output = new FileWriter(location);
+//      FileWriter output = new FileWriter(location);
       switch (this.filetype)
       {
         case JS:
           concatenatedStream = Concatenate.concat(this.files.toArray(new File[this.files.size()]));
-          freader = new InputStreamReader(concatenatedStream, "UTF8");
+          freader = new InputStreamReader(concatenatedStream, CharsetHelper.getEncoding());
 
           JSMin jsmin = new JSMin(concatenatedStream, new FileOutputStream(location));
           jsmin.jsmin();
           break;
         case CSS:
           concatenatedStream = Concatenate.concat(this.files.toArray(new File[this.files.size()]), rootdir);
-          freader = new InputStreamReader(concatenatedStream, "UTF8");
+          freader = new InputStreamReader(concatenatedStream, CharsetHelper.getEncoding());
 
           int input;
           FileWriter wout = new FileWriter(location);

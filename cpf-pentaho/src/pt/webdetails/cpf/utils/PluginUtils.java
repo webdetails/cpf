@@ -28,7 +28,7 @@ import pt.webdetails.cpf.Util;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
 
 /**
- *
+ * TODO: we generally use Utils for static helper classes, this needs a new name
  * @author Pedro Alves<pedro.alves@webdetails.pt>
  */
 public class PluginUtils implements IPluginUtils {
@@ -59,7 +59,6 @@ public class PluginUtils implements IPluginUtils {
 
     public PluginUtils() {
         try {
-            // init
             initialize();
         } catch (Exception e) {
             logger.error("Can't initialize PluginUtils: " + Util.getExceptionDescription(e));
@@ -69,15 +68,12 @@ public class PluginUtils implements IPluginUtils {
 
     @Override
     public void initialize() throws IOException, DocumentException {
-
         // We need to get the plugin name
         IPluginResourceLoader resLoader = PentahoSystem.get(IPluginResourceLoader.class, null);
         List<URL> pluginResource = resLoader.findResources(this.getClass(), "plugin.xml");
-
-        if (pluginResource.size() < 1) {
+        if (pluginResource.isEmpty()) {
             throw new IOException("plugin.xml required but not found");
         }
-
         /*
          * Verify if the index 0 is actually the file we want!
          */
@@ -89,7 +85,6 @@ public class PluginUtils implements IPluginUtils {
         setPluginDirectory(pluginDir);
 
         logger.debug("Found resource? " + pluginResource.size());
-
     }
 
     /**
@@ -107,12 +102,10 @@ public class PluginUtils implements IPluginUtils {
 
         if (pattern != null && !pattern.equals("")) {
             fileFilter = new RegexFileFilter(pattern);
-
-
         }
 
         IOFileFilter dirFilter = recursive.equals(Boolean.TRUE) ? TrueFileFilter.TRUE : null;
-
+        // TODO: why doesn't this use repository access?
         // Get directory name. We need to make sure we're not allowing this to fetch other resources
         String basePath = FilenameUtils.normalize(getPluginDirectory().getAbsolutePath());
         String elementFullPath = FilenameUtils.normalize(basePath + File.separator + elementPath);
@@ -141,8 +134,6 @@ public class PluginUtils implements IPluginUtils {
      */
     @Override
     public String getPluginRelativeDirectory(String fullPath, boolean includePluginDir) throws FileNotFoundException {
-
-
         // Get directory name. We need to make sure we're not allowing this to fetch other resources
         File pluginDir = getPluginDirectory();
         if (includePluginDir) {
@@ -248,7 +239,6 @@ public class PluginUtils implements IPluginUtils {
      * @param provider
      */
     public static void copyParametersFromProvider(Map<String, Object> params, ICommonParameterProvider provider) {
-        @SuppressWarnings("unchecked")
         Iterator<String> paramNames = provider.getParameterNames();
         while (paramNames.hasNext()) {
             String paramName = paramNames.next();

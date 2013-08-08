@@ -3,6 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpf;
 
+import pt.webdetails.cpf.scripting.IGlobalScope;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,12 +14,14 @@ import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
+import pt.webdetails.cpf.utils.CharsetHelper;
 import pt.webdetails.cpf.utils.MimeTypes;
 
 /**
  *
  * @author pdpi
  */
+//TODO: move, rename
 public class Router implements RestRequestHandler {
 
     private Map<Key, Callable> javaScriptHandlers;
@@ -42,7 +45,7 @@ public class Router implements RestRequestHandler {
     public Router(IGlobalScope globalScope) {
         javaScriptHandlers = new HashMap<Key, Callable>();
         javaHandlers = new HashMap<Key, RequestHandler>();
-        this.globalScope=globalScope;
+        this.globalScope = globalScope;
     }
 
 //    @Override
@@ -70,7 +73,7 @@ public class Router implements RestRequestHandler {
                         rParams = cx.getWrapFactory().wrapAsJavaObject(cx, scope, requestParams, null);
 
                 Object[] params = {out, pParams, rParams};
-                handler.call(cx, scope, thiz, params).toString().getBytes("utf-8");
+                handler.call(cx, scope, thiz, params).toString().getBytes(CharsetHelper.getEncoding());
             } catch (Exception e) {
                 logger.error(e);
             } finally {

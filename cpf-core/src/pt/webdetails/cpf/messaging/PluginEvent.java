@@ -11,19 +11,18 @@ import pt.webdetails.cpf.persistence.Persistable;
 public class PluginEvent implements Persistable {
 
     public static class Fields {
-
         public static final String TIMESTAMP = "timestamp";
         public static final String EVENT_TYPE = "eventType";
         public static final String PLUGIN = "plugin";
         public static final String NAME = "name";
         public static final String KEY = "key";
-//    public static final String EVENT = "event";
     }
+
     private long timeStamp;
     private String eventType;
     private String plugin;
     private String name;
-//  private JSONObject event;
+
     private String key;
 
     @Override
@@ -40,7 +39,6 @@ public class PluginEvent implements Persistable {
         this.plugin = plugin;
         this.eventType = eventType;
         this.name = name;
-//    this.event = event == null ? null : event.toJSON();
     }
 
     public long getTimeStamp() {
@@ -75,17 +73,9 @@ public class PluginEvent implements Persistable {
         this.name = name;
     }
 
-//  protected void setEvent(JSONObject eventInfo){
-//    event = eventInfo;
-//  }
-//  
-//  public JSONObject getEvent(){
-//    return event;
-//  }
     @Override
     public JSONObject toJSON() throws JSONException {
         JSONObject obj = new JSONObject();
-//    obj.put(Fields.EVENT, getEvent());
         obj.put(Fields.EVENT_TYPE, getEventType());
         obj.put(Fields.PLUGIN, getPlugin());
         obj.put(Fields.NAME, getName());

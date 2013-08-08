@@ -17,8 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import mondrian.tui.MockHttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IParameterProvider;
@@ -31,6 +29,7 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.web.http.request.HttpRequestParameterProvider;
 import pt.webdetails.cpf.plugin.CorePlugin;
+import pt.webdetails.cpf.utils.CharsetHelper;
 
 
 /**
@@ -45,13 +44,12 @@ public class PentahoInterPluginCall extends AbstractInterPluginCall implements R
   private OutputStream output;
   private IPentahoSession session;
   private IPluginManager pluginManager;
-  
-  
-  
+
+
   public PentahoInterPluginCall() {
     
   }
-  
+
   /**
    * Creates a new call.
    * @param plugin the plugin to call
@@ -240,8 +238,8 @@ public class PentahoInterPluginCall extends AbstractInterPluginCall implements R
   }
 
    protected String getEncoding(){
-     return DEFAULT_ENCODING;
+     return CharsetHelper.getEncoding();
    }
-  
+
 
 }

@@ -18,11 +18,9 @@ public interface ICommonParameterProvider {
 
 	public Date getDateParameter(String name, Date defaultValue);
 
-	public BigDecimal getDecimalParameter(String name,
-			BigDecimal defaultValue);
+	public BigDecimal getDecimalParameter(String name, BigDecimal defaultValue);
 
-	public Object[] getArrayParameter(String name,
-			Object[] defaultValue);
+	public Object[] getArrayParameter(String name, Object[] defaultValue);
 
 	public String[] getStringArrayParameter(String name,
 			String[] defaultValue);
