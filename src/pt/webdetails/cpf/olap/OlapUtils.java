@@ -114,7 +114,7 @@ public class OlapUtils {
       JSONObject catalogJson = new JSONObject();
       catalogJson.put("name", catalog.getName());
       catalogJson.put("schema", catalog.getDefinition());
-      catalogJson.put("jndi", catalog.getEffectiveDataSource().getJndi());
+          catalogJson.put("jndi", catalog.getJndi());
       catalogJson.put("cubes", new JSONArray(catalog.getSchema().getCubes()));
       catalogsArray.put(catalogJson);
     }
@@ -243,7 +243,7 @@ public class OlapUtils {
     selectedCatalog.getDataSourceInfo();
     logger.info("Found catalog " + selectedCatalog.toString());
 
-    String connectStr = "provider=mondrian;dataSource=" + selectedCatalog.getEffectiveDataSource().getJndi()
+    String connectStr = "provider=mondrian;dataSource=" + selectedCatalog.getJndi()
             + "; Catalog=" + selectedCatalog.getDefinition();
 
     return getMdxConnectionFromConnectionString(connectStr);
