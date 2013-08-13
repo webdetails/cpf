@@ -16,8 +16,7 @@
   </description>
 
   <!-- Import the subfloor.xml file which contains all the default tasks -->
-  <import file="common_build.xml"/>
-  <!--<import file="build-res/subfloor.xml"/>-->
+  <import file="build-res/subfloor-pkg.xml" id="subfloor"/>
 
   <!--
       AS STATED ABOVE, THE ONLY TASKS THAT SHOULD EXIST IN THIS BUILD FILE ARE
