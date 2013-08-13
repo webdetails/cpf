@@ -16,7 +16,10 @@
   </description>
 
   <!-- Import the subfloor.xml file which contains all the default tasks -->
+  <!-- Newest sublfoor causes compile errors. Probably issues with this project dependeing on old pentaho releases.
   <import file="build-res/subfloor.xml" id="subfloor"/>
+  -->
+  <import file="common_build.xml"/>
 
   <!--
       AS STATED ABOVE, THE ONLY TASKS THAT SHOULD EXIST IN THIS BUILD FILE ARE
