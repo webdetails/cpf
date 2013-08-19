@@ -5,6 +5,7 @@ package pt.webdetails.cpf;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -22,6 +23,7 @@ import pt.webdetails.cpf.repository.IRepositoryAccess;
 import pt.webdetails.cpf.repository.IRepositoryAccess.FileAccess;
 import pt.webdetails.cpf.repository.IRepositoryAccess.SaveFileStatus;
 import pt.webdetails.cpf.repository.IRepositoryFile;
+import pt.webdetails.cpf.utils.CharsetHelper;
 
 //TODO: decide how plugin configuration will behave and have a proper config hierarchy
 public abstract class PluginSettings {
@@ -99,7 +101,7 @@ public abstract class PluginSettings {
                 node.setText(value);
                 try {
                     String contents = settings.asXML();
-                    SaveFileStatus ss = repository.publishFile(settingsFile.getSolutionPath(), contents, true);
+                    SaveFileStatus ss = publishFile(settingsFile, contents);
                     if (ss.equals(SaveFileStatus.OK)) {
                         //TODO: in future should only refresh relevant cache, not the whole thing
                         logger.debug("changed '" + section + "' from '" + oldValue + "' to '" + value + "'");
@@ -153,5 +155,18 @@ public abstract class PluginSettings {
             return solutionPaths;
         }
         return new ArrayList<String>(0);
+    }
+    
+    private SaveFileStatus publishFile(IRepositoryFile settingsFile, String contents) throws UnsupportedEncodingException {
+        final String solution = "solution/";
+        String fullPath, solutionPath, systemPath;
+        fullPath = solutionPath = systemPath = "";
+        fullPath = settingsFile.getSolutionPath();
+        if (fullPath.contains(solution)) {
+            solutionPath = fullPath.substring(0, fullPath.lastIndexOf(solution) + solution.length());
+            systemPath = fullPath.substring(fullPath.lastIndexOf(solution) + solution.length(), fullPath.indexOf(SETTINGS_FILE));
+        }
+        return repository.publishFile(solutionPath, systemPath, SETTINGS_FILE,
+                contents.getBytes(CharsetHelper.getEncoding()), true);
     }
 }
