@@ -9,13 +9,10 @@ override.properties
 target/
 test-lib/
 .ant*
-
-#Eclipse Project files
 .classpath
 .project
 .settings
-
-#Intellij IDEA Project Files
 /.idea
 *.iml
 out/
+.metadata
