@@ -16,3 +16,4 @@ test-lib/
 *.iml
 out/
 .metadata
+*~

@@ -41,7 +41,6 @@ import org.springframework.security.providers.anonymous.AnonymousAuthenticationT
 
 import pt.webdetails.cpf.impl.DefaultRepositoryFile;
 import pt.webdetails.cpf.plugin.CorePlugin;
-import pt.webdetails.cpf.repository.PentahoRepositoryAccess.ExtensionFilter;
 import pt.webdetails.cpf.session.IUserSession;
 import pt.webdetails.cpf.session.PentahoSession;
 import pt.webdetails.cpf.utils.CharsetHelper;
@@ -75,7 +74,6 @@ public class PentahoRepositoryAccess implements IRepositoryAccess {
         return session;
     }
 
-    @Override
     public String getEncoding() {
         return CharsetHelper.getEncoding();
     }
@@ -92,22 +90,22 @@ public class PentahoRepositoryAccess implements IRepositoryAccess {
         return new PentahoRepositoryAccess(userSession);
     }
 
-    @Override
+
     public SaveFileStatus publishFile(String fileAndPath, String contents, boolean overwrite) throws UnsupportedEncodingException {
         return publishFile(fileAndPath, contents.getBytes(getEncoding()), overwrite);
     }
 
-    @Override
+
     public SaveFileStatus publishFile(String fileAndPath, byte[] data, boolean overwrite) {
         return publishFile(FilenameUtils.getFullPath(fileAndPath), FilenameUtils.getName(fileAndPath), data, overwrite);
     }
 
-    @Override
+
     public SaveFileStatus publishFile(String solutionPath, String fileName, byte[] data, boolean overwrite) {
         return publishFile(getSolutionPath(""), solutionPath, fileName, data, overwrite);
     }
 
-    @Override
+
     public SaveFileStatus publishFile(String baseUrl, String path, String fileName, byte[] data, boolean overwrite) {
         try {
             int status = getSolutionRepository().publish(baseUrl, path, fileName, data, overwrite);
@@ -127,7 +125,7 @@ public class PentahoRepositoryAccess implements IRepositoryAccess {
         }
     }
 
-    @Override
+
     public boolean removeFile(String solutionPath) {
         if (hasAccess(solutionPath, FileAccess.DELETE)) {
             return getSolutionRepository().removeSolutionFile(solutionPath);
@@ -135,17 +133,17 @@ public class PentahoRepositoryAccess implements IRepositoryAccess {
         return false;
     }
 
-    @Override
+
     public boolean removeFileIfExists(String solutionPath) {
         return !resourceExists(solutionPath) || removeFile(solutionPath);
     }
 
-    @Override
+
     public boolean resourceExists(String solutionPath) {
         return getSolutionRepository().resourceExists(solutionPath, ISolutionRepository.ACTION_EXECUTE);
     }
 
-    @Override
+
     public boolean createFolder(String solutionFolderPath) throws IOException {
         solutionFolderPath = StringUtils.chomp(solutionFolderPath, "/");//strip trailing / if there
         String folderName = FilenameUtils.getBaseName(solutionFolderPath);
@@ -153,7 +151,7 @@ public class PentahoRepositoryAccess implements IRepositoryAccess {
         return getSolutionRepositoryService().createFolder(((PentahoSession) userSession).getPentahoSession(), "", folderPath, folderName, "");
     }
 
-    @Override
+
     public boolean canWrite(String filePath) {
         ISolutionRepository solutionRepository = getSolutionRepository();
         //first check read permission
@@ -166,7 +164,7 @@ public class PentahoRepositoryAccess implements IRepositoryAccess {
         }
     }
 
-    @Override
+
     public boolean hasAccess(String filePath, FileAccess access) {
         ISolutionFile file = getSolutionRepository().getSolutionFile(filePath, toResourceAction(access));
         if (file == null) {
@@ -212,27 +210,27 @@ public class PentahoRepositoryAccess implements IRepositoryAccess {
         return PentahoSystem.get(ISolutionRepositoryService.class, ((PentahoSession) userSession).getPentahoSession());
     }
 
-    @Override
+
     public InputStream getResourceInputStream(String filePath) throws FileNotFoundException {
         return getResourceInputStream(filePath, FileAccess.READ);
     }
 
-    @Override
+
     public InputStream getResourceInputStream(String filePath, FileAccess fileAccess) throws FileNotFoundException {
         return getResourceInputStream(filePath, fileAccess, true);
     }
 
-    @Override
+
     public InputStream getResourceInputStream(String filePath, FileAccess fileAccess, boolean getLocalizedResource) throws FileNotFoundException {
         return getSolutionRepository().getResourceInputStream(filePath, getLocalizedResource, toResourceAction(fileAccess));
     }
 
-    @Override
+
     public Document getResourceAsDocument(String solutionPath) throws IOException {
         return getResourceAsDocument(solutionPath, FileAccess.READ);
     }
 
-    @Override
+
     public Document getResourceAsDocument(String solutionPath, FileAccess fileAccess) throws IOException {
         return getSolutionRepository().getResourceAsDocument(solutionPath, toResourceAction(fileAccess));
     }
@@ -241,12 +239,12 @@ public class PentahoRepositoryAccess implements IRepositoryAccess {
         return getSolutionRepository().getFullSolutionTree(toResourceAction(access), filter);
     }
 
-    @Override
+
     public String getResourceAsString(String solutionPath) throws IOException {
         return getResourceAsString(solutionPath, FileAccess.READ);
     }
 
-    @Override
+
     public String getResourceAsString(String solutionPath, FileAccess fileAccess) throws IOException {
         return getSolutionRepository().getResourceAsString(solutionPath, toResourceAction(fileAccess));
     }
@@ -264,7 +262,7 @@ public class PentahoRepositoryAccess implements IRepositoryAccess {
         return baseDir.listFiles(fileFilter);
     }
 
-    @Override
+
     public SaveFileStatus copySolutionFile(String fromFilePath, String toFilePath) throws IOException {
         InputStream in = null;
         try {
@@ -279,7 +277,7 @@ public class PentahoRepositoryAccess implements IRepositoryAccess {
         return getPentahoSolutionPath("system");
     }
 
-    @Override
+
     public String getSolutionPath(String path) {
         return getPentahoSolutionPath(path);
     }
@@ -293,7 +291,7 @@ public class PentahoRepositoryAccess implements IRepositoryAccess {
     this.userSession = userSession;
   }
 
-    @Override
+
     public IRepositoryFile getRepositoryFile(String path, FileAccess fileAccess) {
         ISolutionFile file = getSolutionRepository().getSolutionFile(path, fileAccess.ordinal());
         return file != null ? new PentahoRepositoryFile(file) : null;
@@ -309,17 +307,18 @@ public class PentahoRepositoryAccess implements IRepositoryAccess {
         return session;
     }
 
-    @Override
+
     public String getJqueryFileTree(String dir, String fileExtensions, String access) {
         return RepositoryFileExplorer.toJQueryFileTree(dir, getFileList(dir, fileExtensions, access, getPentahoSession()));
     }
 
-    @Override
+
     public String getJSON(String dir, String fileExtensions, String access) {
         return RepositoryFileExplorer.toJSON(dir, getFileList(dir, fileExtensions, access, getPentahoSession()));
     }
 
-    @Override
+    //SYSTEM
+
     public IRepositoryFile[] getSettingsFileTree(final String dir, final String fileExtensions, FileAccess access) {
         IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, getAdminSession());
         URL resourceUrl = pluginManager.getClassLoader(plugin.getName()).getResource(dir);
@@ -348,7 +347,8 @@ public class PentahoRepositoryAccess implements IRepositoryAccess {
 
     }
 
-    @Override
+
+    @Deprecated
     public IRepositoryFile[] getPluginFiles(String baseDir, FileAccess fa) {
         final IRepositoryFileFilter filter = plugin.getPluginFileFilter();
         IFileFilter fileFilter = new IFileFilter() {
@@ -370,7 +370,8 @@ public class PentahoRepositoryAccess implements IRepositoryAccess {
 
     }
 
-    @Override
+    //SYSTEM
+
     public IRepositoryFile getSettingsFile(String fileName, FileAccess access) {
         //Get plugin dir
         IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, getAdminSession());
@@ -386,7 +387,8 @@ public class PentahoRepositoryAccess implements IRepositoryAccess {
 
     }
 
-    @Override
+    //SYSTEM
+
     public String getSettingsResourceAsString(String fileName) throws IOException {
         IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, getAdminSession());
         URL resourceUrl = pluginManager.getClassLoader(plugin.getName()).getResource(fileName);
@@ -399,7 +401,7 @@ public class PentahoRepositoryAccess implements IRepositoryAccess {
         }
     }
 
-    @Override
+    @Deprecated
     public void setPlugin(CorePlugin plugin) {
         this.plugin = plugin;
     }
@@ -470,7 +472,7 @@ public class PentahoRepositoryAccess implements IRepositoryAccess {
         return list.toArray(new IRepositoryFile[list.size()]);
     }
 
-    @Override
+
     public IRepositoryFile[] listRepositoryFiles(final IRepositoryFileFilter filter) {
         IFileFilter fileFilter = new IFileFilter() {
             @Override
@@ -491,8 +493,8 @@ public class PentahoRepositoryAccess implements IRepositoryAccess {
 
     }
 
-    public static int toResourceAction(FileAccess f) {
-        switch (f) {
+    public static int toResourceAction(FileAccess access) {
+        switch (access) {
             case NONE:
                 return IPentahoAclEntry.PERM_NOTHING;
             case CREATE:

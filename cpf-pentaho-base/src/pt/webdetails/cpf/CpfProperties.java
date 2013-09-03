@@ -15,9 +15,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginClassLoader;
 
-import pt.webdetails.cpf.repository.IRepositoryAccess;
-import pt.webdetails.cpf.repository.IRepositoryAccess.FileAccess;
-import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
+//import pt.webdetails.cpf.repository.IRepositoryAccess.FileAccess;
+//import pt.webdetails.cpf.repository.IRepositoryAccess;
+//import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
 
 /**
  *
@@ -36,28 +36,30 @@ public class CpfProperties extends Properties {
     }
 
     private void loadGlobalSettings() {
-        /* Load the in-jar settings */
-        try {
-            loadAndClose(getClass().getResourceAsStream("config.properties"));
-        } catch (IOException ioe) {
-            logger.warn("Failed to read CPF base settings");
-        }
+    //FIXME COMPILING!!, use plugin-res
 
-        if (this.getClass().getClassLoader() instanceof PluginClassLoader) {
-            IRepositoryAccess repository = PentahoRepositoryAccess.getRepository();
-            try {
-                if (repository.resourceExists("/cpf/config.properties")) {
-                    loadAndClose(repository.getResourceInputStream("/cpf/config.properties", FileAccess.NONE));
-                } else {
-                    logger.info("No global CPF settings.");
-                }
-
-            } catch (Exception e) {
-                logger.error("Failed to read global CPF settings:" + e.toString());
-            }
-        } else {
-            logger.warn(this.getClass().getClassLoader().toString() + "is not instanceof PluginClassLoader");
-        }
+//        /* Load the in-jar settings */
+//        try {
+//            loadAndClose(getClass().getResourceAsStream("config.properties"));
+//        } catch (IOException ioe) {
+//            logger.warn("Failed to read CPF base settings");
+//        }
+//
+//        if (this.getClass().getClassLoader() instanceof PluginClassLoader) {
+//            IRepositoryAccess repository = PentahoRepositoryAccess.getRepository();
+//            try {
+//                if (repository.resourceExists("/cpf/config.properties")) {
+//                    loadAndClose(repository.getResourceInputStream("/cpf/config.properties", FileAccess.NONE));
+//                } else {
+//                    logger.info("No global CPF settings.");
+//                }
+//
+//            } catch (Exception e) {
+//                logger.error("Failed to read global CPF settings:" + e.toString());
+//            }
+//        } else {
+//            logger.warn(this.getClass().getClassLoader().toString() + "is not instanceof PluginClassLoader");
+//        }
 
     }
 

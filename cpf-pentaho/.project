@@ -22,4 +22,11 @@
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.apache.ivyde.eclipse.ivynature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>pentaho-base-src</name>
+			<type>2</type>
+			<locationURI>WORKSPACE_LOC/cpf-pentaho-base/src</locationURI>
+		</link>
+	</linkedResources>
 </projectDescription>

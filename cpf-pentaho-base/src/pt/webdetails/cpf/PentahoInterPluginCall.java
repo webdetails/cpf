@@ -68,11 +68,14 @@ public class PentahoInterPluginCall extends AbstractInterPluginCall implements R
   }
 
   public boolean pluginExists(){
-    try {
-      return getPluginManager().getContentGenerator(plugin.getName(), getSession()) != null;
-    } catch (ObjectFactoryException e) {
-      return false;
-    }
+//    try {
+
+//      return getPluginManager().getContentGenerator(plugin.getName(), getSession()) != null;
+//    } catch (ObjectFactoryException e) {
+//      return false;
+//    }
+    //FIXME COMPILING
+    return false;
   }
   
   /**
@@ -204,16 +207,18 @@ public class PentahoInterPluginCall extends AbstractInterPluginCall implements R
   }
 
   protected IContentGenerator getContentGenerator(){
-    try {
-      IContentGenerator contentGenerator = getPluginManager().getContentGenerator(plugin.getName(), getSession());
-      if(contentGenerator == null){
-        logger.error("ContentGenerator for " + plugin.getName() + " could not be fetched.");
-      }
-      return contentGenerator;
-    } catch (Exception e) {
-      logger.error("Failed to acquire " + plugin.getName() + " plugin: " + e.toString(), e);
+//    try {
+//      IContentGenerator contentGenerator = getPluginManager().getContentGenerator(plugin.getName(), getSession());
+//      if(contentGenerator == null){
+//        logger.error("ContentGenerator for " + plugin.getName() + " could not be fetched.");
+//      }
+//      return contentGenerator;
+//    } catch (Exception e) {
+//      logger.error("Failed to acquire " + plugin.getName() + " plugin: " + e.toString(), e);
+//      return null;
+//    }
+      //FIXME COMPILING
       return null;
-    }
   }
  
 

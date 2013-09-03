@@ -44,10 +44,10 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
     protected FileObject settings;
     protected FileObject repo;
     protected CorePlugin plugin;
-//    protected IUserSession session;
+    protected IUserSession session;
 
     //TODO: unused should be removed from interface
-    private IUserSession session;
+//    private IUserSession session;
 
     public VfsRepositoryAccess() throws IOException {
         this.DEFAULT_REPO = createDefaultRepo();
@@ -103,11 +103,11 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
         }
         return null;
     }
-
-    @Override
-    public void setPlugin(CorePlugin plugin) {
-        this.plugin = plugin;
-    }
+//
+//    @Override
+//    public void setPlugin(CorePlugin plugin) {
+//        this.plugin = plugin;
+//    }
 
 //    @Override
     public void setUserSession(IUserSession session) {
@@ -122,7 +122,6 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
         return repoFile;
     }
 
-    @Override
     public boolean canWrite(String file) {
         try {
             FileObject f = resolveFile(repo, file);
@@ -133,7 +132,6 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
         return false;
     }
 
-    @Override
     public SaveFileStatus copySolutionFile(String fromFilePath, String toFilePath) throws IOException {
         try {
             FileObject to = resolveFile(repo, toFilePath);
@@ -148,7 +146,6 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
         return SaveFileStatus.FAIL;
     }
 
-    @Override
     public boolean createFolder(String file) throws IOException {
         try {
             FileObject f = resolveFile(repo, file);
@@ -160,22 +157,18 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
         return false;
     }
 
-    @Override
     public String getEncoding() {
         return CharsetHelper.getEncoding();
     }
 
-    @Override
     public String getJSON(String arg0, String arg1, String arg2) {
         throw new UnsupportedOperationException("getJSON is deprecated, not supported!");
     }
 
-    @Override
     public String getJqueryFileTree(String arg0, String arg1, String arg2) {
         throw new UnsupportedOperationException("getJqueryFileTree is deprecated, not supported!");
     }
 
-    @Override
     public IRepositoryFile getRepositoryFile(String file, FileAccess fa) {
         try {
             FileObject f = resolveFile(repo, file);
@@ -186,22 +179,18 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
         return null;
     }
 
-    @Override
     public Document getResourceAsDocument(String arg0) throws IOException {
         throw new UnsupportedOperationException("getResourceAsDocument is deprecated, not supported!");
     }
 
-    @Override
     public Document getResourceAsDocument(String arg0, FileAccess arg1) throws IOException {
         throw new UnsupportedOperationException("getResourceAsDocument is deprecated, not supported!");
     }
 
-    @Override
     public String getResourceAsString(String file) throws IOException {
         return getResourceAsString(file, FileAccess.READ);
     }
 
-    @Override
     public String getResourceAsString(String file, FileAccess access) throws IOException {
         try {
             IRepositoryFile rf = getRepositoryFile(file, access);
@@ -212,7 +201,6 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
         return null;
     }
 
-    @Override
     public InputStream getResourceInputStream(String file) throws FileNotFoundException {
         try {
             FileObject fo = repo.resolveFile(file);
@@ -225,12 +213,10 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
         throw new FileNotFoundException("Cannot get input stream for: " + file);
     }
 
-    @Override
     public InputStream getResourceInputStream(String file, FileAccess access) throws FileNotFoundException {
         return getResourceInputStream(file);
     }
 
-    @Override
     public InputStream getResourceInputStream(String file, FileAccess acess, boolean getLocalizedResource)
             throws FileNotFoundException {
         return getResourceInputStream(file);
@@ -246,7 +232,6 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
         return resolveFile(base, directory);
     }
 
-    @Override
     public IRepositoryFile[] getPluginFiles(String directory, FileAccess access) {
         try {
             if (settings != null) {
@@ -260,7 +245,6 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
         return new IRepositoryFile[0];
     }
 
-    @Override
     public IRepositoryFile getSettingsFile(String file, FileAccess arg1) {
         try {
             if (settings != null) {
@@ -273,7 +257,6 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
         return null;
     }
 
-    @Override
     public IRepositoryFile[] getSettingsFileTree(final String directory, final String fileExtension, FileAccess access) {
         try {
             if (settings != null) {
@@ -294,7 +277,6 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
 
     }
 
-    @Override
     public String getSettingsResourceAsString(String file) throws IOException {
         try {
             IRepositoryFile rf = getSettingsFile(file, FileAccess.READ);
@@ -304,7 +286,6 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
         }
     }
 
-    @Override
     public String getSolutionPath(String arg0) {
         String path = "";
         FileObject file = null;
@@ -332,13 +313,11 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
         return null;
     }
 
-    @Override
     public boolean hasAccess(String file, FileAccess access) {
         IRepositoryFile ir = getRepositoryFile(file, access);
         return ir.exists();
     }
 
-    @Override
     public SaveFileStatus publishFile(String file, String contents, boolean overwrite) throws UnsupportedEncodingException {
         if (contents != null) {
             return publishFile(file, contents.getBytes(getEncoding()), overwrite);
@@ -346,18 +325,15 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
         return SaveFileStatus.FAIL;
     }
 
-    @Override
     public SaveFileStatus publishFile(String file, byte[] content, boolean overwrite) {
         return publishFile(null, file, content, overwrite);
     }
 
-    @Override
     public SaveFileStatus publishFile(String solutionPath, String file, byte[] content, boolean overwrite) {
         return publishFile(null, null, file, content, overwrite);
 
     }
 
-    @Override
     public SaveFileStatus publishFile(String solution, String path, String fileName, byte[] data, boolean overwrite) {
         try {
             if (data != null) {
@@ -385,7 +361,6 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
         return SaveFileStatus.FAIL;
     }
 
-    @Override
     public boolean removeFile(String file) {
         try {
             FileObject f = resolveFile(repo, file);
@@ -398,12 +373,10 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
         }
     }
 
-    @Override
     public boolean removeFileIfExists(String file) {
         return !resourceExists(file) || removeFile(file);
     }
 
-    @Override
     public boolean resourceExists(String file) {
         try {
             FileObject ir = resolveFile(repo, file);
@@ -438,7 +411,6 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
     }
 
 
-    @Override
     public IRepositoryFile[] listRepositoryFiles(IRepositoryFileFilter fileFilter) {
         try {
             FileObject[] files = repo.getChildren();

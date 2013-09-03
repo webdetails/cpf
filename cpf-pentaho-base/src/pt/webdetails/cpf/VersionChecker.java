@@ -16,7 +16,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import pt.webdetails.cpf.messaging.JsonSerializable;
 
-import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
+//import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
 import pt.webdetails.cpf.repository.IRepositoryAccess.FileAccess;
 
 /**
@@ -61,66 +61,70 @@ public abstract class VersionChecker {
 
     public CheckVersionResponse checkVersion() {
 
-        //get installed version
-        Version installed = null;
-        try {
-            Document versionXml = PentahoRepositoryAccess.getRepository().getResourceAsDocument("system/" + settings.getPluginSystemDir() + "version.xml", FileAccess.NONE);
-            installed = new Version(versionXml);
-        } catch (Exception e) {
-            String msg = "Error attempting to read version.xml";
-            logger.error(msg, e);
+//        //get installed version
+//        Version installed = null;
+//        try {
+//            Document versionXml = PentahoRepositoryAccess.getRepository().getResourceAsDocument("system/" + settings.getPluginSystemDir() + "version.xml", FileAccess.NONE);
+//            installed = new Version(versionXml);
+//        } catch (Exception e) {
+//            String msg = "Error attempting to read version.xml";
+//            logger.error(msg, e);
+      String msg = "just blame tgf!";
+    //FIXME COMPILING all commented!!
             return new CheckVersionResponse(CheckVersionResponse.Type.ERROR, msg, null);
-        }
+//        }
 
-        String url = getVersionCheckUrl(installed.getBranch());
-
-        if (url == null) {
-            String msg = "No URL found for this version.";
-            logger.info(msg);
-
-            Version latest = null;
-            try {
-                SAXReader reader = new SAXReader();
-                Document versionXml = reader.read(getVersionCheckUrl(Branch.STABLE));
-                latest = new Version(versionXml);
-            } catch (DocumentException e) {
-                msg = "Could not parse remote file ";
-                logger.info(msg, e);
-                return new CheckVersionResponse(CheckVersionResponse.Type.ERROR, msg, null);
-            }
-            return new CheckVersionResponse(CheckVersionResponse.Type.INCONCLUSIVE, msg, latest.downloadUrl);
-        }
-
-        Version latest = null;
-        try {
-            SAXReader reader = new SAXReader();
-            Document versionXml = reader.read(url);
-            latest = new Version(versionXml);
-        } catch (DocumentException e) {
-            String msg = "Could not parse remote file ";
-            logger.info(msg, e);
-            return new CheckVersionResponse(CheckVersionResponse.Type.ERROR, msg, null);
-        }
-
-        if (installed.isSuperceededBy(latest)) {
-            return new CheckVersionResponse(CheckVersionResponse.Type.UPDATE, null, latest.downloadUrl);
-        } else {
-            return new CheckVersionResponse(CheckVersionResponse.Type.LATEST, null, null);
-        }
+//        String url = getVersionCheckUrl(installed.getBranch());
+//
+//        if (url == null) {
+//            String msg = "No URL found for this version.";
+//            logger.info(msg);
+//
+//            Version latest = null;
+//            try {
+//                SAXReader reader = new SAXReader();
+//                Document versionXml = reader.read(getVersionCheckUrl(Branch.STABLE));
+//                latest = new Version(versionXml);
+//            } catch (DocumentException e) {
+//                msg = "Could not parse remote file ";
+//                logger.info(msg, e);
+//                return new CheckVersionResponse(CheckVersionResponse.Type.ERROR, msg, null);
+//            }
+//            return new CheckVersionResponse(CheckVersionResponse.Type.INCONCLUSIVE, msg, latest.downloadUrl);
+//        }
+//
+//        Version latest = null;
+//        try {
+//            SAXReader reader = new SAXReader();
+//            Document versionXml = reader.read(url);
+//            latest = new Version(versionXml);
+//        } catch (DocumentException e) {
+//            String msg = "Could not parse remote file ";
+//            logger.info(msg, e);
+//            return new CheckVersionResponse(CheckVersionResponse.Type.ERROR, msg, null);
+//        }
+//
+//        if (installed.isSuperceededBy(latest)) {
+//            return new CheckVersionResponse(CheckVersionResponse.Type.UPDATE, null, latest.downloadUrl);
+//        } else {
+//            return new CheckVersionResponse(CheckVersionResponse.Type.LATEST, null, null);
+//        }
 
     }
 
     public String getVersion() {
-        Version installed = null;
-        try {
-            Document versionXml = PentahoRepositoryAccess.getRepository().getResourceAsDocument("system/" + settings.getPluginSystemDir() + "version.xml", FileAccess.NONE);
-            installed = new Version(versionXml);
-            return installed.toString(); //getShortVersion();
-        } catch (Exception e) {
-            String msg = "Error attempting to read version.xml";
-            logger.error(msg, e);
-            return "unknown version";
-        }
+    //FIXME COMPILING
+      return "just blame tgf!";
+//        Version installed = null;
+//        try {
+//            Document versionXml = PentahoRepositoryAccess.getRepository().getResourceAsDocument("system/" + settings.getPluginSystemDir() + "version.xml", FileAccess.NONE);
+//            installed = new Version(versionXml);
+//            return installed.toString(); //getShortVersion();
+//        } catch (Exception e) {
+//            String msg = "Error attempting to read version.xml";
+//            logger.error(msg, e);
+//            return "unknown version";
+//        }
     }
 
     /* public methods *
