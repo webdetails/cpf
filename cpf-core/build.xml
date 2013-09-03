@@ -1,28 +1,27 @@
 <!--===========================================================================
   This is the build file for the Community Dashboard Framework Plugin project.
 
-  This build file will use the common_build.xml file as the default build
+  This build file will use the subfloor.xml file as the default build
   process and should only override the tasks that need to differ from
   the common build file.
 
-  See common_build.xml for more details
+  See subfloor.xml for more details
 ============================================================================-->
 <project name="Community Plugin Framework" basedir="." default="jar"
          xmlns:ivy="antlib:org.apache.ivy.ant">
 
   <description>
     This build file is used to create the CPF project
-    and works with the common_build.xml file.
+    and works with the subfloor.xml file.
   </description>
 
   <!-- Import the subfloor.xml file which contains all the default tasks -->
-  <import file="common_build.xml"/>
-  <!--<import file="build-res/subfloor.xml"/>-->
+  <import file="build-res/subfloor.xml"/>
 
   <!--
       AS STATED ABOVE, THE ONLY TASKS THAT SHOULD EXIST IN THIS BUILD FILE ARE
       THE TASKS THAT NEED TO DIFFER FROM THE DEFAULT IMPLEMENTATION OF THE TASKS
-      FOUND IN common_build.xml.
+      FOUND IN subfloor.xml.
     -->
 
 
@@ -70,8 +69,8 @@
 
   <echo>distribution.version = ${distribution.version}</echo>
 
-  <target name="dist" depends="clean,resolve,jar,source.jar,dist-plugin,test"/>
-  <target name="dist-compile" depends="jar,dist-plugin"/>
+  <target name="dist" depends="clean,resolve,jar,source.jar,test"/>
+  <target name="dist-compile" depends="jar"/>
 
   <property name="plugin.artifact.id" value="${plugin.name}"/>
   <property name="plugin.zipfile" value="${plugin.artifact.id}-${distribution.version}.zip"/>
@@ -123,79 +122,17 @@
     <ivy:resolve file="ivy.xml" conf="legacy" />
     <ivy:retrieve conf="legacy" pattern="${lib.dir}/[module]-[revision](-[classifier]).[ext]" />
   </target>
-  <target name="dist-legacy" depends="clean,resolve-legacy,jar,dist-plugin"/>
+  <target name="dist-legacy" depends="clean,resolve-legacy,jar"/>
   <!-- ================= --> 
 
   <!--=======================================================================
-              dist
-
-              Creates a distribution of this project's plugin zip
-              ====================================================================-->
-  <target name="dist-plugin" depends="jar" description="Creates a distribution">
-
-    <!-- delete and re-create the plugin dist folder tree -->
-    <mkdir dir="${stage.dir}"/>
-    <mkdir dir="${stage.dir}/${plugin.name}"/>
-    <mkdir dir="${stage.dir}/${plugin.name}/lib"/>
-
-    <!-- copy the plugin jar to the plugin dist lib folder -->
-    <copy todir="${stage.dir}/${plugin.name}/lib" overwrite="true">
-      <fileset dir="${dist.dir}">
-        <include name="${ivy.artifact.id}-${project.revision}.jar"/>
-      </fileset>
-      <fileset dir="${devlib.dir}">
-        <include name="**/*.jar"/>
-      </fileset>
-    </copy>
-
-
-    <!-- Copy the plugin.xml and any other files from the resource dir -->
-<!--    <copy todir="${stage.dir}/${plugin.name}" overwrite="true">
-      <fileset dir="${resource.dir}">
-        <include name="**/*"/>
-      </fileset>
-    </copy>-->
-
-    <copy todir="${stage.dir}/${plugin.name}" overwrite="true">
-      <fileset dir="${basedir}">
-        <include name="readme.txt"/>
-      </fileset>
-    </copy>
-
-    <!-- create the version file -->
-	<tstamp/>			
-	<property name="sequential.build.id" value="manual-${DSTAMP}"/>
-
-	<echo file="${stage.dir}/${plugin.name}/version.xml" message="&lt;version branch='TRUNK'  buildId='${sequential.build.id}'>${distribution.version}&lt;/version>"/>		   
-
-
-    <!-- create a zip file -->
-<!--    <zip zipfile="${dist.dir}/${plugin.zipfile}"
-         basedir="${stage.dir}"
-         includes="cpf/**/*"
-         excludes="**/Thumbs.db"/>-->
-         
-         
-	<echo file="${dist.dir}/marketplace.xml">&lt;version branch="TRUNK">
-		&lt;version>${distribution.version}&lt;/version>
-		&lt;name>Trunk&lt;/name>
-		&lt;downloadUrl>http://ci.analytical-labs.com/job/Webdetails-CPF/lastSuccessfulBuild/artifact/dist/cpf-TRUNK-SNAPSHOT.zip&lt;/downloadUrl>
-		&lt;samplesDownloadUrl>http://ci.analytical-labs.com/job/Webdetails-CPF/lastSuccessfulBuild/artifact/dist/cpf-samples-TRUNK-SNAPSHOT.zip&lt;/samplesDownloadUrl>
-		&lt;description>Trunk Snapshot. Install at your own risk....&lt;/description>
-		&lt;buildId>${sequential.build.id}&lt;/buildId>
-		&lt;/version>	</echo>         
-
-  </target>
-
-
-  <!--=======================================================================
-          publish-pentaho-nojar (override)
+          publish-local-nojar (override)
 
           Publishes the jar and plugin zip package to the Maven repository
           ====================================================================-->
   <target name="publish-pentaho-nojar"
           depends="install-antcontrib,create-pom,ivy.deliver">
-    <ant antfile="common_build.xml" target="publish-pentaho-nojar"/>
+    <ant antfile="build-res/subfloor.xml" target="publish-local-nojar"/>
 
     <ivy:makepom ivyfile="package-ivy.xml" pomfile="plugin-pom.xml"/>
 <!--    <ivy:makepom ivyfile="package-ivy.xml" pomfile="samples-pom.xml"/>
