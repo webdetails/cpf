@@ -41,6 +41,7 @@
         <path refid="classpath"/>
       </classpath>
       <src path="${src.dir}"/>
+      <src path="../cpf-pentaho-base/src"/>
     </javac>
   </target>
 
