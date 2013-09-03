@@ -79,7 +79,7 @@ public class PluginsAnalyzer {
     
     private void buildPluginsList(){
         ArrayList<Plugin> plugins = new ArrayList<Plugin>();
-        Plugin plugin = null;//pt.webdetails.cpf.plugins.Plugin plugin = null;
+        Plugin plugin = null;
         String localPath = repoAccess.getSolutionPath("system/");
         
         String [] pluginDirs = new File(localPath).list(new FilenameFilter() {
@@ -91,9 +91,7 @@ public class PluginsAnalyzer {
         });
         
         for(String pluginDir : pluginDirs){
-                
-                
-            plugin = new Plugin(localPath+pluginDir);//plugin = (pt.webdetails.cpf.plugins.Plugin)new Plugin(localPath+pluginDir);
+            plugin = new Plugin(localPath+pluginDir);
             if(plugin.hasPluginXML()){
                 plugins.add(plugin);
             }

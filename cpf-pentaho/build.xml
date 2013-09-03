@@ -38,10 +38,11 @@
            fork="true"
            source="${javac.source}"
            target="${javac.target}">
-      <classpath>
-        <path refid="classpath"/>
-      </classpath>
-      <src path="${src.dir}"/>
+        <classpath>
+            <path refid="classpath"/>
+        </classpath>
+        <src path="${src.dir}"/>
+        <src path="../cpf-pentaho-base/src" />
     </javac>
   </target>
 
