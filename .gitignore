@@ -3,12 +3,19 @@ nbproject/private/
 bin/
 dist/
 build/
-/lib/
+lib/
 runtime-lib/
 override.properties
-test-lib/*
+target/
+test-lib/
+.ant*
 
-#Eclipse project files
-.project
+#Eclipse Project files
 .classpath
+.project
 .settings
+
+#Intellij IDEA Project Files
+/.idea
+*.iml
+out/
