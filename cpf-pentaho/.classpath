@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry excluding="main/java/|main/resources/|test/java/" including="**/*.java" kind="src" path="src"/>
-	<classpathentry kind="src" path="pentaho-base-src"/>
+	<classpathentry kind="src" path="base-src"/>
 	<classpathentry kind="src" path="test-src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6">
 		<attributes>

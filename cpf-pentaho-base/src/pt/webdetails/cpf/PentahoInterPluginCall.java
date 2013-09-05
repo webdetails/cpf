@@ -22,7 +22,6 @@ import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
-import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -196,7 +195,7 @@ public class PentahoInterPluginCall extends AbstractInterPluginCall implements R
   }
   
   protected ClassLoaderAwareCaller getClassLoaderCaller(){
-    return new ClassLoaderAwareCaller(getPluginManager().getClassLoader(plugin.getTitle()));
+    return new ClassLoaderAwareCaller(getPluginManager().getClassLoader(plugin.getName()));
   }
 
   protected IPluginManager getPluginManager() {

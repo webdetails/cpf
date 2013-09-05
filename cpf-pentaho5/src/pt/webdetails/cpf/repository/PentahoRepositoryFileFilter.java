@@ -17,14 +17,12 @@ public class PentahoRepositoryFileFilter implements IRepositoryFileFilter {
     public PentahoRepositoryFileFilter(IFileFilter fileFilter) {
         this.fileFilter = fileFilter;
     }
-    
-    
-    
+
     @Override
     public boolean accept(IRepositoryFile isf) {
         return fileFilter.accept(((PentahoRepositoryFile)isf).getSolutionFile());
     }
-    
+
     public IFileFilter getFileFiler(){
         return fileFilter;
     }

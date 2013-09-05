@@ -131,10 +131,10 @@ public interface IRepositoryAccess {
 
     /**
      * TODO: MERGE WITH getSettingsFileTree/listRepositoryFiles
-     * ^ no, it doesn't make sense as well but it isn't getSettingFiles
      * known uses:
      * cda:SolutionRepositoryUtils#getCdaList
      *  - IRepositoryFile[] cdaTree = repository.getPluginFiles("/", FileAccess.READ);
+     *  after that only uses filename, fullPath
      */
     @Deprecated
     public IRepositoryFile[] getPluginFiles(String baseDir, FileAccess accessMode);
@@ -150,6 +150,7 @@ public interface IRepositoryAccess {
     /**
      * known usages: cda:DefaultCdaEnvironment#getComponentsFiles
      * repo.getSettingsFileTree("resources/components/connections", "xml", FileAccess.READ)
+     * after that only contents are used
      * @param dir
      * @param fileExtensions
      * @param access

@@ -4,16 +4,12 @@
 
 package pt.webdetails.cpf;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Collection;
 import java.util.concurrent.Callable;
 
 import java.lang.reflect.Method;
@@ -22,22 +18,15 @@ import java.util.List;
 import javax.ws.rs.*;
 
 
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.engine.IContentGenerator;
-import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
-import org.pentaho.platform.api.engine.ObjectFactoryException;
-import org.pentaho.platform.api.engine.IPlatformPlugin;
-import org.pentaho.platform.api.engine.PluginBeanDefinition;
 import org.pentaho.platform.api.engine.PluginBeanException;
-import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -101,7 +90,6 @@ public class InterPluginCall implements Runnable, Callable<String> {
   
   private IPentahoSession session;
   private IPluginManager pluginManager;
-  private IPlatformPlugin platformPlugin;
   
   private InterPluginCall(){
   }
@@ -151,11 +139,7 @@ public class InterPluginCall implements Runnable, Callable<String> {
   }
 
   public boolean pluginExists(){
-    try {
-      return getPluginManager().getContentGeneratorForType(plugin.getName(), getSession()) != null;
-    } catch (ObjectFactoryException e) {
-      return false;
-    }
+    return getPluginManager().getClassLoader(plugin.getName()) != null;
   }
   
   /**
@@ -172,13 +156,13 @@ public class InterPluginCall implements Runnable, Callable<String> {
   public void run() {
     String pluginName = plugin.getName();
 
-    Class c = null;
+    Class<?> classe = null;
     Method operation = null;
     Object o = null;
     try {
-       c = getPluginManager().getBean(pluginName+SUFIX).getClass();
-       Method[] methods = c.getMethods();
-       o = c.newInstance();
+       classe = getPluginManager().getBean(pluginName+SUFIX).getClass();
+       Method[] methods = classe.getMethods();
+       o = classe.newInstance();
        
        for(Method m : methods){
            if(m.getName() == method){
@@ -194,7 +178,7 @@ public class InterPluginCall implements Runnable, Callable<String> {
     }
     
     Annotation[][] params = operation.getParameterAnnotations();
-    Class[] paramTypes = operation.getParameterTypes();
+    Class<?>[] paramTypes = operation.getParameterTypes();
     
     List<Object> parameters = new ArrayList<Object>();
     
@@ -300,18 +284,16 @@ public class InterPluginCall implements Runnable, Callable<String> {
   }
 
   public void runInPluginClassLoader(){
-//    getClassLoaderCaller().runInClassLoader(this); //FIXME
+    getClassLoaderCaller().runInClassLoader(this);
   }
 
   public String callInPluginClassLoader() {
-//    try {
-//      return getClassLoaderCaller().callInClassLoader(this);
-//    } catch (Exception e) {
-//      logger.error(e);
-//      return null;
-//    }
-    //FIXME compile only
-    return null;
+    try {
+      return getClassLoaderCaller().callInClassLoader(this);
+    } catch (Exception e) {
+      logger.error(e);
+      return null;
+    }
   }
 
   public HttpServletResponse getResponse() {
@@ -373,20 +355,6 @@ public class InterPluginCall implements Runnable, Callable<String> {
     }
     return pluginManager;
   }
-
-  protected IContentGenerator getContentGenerator(){
-    try {
-      IContentGenerator contentGenerator = getPluginManager().getContentGeneratorForType(plugin.getName(), getSession());
-      if(contentGenerator == null){
-        logger.error("ContentGenerator for " + plugin.getName() + " could not be fetched.");
-      }
-      return contentGenerator;
-    } catch (Exception e) {
-      logger.error("Failed to acquire " + plugin.getName() + " plugin: " + e.toString(), e);
-      return null;
-    }
-  }
- 
 
   protected IParameterProvider getPathParameterProvider() {
     Map<String, Object> pathMap = new HashMap<String, Object>();

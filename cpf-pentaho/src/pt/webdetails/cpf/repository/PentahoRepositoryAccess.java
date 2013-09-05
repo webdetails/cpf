@@ -350,6 +350,7 @@ public class PentahoRepositoryAccess implements IRepositoryAccess {
 
     @Deprecated
     public IRepositoryFile[] getPluginFiles(String baseDir, FileAccess fa) {
+        //TODO: just used to get ".cda" files?
         final IRepositoryFileFilter filter = plugin.getPluginFileFilter();
         IFileFilter fileFilter = new IFileFilter() {
             @Override

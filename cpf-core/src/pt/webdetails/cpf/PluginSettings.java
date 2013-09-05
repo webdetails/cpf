@@ -3,61 +3,74 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpf;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
-import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
-import org.springframework.beans.factory.annotation.Autowired;
-import pt.webdetails.cpf.repository.IRepositoryAccess;
-import pt.webdetails.cpf.repository.IRepositoryAccess.FileAccess;
-import pt.webdetails.cpf.repository.IRepositoryAccess.SaveFileStatus;
-import pt.webdetails.cpf.repository.IRepositoryFile;
+
+import pt.webdetails.cpf.repository.api.IRWAccess;
 import pt.webdetails.cpf.utils.CharsetHelper;
 
+
 //TODO: decide how plugin configuration will behave and have a proper config hierarchy
-public abstract class PluginSettings {
+public class PluginSettings {
 
-    protected static Log logger = LogFactory.getLog(PluginSettings.class);
-    @Autowired //TODO: do we really want this?
-    private IRepositoryAccess repository;
-
-    public void setRepository(IRepositoryAccess repository) {
-        this.repository = repository;
-    }
-
-    public abstract String getPluginName();
-
-    public String getPluginSystemDir() {
-        return getPluginName() + "/";
-    }
     protected static final String SETTINGS_FILE = "settings.xml";
+    protected static Log logger = LogFactory.getLog(PluginSettings.class);
+    private IRWAccess writeAccess;
+    private Document settings;
+    /**
+     * time of last file edit to loaded version. TODO
+     */
+    private long lastRead;
+  
+    /**
+     * 
+     * @param writeAccess RW access to a location that contains settings.xml
+     */
+    public PluginSettings(IRWAccess writeAccess) {
+        this.writeAccess = writeAccess;
+        loadDocument();
+    }
+
+    private boolean loadDocument() {
+
+      InputStream input = null;
+
+      try {
+          input = writeAccess.getFileInputStream(SETTINGS_FILE);
+          lastRead = writeAccess.getLastModified(SETTINGS_FILE);
+          SAXReader reader = new SAXReader();
+          reader = new SAXReader();
+          settings = reader.read(input);
+          return true;
+      } catch (IOException ex) {
+          logger.error("Error while reading settings.xml", ex);
+      } catch (DocumentException ex) {
+          logger.error("Error while reading settings.xml", ex);
+      }
+      finally {
+        IOUtils.closeQuietly(input);
+      }
+      return false;
+    }
 
     protected String getStringSetting(String section, String defaultValue) {
-        Document doc;
-        try {
-            doc = repository.getResourceAsDocument("system/" + getPluginSystemDir() + SETTINGS_FILE);
-            Node node = doc.selectSingleNode(getNodePath(section));
-            if (node == null) {
-                return defaultValue;
-            } else {
-                return node.getStringValue();
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(PluginSettings.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        return "";
+      Node node = settings.selectSingleNode(getNodePath(section));
+      if (node == null) {
+          return defaultValue;
+      } else {
+          return node.getStringValue();
+      }
     }
 
     protected boolean getBooleanSetting(String section, boolean nullValue) {
@@ -68,32 +81,18 @@ public abstract class PluginSettings {
         return nullValue;
     }
 
+    private String getNodePath(String section) {
+        return "settings/" + section;
+    }
+
     /**
-     * Writes a setting directly to .xml and refresh global config.
+     * Writes a setting directly to .xml.
      *
      * @param section
      * @param value
      * @return whether value was written
      */
-    // TODO: do we ever use that?
-    //yes, we do use this; and should
     protected boolean writeSetting(String section, String value) {
-        IRepositoryFile settingsFile = repository.getSettingsFile(SETTINGS_FILE, FileAccess.READ);
-        return writeSetting(section, value, settingsFile);
-    }
-
-    private String getNodePath(String section) {
-        return "settings/" + section;
-    }
-
-    protected boolean writeSetting(String section, String value, IRepositoryFile settingsFile) {
-        //String nodePath = "settings/" + section;
-        Document settings = null;
-        try {
-            settings = DocumentHelper.parseText(new String(settingsFile.getData()));
-        } catch (Exception e) {
-            logger.error(e);
-        }
         if (settings != null) {
             Node node = settings.selectSingleNode(getNodePath(section));
             if (node != null) {
@@ -101,13 +100,11 @@ public abstract class PluginSettings {
                 node.setText(value);
                 try {
                     String contents = settings.asXML();
-                    SaveFileStatus ss = publishFile(settingsFile, contents);
-                    if (ss.equals(SaveFileStatus.OK)) {
-                        //TODO: in future should only refresh relevant cache, not the whole thing
+                    if (writeAccess.saveFile(SETTINGS_FILE, IOUtils.toInputStream(contents, CharsetHelper.getEncoding()))) {
                         logger.debug("changed '" + section + "' from '" + oldValue + "' to '" + value + "'");
                         return true;
                     }
-                    throw new Exception("Error converting settings document to string and publishing to repository: " + settingsFile.getSolutionPath());
+                    logger.error("Error saving settings file.");
                 } catch (Exception e) {
                     logger.error(e);
                 }
@@ -115,36 +112,19 @@ public abstract class PluginSettings {
                 logger.error("Couldn't find node");
             }
         } else {
-            logger.error("Unable to read " + settingsFile);
+            logger.error("No settings!");
         }
         return false;
     }
 
     @SuppressWarnings("unchecked")
     protected List<Element> getSettingsXmlSection(String section) {
-        Document doc = null;
-        ByteArrayInputStream bis;
-        SAXReader reader;
-        try {
-            String resource = repository.getResourceAsString("system/" + getPluginSystemDir() + SETTINGS_FILE);
-            bis = new ByteArrayInputStream(resource.getBytes());
-            reader = new SAXReader();
-
-            doc = reader.read(bis);
-        } catch (IOException ex) {
-            logger.error("Error while reading settings.xml", ex);
-        } catch (DocumentException ex) {
-            logger.error("Error while reading settings.xml", ex);
-        }
-
-        if (doc != null) {
-            List<Element> elements = doc.selectNodes("/settings/" + section);
-            return elements;
-        }
-        return new ArrayList<Element>();
+        return settings.selectNodes("/settings/" + section);
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * where is this used??
+     */
     public List<String> getTagValue(String tag) {
         List<Element> pathElements = getSettingsXmlSection(tag);
         if (pathElements != null) {
@@ -156,17 +136,5 @@ public abstract class PluginSettings {
         }
         return new ArrayList<String>(0);
     }
-    
-    private SaveFileStatus publishFile(IRepositoryFile settingsFile, String contents) throws UnsupportedEncodingException {
-        final String solution = "solution/";
-        String fullPath, solutionPath, systemPath;
-        fullPath = solutionPath = systemPath = "";
-        fullPath = settingsFile.getSolutionPath();
-        if (fullPath.contains(solution)) {
-            solutionPath = fullPath.substring(0, fullPath.lastIndexOf(solution) + solution.length());
-            systemPath = fullPath.substring(fullPath.lastIndexOf(solution) + solution.length(), fullPath.indexOf(SETTINGS_FILE));
-        }
-        return repository.publishFile(solutionPath, systemPath, SETTINGS_FILE,
-                contents.getBytes(CharsetHelper.getEncoding()), true);
-    }
+
 }
