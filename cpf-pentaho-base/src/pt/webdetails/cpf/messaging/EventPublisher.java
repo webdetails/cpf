@@ -14,6 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import pt.webdetails.cpf.CpfProperties;
+import pt.webdetails.cpf.InterPluginCall;
 import pt.webdetails.cpf.JsonPluginCall;
 import pt.webdetails.cpf.PentahoInterPluginCall;
 import pt.webdetails.cpf.Result;
@@ -99,7 +100,7 @@ public class EventPublisher implements IEventPublisher {
 
       @Override
       public Result call() throws Exception {
-        JsonPluginCall call = new JsonPluginCall(CorePlugin.CDV, "warnings");
+        JsonPluginCall call = new JsonPluginCall(InterPluginCall.CDV, "warnings");
         return new Result(call.call(event.toJSON()));
       }
       

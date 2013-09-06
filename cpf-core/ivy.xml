@@ -47,7 +47,7 @@
     <dependency org="junit" name="junit" conf="test->default" rev='4.10'/>
     <dependency org="commons-httpclient" name="commons-httpclient" conf="test->default" rev='3.1'/>    
     <dependency org="hsqldb" name="hsqldb" conf="test->default" rev='1.8.0.10'/>        
-    <dependency org="org.apache.clerezza.ext" name="org.json.simple" conf="test->default" rev='0.3-incubating'/>            
+    <!--dependency org="org.apache.clerezza.ext" name="org.json.simple" conf="test->default" rev='0.3-incubating'/-->            
     <dependency org="org.safehaus.jug" name="jug" conf="test->default" rev='2.0.0'>
      <artifact name="jug" type="jar" ext="jar" conf="" m:classifier="asl"/>
      </dependency>
