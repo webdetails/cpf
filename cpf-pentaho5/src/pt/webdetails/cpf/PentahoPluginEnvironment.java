@@ -22,7 +22,7 @@ public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment {
   }
 
   public IReadAccess getPluginResourceAccess() {
-    return getPluginRepositoryResourceAccess(null);
+    return getPluginRepositoryResourceAccess(null);//XXX include plugin dir
   }
 
   //IRepositoryAccessFactory

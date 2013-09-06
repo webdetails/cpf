@@ -25,11 +25,12 @@ public interface IReadAccess {
   long getLastModified(String path);
 
   /**
+   * (optional)
    * @param path
    * @param filter (optional)
    * @return Files under path matching filter
    */
-  List<IBasicFile> listFiles(String path, IBasicFileFilter filter);
+  List<IBasicFile> listFiles(String path, IBasicFileFilter filter, int maxDepth);
 
   /**
    * @param path to file relative path from base dir 

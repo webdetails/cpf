@@ -58,7 +58,7 @@ public class SystemPluginResourceAccess extends FileBasedResourceAccess implemen
 
   @Override
   protected File getFile(String path) {
-    //TODO: we'll probably need more than this
+    //XXX: we'll probably need more than this
     return new File(basePath, path);
   }
 

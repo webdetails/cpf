@@ -43,14 +43,12 @@ public class PluginSettings {
     }
 
     private boolean loadDocument() {
-
       InputStream input = null;
 
       try {
           input = writeAccess.getFileInputStream(SETTINGS_FILE);
           lastRead = writeAccess.getLastModified(SETTINGS_FILE);
           SAXReader reader = new SAXReader();
-          reader = new SAXReader();
           settings = reader.read(input);
           return true;
       } catch (IOException ex) {

@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -177,6 +178,10 @@ public abstract class UnifiedRepositoryAccess {// implements IPluginResourceRWAc
     return listFiles(getFullPath(path), false, filter, false, new ArrayList<IBasicFile>());
   }
 
+  public List<IBasicFile> listFiles(String path, IBasicFileFilter filter, int maxDepth) {
+    //FIXME implement
+    throw new NotImplementedException();
+  }
   protected IBasicFile asBasicFile(final RepositoryFile file, final String path) {
     final String relativePath = 
         (path == null) ? relativizePath(RepositoryHelper.appendPath(file.getPath(), file.getName()))

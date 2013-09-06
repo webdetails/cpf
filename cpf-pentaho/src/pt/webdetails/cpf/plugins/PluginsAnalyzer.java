@@ -3,19 +3,19 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpf.plugins;
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Node;
+
+import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+
+import pt.webdetails.cpf.PluginEnvironment;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
-import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
-
-
-
-
+import pt.webdetails.cpf.repository.api.IReadAccess;
 
 /**
  *
@@ -24,14 +24,13 @@ import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
 public class PluginsAnalyzer {
     
     private List<Plugin> installedPlugins;
-    private IRepositoryAccess repoAccess;
     protected Log logger = LogFactory.getLog(this.getClass());
 
-    public PluginsAnalyzer(IRepositoryAccess repoAccess){
-        this.repoAccess=repoAccess;
-        
-    }
-    public PluginsAnalyzer(){repoAccess=new PentahoRepositoryAccess();}
+    @Deprecated
+    public PluginsAnalyzer(IRepositoryAccess repoAccess){ }
+
+    public PluginsAnalyzer() { }
+
     public void refresh(){
         buildPluginsList();
     }
@@ -41,7 +40,7 @@ public class PluginsAnalyzer {
     }
 
     
-     public class PluginWithEntity {
+    public class PluginWithEntity {
         private Plugin plugin;
         private Node registeredEntity;
         
@@ -50,67 +49,48 @@ public class PluginsAnalyzer {
             this.registeredEntity = registeredEntity;
         }
 
-        /**
-         * @return the plugin
-         */
         public Plugin getPlugin() {
             return plugin;
         }
 
-        /**
-         * @return the registeredEntity
-         */
         public Node getRegisteredEntity() {
             return registeredEntity;
         }
     }; 
-    
-    
+
+    //TODO: what is this?
     public List<PluginWithEntity> getRegisteredEntities(String entityName) {
         List<PluginWithEntity> result = new ArrayList<PluginWithEntity>();
-        for (Plugin p: installedPlugins) {
-            Node registeredEntity = p.getRegisteredEntities(entityName);
-            if (registeredEntity != null)
-                result.add(new PluginWithEntity(p, registeredEntity));
+        for (Plugin plugin: installedPlugins) {
+            Node registeredEntity = plugin.getRegisteredEntities(entityName);
+            if (registeredEntity != null) {
+                result.add(new PluginWithEntity(plugin, registeredEntity));
+            }
         }
-                
         return result;
     }
     
     private void buildPluginsList(){
-        ArrayList<Plugin> plugins = new ArrayList<Plugin>();
-        Plugin plugin = null;
-        String localPath = repoAccess.getSolutionPath("system/");
-        
-        String [] pluginDirs = new File(localPath).list(new FilenameFilter() {
-
-            @Override
-            public boolean accept(File dir, String name) {
-                return new File(dir,name).isDirectory();
-            }
-        });
-        
-        for(String pluginDir : pluginDirs){
-            plugin = new Plugin(localPath+pluginDir);
-            if(plugin.hasPluginXML()){
-                plugins.add(plugin);
-            }
+        IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class);
+        List<String> registeredPluginIds = pluginManager.getRegisteredPlugins();
+        installedPlugins = new ArrayList<Plugin>(registeredPluginIds.size());
+        for (String pluginId : registeredPluginIds) {
+            IReadAccess pluginDir = PluginEnvironment.repository().getOtherPluginSystemAccess(pluginId, null);
+            Plugin plugin = new Plugin(pluginId, pluginDir);
+            installedPlugins.add(plugin);
         }
-        
-        this.installedPlugins = plugins;
     }
     
     public List<Plugin> getPlugins(IPluginFilter filter){
-     List<Plugin> pluginsList = new ArrayList<Plugin>();
-     
-     for (Plugin plugin : installedPlugins) {     
-       if (filter.include(plugin)){
-         pluginsList.add(plugin);
+       List<Plugin> pluginsList = new ArrayList<Plugin>();
+
+       for (Plugin plugin : installedPlugins) {
+           if (filter.include(plugin)){
+               pluginsList.add(plugin);
+           }
        }
-       
-     }
-     
-     return pluginsList;
-   }  
+
+       return pluginsList;
+   }
     
 }

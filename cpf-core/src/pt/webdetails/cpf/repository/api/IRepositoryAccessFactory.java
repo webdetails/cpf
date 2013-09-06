@@ -25,6 +25,16 @@ public interface IRepositoryAccessFactory {
    */
   IReadAccess getPluginRepositoryResourceAccess(String basePath);
 
+  /**
+   * For snooping other plugins' stuff. Because IInterPlugin just seemed weird.
+   * @param pluginId id of the plugin, aka title for some reason
+   * @param basePath (optional) base path relative to plugin's repository folder.
+   *                 all subsequent paths will be relative to it
+   * @return like {@link #getPluginResourceAccess(String)} of another plugin
+   *
+   */
+  IReadAccess getOtherPluginSystemAccess(String pluginId, String basePath);
+
 //  /**
 //   * @param basePath (optional) base path relative to plugin's repository folder.
 //   *                 all subsequent paths will be relative to it

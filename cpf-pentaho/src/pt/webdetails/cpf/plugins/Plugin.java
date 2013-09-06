@@ -3,15 +3,16 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpf.plugins;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.dom4j.Document;
 import org.dom4j.Node;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.annotate.JsonIgnore;
@@ -20,14 +21,14 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import pt.webdetails.cpf.VersionChecker;
 import pt.webdetails.cpf.plugin.CorePlugin;
+import pt.webdetails.cpf.repository.api.IReadAccess;
 
 /**
  *
  * @author Luis Paulo Silva
+ * @deprecated: this is for a very specific use and should be moved to CPK
  */
 public class Plugin extends CorePlugin{
-    //private String id;
-    //private String name;
     private String description;
     private String company;
     private String companyUrl;
@@ -38,19 +39,29 @@ public class Plugin extends CorePlugin{
     private final String SETTINGS_XML_FILENAME = "settings.xml";
     private final String VERSION_XML_FILENAME = "version.xml";
     protected Log logger = LogFactory.getLog(this.getClass());
-    
+
+    private IReadAccess pluginDirAccess;
+
+    /**
+     * @deprecated and will now fail miserably
+     */
     public Plugin(String path){
-        super();
-        if(!path.endsWith("/"))
-        {
-            setPath(path+"/");
-        }else{
-            setPath(path);
-        }
-        pluginSelfBuild();
+//        super();
+//        if(!path.endsWith("/"))
+//        {
+//            setPath(path+"/");
+//        }else{
+//            setPath(path);
+//        }
+//        pluginSelfBuild();
+      throw new NotImplementedException();
+    }
+
+    public Plugin(String id, IReadAccess pluginSysDir) {
+      super(id);
+      pluginSelfBuild(pluginSysDir);
     }
     
-        
     /**
      * 
      * @return Returns the path to the plugin directory (system) 
@@ -130,33 +141,26 @@ public class Plugin extends CorePlugin{
 
     
     @JsonIgnore
-    private Node getXmlFileContent(String filePath){
-        FileInputStream fis = null;
-        BufferedInputStream bis = null;
-        File xmlFile = null;
-        Document xml = null;
-        Node node = null;
-        
+    private Node getXmlFileContent(IReadAccess access, String xmlFile){
+        InputStream input = null;
         try {
-            xmlFile = new File(filePath);
-            fis = new FileInputStream(xmlFile);
-            bis = new BufferedInputStream(fis);
-            xml = XmlDom4JHelper.getDocFromStream(bis, null);
-            node = xml.getRootElement();
-
-            bis.close();
-            fis.close();
+            input = access.getFileInputStream(xmlFile);
+            Document xml = XmlDom4JHelper.getDocFromStream(input);
+            return xml.getRootElement();
         } catch (Exception ex) {
             Logger.getLogger(PluginsAnalyzer.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
         }
-        
-        return node;
+        finally {
+          IOUtils.closeQuietly(input);
+        }
     }
     
     @JsonIgnore
-    private void pluginSelfBuild(){
-        if(hasPluginXML()){
-            Node documentNode = getXmlFileContent(getPath()+PLUGIN_XML_FILENAME);
+    private void pluginSelfBuild(IReadAccess access){
+
+        if (hasPluginXML()) {
+            Node documentNode = getXmlFileContent(access, PLUGIN_XML_FILENAME);
             setId(documentNode.valueOf("/plugin/@title"));
             setName(documentNode.valueOf("/plugin/content-types/content-type/title"));
             setDescription(documentNode.valueOf("/plugin/content-types/content-type/description"));
@@ -164,10 +168,11 @@ public class Plugin extends CorePlugin{
             setCompanyUrl(documentNode.valueOf("/plugin/content-types/content-type/company/@url"));
             setCompanyLogo(documentNode.valueOf("/plugin/content-types/content-type/company/@logo"));
         }
-        
-        if(hasVersionXML()){            
-            this.version = new VersionChecker.Version(getXmlFileContent(getPath()+VERSION_XML_FILENAME).getDocument()).toString();
-        }else{
+
+        if(hasVersionXML()){
+            Document versionDoc = getXmlFileContent(access, VERSION_XML_FILENAME).getDocument();
+            this.version = new VersionChecker.Version(versionDoc).toString();
+        } else {
             String unspecified = "unspecified or no version.xml present in plugin directory";
             this.version = unspecified;
         }
@@ -175,54 +180,34 @@ public class Plugin extends CorePlugin{
     
     @JsonIgnore
     public Node getRegisteredEntities(String entityName){
-        Node documentNode = null;
-        Node node = null;
         if(hasSettingsXML()){
-            documentNode = getXmlFileContent(getPath()+SETTINGS_XML_FILENAME);
-            node = documentNode.selectSingleNode("/settings"+entityName);
+            Node documentNode = getXmlFileContent(pluginDirAccess, SETTINGS_XML_FILENAME);
+            return documentNode.selectSingleNode("/settings"+entityName);
         }
-        
-        return node;
+        return null;
     }
     
     @JsonIgnore
     public boolean hasPluginXML(){
-        boolean has = false;
-        
-        if(new File(getPath()+PLUGIN_XML_FILENAME).exists()){
-            has = true;
-        }
-        
-        return has;
+      return pluginDirAccess.fileExists(PLUGIN_XML_FILENAME);
     }
     
     @JsonIgnore
     public boolean hasSettingsXML(){
-        boolean has = false;
-        
-        if(new File(getPath()+SETTINGS_XML_FILENAME).exists()){
-            has = true;
-        }
-        
-        return has;
+      return pluginDirAccess.fileExists(SETTINGS_XML_FILENAME);
     }
     
     @JsonIgnore
     public boolean hasVersionXML(){
-        boolean has = false;
-        
-        if(new File(getPath()+VERSION_XML_FILENAME).exists()){
-            has = true;
-        }
-        
-        return has;
+      return pluginDirAccess.fileExists(VERSION_XML_FILENAME);
     }
-    
+    @Deprecated
     @JsonProperty("solutionPath")
     public String getPluginSolutionPath(){
-        return getId()+File.separator;
+        return getId() + File.separator;
     }
-    
+
+    @Deprecated
     @JsonProperty("systemPath")
     public String getPluginRelativePath(){
         return getPath().replace(PentahoSystem.getApplicationContext().getSolutionPath(""), "");
@@ -235,17 +220,14 @@ public class Plugin extends CorePlugin{
     }
     
     @JsonIgnore
-    public String getXmlValue(String xpathExpression, String filename){
-        Node documentNode = getXmlFileContent(this.getPath()+filename);
-        String value = null;
-        
-            try{
-                value = documentNode.valueOf(xpathExpression);
-            }catch(Exception ex){
-                logger.error(ex);
-            }
-            
-        return value;
+    public String getXmlValue(String xpathExpression, String fileName) {
+        Node documentRoot = getXmlFileContent(pluginDirAccess, fileName);
+        try {
+            return documentRoot.valueOf(xpathExpression);
+        } catch(Exception ex){
+            logger.error(ex);
+        }
+        return null;
     }
     
     public String getVersion(){

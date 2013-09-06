@@ -12,10 +12,11 @@ import pt.webdetails.cpf.persistence.PersistenceEngine;
  *
  * @author pdpi
  */
-public class SimpleLifeCycleListener implements IPluginLifecycleListener {
+public abstract class SimpleLifeCycleListener implements IPluginLifecycleListener {
 
     @Override
     public void init() throws PluginLifecycleException {
+      PluginEnvironment.init(getEnvironment());
       if (CpfProperties.getInstance().getBooleanProperty("USE_PERSISTENCE",false)) {
           PersistenceEngine.getInstance();
       }
@@ -28,4 +29,6 @@ public class SimpleLifeCycleListener implements IPluginLifecycleListener {
     @Override
     public void unLoaded() throws PluginLifecycleException {
     }
+
+    public abstract PluginEnvironment getEnvironment();
 }

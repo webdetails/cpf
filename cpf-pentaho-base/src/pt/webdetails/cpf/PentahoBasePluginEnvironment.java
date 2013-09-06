@@ -19,4 +19,8 @@ public abstract class PentahoBasePluginEnvironment extends PluginEnvironment imp
   public PluginSettings getPluginSettings() {
     return new PluginSettings(new SystemPluginResourceAccess(this.getClass().getClassLoader(), null));
   }
+  
+  public IReadAccess getOtherPluginSystemAccess(String pluginId, String basePath) {
+    return new SystemPluginResourceAccess(pluginId, basePath);
+  }
 }

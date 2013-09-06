@@ -107,8 +107,13 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
     return getRepositoryFile(path).getLastModified();
   }
 
-  @Override
+
   public List<IBasicFile> listFiles(String path, final IBasicFileFilter filter) {
+    return listFiles(path, filter, -1);
+  }
+
+  public List<IBasicFile> listFiles(String path, final IBasicFileFilter filter, int maxDepth) {
+      //FIXME make recursive, +includeDirs
       path = getPath(path);
       IFileFilter fileFilter = new IFileFilter() {
           @Override
