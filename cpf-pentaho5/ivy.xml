@@ -20,7 +20,7 @@
   <dependencies defaultconf="default->default">
 
       <dependency org="pt.webdetails" name="cpf-core"
-                        rev="TRUNK-SNAPSHOT" transitive="true" changing="true" conf='default->default'/>    
+                        rev="REFACTOR-SNAPSHOT" transitive="true" changing="true" conf='default->default'/>
     <!--  common dependencies -->
 <!--    <dependency org="commons-logging" name="commons-logging" rev="1.1.1" transitive="false" />
     <dependency org="dom4j" name="dom4j" rev="1.6.1" transitive="false"/>
