@@ -21,7 +21,10 @@ import pt.webdetails.cpf.repository.api.IRWAccess;
 import pt.webdetails.cpf.utils.CharsetHelper;
 
 
-//TODO: decide how plugin configuration will behave and have a proper config hierarchy
+/**
+ * Base class for reading settings.xml<br>
+ * Intended to be extended by plugin.
+ */
 public class PluginSettings {
 
     protected static final String SETTINGS_FILE = "settings.xml";
@@ -34,7 +37,6 @@ public class PluginSettings {
     private long lastRead;
   
     /**
-     * 
      * @param writeAccess RW access to a location that contains settings.xml
      */
     public PluginSettings(IRWAccess writeAccess) {
@@ -94,18 +96,12 @@ public class PluginSettings {
         if (settings != null) {
             Node node = settings.selectSingleNode(getNodePath(section));
             if (node != null) {
+                // update value
                 String oldValue = node.getText();
                 node.setText(value);
-                try {
-                    String contents = settings.asXML();
-                    if (writeAccess.saveFile(SETTINGS_FILE, IOUtils.toInputStream(contents, CharsetHelper.getEncoding()))) {
-                        logger.debug("changed '" + section + "' from '" + oldValue + "' to '" + value + "'");
-                        return true;
-                    }
-                    logger.error("Error saving settings file.");
-                } catch (Exception e) {
-                    logger.error(e);
-                }
+                // save file
+                String saveMsg = "changed '" + section + "' from '" + oldValue + "' to '" + value + "'";
+                return saveSettingsFile(saveMsg);
             } else {
                 logger.error("Couldn't find node");
             }
@@ -113,6 +109,20 @@ public class PluginSettings {
             logger.error("No settings!");
         }
         return false;
+    }
+
+    private boolean saveSettingsFile(String saveMsg) {
+      try {
+          String contents = settings.asXML();
+          if (writeAccess.saveFile(SETTINGS_FILE, IOUtils.toInputStream(contents, CharsetHelper.getEncoding()))) {
+              logger.debug(saveMsg);
+              return true;
+          }
+          logger.error("Error saving settings file.");
+      } catch (Exception e) {
+          logger.error(e);
+      }
+      return false;
     }
 
     @SuppressWarnings("unchecked")

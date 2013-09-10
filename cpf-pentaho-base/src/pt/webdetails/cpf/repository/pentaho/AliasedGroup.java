@@ -12,7 +12,6 @@ import java.util.List;
 
 import pt.webdetails.cpf.PentahoPluginEnvironment;
 import pt.webdetails.cpf.repository.api.IReadAccess;
-import pt.webdetails.cpf.repository.util.RepositoryHelper;
 
 /**
  *
