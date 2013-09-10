@@ -32,6 +32,7 @@ public interface IReadAccess {
    * (optional)
    * @param path
    * @param filter (optional)
+   * @param maxDepth -1 for ANY, [1..N] to limit depth
    * @return Files under path matching filter
    */
   List<IBasicFile> listFiles(String path, IBasicFileFilter filter, int maxDepth);

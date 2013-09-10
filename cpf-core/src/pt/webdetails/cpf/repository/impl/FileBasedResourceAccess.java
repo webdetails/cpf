@@ -16,6 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import pt.webdetails.cpf.repository.api.IBasicFile;
 import pt.webdetails.cpf.repository.api.IBasicFileFilter;
 import pt.webdetails.cpf.repository.api.IRWAccess;
+import pt.webdetails.cpf.repository.util.RepositoryHelper;
 import pt.webdetails.cpf.utils.CharsetHelper;
 
 /**
@@ -96,8 +97,8 @@ public abstract class FileBasedResourceAccess implements IRWAccess {
       if (includeDirs && filter.accept(root)) {
         list.add(asBasicFile(root, relativizePath(root)));
       }
-      if (depth > 0) {
-        for (File file : root.listFiles(filter)) {
+      if (depth != 0) {
+        for (File file : root.listFiles()) {
           listFiles(list, file, filter, includeDirs, depth -1);
         }
       }
@@ -109,8 +110,7 @@ public abstract class FileBasedResourceAccess implements IRWAccess {
   }
 
   private String relativizePath(File file) {
-    //FIXME implement
-    return null;
+    return RepositoryHelper.relativizePath(getFile(null).getAbsolutePath(), file.getAbsolutePath());
   }
 
   private FileFilter asFileFilter(final IBasicFileFilter filter) {
@@ -144,8 +144,9 @@ public abstract class FileBasedResourceAccess implements IRWAccess {
       }
 
       public String getExtension() {
-        //TODO: do we need to account for .<file>?
-        //TODO: another one for utils
+        if(getName().startsWith(".")) {
+          return StringUtils.lowerCase(FilenameUtils.getExtension(getName().substring(1)));
+        }
         return StringUtils.lowerCase(FilenameUtils.getExtension(getName()));
       }
       

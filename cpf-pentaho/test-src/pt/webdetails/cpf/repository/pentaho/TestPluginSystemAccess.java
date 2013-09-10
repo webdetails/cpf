@@ -3,16 +3,21 @@ package pt.webdetails.cpf.repository.pentaho;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginClassLoader;
 
 import pt.webdetails.cpf.PluginSettings;
+import pt.webdetails.cpf.repository.api.IBasicFile;
+import pt.webdetails.cpf.repository.api.IBasicFileFilter;
 import pt.webdetails.cpf.repository.api.IRWAccess;
 import pt.webdetails.cpf.repository.api.IReadAccess;
+import pt.webdetails.cpf.repository.util.RepositoryHelper;
 import pt.webdetails.cpf.utils.CharsetHelper;
 
 public class TestPluginSystemAccess extends TestCase {
@@ -44,13 +49,13 @@ public class TestPluginSystemAccess extends TestCase {
   public void testPluginBasePathRead() throws IOException {
       IReadAccess reader = createPluginSystemAccess("resources/stuff");
       assertTrue("fileExists", reader.fileExists("stuffedBogus.txt"));
-      
+
       IReadAccess readerSlash = createPluginSystemAccess("resources/stuff/");
       assertTrue("fileExists trail slash", readerSlash.fileExists("stuffedBogus.txt"));
-  
+
       IReadAccess readerBackTrack = createPluginSystemAccess("resources/stuff/");
       assertTrue("backtrack", readerBackTrack.fileExists("../bogus.txt"));
-  
+
       assertFalse("too much backtrack", readerBackTrack.fileExists("../../../../../../../../../justDontThrowUp"));
   }
 
@@ -76,7 +81,7 @@ public class TestPluginSystemAccess extends TestCase {
       BogusSettings settings = new BogusSettings(rw);
       assertEquals("basic read","Baah",settings.getBogusString(null));
       assertNull("not there", settings.getNotThere(null));
-      
+
       String originalVal = settings.getOtherBogusString("default");
       String newVal = "a new value";
       assertTrue(settings.setOtherBogusString(newVal));
@@ -85,6 +90,69 @@ public class TestPluginSystemAccess extends TestCase {
       assertEquals(originalVal, settings.getOtherBogusString(null));
   }
 
+  @Test
+  public void testBasicFile() throws IOException {
+      IReadAccess reader = createPluginSystemAccess("resources");
+      IBasicFile file = reader.fetchFile("stuff/stuffedBogus.txt");
+      assertEquals("txt", file.getExtension());
+      assertEquals("stuffedBogus.txt", file.getName());
+      assertEquals("stuff/stuffedBogus.txt",file.getPath());
+      StringBuilder builder = new StringBuilder(getFullPluginDir("bogusPlugin"));
+      RepositoryHelper.appendPath(builder, "resources");
+      RepositoryHelper.appendPath(builder, file.getPath());
+      final String fullPath = builder.toString();
+      assertEquals(fullPath, file.getFullPath());
+      assertEquals(userDir + "/test-resources/repo/system/bogusPlugin/resources/stuff/stuffedBogus.txt", fullPath);
+  }
+
+  @Test
+  public void testExtension() {
+      IReadAccess reader = createPluginSystemAccess("resources");
+      IBasicFile dotFile = reader.fetchFile(".hidden");
+      assertFalse("hidden".equals(dotFile.getExtension()));
+      assertTrue(StringUtils.isEmpty(dotFile.getExtension()));
+  }
+
+  @Test
+  public void testSimpleExtension() {
+      IReadAccess reader = createPluginSystemAccess("resources");
+      IBasicFile txt = reader.fetchFile("bogus.txt");
+      assertEquals("txt", txt.getExtension());
+  }
+
+  @Test
+  public void testListFiles() throws IOException {
+      IReadAccess reader = createPluginSystemAccess("resources");
+      IBasicFileFilter txtFilter = new IBasicFileFilter() {
+        public boolean accept(IBasicFile file) {
+          return file.getExtension().equals("txt");
+        }
+      };
+      List<IBasicFile> txtFiles = reader.listFiles("", txtFilter, -1);
+      assertEquals("listFiles result", 3, txtFiles.size());
+      boolean bogusFound = false, stuffFound = false, moreFound = false;
+      // no contract on order
+      for (IBasicFile txtFile : txtFiles) {
+        if (txtFile.getName().equals("stuffedBogus.txt")) {
+          stuffFound = true;
+          assertEquals("stuff/stuffedBogus.txt", txtFile.getPath());
+          assertEquals(getFullPluginDir("bogusPlugin/resources/stuff/stuffedBogus.txt"), txtFile.getFullPath());
+        }
+        if (txtFile.getName().equals("moreStuffedBogus.txt")) {
+          moreFound = true;
+          assertEquals("stuff/moreStuff/moreStuffedBogus.txt", txtFile.getPath());
+        }
+        if (txtFile.getName().equals("bogus.txt")) {
+          bogusFound = true;
+        }
+      }
+      assertTrue(stuffFound && moreFound && bogusFound);
+
+      txtFiles = reader.listFiles(null, txtFilter, 1);
+      assertEquals(1, txtFiles.size());
+      assertEquals("bogus.txt", txtFiles.get(0).getName());
+      bogusFound = false;
+  }
 
   class BogusSettings extends PluginSettings {
       public BogusSettings(IRWAccess writeAccess) {
@@ -107,6 +175,7 @@ public class TestPluginSystemAccess extends TestCase {
       }
   }
 
+
   private SystemPluginResourceAccess createPluginSystemAccess(String basePath) {
       return new SystemPluginResourceAccess(getPluginClassLoader(), basePath);
   }
@@ -115,8 +184,12 @@ public class TestPluginSystemAccess extends TestCase {
       return getPluginClassLoader("bogusPlugin");
   }
 
+  private String getFullPluginDir(String pluginDir) {
+    return userDir + "/test-resources/repo/system/" + pluginDir;
+  }
+
   private PluginClassLoader getPluginClassLoader(String pluginDir) {
-      String systemPath = userDir + "/test-resources/repo/system/" + pluginDir;
+      String systemPath = getFullPluginDir(pluginDir);
       return new PluginClassLoader(new File(systemPath), this.getClass().getClassLoader());
   }
 
