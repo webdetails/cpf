@@ -5,6 +5,10 @@ import java.io.InputStream;
 import java.util.List;
 
 public interface IReadAccess {
+
+  public static final int DEPTH_ZERO = 0;
+  public static final int DEPTH_ALL = -1;
+
   /**
    * @param path to file relative path from base dir
    * @return {@link InputStream} to the file
@@ -31,6 +35,14 @@ public interface IReadAccess {
    * @return Files under path matching filter
    */
   List<IBasicFile> listFiles(String path, IBasicFileFilter filter, int maxDepth);
+
+  /**
+   * (optional)
+   * @param path
+   * @param filter (optional)
+   * @return Files under path matching filter
+   */
+  List<IBasicFile> listFiles(String path, IBasicFileFilter filter);
 
   /**
    * @param path to file relative path from base dir 
