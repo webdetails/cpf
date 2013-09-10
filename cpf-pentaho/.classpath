@@ -8,12 +8,7 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=cpf-pentaho&amp;ivyXmlPath=ivy.xml&amp;confs=*&amp;ivySettingsPath=%24%7Bworkspace_loc%3Acpf-pentaho%2Fivysettings.xml%7D&amp;loadSettingsOnDemand=false&amp;propertyFiles=%24%7Bworkspace_loc%3Acpf-pentaho%2Fbuild.properties%7D"/>
+	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=cpf-pentaho&amp;ivyXmlPath=ivy.xml&amp;confs=default%2Ctest%2Cruntime%2Csources&amp;ivySettingsPath=%24%7Bworkspace_loc%3Acpf-pentaho%2Fivysettings.xml%7D&amp;loadSettingsOnDemand=false&amp;propertyFiles=%24%7Bworkspace_loc%3Acpf-pentaho%2Fbuild.properties%7D"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/cpf-core"/>
-	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">
-		<attributes>
-			<attribute name="maven.pomderived" value="true"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
