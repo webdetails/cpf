@@ -182,7 +182,10 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
         //XXX wrong
         return file.getSolutionPath();
       }
-      
+
+	  public boolean isDirectory() {
+	    return file.isDirectory();
+	  }
     };
   }
 

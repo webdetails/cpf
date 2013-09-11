@@ -34,4 +34,9 @@ public interface IBasicFile {
    *         the extension is whatever comes after the last dot of the file name, if the dot isn't the first char
    */
   String getExtension();
+  
+  /**
+   * @return true is this is this path relates to a directory, false otherwise (i.e. relates to a file)
+   */
+  boolean isDirectory();
 }

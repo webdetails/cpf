@@ -221,6 +221,10 @@ public abstract class UnifiedRepositoryAccess {// implements IPluginResourceRWAc
         return StringUtils.lowerCase(FilenameUtils.getExtension(getName()));
       }
 
+	  public boolean isDirectory() {
+	    return file.isFolder();
+	  }
+
     };
   }
 
