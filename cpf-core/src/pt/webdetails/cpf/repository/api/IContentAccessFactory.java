@@ -7,13 +7,13 @@ public interface IContentAccessFactory {
 
   /**
    * @param basePath (optional) all subsequent paths will be relative to this
-   * @return {@link IUserContentAccess} for user repository access
+   * @return {@link IReadAccess} for user repository access
    */
   IReadAccess getUserRepositoryReader(String basePath);
 
   /**
    * @param basePath (optional) all subsequent paths will be relative to this
-   * @return {@link IUserContentAccess} for user repository access
+   * @return {@link IRWAccess} for user repository access
    */
   IRWAccess getUserRepositoryWriter(String basePath);
 
@@ -24,11 +24,10 @@ public interface IContentAccessFactory {
    */
   IReadAccess getPluginRepositoryReader(String basePath);
 
-
   /**
    * @param basePath (optional) base path relative to plugin's folder.
    *                 all subsequent paths will be relative to it
-   * @return {@link IReadAccess} for files in plugin's own folder
+   * @return {@link IRWAccess} for files in plugin's own folder
    */
   IRWAccess getPluginRepositoryWriter(String basePath);
 
@@ -43,7 +42,7 @@ public interface IContentAccessFactory {
   /**
    * @param basePath (optional) base path relative to plugin's folder.
    *                 all subsequent paths will be relative to it
-   * @return {@link IReadAccess} for files in plugin's own folder
+   * @return {@link IRWAccess} for files in plugin's own folder
    */
   IRWAccess getPluginSystemWriter(String basePath);
 
