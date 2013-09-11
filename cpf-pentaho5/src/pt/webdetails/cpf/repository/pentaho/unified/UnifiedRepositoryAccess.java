@@ -127,6 +127,15 @@ public abstract class UnifiedRepositoryAccess {// implements IPluginResourceRWAc
     return baseFolder;
   }
 
+  public boolean createFolder(String path){
+    RepositoryFile folder = getOrCreateFolder(getRepository(), path);
+    if(folder == null){
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   protected String getFullPath(String path) {
     return RepositoryHelper.appendPath(basePath, path);
   }

@@ -7,5 +7,6 @@ public interface IRWAccess extends IReadAccess {
   boolean saveFile(String path, InputStream contents);
   boolean copyFile(String pathFrom, String pathTo);
   boolean deleteFile(String path);
+  boolean createFolder(String path);
 
 }

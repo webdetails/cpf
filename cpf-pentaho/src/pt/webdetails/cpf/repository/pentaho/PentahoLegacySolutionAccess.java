@@ -18,6 +18,7 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISolutionFile;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository.ISolutionRepositoryService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 
@@ -26,6 +27,7 @@ import pt.webdetails.cpf.repository.api.IBasicFile;
 import pt.webdetails.cpf.repository.api.IBasicFileFilter;
 import pt.webdetails.cpf.repository.api.IUserContentAccess;
 import pt.webdetails.cpf.repository.util.RepositoryHelper;
+import pt.webdetails.cpf.session.PentahoSession;
 
 @SuppressWarnings("deprecation")
 public class PentahoLegacySolutionAccess implements IUserContentAccess {
@@ -34,12 +36,14 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
 
   
   private ISolutionRepository repository;
+  private ISolutionRepositoryService repositoryService;
   private String basePath;
   private IPentahoSession userSession;
   
   public PentahoLegacySolutionAccess(String basePath, IPentahoSession session) {
     this.basePath = basePath;
     this.repository = PentahoSystem.get(ISolutionRepository.class, session);
+    this.repositoryService = PentahoSystem.get(ISolutionRepositoryService.class, session);
     this.userSession = session;
   }
 
@@ -72,6 +76,9 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
   protected ISolutionRepository getRepository() {
     return repository;
   }
+  protected ISolutionRepositoryService getSolutionRepositoryService() {
+    return PentahoSystem.get(ISolutionRepositoryService.class, ((PentahoSession) userSession).getPentahoSession());
+  }
   protected ISolutionFile getRepositoryFile(String path) {
     return getRepository().getSolutionFile(getPath(path), IPentahoAclEntry.PERM_EXECUTE);
   }
@@ -91,6 +98,22 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
   public boolean deleteFile(String pathFrom) {
     return getRepository().removeSolutionFile(getPath(pathFrom));
   }
+
+  @Override
+  public boolean createFolder(String path) {
+    path = StringUtils.chomp(path, "/");//strip trailing / if there
+    String folderName = FilenameUtils.getBaseName(path);
+    String folderPath = path.substring(0, StringUtils.lastIndexOf(path, folderName));
+
+    try {
+      repositoryService.createFolder(userSession, "", folderPath, folderName, "");
+    } catch (IOException ex){
+      logger.error(ex);
+      return false;
+    }
+
+    return true;
+}
 
   @Override
   public InputStream getFileInputStream(String path) throws IOException {
