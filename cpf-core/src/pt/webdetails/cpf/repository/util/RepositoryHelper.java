@@ -10,9 +10,13 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import pt.webdetails.cpf.impl.DefaultRepositoryFile;
 import pt.webdetails.cpf.repository.IRepositoryFile;
 import pt.webdetails.cpf.repository.IRepositoryFileFilter;
+import pt.webdetails.cpf.repository.api.IBasicFile;
 
 public class RepositoryHelper {
 
@@ -173,5 +177,50 @@ public class RepositoryHelper {
       }
       relative.append(normalizedTargetPath.substring(common.length()));
       return relative.toString();
+  }
+
+  public static String toJQueryFileTree(String baseDir, IBasicFile[] files) {
+    StringBuilder out = new StringBuilder();
+    out.append("<ul class=\"jqueryFileTree\" style=\"display: none;\">");
+
+    for (IBasicFile file : files) {
+      if (file.isDirectory()) {
+        out.append("<li class=\"directory collapsed\"><a href=\"#\" rel=\"" + baseDir + file.getName() + "/\">" + file.getName() + "</a></li>");
+      }
+    }
+
+    for (IBasicFile file : files) {
+      if (!file.isDirectory()) {
+        int dotIndex = file.getName().lastIndexOf('.');
+        String ext = dotIndex > 0 ? file.getName().substring(dotIndex + 1) : "";
+        out.append("<li class=\"file ext_" + ext + "\"><a href=\"#\" rel=\"" + baseDir + file.getName() + "\">" + file.getName() + "</a></li>");
+      }
+    }
+    out.append("</ul>");
+    return out.toString();
+  }
+
+  public static String toJSON(String baseDir, IBasicFile[] files) throws JSONException {
+
+    JSONArray arr = new JSONArray();
+
+    for (IBasicFile file : files) {
+      JSONObject json = new JSONObject();
+      json.put("path", baseDir);
+      json.put("name", file.getName());
+      json.put("label", file.getName());
+
+      if (file.isDirectory()) {
+        json.put("type", "dir");
+      } else {
+        int dotIndex = file.getName().lastIndexOf('.');
+        String ext = dotIndex > 0 ? file.getName().substring(dotIndex + 1) : "";
+        json.put("ext", ext);
+        json.put("type", "file");
+      }
+      arr.put(json);
+    }
+
+    return arr.toString();
   }
 }
