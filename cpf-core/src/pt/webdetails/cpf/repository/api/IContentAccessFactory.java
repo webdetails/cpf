@@ -7,15 +7,9 @@ public interface IContentAccessFactory {
 
   /**
    * @param basePath (optional) all subsequent paths will be relative to this
-   * @return {@link IReadAccess} for user repository access
+   * @return {@link IUserContentAccess} for user repository access
    */
-  IReadAccess getUserRepositoryReader(String basePath);
-
-  /**
-   * @param basePath (optional) all subsequent paths will be relative to this
-   * @return {@link IRWAccess} for user repository access
-   */
-  IRWAccess getUserRepositoryWriter(String basePath);
+  IUserContentAccess getUserContentAccess(String basePath);
 
   /**
    * @param basePath (optional) base path relative to plugin's folder.

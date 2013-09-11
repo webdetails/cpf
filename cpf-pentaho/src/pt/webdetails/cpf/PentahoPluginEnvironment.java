@@ -14,12 +14,7 @@ public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment imple
   }
 
   @Override
-  public IReadAccess getUserRepositoryReader(String basePath) {
-    return new PentahoLegacyUserContentAccess(basePath, null);
-  }
-
-  @Override
-  public IRWAccess getUserRepositoryWriter(String basePath) {
+  public IUserContentAccess getUserContentAccess(String basePath) {
     return new PentahoLegacyUserContentAccess(basePath, null);
   }
 
