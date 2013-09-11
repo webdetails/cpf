@@ -1,17 +1,24 @@
 package pt.webdetails.cpf;
 
+import pt.webdetails.cpf.repository.api.IContentAccessFactory;
 import pt.webdetails.cpf.repository.api.IReadAccess;
-import pt.webdetails.cpf.repository.api.IRepositoryAccessFactory;
+import pt.webdetails.cpf.repository.api.IRWAccess;
 import pt.webdetails.cpf.repository.pentaho.SystemPluginResourceAccess;
 
 //TODO: doesn't make much sense right now
-public abstract class PentahoBasePluginEnvironment extends PluginEnvironment implements IRepositoryAccessFactory {
+public abstract class PentahoBasePluginEnvironment extends PluginEnvironment implements IContentAccessFactory {
 
-  public IRepositoryAccessFactory getRepositoryFactory() {
+  public IContentAccessFactory getContentAccessFactory() {
     return this;
   }
 
-  public IReadAccess getPluginResourceAccess(String basePath) {
+  @Override
+  public IReadAccess getPluginSystemReader(String basePath) {
+    return new SystemPluginResourceAccess(this.getClass().getClassLoader(), null);
+  }
+
+  @Override
+  public IRWAccess getPluginSystemWriter(String basePath) {
     return new SystemPluginResourceAccess(this.getClass().getClassLoader(), null);
   }
 
@@ -19,8 +26,14 @@ public abstract class PentahoBasePluginEnvironment extends PluginEnvironment imp
   public PluginSettings getPluginSettings() {
     return new PluginSettings(new SystemPluginResourceAccess(this.getClass().getClassLoader(), null));
   }
-  
-  public IReadAccess getOtherPluginSystemAccess(String pluginId, String basePath) {
+
+  @Override
+  public IReadAccess getOtherPluginSystemReader(String pluginId, String basePath) {
+    return new SystemPluginResourceAccess(pluginId, basePath);
+  }
+
+  @Override
+  public IRWAccess getOtherPluginSystemWriter(String pluginId, String basePath) {
     return new SystemPluginResourceAccess(pluginId, basePath);
   }
 }

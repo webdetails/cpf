@@ -1,11 +1,12 @@
 package pt.webdetails.cpf;
 
+import pt.webdetails.cpf.repository.api.IRWAccess;
 import pt.webdetails.cpf.repository.api.IReadAccess;
 import pt.webdetails.cpf.repository.api.IUserContentAccess;
 import pt.webdetails.cpf.repository.pentaho.unified.PluginRepositoryResourceAccess;
 import pt.webdetails.cpf.repository.pentaho.unified.UserContentRepositoryAccess;
 
-//TODO: friggin long names, instanciation; there must be another singleton
+//TODO: there must be another singleton
 public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment {
 
   private static PentahoPluginEnvironment instance = new PentahoPluginEnvironment();
@@ -16,19 +17,24 @@ public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment {
     return instance;
   }
 
-  //IRepositoryAccessFactory
-  public IUserContentAccess getUserContentAccess(String basePath) {
+  @Override
+  public IReadAccess getUserRepositoryReader(String basePath) {
     return new UserContentRepositoryAccess(null);
   }
 
-  public IReadAccess getPluginResourceAccess() {
-    return getPluginRepositoryResourceAccess(null);//XXX include plugin dir
+  @Override
+  public IRWAccess getUserRepositoryWriter(String basePath) {
+    return new UserContentRepositoryAccess(null);
   }
 
-  //IRepositoryAccessFactory
-  public IReadAccess getPluginRepositoryResourceAccess(String basePath) {
+  @Override
+  public IReadAccess getPluginRepositoryReader(String basePath) {
     return new PluginRepositoryResourceAccess(basePath);
   }
 
+  @Override
+  public IRWAccess getPluginRepositoryWriter(String basePath) {
+    return new PluginRepositoryResourceAccess(basePath);
+  }
 
 }

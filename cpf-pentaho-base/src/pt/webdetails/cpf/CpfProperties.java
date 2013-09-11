@@ -12,8 +12,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import pt.webdetails.cpf.repository.api.IContentAccessFactory;
 import pt.webdetails.cpf.repository.api.IReadAccess;
-import pt.webdetails.cpf.repository.api.IRepositoryAccessFactory;
 import pt.webdetails.cpf.repository.pentaho.ClassLoaderResolver;
 
 /**
@@ -27,7 +27,7 @@ public class CpfProperties extends Properties {
     private static final Log logger = LogFactory.getLog(CpfProperties.class);
     private static String PROPERTIES_FILE = "config.properties";
 
-    private CpfProperties(IRepositoryAccessFactory accessor) {
+    private CpfProperties(IContentAccessFactory accessor) {
       loadSettings(accessor);
     }
 
@@ -46,7 +46,7 @@ public class CpfProperties extends Properties {
       return false;
     }
 
-    private void loadSettings(IRepositoryAccessFactory accessor) {
+    private void loadSettings(IContentAccessFactory accessor) {
         try {
 
           // 1) a config.properties inside the jar
@@ -58,13 +58,13 @@ public class CpfProperties extends Properties {
 
           // 2) a config.properties in repository:cpf/config.properties
           // factory not so good for this one
-          IReadAccess inRepositoryCpf = accessor.getPluginRepositoryResourceAccess("../cpf");//XXX
+          IReadAccess inRepositoryCpf = accessor.getPluginRepositoryReader("../cpf");//XXX
           if (!loadProperties(inRepositoryCpf, PROPERTIES_FILE) && logger.isDebugEnabled()) {
             logger.debug("No global CPF settings.");//downgraded to debug
           }
 
           //3) in system/<plugin>/config.properties
-          IReadAccess inSystem = PluginEnvironment.repository().getPluginResourceAccess("");
+          IReadAccess inSystem = PluginEnvironment.repository().getPluginSystemReader("");
           if (!loadProperties(inSystem, PROPERTIES_FILE) && logger.isDebugEnabled()) {
             logger.debug("No plugin-specific CPF settings.");//downgraded to debug
           }

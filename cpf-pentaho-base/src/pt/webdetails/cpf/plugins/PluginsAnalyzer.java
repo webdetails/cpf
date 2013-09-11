@@ -75,7 +75,7 @@ public class PluginsAnalyzer {
         List<String> registeredPluginIds = pluginManager.getRegisteredPlugins();
         installedPlugins = new ArrayList<Plugin>(registeredPluginIds.size());
         for (String pluginId : registeredPluginIds) {
-            IReadAccess pluginDir = PluginEnvironment.repository().getOtherPluginSystemAccess(pluginId, null);
+            IReadAccess pluginDir = PluginEnvironment.repository().getOtherPluginSystemReader(pluginId, null);
             Plugin plugin = new Plugin(pluginId, pluginDir);
             installedPlugins.add(plugin);
         }

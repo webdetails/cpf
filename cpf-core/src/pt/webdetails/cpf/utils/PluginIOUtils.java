@@ -17,8 +17,8 @@ import org.apache.commons.io.IOUtils;
  * User: diogomariano
  * Date: 10/09/13
  */
-public class PluginUtils {
-  private static PluginUtils instance;
+public class PluginIOUtils {
+  private static PluginIOUtils instance;
   private static final String ENCODING = CharsetHelper.getEncoding();
 
   private static Log logger;
@@ -26,9 +26,9 @@ public class PluginUtils {
   private static String WRITE_MESSAGE = "Error writing output";
   private static String JSON_MESSAGE = "Error getting Json";
 
-  public PluginUtils getInstance(){
+  public PluginIOUtils getInstance(){
     if (instance == null){
-      instance = new PluginUtils();
+      instance = new PluginIOUtils();
       instance.logger = LogFactory.getLog(this.getClass());
     }
 

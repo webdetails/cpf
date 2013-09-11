@@ -1,6 +1,6 @@
 package pt.webdetails.cpf;
 
-import pt.webdetails.cpf.repository.api.IRepositoryAccessFactory;
+import pt.webdetails.cpf.repository.api.IContentAccessFactory;
 
 /**
  * Intended as an all-purpose factory singleton for plugin interaction with its environment (repository, session, config..)<br>
@@ -23,14 +23,14 @@ public abstract class PluginEnvironment {
   public static PluginEnvironment env() {
     return env;
   }
-  public static IRepositoryAccessFactory repository() {
-    return env().getRepositoryFactory();
+  public static IContentAccessFactory repository() {
+    return env().getContentAccessFactory();
   }
 
   /**
    * @return factory for accessing repository
    */
-  public abstract IRepositoryAccessFactory getRepositoryFactory();
+  public abstract IContentAccessFactory getContentAccessFactory();
 
 
   

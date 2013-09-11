@@ -35,7 +35,7 @@ public class AliasedGroup {
     public void addSolutionDir(String dir) {
 //        resolverList.add(new SolutionResolver(dir));
       //TODO: right now should work for getPluginRepositoryResourceAccess("cdb/exporters/templates"); ideally should work as getPluginRepositoryResourceAccess("exporters/templates");
-        repositoryList.add(PentahoPluginEnvironment.getInstance().getPluginRepositoryResourceAccess(dir));
+        repositoryList.add(PentahoPluginEnvironment.getInstance().getPluginRepositoryReader(dir));
     }
 
     public InputStream getResourceStream(String file) throws FileNotFoundException {

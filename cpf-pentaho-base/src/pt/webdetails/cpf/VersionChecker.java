@@ -124,7 +124,7 @@ public abstract class VersionChecker {
 
     private Version getInstalledVersion() throws DocumentException, IOException {
       Version installed = null;
-      IReadAccess systemDir = PluginEnvironment.repository().getPluginResourceAccess(null);
+      IReadAccess systemDir = PluginEnvironment.repository().getPluginSystemReader(null);
       SAXReader reader = new SAXReader();
       Document versionXml = reader.read(systemDir.getFileInputStream(VERSION_FILE));
       installed = new Version(versionXml);

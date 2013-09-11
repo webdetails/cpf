@@ -3,27 +3,50 @@ package pt.webdetails.cpf.repository.api;
 /**
  * Minimal repository access provider for basic plugin needs 
  */
-public interface IRepositoryAccessFactory {
+public interface IContentAccessFactory {
 
   /**
    * @param basePath (optional) all subsequent paths will be relative to this
    * @return {@link IUserContentAccess} for user repository access
    */
-  IUserContentAccess getUserContentAccess(String basePath);
+  IReadAccess getUserRepositoryReader(String basePath);
+
+  /**
+   * @param basePath (optional) all subsequent paths will be relative to this
+   * @return {@link IUserContentAccess} for user repository access
+   */
+  IRWAccess getUserRepositoryWriter(String basePath);
 
   /**
    * @param basePath (optional) base path relative to plugin's folder.
    *                 all subsequent paths will be relative to it
    * @return {@link IReadAccess} for files in plugin's own folder
    */
-  IReadAccess getPluginResourceAccess(String basePath);
+  IReadAccess getPluginRepositoryReader(String basePath);
+
 
   /**
-   * @param basePath (optional) base path relative to plugin's repository folder.
+   * @param basePath (optional) base path relative to plugin's folder.
    *                 all subsequent paths will be relative to it
    * @return {@link IReadAccess} for files in plugin's own folder
    */
-  IReadAccess getPluginRepositoryResourceAccess(String basePath);
+  IRWAccess getPluginRepositoryWriter(String basePath);
+
+  /**
+   * @param basePath (optional) base path relative to plugin's folder.
+   *                 all subsequent paths will be relative to it
+   * @return {@link IReadAccess} for files in plugin's own folder
+   */
+  IReadAccess getPluginSystemReader(String basePath);
+
+
+  /**
+   * @param basePath (optional) base path relative to plugin's folder.
+   *                 all subsequent paths will be relative to it
+   * @return {@link IReadAccess} for files in plugin's own folder
+   */
+  IRWAccess getPluginSystemWriter(String basePath);
+
 
   /**
    * For snooping other plugins' stuff. Because IInterPlugin just seemed weird.
@@ -33,7 +56,18 @@ public interface IRepositoryAccessFactory {
    * @return like {@link #getPluginResourceAccess(String)} of another plugin
    *
    */
-  IReadAccess getOtherPluginSystemAccess(String pluginId, String basePath);
+  IReadAccess getOtherPluginSystemReader(String pluginId, String basePath);
+
+
+  /**
+   * For snooping other plugins' stuff. Because IInterPlugin just seemed weird.
+   * @param pluginId id of the plugin, aka title for some reason
+   * @param basePath (optional) base path relative to plugin's repository folder.
+   *                 all subsequent paths will be relative to it
+   * @return like {@link #getPluginResourceAccess(String)} of another plugin
+   *
+   */
+  IRWAccess getOtherPluginSystemWriter(String pluginId, String basePath);
 
 //  /**
 //   * @param basePath (optional) base path relative to plugin's repository folder.
