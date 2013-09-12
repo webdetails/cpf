@@ -27,24 +27,4 @@ public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment imple
   public IRWAccess getPluginRepositoryWriter(String basePath) {
     return new PluginLegacySolutionResourceAccess(basePath);
   }
-
-  @Override
-  public IReadAccess getPluginSystemReader(String basePath) {
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
-  }
-
-  @Override
-  public IRWAccess getPluginSystemWriter(String basePath) {
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
-  }
-
-  @Override
-  public IReadAccess getOtherPluginSystemReader(String pluginId, String basePath) {
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
-  }
-
-  @Override
-  public IContentAccessFactory getContentAccessFactory() {
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
-  }
 }
