@@ -4,12 +4,11 @@
 
 package pt.webdetails.cpf.packager;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.Reader;
 
@@ -18,11 +17,19 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import pt.webdetails.cpf.packager.Concatenate.IBFileContentProcessor;
+import pt.webdetails.cpf.repository.api.IBasicFile;
+import pt.webdetails.cpf.repository.api.IRWAccess;
+import pt.webdetails.cpf.repository.api.IReadAccess;
 import pt.webdetails.cpf.utils.CharsetHelper;
 
 /**
@@ -56,11 +63,22 @@ public class Packager
 
   }
 
+  /**
+   * @deprecated
+   */
   public void registerPackage(Filetype type, String root, String filename, String[] files)
   {
     registerPackage(filename, type, root, filename, files);
   }
 
+  /**
+   * Used by CDF/CDE
+   * @param name
+   * @param type
+   * @param root
+   * @param filename
+   * @param files
+   */
   public void registerPackage(String name, Filetype type, String root, String filename, String[] files)
   {
     ArrayList<File> fileHandles = new ArrayList<File>();
@@ -72,25 +90,33 @@ public class Packager
     registerPackage(name, type, root, filename, (File[]) fileHandles.toArray(new File[fileHandles.size()]));
   }
 
+  public void registerPackage(String name, Filetype type, Iterable<IBasicFile> files, IRWAccess writeTo, String fileName)
+  {
+//    FileSet fileSet = 
+  }
+  /**
+   * @deprecated it will blow in your face
+   */
   public void registerPackage(String name, Filetype type, String root, String output, File[] files)
   {
-    if (this.fileSets.containsKey(name))
-    {
-      Logger.getLogger(Packager.class.getName()).log(Level.WARNING, name + " is overriding an existing file package!");
-    }
-    try
-    {
-      FileSet fileSet = new FileSet(output, type, files, root);
-      this.fileSets.put(name, fileSet);
-    }
-    catch (IOException ex)
-    {
-      Logger.getLogger(Packager.class.getName()).log(Level.SEVERE, null, ex);
-    }
-    catch (NoSuchAlgorithmException ex)
-    {
-      Logger.getLogger(Packager.class.getName()).log(Level.SEVERE, null, ex);
-    }
+    throw new NotImplementedException();
+//    if (this.fileSets.containsKey(name))
+//    {
+//      Logger.getLogger(Packager.class.getName()).log(Level.WARNING, name + " is overriding an existing file package!");
+//    }
+//    try
+//    {
+//      FileSet fileSet = new FileSet(output, type, files, root);
+//      this.fileSets.put(name, fileSet);
+//    }
+//    catch (IOException ex)
+//    {
+//      Logger.getLogger(Packager.class.getName()).log(Level.SEVERE, null, ex);
+//    }
+//    catch (NoSuchAlgorithmException ex)
+//    {
+//      Logger.getLogger(Packager.class.getName()).log(Level.SEVERE, null, ex);
+//    }
 
   }
 
@@ -123,9 +149,14 @@ class FileSet
   private boolean dirty;
   private String latestVersion;
   private ArrayList<File> files;
-  private File location;
+ // private File location;
   private Packager.Filetype filetype;
   private String rootdir;
+  
+  private IRWAccess writer;
+  private String outLocation;
+  private List<IBasicFile> bFiles;
+
 
   public void addFile(String file)
   {
@@ -145,7 +176,7 @@ class FileSet
   {
     this.files = new ArrayList<File>();
     this.files.addAll(Arrays.asList(fileSet));
-    this.location = new File(location);
+  //  this.location = new File(location);
     this.filetype = type;
     this.latestVersion = "";
     this.dirty = true;
@@ -157,7 +188,13 @@ class FileSet
     dirty = true;
     files = new ArrayList<File>();
     latestVersion = null;
-    location = null;
+ //   location = null;
+  }
+
+  public FileSet(IRWAccess rw, String filePath, List<IBasicFile> files) {
+      outLocation = filePath;
+      writer = rw;
+      bFiles = files;
   }
 
   private String minify() throws IOException, NoSuchAlgorithmException
@@ -167,32 +204,40 @@ class FileSet
       InputStream concatenatedStream;
       Reader freader;
 //      FileWriter output = new FileWriter(location);
+      ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
       switch (this.filetype)
       {
         case JS:
           concatenatedStream = Concatenate.concat(this.files.toArray(new File[this.files.size()]));
           freader = new InputStreamReader(concatenatedStream, CharsetHelper.getEncoding());
-
-          JSMin jsmin = new JSMin(concatenatedStream, new FileOutputStream(location));
+          
+          JSMin jsmin = new JSMin(concatenatedStream, bytesOut);
+//          JSMin jsmin = new JSMin(concatenatedStream, new FileOutputStream(location));
           jsmin.jsmin();
           break;
         case CSS:
           concatenatedStream = Concatenate.concat(this.files.toArray(new File[this.files.size()]), rootdir);
           freader = new InputStreamReader(concatenatedStream, CharsetHelper.getEncoding());
-
-          int input;
-          FileWriter wout = new FileWriter(location);
-          while ((input = freader.read()) != -1)
-          {
-            wout.write(input);
-          }
+          IOUtils.copy(freader, bytesOut);
+//          int input;
+//          FileWriter wout = new FileWriter(location);
+//          while ((input = freader.read()) != -1)
+//          {
+//            wout.write(input);
+//          }
           //CSSMin.formatFile(freader, new FileOutputStream(location));
-          wout.close();
+//          wout.close();
           break;
       }
-      FileInputStream script = new FileInputStream(location);
-      byte[] fileContent = new byte[(int) location.length()];
-      script.read(fileContent);
+      //TODO: output, save file
+      byte[] fileContent = bytesOut.toByteArray();
+      writer.saveFile(outLocation, new ByteArrayInputStream(fileContent));
+
+//      FileInputStream script = new FileInputStream(location);
+//      byte[] fileContent = new byte[(int) location.length()];
+      //script.read(fileContent);
+
+
       this.dirty = false;
       this.latestVersion = byteToHex(MessageDigest.getInstance("MD5").digest(fileContent));
       return latestVersion;
@@ -222,20 +267,23 @@ class FileSet
 
   public synchronized String update(boolean force) throws IOException, NoSuchAlgorithmException
   {
-    // If we're not otherwise sure we must update, we actively check if the
-    //minified file is older than any file in the set.
-    if (!dirty && !force)
-    {
-      for (File file : files)
-      {
-        if (!location.exists() || file.lastModified() > location.lastModified())
-        {
-          this.dirty = true;
-          break;
-        }
-      }
-    }
-    return (dirty || force) ? this.minify() : this.latestVersion;
+    throw new NotImplementedException();
+    //FIXME COMPILING
+    
+//    // If we're not otherwise sure we must update, we actively check if the
+//    //minified file is older than any file in the set.
+//    if (!dirty && !force)
+//    {
+//      for (File file : files)
+//      {
+//        if (!location.exists() || file.lastModified() > location.lastModified())
+//        {
+//          this.dirty = true;
+//          break;
+//        }
+//      }
+//    }
+//    return (dirty || force) ? this.minify() : this.latestVersion;
   }
 }
 
