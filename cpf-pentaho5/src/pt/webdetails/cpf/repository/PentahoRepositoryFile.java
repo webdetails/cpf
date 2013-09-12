@@ -8,9 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 import org.pentaho.platform.api.engine.ISolutionFile;
 
+import pt.webdetails.cpf.repository.api.IBasicFile;
+
 /**
  * 
  * @author dfscm
+ * @deprecated use {@link IBasicFile}
  */
 public class PentahoRepositoryFile implements IRepositoryFile{
     private ISolutionFile file;

@@ -58,8 +58,8 @@ public class Plugin extends CorePlugin{
     }
 
     public Plugin(String id, IReadAccess pluginSysDir) {
-      super(id);
-      pluginSelfBuild(pluginSysDir);
+        super(id);
+        pluginSelfBuild(pluginSysDir);
     }
     
     /**

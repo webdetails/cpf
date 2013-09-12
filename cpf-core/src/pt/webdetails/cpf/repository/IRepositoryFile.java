@@ -4,9 +4,12 @@
 
 package pt.webdetails.cpf.repository;
 
+import pt.webdetails.cpf.repository.api.IBasicFile;
+
 /**
  *
  * @author dfscm
+ *  @deprecated use {@link IBasicFile}
  */
 public interface IRepositoryFile {
 

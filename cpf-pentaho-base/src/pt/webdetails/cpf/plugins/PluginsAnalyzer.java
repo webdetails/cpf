@@ -16,6 +16,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import pt.webdetails.cpf.PluginEnvironment;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
 import pt.webdetails.cpf.repository.api.IReadAccess;
+import pt.webdetails.cpf.repository.api.IRepositoryAccessFactory;
 
 /**
  *
@@ -25,11 +26,20 @@ public class PluginsAnalyzer {
     
     private List<Plugin> installedPlugins;
     protected Log logger = LogFactory.getLog(this.getClass());
+    IPluginManager pluginManager;
+    IRepositoryAccessFactory repositoryAccess;
 
     @Deprecated
-    public PluginsAnalyzer(IRepositoryAccess repoAccess){ }
+    public PluginsAnalyzer(IRepositoryAccess repoAccess){ this(); }
 
-    public PluginsAnalyzer() { }
+    public PluginsAnalyzer() {
+      this(PluginEnvironment.repository(), PentahoSystem.get(IPluginManager.class));
+    }
+    
+    public PluginsAnalyzer(IRepositoryAccessFactory factory, IPluginManager pluginManager) {
+      this.repositoryAccess = factory;
+      this.pluginManager = pluginManager;
+    }
 
     public void refresh(){
         buildPluginsList();
@@ -71,11 +81,10 @@ public class PluginsAnalyzer {
     }
     
     private void buildPluginsList(){
-        IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class);
         List<String> registeredPluginIds = pluginManager.getRegisteredPlugins();
         installedPlugins = new ArrayList<Plugin>(registeredPluginIds.size());
         for (String pluginId : registeredPluginIds) {
-            IReadAccess pluginDir = PluginEnvironment.repository().getOtherPluginSystemReader(pluginId, null);
+            IReadAccess pluginDir = repositoryAccess.getOtherPluginSystemReader(pluginId, null);
             Plugin plugin = new Plugin(pluginId, pluginDir);
             installedPlugins.add(plugin);
         }
