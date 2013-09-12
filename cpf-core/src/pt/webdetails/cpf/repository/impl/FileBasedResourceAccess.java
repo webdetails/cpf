@@ -110,7 +110,7 @@ public abstract class FileBasedResourceAccess implements IRWAccess {
   }
 
   private String relativizePath(File file) {
-    return RepositoryHelper.relativizePath(getFile(null).getAbsolutePath(), file.getAbsolutePath());
+    return RepositoryHelper.relativizePath(getFile(null).getAbsolutePath(), file.getAbsolutePath(), false);
   }
 
   private FileFilter asFileFilter(final IBasicFileFilter filter) {

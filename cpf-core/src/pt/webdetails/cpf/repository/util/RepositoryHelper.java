@@ -44,17 +44,14 @@ public class RepositoryHelper {
     String result;
     switch (sepCount) {
       case 0:
-        result = first + SEPARATOR + second;
-        break;
+        return first + SEPARATOR + second;
       case 2:
-        result = first + second.substring(1);
-        break;
+        return first + second.substring(1);
       default:
-        result = first + second;
-        break;
+        return first + second;
     }
     //get rid of ..|.
-    return FilenameUtils.normalize(result);
+//    return FilenameUtils.normalize(result);
   }
 
   public static StringBuilder appendPath(StringBuilder builder, String path) {
@@ -137,7 +134,7 @@ public class RepositoryHelper {
    * 
    * TODO: simplified version of what's in cde, still untested
    */
-  public static String relativizePath(String basePath, String fullPath) {
+  public static String relativizePath(String basePath, String fullPath, boolean assumeCommon) {
 
       final String pathSeparator = "/";
       // Normalize the paths
@@ -159,7 +156,7 @@ public class RepositoryHelper {
           commonIndex++;
       }
 
-      if (commonIndex == 0) {
+      if (commonIndex == 0 && !assumeCommon) {
           // No single common path element.
           // These paths cannot be relativized.
           throw new IllegalArgumentException(

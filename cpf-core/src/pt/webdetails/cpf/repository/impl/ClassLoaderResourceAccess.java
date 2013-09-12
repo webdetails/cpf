@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+
+import org.apache.commons.io.FilenameUtils;
+
 import pt.webdetails.cpf.repository.api.IReadAccess;
 import pt.webdetails.cpf.repository.util.RepositoryHelper;
 
@@ -23,7 +26,7 @@ public abstract class ClassLoaderResourceAccess implements IReadAccess {
 
   @Override
   public InputStream getFileInputStream(String path) throws IOException {
-    path = RepositoryHelper.appendPath(basePath, path);
+    path = FilenameUtils.normalize(RepositoryHelper.appendPath(basePath, path));
     URL url = RepositoryHelper.getClosestResource(classLoader, path);
     if (url != null) {
       return url.openStream();
@@ -33,7 +36,7 @@ public abstract class ClassLoaderResourceAccess implements IReadAccess {
 
   @Override
   public boolean fileExists(String path) {
-    path = RepositoryHelper.appendPath(basePath, path);
+    path = FilenameUtils.normalize(RepositoryHelper.appendPath(basePath, path));
     return RepositoryHelper.getClosestResource(classLoader, path) != null;
   }
 
