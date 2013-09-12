@@ -125,6 +125,11 @@ public class MinificationPackageTest extends TestCase {
       public InputStream getContents() throws IOException {
         return IOUtils.toInputStream(contents);
       }
+
+      @Override
+      public boolean isDirectory() {
+        return false;
+      }
     };
   }
   

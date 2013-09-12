@@ -16,7 +16,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import pt.webdetails.cpf.PluginEnvironment;
 import pt.webdetails.cpf.repository.IRepositoryAccess;
 import pt.webdetails.cpf.repository.api.IReadAccess;
-import pt.webdetails.cpf.repository.api.IRepositoryAccessFactory;
+import pt.webdetails.cpf.repository.api.IContentAccessFactory;
 
 /**
  *
@@ -27,7 +27,7 @@ public class PluginsAnalyzer {
     private List<Plugin> installedPlugins;
     protected Log logger = LogFactory.getLog(this.getClass());
     IPluginManager pluginManager;
-    IRepositoryAccessFactory repositoryAccess;
+    IContentAccessFactory repositoryAccess;
 
     @Deprecated
     public PluginsAnalyzer(IRepositoryAccess repoAccess){ this(); }
@@ -36,7 +36,7 @@ public class PluginsAnalyzer {
       this(PluginEnvironment.repository(), PentahoSystem.get(IPluginManager.class));
     }
     
-    public PluginsAnalyzer(IRepositoryAccessFactory factory, IPluginManager pluginManager) {
+    public PluginsAnalyzer(IContentAccessFactory factory, IPluginManager pluginManager) {
       this.repositoryAccess = factory;
       this.pluginManager = pluginManager;
     }
