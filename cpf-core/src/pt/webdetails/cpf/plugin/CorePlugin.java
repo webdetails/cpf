@@ -51,6 +51,7 @@ public class CorePlugin {
     }
 
     @JsonIgnore
+    @Deprecated
     public IRepositoryFileFilter getPluginFileFilter() {
         return new IRepositoryFileFilter() {
             @Override
@@ -67,30 +68,21 @@ public class CorePlugin {
         };
     }
 
-    /**
-     * @param name the name to set
-     */
     public void setName(String name) {
         this.name = name;
     }
 
-    /**
-     * @return the id
-     */
     @JsonProperty("id")
     public String getId() {
         return id;
     }
 
-    /**
-     * @param id the id to set
-     */
     public void setId(String id) {
         this.id = id;
     }
 
     /**
-     * @return the fileExtensions
+     * @deprecated file extensions don't belong here 
      */
     @JsonIgnore
     public String[] getFileExtensions() {
@@ -98,7 +90,7 @@ public class CorePlugin {
     }
 
     /**
-     * @param fileExtensions the fileExtensions to set
+     * @deprecated file extensions don't belong here
      */
     public void setFileExtensions(String[] fileExtensions) {
         this.fileExtensions = fileExtensions;
