@@ -157,6 +157,8 @@ public class Plugin extends CorePlugin {
     @JsonIgnore
     private void pluginSelfBuild(IReadAccess access){
 
+        this.pluginDirAccess = access;
+
         if (hasPluginXML()) {
             Node documentNode = getXmlFileContent(access, PLUGIN_XML_FILENAME);
             setId(documentNode.valueOf("/plugin/@title"));
