@@ -4,8 +4,10 @@
 
 package pt.webdetails.cpf.repository;
 
+import pt.webdetails.cpf.repository.api.IBasicFileFilter;
+
 /**
- *
+ * @deprecated replaced by {@link IBasicFileFilter}
  * @author dfscm
  */
 public interface IRepositoryFileFilter {

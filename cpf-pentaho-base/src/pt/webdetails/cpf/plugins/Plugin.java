@@ -26,9 +26,10 @@ import pt.webdetails.cpf.repository.api.IReadAccess;
 /**
  *
  * @author Luis Paulo Silva
- * @deprecated: this is for a very specific use and should be moved to CPK
+ * @deprecated: this is for a very specific use and may be moved to CPK;
+ * at the very least the name will change
  */
-public class Plugin extends CorePlugin{
+public class Plugin extends CorePlugin {
     private String description;
     private String company;
     private String companyUrl;
@@ -43,20 +44,17 @@ public class Plugin extends CorePlugin{
     private IReadAccess pluginDirAccess;
 
     /**
-     * @deprecated and will now fail miserably
+     * @deprecated will blow in your face; use {@link #Plugin(String, IReadAccess)}
      */
     public Plugin(String path){
-//        super();
-//        if(!path.endsWith("/"))
-//        {
-//            setPath(path+"/");
-//        }else{
-//            setPath(path);
-//        }
-//        pluginSelfBuild();
       throw new NotImplementedException();
     }
 
+    /**
+     * 
+     * @param id Plugin ID (aka title)
+     * @param pluginSysDir access to target plugin's system folder
+     */
     public Plugin(String id, IReadAccess pluginSysDir) {
         super(id);
         pluginSelfBuild(pluginSysDir);
@@ -188,7 +186,7 @@ public class Plugin extends CorePlugin{
     }
     
     @JsonIgnore
-    public boolean hasPluginXML(){
+    public boolean hasPluginXML() {//TODO: by definition, a plugin shoud have this
       return pluginDirAccess.fileExists(PLUGIN_XML_FILENAME);
     }
     

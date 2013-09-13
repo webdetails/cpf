@@ -23,7 +23,7 @@ import pt.webdetails.cpf.utils.CharsetHelper;
 
 /**
  * Base class for reading settings.xml<br>
- * Intended to be extended by plugin.
+ * Intended to be extended or wrapped by plugin.
  */
 public class PluginSettings {
 

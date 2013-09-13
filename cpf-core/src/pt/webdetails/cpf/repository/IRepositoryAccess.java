@@ -12,9 +12,14 @@ import java.io.UnsupportedEncodingException;
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 
+import pt.webdetails.cpf.repository.api.IContentAccessFactory;
+
 //import pt.webdetails.cpf.plugin.CorePlugin;
 
 //TODO: breathe and decide what this should do
+/**
+ * @deprecated use {@link IContentAccessFactory}
+ */
 public interface IRepositoryAccess {
 
     // warning: enums will only leave here if there is an interface left behind
