@@ -18,22 +18,13 @@ import org.apache.commons.io.IOUtils;
  * Date: 10/09/13
  */
 public class PluginIOUtils {
-  private static PluginIOUtils instance;
+
   private static final String ENCODING = CharsetHelper.getEncoding();
 
-  private static Log logger;
+  private static Log logger = LogFactory.getLog(PluginIOUtils.class);
 
   private static String WRITE_MESSAGE = "Error writing output";
   private static String JSON_MESSAGE = "Error getting Json";
-
-  public PluginIOUtils getInstance(){
-    if (instance == null){
-      instance = new PluginIOUtils();
-      instance.logger = LogFactory.getLog(this.getClass());
-    }
-
-    return instance;
-  }
 
   private static String getEncoding() { return ENCODING; }
 
