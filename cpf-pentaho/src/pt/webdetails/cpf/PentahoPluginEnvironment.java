@@ -1,5 +1,7 @@
 package pt.webdetails.cpf;
 
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+
 import pt.webdetails.cpf.repository.api.IRWAccess;
 import pt.webdetails.cpf.repository.api.IReadAccess;
 import pt.webdetails.cpf.repository.api.IContentAccessFactory;
@@ -15,7 +17,7 @@ public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment imple
 
   @Override
   public IUserContentAccess getUserContentAccess(String basePath) {
-    return new PentahoLegacyUserContentAccess(basePath, null);
+    return new PentahoLegacyUserContentAccess(basePath, PentahoSessionHolder.getSession());
   }
 
   @Override
