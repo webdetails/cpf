@@ -5,13 +5,8 @@ package pt.webdetails.cpf.plugins;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.dom4j.Document;
 import org.dom4j.Node;
-import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -22,6 +17,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import pt.webdetails.cpf.VersionChecker;
 import pt.webdetails.cpf.plugin.CorePlugin;
 import pt.webdetails.cpf.repository.api.IReadAccess;
+import pt.webdetails.cpf.utils.XmlDom4JUtils;
 
 /**
  *
@@ -129,29 +125,9 @@ public class Plugin extends CorePlugin {
         return this.id;
     }
 
-  
-
     @JsonProperty("name")
     public String getName() {
         return this.name;
-    }
-
-
-    
-    @JsonIgnore
-    private Node getXmlFileContent(IReadAccess access, String xmlFile){
-        InputStream input = null;
-        try {
-            input = access.getFileInputStream(xmlFile);
-            Document xml = XmlDom4JHelper.getDocFromStream(input);
-            return xml.getRootElement();
-        } catch (Exception ex) {
-            Logger.getLogger(PluginsAnalyzer.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
-        finally {
-          IOUtils.closeQuietly(input);
-        }
     }
     
     @JsonIgnore
@@ -159,8 +135,11 @@ public class Plugin extends CorePlugin {
 
         this.pluginDirAccess = access;
 
+        try{
+        
         if (hasPluginXML()) {
-            Node documentNode = getXmlFileContent(access, PLUGIN_XML_FILENAME);
+        	
+            Node documentNode = XmlDom4JUtils.getDocumentFromFile(access, PLUGIN_XML_FILENAME).getRootElement();
             setId(documentNode.valueOf("/plugin/@title"));
             setName(documentNode.valueOf("/plugin/content-types/content-type/title"));
             setDescription(documentNode.valueOf("/plugin/content-types/content-type/description"));
@@ -170,19 +149,28 @@ public class Plugin extends CorePlugin {
         }
 
         if(hasVersionXML()){
-            Document versionDoc = getXmlFileContent(access, VERSION_XML_FILENAME).getDocument();
+        	
+            Document versionDoc = XmlDom4JUtils.getDocumentFromFile(access, VERSION_XML_FILENAME);
             this.version = new VersionChecker.Version(versionDoc).toString();
         } else {
             String unspecified = "unspecified or no version.xml present in plugin directory";
             this.version = unspecified;
         }
+        
+        } catch(IOException e) {
+    		logger.error(e);
+    	}
     }
     
     @JsonIgnore
     public Node getRegisteredEntities(String entityName){
         if(hasSettingsXML()){
-            Node documentNode = getXmlFileContent(pluginDirAccess, SETTINGS_XML_FILENAME);
-            return documentNode.selectSingleNode("/settings"+entityName);
+            try{
+	        	Node documentNode = XmlDom4JUtils.getDocumentFromFile(pluginDirAccess, SETTINGS_XML_FILENAME);
+	            return documentNode.selectSingleNode("/settings"+entityName);
+            }catch(IOException e){
+            	logger.error(e);
+            }
         }
         return null;
     }
@@ -221,9 +209,9 @@ public class Plugin extends CorePlugin {
     
     @JsonIgnore
     public String getXmlValue(String xpathExpression, String fileName) {
-        Node documentRoot = getXmlFileContent(pluginDirAccess, fileName);
         try {
-            return documentRoot.valueOf(xpathExpression);
+        	Node documentRoot = XmlDom4JUtils.getDocumentFromFile(pluginDirAccess, fileName);
+            return documentRoot != null ? documentRoot.valueOf(xpathExpression) : null;
         } catch(Exception ex){
             logger.error(ex);
         }
