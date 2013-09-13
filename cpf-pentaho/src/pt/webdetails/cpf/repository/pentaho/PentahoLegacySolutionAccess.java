@@ -71,7 +71,11 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
   }
 
   protected String getPath(String path) {
-    return RepositoryHelper.appendPath(basePath, path);
+    if(path != null){    
+      return RepositoryHelper.appendPath(basePath, path);
+    }else{
+      return basePath;
+    }
   }
   protected ISolutionRepository getRepository() {
     return repository;
