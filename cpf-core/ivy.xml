@@ -32,12 +32,7 @@
     <dependency org="org.codehaus.jackson" name="jackson-mapper-asl" rev="1.8.2" conf='default->default'/>
     <dependency org="org.codehaus.jackson" name="jackson-core-asl" rev="1.8.2" conf='default->default'/>
 
-    <!-- TODO: upgrade to new?
-    <dependency org="com.fasterxml.jackson.core" name="jackson-mapper-asl" rev="2.2.2" conf='default->default'/>
-    <dependency org="com.fasterxml.jackson.core" name="jackson-core" rev="2.2.2" conf='default->default'/>
-    <dependency org="com.fasterxml.jackson.core" name="jackson-annotations" rev="2.2.2" conf='default->default'/>
-    <dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.2.2" conf='default->default'/>
-    -->
+
 
     <dependency org="org.json" name="json" rev="3.1"/>
     <dependency org="org.mozilla" name="rhino" rev="1.7R4"/>
