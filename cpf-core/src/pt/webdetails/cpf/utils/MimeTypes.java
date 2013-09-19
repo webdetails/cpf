@@ -78,7 +78,7 @@ public class MimeTypes {
         try {
             return getMimeType(FileType.valueOf(fileNameSplit[fileNameSplit.length - 1].toUpperCase()));
         } catch (IllegalArgumentException iae) {
-            LogFactory.getLog(MimeTypes.class).error("Unrecognized extension", e);
+            LogFactory.getLog(MimeTypes.class).error("Unrecognized extension", iae);
             return "application/unknown";
         } catch (Exception e) {
             LogFactory.getLog(MimeTypes.class).error("Unrecognized extension", e);
