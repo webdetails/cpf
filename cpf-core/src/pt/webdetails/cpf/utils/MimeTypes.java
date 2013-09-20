@@ -77,9 +77,12 @@ public class MimeTypes {
         String[] fileNameSplit = StringUtils.split(fileName, '.');// fileName.split("\\.");
         try {
             return getMimeType(FileType.valueOf(fileNameSplit[fileNameSplit.length - 1].toUpperCase()));
+        } catch (IllegalArgumentException iae) {
+            LogFactory.getLog(MimeTypes.class).error("Unrecognized extension", iae);
+            return "application/unknown";
         } catch (Exception e) {
             LogFactory.getLog(MimeTypes.class).error("Unrecognized extension", e);
-            return "";
+            return "application/unknown";
         }
     }
 
@@ -88,7 +91,7 @@ public class MimeTypes {
             return null;
         }
         String mimeType = mimeTypes.get(fileType);
-        return mimeType == null ? "" : mimeType;
+        return mimeType == null ? "application/unknown" : mimeType;
     }
     
 }
