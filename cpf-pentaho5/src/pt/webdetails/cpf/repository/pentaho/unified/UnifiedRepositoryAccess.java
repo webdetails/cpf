@@ -137,7 +137,7 @@ public abstract class UnifiedRepositoryAccess {// implements IPluginResourceRWAc
   }
 
   protected String getFullPath(String path) {
-    return FilenameUtils.normalize(RepositoryHelper.appendPath(basePath, path));
+    return FilenameUtils.normalize(RepositoryHelper.appendPath(basePath, path), true);
   }
   //reverse of getFullPath
   protected String relativizePath(String fullPath) {
