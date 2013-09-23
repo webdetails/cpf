@@ -22,7 +22,6 @@ import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
-import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -68,11 +67,15 @@ public class PentahoInterPluginCall extends AbstractInterPluginCall implements R
   }
 
   public boolean pluginExists(){
-    try {
+    /*try {
       return getPluginManager().getContentGenerator(plugin.getName(), getSession()) != null;
     } catch (ObjectFactoryException e) {
       return false;
-    }
+    }*/
+    
+    // IPluginManager.getContentGenerator() signature differs between pentaho 4.x and 5.0
+ 	// must implement different calls in cpf-pentaho and cpf-pentaho5
+ 	return false;
   }
   
   /**
@@ -204,7 +207,7 @@ public class PentahoInterPluginCall extends AbstractInterPluginCall implements R
   }
 
   protected IContentGenerator getContentGenerator(){
-    try {
+    /*try {
       IContentGenerator contentGenerator = getPluginManager().getContentGenerator(plugin.getName(), getSession());
       if(contentGenerator == null){
         logger.error("ContentGenerator for " + plugin.getName() + " could not be fetched.");
@@ -213,7 +216,11 @@ public class PentahoInterPluginCall extends AbstractInterPluginCall implements R
     } catch (Exception e) {
       logger.error("Failed to acquire " + plugin.getName() + " plugin: " + e.toString(), e);
       return null;
-    }
+    }*/
+	  
+	// IPluginManager.getContentGenerator() signature differs between pentaho 4.x and 5.0
+	// must implement different calls in cpf-pentaho and cpf-pentaho5
+	return null;
   }
  
 
