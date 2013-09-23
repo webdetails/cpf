@@ -22,6 +22,7 @@ import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -67,13 +68,11 @@ public class PentahoInterPluginCall extends AbstractInterPluginCall implements R
   }
 
   public boolean pluginExists(){
-    //FIXME COMPILING
-    return false;
-//    try {
-//      return getPluginManager().getContentGenerator(plugin.getName(), getSession()) != null;
-//    } catch (ObjectFactoryException e) {
-//      return false;
-//    }
+    try {
+      return getPluginManager().getContentGenerator(plugin.getName(), getSession()) != null;
+    } catch (ObjectFactoryException e) {
+      return false;
+    }
   }
   
   /**
@@ -205,18 +204,16 @@ public class PentahoInterPluginCall extends AbstractInterPluginCall implements R
   }
 
   protected IContentGenerator getContentGenerator(){
-    //FIXME COMPILING
-    return null;
-//    try {
-//      IContentGenerator contentGenerator = getPluginManager().getContentGenerator(plugin.getName(), getSession());
-//      if(contentGenerator == null){
-//        logger.error("ContentGenerator for " + plugin.getName() + " could not be fetched.");
-//      }
-//      return contentGenerator;
-//    } catch (Exception e) {
-//      logger.error("Failed to acquire " + plugin.getName() + " plugin: " + e.toString(), e);
-//      return null;
-//    }
+    try {
+      IContentGenerator contentGenerator = getPluginManager().getContentGenerator(plugin.getName(), getSession());
+      if(contentGenerator == null){
+        logger.error("ContentGenerator for " + plugin.getName() + " could not be fetched.");
+      }
+      return contentGenerator;
+    } catch (Exception e) {
+      logger.error("Failed to acquire " + plugin.getName() + " plugin: " + e.toString(), e);
+      return null;
+    }
   }
  
 
