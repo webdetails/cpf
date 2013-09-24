@@ -60,6 +60,9 @@
     <dependency org="pentaho" name="pentaho-bi-platform-web-servlet"
                 rev="${dependency.bi-platform.revision}" transitive="false"  changing="true"/>
 
+    <dependency org="pentaho" name="pentaho-bi-platform-repository"
+                rev="${dependency.bi-platform.revision}" transitive="false" changing="true"/>
+
     <!-- MONDRIAN -->
     <dependency org="pentaho" name="mondrian"
                 rev="${dependency.mondrian.rev}" transitive="false"  changing="true"/>
