@@ -33,7 +33,7 @@ public class RepositoryHelper {
       return second;
     }
     else if (StringUtils.isEmpty(second)) {
-      
+      return first;
     }
     int sepCount = 0;
     if (first.charAt(first.length() - 1) == SEPARATOR) {
