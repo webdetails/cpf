@@ -161,6 +161,11 @@ public abstract class FileBasedResourceAccess implements IRWAccess {
     File file = getFile(path);
     FileOutputStream fout = null;
     try {
+      // create a new file if not exists
+      if(file != null && !file.exists()){
+    	  file.createNewFile();
+      }
+    	
       fout = new FileOutputStream(file);
       IOUtils.copy(in, fout);
       return true;
