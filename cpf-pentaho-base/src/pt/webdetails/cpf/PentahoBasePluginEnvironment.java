@@ -14,12 +14,12 @@ public abstract class PentahoBasePluginEnvironment extends PluginEnvironment imp
 
   @Override
   public IReadAccess getPluginSystemReader(String basePath) {
-    return new SystemPluginResourceAccess(this.getClass().getClassLoader(), null);
+    return new SystemPluginResourceAccess(this.getClass().getClassLoader(), basePath);
   }
 
   @Override
   public IRWAccess getPluginSystemWriter(String basePath) {
-    return new SystemPluginResourceAccess(this.getClass().getClassLoader(), null);
+    return new SystemPluginResourceAccess(this.getClass().getClassLoader(), basePath);
   }
 
   //TODO: this is temporary
