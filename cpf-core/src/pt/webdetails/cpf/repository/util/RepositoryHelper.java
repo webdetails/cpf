@@ -1,7 +1,5 @@
 package pt.webdetails.cpf.repository.util;
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
@@ -13,11 +11,11 @@ import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import pt.webdetails.cpf.impl.DefaultRepositoryFile;
-import pt.webdetails.cpf.repository.IRepositoryFile;
-import pt.webdetails.cpf.repository.IRepositoryFileFilter;
 import pt.webdetails.cpf.repository.api.IBasicFile;
 
+/**
+ * Utilities around files and paths.
+ */
 public class RepositoryHelper {
 
   private RepositoryHelper() {}
@@ -27,12 +25,15 @@ public class RepositoryHelper {
    * differs from {@link FilenameUtils#concat(String, String)} in that the second
    * path will never be treated as absolute;
    * @param first can be null
-   * @param second should be something!
+   * @param second should be something if first is null!
    * @return normalized concatenation of both paths
    */
   public static String appendPath(String first, String second) {
     if (StringUtils.isEmpty(first)) {
       return second;
+    }
+    else if (StringUtils.isEmpty(second)) {
+      
     }
     int sepCount = 0;
     if (first.charAt(first.length() - 1) == SEPARATOR) {
@@ -41,7 +42,6 @@ public class RepositoryHelper {
     if(second.charAt(0) == SEPARATOR) {
       sepCount++;
     }
-    String result;
     switch (sepCount) {
       case 0:
         return first + SEPARATOR + second;
@@ -112,20 +112,6 @@ public class RepositoryHelper {
     return resource;
   }
 
-  //TODO: delete?
-  public IRepositoryFile getAsRepositoryFile(File file) {
-    return new DefaultRepositoryFile(file);
-  }
-  
-  public FilenameFilter getAsFilenameFilter(final IRepositoryFileFilter filter) {
-    return new FilenameFilter() {
-      @Override
-      public boolean accept(File dir, String name) {
-        return filter.accept(new DefaultRepositoryFile(new File(dir, name)));
-      }
-    };
-  }
-  
   /**
    * Make one path relative to the other.
    * @param basePath base directory from which 

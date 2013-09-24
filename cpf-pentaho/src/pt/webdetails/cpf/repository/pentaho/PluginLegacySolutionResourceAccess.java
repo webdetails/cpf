@@ -32,4 +32,6 @@ public class PluginLegacySolutionResourceAccess extends PentahoLegacySolutionAcc
       }
       return systemSession;
     }
+
+    
 }

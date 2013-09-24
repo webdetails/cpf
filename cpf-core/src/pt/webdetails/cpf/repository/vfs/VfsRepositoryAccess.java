@@ -404,6 +404,7 @@ public class VfsRepositoryAccess implements IRepositoryAccess {
     }
 
     private String createDefaultSettings() throws IOException {
+        //TODO do we always want user.dir here? 
         String sett = System.getProperty("user.dir");
         sett += "/cpf/settings";
         createFolder("cpf/settings");
