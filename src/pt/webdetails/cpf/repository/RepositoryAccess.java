@@ -117,13 +117,18 @@ public class RepositoryAccess {
   public static RepositoryAccess getRepository(IPentahoSession userSession) {
     return new RepositoryAccess(userSession);
   }
+
+  private String getFullPath(String path){
+    String fullPath = FilenameUtils.getFullPath(path);
+    return FilenameUtils.normalize(fullPath, true);
+  }
   
   public SaveFileStatus publishFile(String fileAndPath, String contents, boolean overwrite) throws UnsupportedEncodingException{
     return publishFile(fileAndPath, contents.getBytes(getEncoding()), overwrite);
   }
   
   public SaveFileStatus publishFile(String fileAndPath, byte[] data, boolean overwrite){
-    return publishFile(FilenameUtils.getFullPath(fileAndPath), FilenameUtils.getName(fileAndPath), data, overwrite);
+    return publishFile(getFullPath(fileAndPath), FilenameUtils.getName(fileAndPath), data, overwrite);
   }
 
   public SaveFileStatus publishFile(String solutionPath, String fileName, byte[] data, boolean overwrite){
