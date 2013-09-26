@@ -22,7 +22,12 @@ public class UserContentRepositoryAccess extends UnifiedRepositoryAccess impleme
    * @param session User session. If null defaults to user that initiated current thread.
    */
   public UserContentRepositoryAccess(IPentahoSession session) {
+    this(session, "/");
+  }
+  
+  public UserContentRepositoryAccess(IPentahoSession session, String startPath) {
     repository = PentahoSystem.get(IUnifiedRepository.class, session);
+    basePath = startPath;
   }
 
   @Override
