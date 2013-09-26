@@ -5,7 +5,11 @@ package pt.webdetails.cpf.plugins;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+
 import org.dom4j.Document;
+import org.dom4j.Element;
 import org.dom4j.Node;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.logging.Log;
@@ -20,10 +24,7 @@ import pt.webdetails.cpf.repository.api.IReadAccess;
 import pt.webdetails.cpf.utils.XmlDom4JUtils;
 
 /**
- *
  * @author Luis Paulo Silva
- * @deprecated: this is for a very specific use and may be moved to CPK;
- * at the very least the name will change
  */
 public class Plugin extends CorePlugin {
     private String description;
@@ -161,20 +162,42 @@ public class Plugin extends CorePlugin {
     		logger.error(e);
     	}
     }
-    
+
+    /**
+     * what's a registered entity?
+     */
     @JsonIgnore
-    public Node getRegisteredEntities(String entityName){
-        if(hasSettingsXML()){
-            try{
-	        	Node documentNode = XmlDom4JUtils.getDocumentFromFile(pluginDirAccess, SETTINGS_XML_FILENAME);
-	            return documentNode.selectSingleNode("/settings"+entityName);
-            }catch(IOException e){
-            	logger.error(e);
-            }
+    public Node getRegisteredEntities(String entityName) {
+      if (hasSettingsXML()) {
+        try {
+          Node documentNode = XmlDom4JUtils.getDocumentFromFile(pluginDirAccess, SETTINGS_XML_FILENAME);
+          return documentNode.selectSingleNode("/settings" + entityName);
+        } catch (IOException e) {
+          logger.error(e);
         }
-        return null;
+      }
+      return null;
     }
-    
+
+    /**
+     * 
+     * @param xpath path from root settings node
+     * @return list of matching nodes, empty if not found
+     */
+    @JsonIgnore //TODO: do we have to stick this in everything now?
+    @SuppressWarnings("unchecked")
+    public List<Element> getSettingsSection(String xpath) {
+      if (hasSettingsXML()) {
+        try {
+          Node documentNode = XmlDom4JUtils.getDocumentFromFile(pluginDirAccess, SETTINGS_XML_FILENAME);
+          return documentNode.selectNodes("/settings" + xpath);
+        } catch (IOException e) {
+          logger.error(e);
+        }
+      }
+      return Collections.<Element>emptyList();
+    }
+
     @JsonIgnore
     public boolean hasPluginXML() {//TODO: by definition, a plugin shoud have this
       return pluginDirAccess.fileExists(PLUGIN_XML_FILENAME);
