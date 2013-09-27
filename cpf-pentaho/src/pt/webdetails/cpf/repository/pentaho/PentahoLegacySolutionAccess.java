@@ -71,9 +71,9 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
   }
 
   protected String getPath(String path) {
-    if(path != null){    
-    return FilenameUtils.normalize(RepositoryHelper.appendPath(basePath, path));
-    }else{
+    if (path != null) {
+      return FilenameUtils.normalize(RepositoryHelper.appendPath(basePath, path));
+    } else {
       return basePath;
     }
   }
@@ -140,7 +140,6 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
   }
 
   public List<IBasicFile> listFiles(String path, final IBasicFileFilter filter, int maxDepth) {
-      //FIXME make recursive, +includeDirs
       path = getPath(path);
       IFileFilter fileFilter = new IFileFilter() {
           @Override
@@ -149,15 +148,28 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
           }
       };
       ISolutionFile baseDir = getRepository().getSolutionFile(path, toResourceAction(FileAccess.READ));
-      ISolutionFile[] files = baseDir.listFiles(fileFilter);
 
-      List<IBasicFile> result = new ArrayList<IBasicFile>(files.length);
-      for (ISolutionFile file : files) {
-          result.add(asBasicFile(file));
-      }
-      return result;
+      return listFiles(new ArrayList<IBasicFile>(), baseDir, fileFilter, false, maxDepth);
   }
 
+  private List<IBasicFile> listFiles(List<IBasicFile> list, ISolutionFile root, IFileFilter filter, boolean includeDirs, int depth) {
+    if (root.isDirectory()) {
+      if (includeDirs && filter.accept(root)) {
+        list.add(asBasicFile(root));
+      }
+      if (depth != 0) {
+        for (ISolutionFile file : root.listFiles()) {
+          listFiles(list, file, filter, includeDirs, depth -1);
+        }
+      }
+    }
+    else if (filter.accept(root)) {
+      list.add(asBasicFile(root));
+    }
+    return list;
+  }
+
+  
   @Override
   public IBasicFile fetchFile(String path) {
     return asBasicFile(getRepository().getFileByPath(getPath(path)));
