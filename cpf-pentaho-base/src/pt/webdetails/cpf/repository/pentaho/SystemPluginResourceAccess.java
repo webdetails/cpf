@@ -61,5 +61,10 @@ public class SystemPluginResourceAccess extends FileBasedResourceAccess implemen
     return StringUtils.isEmpty(path) ? basePath : new File(basePath, path);
   }
 
-
+  @Override
+  public String toString(){
+  	StringBuffer sb = new StringBuffer(getClass().getSimpleName());
+  	sb.append(":").append(basePath);
+  	return sb.toString();
+  }
 }
