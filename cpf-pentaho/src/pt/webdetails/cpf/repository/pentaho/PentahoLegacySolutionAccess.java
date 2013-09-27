@@ -249,4 +249,11 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
             return IPentahoAclEntry.PERM_EXECUTE;
     }
   }
+
+  @Override
+  public String toString(){
+  	StringBuffer sb = new StringBuffer(getClass().getSimpleName());
+  	sb.append(":").append(basePath);
+  	return sb.toString();
+  }
 }
