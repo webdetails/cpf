@@ -111,8 +111,8 @@ public abstract class FileBasedResourceAccess implements IRWAccess {
 
   private String relativizePath(File file) {
     return RepositoryHelper.relativizePath(
-        FilenameUtils.separatorsToUnix(getFile(null).getAbsolutePath()),
-        FilenameUtils.separatorsToUnix(file.getAbsolutePath()),
+        getFile(null).getAbsolutePath(),
+        file.getAbsolutePath(),
         false);
   }
 

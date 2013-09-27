@@ -118,14 +118,14 @@ public class RepositoryHelper {
    * @param fullPath targetPath is calculated to this file
    * @return fullPath as a relative path to basePath
    * 
-   * TODO: simplified version of what's in cde, still untested
+   * TODO: simplified version of what's in cde
    */
   public static String relativizePath(String basePath, String fullPath, boolean assumeCommon) {
 
       final String pathSeparator = "/";
       // Normalize the paths
-      String normalizedTargetPath = FilenameUtils.normalizeNoEndSeparator(fullPath);
-      String normalizedBasePath = FilenameUtils.normalizeNoEndSeparator(basePath);
+      String normalizedTargetPath = FilenameUtils.normalizeNoEndSeparator(fullPath, true);
+      String normalizedBasePath = FilenameUtils.normalizeNoEndSeparator(basePath, true);
 
       String[] base = normalizedBasePath.split(Pattern.quote(pathSeparator));
       String[] target = normalizedTargetPath.split(Pattern.quote(pathSeparator));
