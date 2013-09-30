@@ -9,7 +9,8 @@ import java.io.InputStream;
 public interface IBasicFile {
 
   /**
-   * @return File contents
+   * Opens a stream, don't forget to close it!
+   * @return stream to file contents
    */
   InputStream getContents() throws IOException;
   /**
@@ -19,7 +20,8 @@ public interface IBasicFile {
 
   //TODO:this can be bad:
   /**
-   * Full path for repository type used
+   * Full path for repository type used.<br>
+   * For display purposes only.
    * @return path and filename
    */
   String getFullPath();

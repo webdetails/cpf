@@ -4,9 +4,25 @@
 
 package pt.webdetails.cpf;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import pt.webdetails.cpf.utils.CharsetHelper;
 
 public abstract class Util {
+
+  private static Log logger = LogFactory.getLog(Util.class);
 
     /* Detecting whether we were loaded with the PluginClassLoader is a decent
      * proxy for determining whether we are inside Pentaho. If so, we can go
@@ -14,6 +30,19 @@ public abstract class Util {
      */
 //    private static boolean isPlugin = Util.class.getClassLoader() instanceof PluginClassLoader;
 
+  /**
+   * {@link IOUtils#toString(InputStream)} and ensure the stream is closed.
+   */
+    public static String toString(InputStream input) throws IOException {
+      try {
+        return IOUtils.toString( input, CharsetHelper.getEncoding() );
+      }
+      finally {
+        IOUtils.closeQuietly( input );
+      }
+    }
+
+    // TODO: don't like that printStackTrace
     public static String getExceptionDescription(final Exception e) {
 
         final StringBuilder out = new StringBuilder();
@@ -53,8 +82,45 @@ public abstract class Util {
         return source.substring(startIdx, endIdx);
     }
 
+    //TODO: is this used? change to RepositoryHelper#joinPath
     public static String joinPath(String... paths) {
         return StringUtils.defaultString(StringUtils.join(paths, "/")).replaceAll("\\\\", "/").replaceAll("/+", "/");
+    }
+
+    private static String bytesToHex(byte[] bytes) {
+      StringBuffer hexString = new StringBuffer();
+      for (int i = 0; i < bytes.length; i++)
+      {
+        String byteValue = Integer.toHexString(0xFF & bytes[i]);
+        hexString.append(byteValue.length() == 2 ? byteValue : "0" + byteValue);
+      }
+      return hexString.toString();
+    }
+
+
+    public static InputStream toInputStream(String contents) {
+      try {
+        return new ByteArrayInputStream(contents.getBytes( CharsetHelper.getEncoding() ));
+      } catch ( UnsupportedEncodingException e ) {
+        logger.fatal(CharsetHelper.getEncoding() + " not supported!" , e);
+        return null;
+      }
+    }
+
+    public static String getMd5Digest(String contents) throws IOException {
+      return getMd5Digest( toInputStream( contents ) );
+    }
+
+    public static String getMd5Digest(InputStream input) throws IOException {
+      try {
+        MessageDigest digest = MessageDigest.getInstance("MD5");
+        DigestInputStream digestStream = new DigestInputStream(input, digest);
+        IOUtils.copy(digestStream, NullOutputStream.NULL_OUTPUT_STREAM);
+        return bytesToHex(digest.digest());
+      } catch ( NoSuchAlgorithmException e ) {
+        logger.fatal("No MD5!", e);
+        return null;
+      }
     }
 
 }
