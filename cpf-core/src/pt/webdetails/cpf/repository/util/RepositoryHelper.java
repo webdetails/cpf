@@ -124,8 +124,8 @@ public class RepositoryHelper {
 
       final String pathSeparator = "/";
       // Normalize the paths
-      String normalizedTargetPath = FilenameUtils.normalizeNoEndSeparator(fullPath, true);
-      String normalizedBasePath = FilenameUtils.normalizeNoEndSeparator(basePath, true);
+      String normalizedTargetPath = FilenameUtils.separatorsToUnix(FilenameUtils.normalizeNoEndSeparator(fullPath));
+      String normalizedBasePath = FilenameUtils.separatorsToUnix(FilenameUtils.normalizeNoEndSeparator(basePath));
 
       String[] base = normalizedBasePath.split(Pattern.quote(pathSeparator));
       String[] target = normalizedTargetPath.split(Pattern.quote(pathSeparator));
