@@ -105,6 +105,10 @@ public abstract class UnifiedRepositoryAccess {// implements IPluginResourceRWAc
   
   private RepositoryFile getOrCreateFolder(IUnifiedRepository repo, String path) {
     List<String> foldersToCreate = new ArrayList<String>(); 
+    
+    //FIX MG
+    if(!path.startsWith("/")) path = "/" + path;
+    
     while (!fileExists(path)) {
       // "a / b / c"
       // path<-|^|-> to create
