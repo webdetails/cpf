@@ -158,7 +158,10 @@ public class RepositoryHelper {
               relative.append(".." + pathSeparator);
           }
       }
-      relative.append(normalizedTargetPath.substring(common.length()));
+      if (common.length() < normalizedTargetPath.length()) {
+        relative.append(normalizedTargetPath.substring(common.length()));
+      }
+
       return relative.toString();
   }
 
