@@ -7,7 +7,7 @@
 
   See subfloor.xml for more details
 ============================================================================-->
-<project name="Community Plugin Framework" basedir="." default="jar"
+<project name="Community Plugin Framework P5" basedir="." default="jar"
          xmlns:ivy="antlib:org.apache.ivy.ant">
 
   <description>
@@ -64,8 +64,8 @@
       <classpath>
         <path refid="classpath"/>
       </classpath>
-      <src path="${src.dir}"/>
-      <src path="${src.extra.dir}"/>
+        <src path="${src.extra.dir}"/>
+    	<src path="${src.dir}"/>
     </javac>
   </target>
 

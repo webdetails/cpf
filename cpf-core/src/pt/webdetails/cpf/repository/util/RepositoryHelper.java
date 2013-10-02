@@ -1,5 +1,6 @@
 package pt.webdetails.cpf.repository.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
@@ -7,10 +8,10 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import pt.webdetails.cpf.repository.api.IBasicFile;
 
 /**
@@ -122,7 +123,7 @@ public class RepositoryHelper {
    */
   public static String relativizePath(String basePath, String fullPath, boolean assumeCommon) {
 
-      final String pathSeparator = "/";
+      final String pathSeparator = File.separator;
       // Normalize the paths
       String normalizedTargetPath = FilenameUtils.normalizeNoEndSeparator(fullPath);
       String normalizedBasePath = FilenameUtils.normalizeNoEndSeparator(basePath);
