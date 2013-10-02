@@ -195,13 +195,17 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
       }
 
       public String getPath() {
-        //XXX wrong
-        return file.getSolutionPath();
+        return RepositoryHelper.relativizePath( basePath, RepositoryHelper.appendPath( getSolutionPath(file), file.getFileName()), true );
       }
 
-	  public boolean isDirectory() {
-	    return file.isDirectory();
-	  }
+      public boolean isDirectory() {
+        return file.isDirectory();
+      }
+
+      private String getSolutionPath( ISolutionFile file ) {
+        String path = FilenameUtils.separatorsToUnix( file.getSolutionPath() );
+        return StringUtils.stripStart( path, "/" );
+      }
     };
   }
 
