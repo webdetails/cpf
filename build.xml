@@ -1,0 +1,37 @@
+<project name="Community Dashboard Editor" basedir="." default="jar"
+         xmlns:ivy="antlib:org.apache.ivy.ant">
+
+  <description>
+    CPF convenience build
+  </description>
+
+    <target name="clean-all">
+        <ant dir="cpf-core" antfile="build.xml" target="clean-all" inheritAll="true"/>
+        <ant dir="cpf-pentaho" antfile="build.xml" target="clean-all" inheritAll="true"/>
+        <ant dir="cpf-pentaho5" antfile="build.xml" target="clean-all" inheritAll="true"/>
+    </target>
+
+    <target name="build-core" >
+        <ant dir="cpf-core" antfile="build.xml" target="dist" inheritAll="true"/>
+    </target>
+
+    <target name="build-and-test-core" >
+        <ant dir="cpf-core" antfile="build.xml" target="dist" inheritAll="true"/>
+        <ant dir="cpf-core" antfile="build.xml" target="test" inheritAll="true"/>
+    </target>
+
+    <target name="publish-local-core">
+        <ant dir="cpf-core" antfile="build.xml" target="publish-local" inheritAll="true"/>   
+    </target>
+
+    <target name="publish-local" depends="publish-local-core">
+        <ant dir="cpf-pentaho" antfile="build.xml" target="publish-local" inheritAll="true"/>
+        <ant dir="cpf-pentaho5" antfile="build.xml" target="publish-local" inheritAll="true"/>
+    </target>
+
+    <target name="dist" depends="publish-local-core">
+	<ant dir="cpf-pentaho" antfile="build.xml" target="dist" inheritAll="true"/>
+        <ant dir="cpf-pentaho5" antfile="build.xml" target="dist" inheritAll="true"/>
+    </target>
+
+</project>
