@@ -18,7 +18,6 @@ public interface IBasicFile {
    */
   String getName();
 
-  //TODO:this can be bad:
   /**
    * Full path for repository type used.<br>
    * For display purposes only.

@@ -3,7 +3,6 @@ package pt.webdetails.cpf.repository.util;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
-import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -19,7 +18,11 @@ import pt.webdetails.cpf.repository.api.IBasicFile;
 public class RepositoryHelper {
 
   private RepositoryHelper() {}
-  private static final char SEPARATOR = '/';
+
+  /**
+   * All classes in repository namespace should work with slashes.
+   */
+  public static final char SEPARATOR = '/';
 
   /**
    * differs from {@link FilenameUtils#concat(String, String)} in that the second
@@ -117,18 +120,15 @@ public class RepositoryHelper {
    * @param basePath base directory from which 
    * @param fullPath targetPath is calculated to this file
    * @return fullPath as a relative path to basePath
-   * 
-   * TODO: simplified version of what's in cde
    */
   public static String relativizePath(String basePath, String fullPath, boolean assumeCommon) {
 
-      final String pathSeparator = "/";
       // Normalize the paths
       String normalizedTargetPath = FilenameUtils.separatorsToUnix(FilenameUtils.normalizeNoEndSeparator(fullPath));
       String normalizedBasePath = FilenameUtils.separatorsToUnix(FilenameUtils.normalizeNoEndSeparator(basePath));
 
-      String[] base = normalizedBasePath.split(Pattern.quote(pathSeparator));
-      String[] target = normalizedTargetPath.split(Pattern.quote(pathSeparator));
+      String[] base = StringUtils.split( normalizedBasePath, SEPARATOR );
+      String[] target = StringUtils.split( normalizedTargetPath, SEPARATOR );
 
       // First get all the common elements. Store them as a string,
       // and also count how many of them there are.
@@ -138,7 +138,7 @@ public class RepositoryHelper {
       while (commonIndex < target.length && commonIndex < base.length
               && target[commonIndex].equals(base[commonIndex])) {
           common.append(target[commonIndex]);
-          common.append(pathSeparator);
+          common.append(SEPARATOR);
           commonIndex++;
       }
 
@@ -155,7 +155,7 @@ public class RepositoryHelper {
           int numDirsUp = base.length - commonIndex;
 
           for (int i = 0; i < numDirsUp; i++) {
-              relative.append(".." + pathSeparator);
+              relative.append(".." + SEPARATOR);
           }
       }
       if (common.length() < normalizedTargetPath.length()) {

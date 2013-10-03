@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+/**
+ * Access a file repository for read-only purposes.<br>
+ * All paths should use '/' as separator.
+ */
 public interface IReadAccess {
 
   public static final int DEPTH_ZERO = 0;
