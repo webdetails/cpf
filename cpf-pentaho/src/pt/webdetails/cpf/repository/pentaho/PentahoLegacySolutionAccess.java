@@ -106,8 +106,8 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
   @Override
   public boolean createFolder(String path) {
     path = StringUtils.chomp(path, "/");//strip trailing / if there
-    String folderName = FilenameUtils.getBaseName(path);
-    String folderPath = path.substring(0, StringUtils.lastIndexOf(path, folderName));
+    String folderName = FilenameUtils.getBaseName(getPath(path));
+    String folderPath = getPath(path).substring(0, StringUtils.lastIndexOf(getPath(path), folderName));
 
     try {
       repositoryService.createFolder(userSession, "", folderPath, folderName, "");
