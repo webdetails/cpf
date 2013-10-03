@@ -187,9 +187,12 @@ public abstract class UnifiedRepositoryAccess {// implements IPluginResourceRWAc
     return listFiles(getFullPath(path), false, filter, false, new ArrayList<IBasicFile>());
   }
 
+  public List<IBasicFile> listFiles(String path, IBasicFileFilter filter, int maxDepth, boolean includeDirs) {
+    return listFiles(getFullPath(path), includeDirs, filter, false, new ArrayList<IBasicFile>());
+  }
+
   public List<IBasicFile> listFiles(String path, IBasicFileFilter filter, int maxDepth) {
-    //FIXME implement
-    throw new NotImplementedException();
+    return listFiles(path, filter, maxDepth, false);
   }
   protected IBasicFile asBasicFile(final RepositoryFile file, final String path) {
     final String relativePath = 
@@ -248,7 +251,7 @@ public abstract class UnifiedRepositoryAccess {// implements IPluginResourceRWAc
     RepositoryFile root = tree.getFile();
     //XXX includeDirs is right? will order make sense?
     if(showHiddenFiles || !root.isHidden()){
-      IBasicFile file = asBasicFile(root, relativizePath(path));//FIXME: path mess!
+      IBasicFile file = asBasicFile(root, relativizePath(path));
       if(tree.getChildren().size() > 0){
         for(RepositoryFileTree element : tree.getChildren()){
           listFiles(element.getFile().getPath(), includeDirs, filter, showHiddenFiles, output);

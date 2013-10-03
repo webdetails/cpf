@@ -87,6 +87,11 @@ public abstract class FileBasedResourceAccess implements IRWAccess {
   public List<IBasicFile> listFiles(String path, IBasicFileFilter filter) {
     return listFiles(new ArrayList<IBasicFile>(), getFile(path), asFileFilter(filter), false, -1);
   }
+
+  public List<IBasicFile> listFiles(String path, IBasicFileFilter filter, int maxDepth, boolean includeDirs) {
+    return listFiles(new ArrayList<IBasicFile>(), getFile(path), asFileFilter(filter), includeDirs, -1);
+  }
+
   public List<IBasicFile> listFiles(String path, IBasicFileFilter filter, int maxDepth) {
     return listFiles(new ArrayList<IBasicFile>(), getFile(path), asFileFilter(filter), false, maxDepth);
   }

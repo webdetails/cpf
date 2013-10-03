@@ -140,26 +140,29 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
   }
 
   public List<IBasicFile> listFiles(String path, final IBasicFileFilter filter, int maxDepth) {
-      path = getPath(path);
-      IFileFilter fileFilter = new IFileFilter() {
-          @Override
-          public boolean accept(ISolutionFile isf) {
-              return filter.accept(asBasicFile(isf));
-          }
-      };
-      ISolutionFile baseDir = getRepository().getSolutionFile(path, toResourceAction(FileAccess.READ));
-
-      return listFiles(new ArrayList<IBasicFile>(), baseDir, fileFilter, false, maxDepth);
+      return listFiles(path, filter, maxDepth, false);
   }
 
-  private List<IBasicFile> listFiles(List<IBasicFile> list, ISolutionFile root, IFileFilter filter, boolean includeDirs, int depth) {
+  public List<IBasicFile> listFiles(String path, final IBasicFileFilter filter, int maxDepth, boolean includeDirs) {
+    path = getPath(path);
+    IFileFilter fileFilter = new IFileFilter() {
+        @Override
+        public boolean accept(ISolutionFile isf) {
+            return filter.accept(asBasicFile(isf));
+        }
+    };
+    ISolutionFile baseDir = getRepository().getSolutionFile(path, toResourceAction(FileAccess.READ));
+    return listFiles(new ArrayList<IBasicFile>(), baseDir, fileFilter, includeDirs, maxDepth, 0);
+  }
+
+  private List<IBasicFile> listFiles(List<IBasicFile> list, ISolutionFile root, IFileFilter filter, boolean includeDirs, int depth, int level) {
     if (root.isDirectory()) {
-      if (includeDirs && filter.accept(root)) {
+      if (includeDirs && level > 0 && filter.accept(root)) {
         list.add(asBasicFile(root));
       }
       if (depth != 0) {
         for (ISolutionFile file : root.listFiles()) {
-          listFiles(list, file, filter, includeDirs, depth -1);
+          listFiles(list, file, filter, includeDirs, depth -1, level+1);
         }
       }
     }
@@ -203,8 +206,16 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
       }
 
       private String getSolutionPath( ISolutionFile file ) {
+        if (file.isRoot()) {
+          return "/";
+        }
         String path = FilenameUtils.separatorsToUnix( file.getSolutionPath() );
-        return StringUtils.stripStart( path, "/" );
+        return path;
+        //return StringUtils.stripStart( path, "/" );
+      }
+
+      public String toString() {
+        return getFullPath();
       }
     };
   }

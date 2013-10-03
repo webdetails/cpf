@@ -37,7 +37,13 @@ public interface IReadAccess {
    * @param path
    * @param filter (optional)
    * @param maxDepth -1 for ANY, [1..N] to limit depth
+   * @param includeDirs if directories should be tested and included as well.
    * @return Files under path matching filter
+   */
+  List<IBasicFile> listFiles(String path, IBasicFileFilter filter, int maxDepth, boolean includeDirs);
+
+  /**
+   * @deprecated use {@link #listFiles(String, IBasicFileFilter, int, boolean)}, we're not going to have every combination
    */
   List<IBasicFile> listFiles(String path, IBasicFileFilter filter, int maxDepth);
 

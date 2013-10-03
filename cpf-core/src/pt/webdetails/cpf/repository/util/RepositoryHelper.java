@@ -127,6 +127,13 @@ public class RepositoryHelper {
       String normalizedTargetPath = FilenameUtils.separatorsToUnix(FilenameUtils.normalizeNoEndSeparator(fullPath));
       String normalizedBasePath = FilenameUtils.separatorsToUnix(FilenameUtils.normalizeNoEndSeparator(basePath));
 
+      if (StringUtils.isEmpty( normalizedBasePath )) {
+        return fullPath;
+      }
+      if (StringUtils.isEmpty( normalizedTargetPath )) {
+        return basePath;
+      }
+      
       String[] base = StringUtils.split( normalizedBasePath, SEPARATOR );
       String[] target = StringUtils.split( normalizedTargetPath, SEPARATOR );
 
@@ -171,15 +178,13 @@ public class RepositoryHelper {
 
     for (IBasicFile file : files) {
       if (file.isDirectory()) {
-        out.append("<li class=\"directory collapsed\"><a href=\"#\" rel=\"" + baseDir + file.getName() + "/\">" + file.getName() + "</a></li>");
+        out.append("<li class=\"directory collapsed\"><a href=\"#\" rel=\"" + file.getPath() + "/\">" + file.getName() + "</a></li>");
       }
     }
 
     for (IBasicFile file : files) {
       if (!file.isDirectory()) {
-        int dotIndex = file.getName().lastIndexOf('.');
-        String ext = dotIndex > 0 ? file.getName().substring(dotIndex + 1) : "";
-        out.append("<li class=\"file ext_" + ext + "\"><a href=\"#\" rel=\"" + baseDir + file.getName() + "\">" + file.getName() + "</a></li>");
+        out.append("<li class=\"file ext_" + file.getExtension() + "\"><a href=\"#\" rel=\"" +  file.getPath() + "\">" + file.getName() + "</a></li>");
       }
     }
     out.append("</ul>");
