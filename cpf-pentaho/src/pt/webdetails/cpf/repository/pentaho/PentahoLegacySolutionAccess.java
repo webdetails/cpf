@@ -104,7 +104,7 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
   }
 
   @Override
-  public boolean createFolder(String path) {
+  public boolean createFolder(String path) { //TODO: shouldn't this be recursive?
     path = StringUtils.chomp(path, "/");//strip trailing / if there
     String folderName = FilenameUtils.getBaseName(getPath(path));
     String folderPath = getPath(path).substring(0, StringUtils.lastIndexOf(getPath(path), folderName));
@@ -187,7 +187,7 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
       }
 
       public String getFullPath() {
-        return StringUtils.replace(file.getFullPath(), "\\", "/");
+        return FilenameUtils.separatorsToUnix( file.getFullPath() );
       }
 
       public String getName() {
@@ -229,7 +229,7 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
             }
         }
         logger.warn("hasAccess: Unable to check access control for " + filePath + " using default access settings.");
-        if (StringUtils.startsWith(file.getSolutionPath(), "system/")) {
+        if ( StringUtils.startsWith( FilenameUtils.separatorsToUnix( file.getSolutionPath() ), "system/" ) ) {
           return SecurityHelper.isPentahoAdministrator(userSession);
         }
         switch (access) {
