@@ -68,4 +68,8 @@ public class CommonParameterProvider implements ICommonParameterProvider {
 		return params.containsKey(name);
 	}
 
+	@Override
+	public Map<String, Object> getParameters() {
+		return params;
+	}
 }
