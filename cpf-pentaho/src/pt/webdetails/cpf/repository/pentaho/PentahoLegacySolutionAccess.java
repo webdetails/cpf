@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -51,7 +52,8 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
   public boolean saveFile(String path, InputStream contents) {
     try {
       path =  getPath(path);
-      int status = getRepository().publish("",FilenameUtils.getFullPath(path), FilenameUtils.getName(path), IOUtils.toByteArray(contents), true);
+      int status = getRepository().publish(FilenameUtils.separatorsToUnix(PentahoSystem.getApplicationContext().getSolutionPath("")),
+    		  FilenameUtils.getFullPath(path), FilenameUtils.getName(path), IOUtils.toByteArray(contents), true);
       switch (status) {
           case ISolutionRepository.FILE_ADD_SUCCESSFUL:
               return true;
