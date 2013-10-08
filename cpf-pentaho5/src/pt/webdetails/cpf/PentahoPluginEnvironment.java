@@ -2,7 +2,12 @@ package pt.webdetails.cpf;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 
+import pt.webdetails.cpf.context.api.IUrlProvider;
+import pt.webdetails.cpf.messaging.BeanyPluginCall;
+import pt.webdetails.cpf.plugincall.api.IPluginCall;
 import pt.webdetails.cpf.repository.api.IRWAccess;
 import pt.webdetails.cpf.repository.api.IReadAccess;
 import pt.webdetails.cpf.repository.api.IUserContentAccess;
@@ -16,15 +21,15 @@ public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment {
   private static PentahoPluginEnvironment instance = new PentahoPluginEnvironment();
   private static Log logger = LogFactory.getLog(PentahoPluginEnvironment.class);
 
-  private PentahoPluginEnvironment() {}
-//
+  protected PentahoPluginEnvironment() {}
+
   public static PentahoPluginEnvironment getInstance() {
     return instance;
   }
 
   @Override
   public IUserContentAccess getUserContentAccess(String basePath) {
-    return new UserContentRepositoryAccess(null);
+    return new UserContentRepositoryAccess( PentahoSessionHolder.getSession(), basePath);
   }
 
   @Override
@@ -37,6 +42,47 @@ public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment {
   public IRWAccess getPluginRepositoryWriter(String basePath) {
     basePath = RepositoryHelper.appendPath(getPluginRepositoryDir(), basePath);
     return new PluginRepositoryResourceAccess(basePath);
+  }
+
+
+  @Override
+  public IUrlProvider getUrlProvider() {
+    return new IUrlProvider() {
+
+      @Override
+      public String getPluginBaseUrl( String pluginId ) {
+        return Util.joinPath( getWebappContextPath(), "plugin", pluginId, "api" ) + "/";
+      }
+
+      @Override
+      public String getPluginBaseUrl() {
+        return getPluginBaseUrl( getPluginId() );
+      }
+
+      @Override
+      public String getPluginStaticBaseUrl( String pluginId ) {
+        return Util.joinPath( getWebappContextPath(), "api/plugins/", pluginId ) + "/";
+      }
+
+      @Override
+      public String getPluginStaticBaseUrl() {
+        return getPluginStaticBaseUrl( getPluginId() );
+      }
+
+      @Override
+      public String getRepositoryUrl(String fullPath) {
+        String colonPath = fullPath.replaceAll( "/", ":" );
+        return Util.joinPath( getWebappContextPath(), "/api/repos/", colonPath, "/content" );
+      }
+      
+      private String getWebappContextPath() { //TODO: better alternative
+        return PentahoRequestContextHolder.getRequestContext().getContextPath();
+      }
+    };
+  }
+
+  public IPluginCall getPluginCall( String pluginId, String servicePath, String method ) {
+    return new BeanyPluginCall( pluginId, servicePath, method );
   }
 
 }

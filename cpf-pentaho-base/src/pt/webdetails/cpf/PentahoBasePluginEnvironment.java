@@ -56,7 +56,7 @@ public abstract class PentahoBasePluginEnvironment extends PluginEnvironment imp
   /**
    * @return The plugin's ID. This isn't efficient and should be overridden by plugin.
    */
-  protected String getPluginId() {
+  public String getPluginId() {
     if (pluginId == null) {
       try {
         // this depends on cpf being loaded by the plugin classloader
@@ -70,4 +70,7 @@ public abstract class PentahoBasePluginEnvironment extends PluginEnvironment imp
     }
     return pluginId;
   }
+
+
+
 }

@@ -1,5 +1,7 @@
 package pt.webdetails.cpf;
 
+import pt.webdetails.cpf.context.api.IUrlProvider;
+import pt.webdetails.cpf.plugincall.api.IPluginCall;
 import pt.webdetails.cpf.repository.api.IContentAccessFactory;
 
 /**
@@ -33,7 +35,11 @@ public abstract class PluginEnvironment {
   public abstract IContentAccessFactory getContentAccessFactory();
 
 
-  
+  /**
+   * For getting base context-specific URLs 
+   */
+  public abstract IUrlProvider getUrlProvider();
+
   /**
    * Should be overridden per plugin TODO: something else here
    * @return
@@ -41,5 +47,14 @@ public abstract class PluginEnvironment {
   public abstract PluginSettings getPluginSettings();
 
 
+  public abstract String getPluginId();
 
+  /**
+   * Get an inter-plugin call
+   * @param pluginId plugin to be invoked
+   * @param service service path to plugin, not used in legacy calls
+   * @param method method being invoked
+   * @return 
+   */
+  public abstract IPluginCall getPluginCall(String pluginId, String service, String method);
 }
