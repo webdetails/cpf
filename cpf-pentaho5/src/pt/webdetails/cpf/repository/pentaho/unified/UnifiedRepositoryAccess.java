@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -15,6 +14,7 @@ import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 
@@ -32,7 +32,12 @@ public abstract class UnifiedRepositoryAccess {// implements IPluginResourceRWAc
   protected abstract IUnifiedRepository getRepository();
 
   public boolean fileExists(String path) {
-    return getRepositoryFile(path) != null;
+    try {
+      return getRepositoryFile(path) != null;
+    }
+    catch (UnifiedRepositoryException e) {
+      return false;
+    }
   }
 
   public String getFileContents(String path) throws IOException {
@@ -70,7 +75,7 @@ public abstract class UnifiedRepositoryAccess {// implements IPluginResourceRWAc
     return 0L;
   }
 
-  protected RepositoryFile getRepositoryFile(String path) {
+  protected RepositoryFile getRepositoryFile(String path) throws UnifiedRepositoryException {
     return getRepository().getFile(getFullPath(path));
   }
 

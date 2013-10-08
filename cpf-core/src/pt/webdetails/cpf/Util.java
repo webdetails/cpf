@@ -18,6 +18,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import pt.webdetails.cpf.repository.util.RepositoryHelper;
 import pt.webdetails.cpf.utils.CharsetHelper;
 
 public abstract class Util {
@@ -82,9 +83,9 @@ public abstract class Util {
         return source.substring(startIdx, endIdx);
     }
 
-    //TODO: is this used? change to RepositoryHelper#joinPath
     public static String joinPath(String... paths) {
-        return StringUtils.defaultString(StringUtils.join(paths, "/")).replaceAll("\\\\", "/").replaceAll("/+", "/");
+      return RepositoryHelper.joinPaths( paths );
+      //return StringUtils.defaultString(StringUtils.join(paths, "/")).replaceAll("\\\\", "/").replaceAll("/+", "/");
     }
 
     private static String bytesToHex(byte[] bytes) {
