@@ -25,7 +25,6 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.CollectionFactory;
-import org.springframework.web.util.WebUtils;
 import org.springframework.util.ObjectUtils;
 
 
@@ -61,12 +60,12 @@ class CpfServletContext implements ServletContext {
      public CpfServletContext(String resourceBasePath, ResourceLoader resourceLoader) {
          this.resourceBasePath = (resourceBasePath != null ? resourceBasePath : "");
          this.resourceLoader = (resourceLoader != null ? resourceLoader : new DefaultResourceLoader());
-
-         // Use JVM temp dir as ServletContext temp dir.
-         String tempDir = System.getProperty(TEMP_DIR_SYSTEM_PROPERTY);
-         if (tempDir != null) {
-             this.attributes.put(WebUtils.TEMP_DIR_CONTEXT_ATTRIBUTE, new File(tempDir));
-         }
+//
+//         // Use JVM temp dir as ServletContext temp dir.
+//         String tempDir = System.getProperty(TEMP_DIR_SYSTEM_PROPERTY);
+//         if (tempDir != null) {
+//             this.attributes.put(WebUtils.TEMP_DIR_CONTEXT_ATTRIBUTE, new File(tempDir));
+//         }
      }
 
 

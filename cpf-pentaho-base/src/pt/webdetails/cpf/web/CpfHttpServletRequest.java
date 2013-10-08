@@ -30,10 +30,11 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.springframework.core.CollectionFactory;
+import pt.webdetails.cpf.utils.CharsetHelper;
+
 
 /**
- *
+ * TODO: turn this into an immutable static base mock
  * @author diogomariano
  */
 public class CpfHttpServletRequest implements HttpServletRequest {
@@ -63,38 +64,37 @@ public class CpfHttpServletRequest implements HttpServletRequest {
     private String pathInfo;
     private String requestURI;
     private String contextPath = "";
-    private final Vector locales = new Vector();
+    private final Vector<Locale> locales = new Vector<Locale>();
     
     
     private String authType;
     private Cookie[] cookies;
-    private final Hashtable headers = new Hashtable();
-    private final Hashtable attributes = new Hashtable();
+    private final Hashtable<String, Object> headers = new Hashtable<String, Object>();
+    private final Hashtable<String, Object> attributes = new Hashtable<String, Object>();
     
-    private final Map parameters = CollectionFactory.createLinkedMapIfPossible(16);
+    private final Map<String, String[]> parameters = null;//must be wrapped
 
     
-    private final Set userRoles = new HashSet();
+    private final Set<String> userRoles = new HashSet<String>();
 
     
     private boolean active = true;
     private String servletPath;
     private Principal userPrincipal;
     private String queryString;
-    private String remoteUser;
     
     private HttpSession session;
     
     private boolean requestedSessionIdValid = true;
     private boolean requestedSessionIdFromCookie = true;
     private boolean requestedSessionIdFromURL = false;
-    private String characterEncoding;
+    private String characterEncoding = CharsetHelper.getEncoding();
     
     private byte[] content;
     private String contentType;
     
     public CpfHttpServletRequest() {
-         this(null, "", "");            
+         this(null, "", "");
     }
     
      public CpfHttpServletRequest(String method, String requestURI) {
@@ -158,7 +158,7 @@ public class CpfHttpServletRequest implements HttpServletRequest {
             this.headers.put(name, header);
         }
         if (value instanceof Collection) {
-            header.addValues((Collection) value);
+            header.addValues((Collection<?>) value);
         }
         else if (value.getClass().isArray()) {
             header.addValueArray(value);
@@ -194,13 +194,13 @@ public class CpfHttpServletRequest implements HttpServletRequest {
     }
 
     @Override
-    public Enumeration getHeaders(String name) {
+    public Enumeration<Object> getHeaders(String name) {
         HeaderValueHolder header = HeaderValueHolder.getByName(this.headers, name);
-        return Collections.enumeration(header != null ? header.getValues() : Collections.EMPTY_LIST);
+        return header != null ? header.getValues() : Collections.<Object>emptyEnumeration();
     }
 
     @Override
-    public Enumeration getHeaderNames() {
+    public Enumeration<String> getHeaderNames() {
         return this.headers.keys();
     }
 
@@ -228,7 +228,7 @@ public class CpfHttpServletRequest implements HttpServletRequest {
     }
     
     public void setMethod() {
-        this.method = method;
+//        this.method = method;
     }
 
     @Override
@@ -270,7 +270,7 @@ public class CpfHttpServletRequest implements HttpServletRequest {
     }
     
     public void setRemoteUser(String remoteUser) {
-        this.remoteUser = remoteUser;
+//        this.remoteUser = remoteUser;
     }
 
     public void addRole(String role) {
@@ -394,7 +394,7 @@ public class CpfHttpServletRequest implements HttpServletRequest {
     }
 
     @Override
-    public Enumeration getAttributeNames() {
+    public Enumeration<String> getAttributeNames() {
         return this.attributes.keys();
     }
 
@@ -451,40 +451,40 @@ public class CpfHttpServletRequest implements HttpServletRequest {
     public void setParameter(String name, String[] values) {
         this.parameters.put(name, values);
     }
-    
-    public void addParameter(String name, String value) {
-        addParameter(name, new String[] {value});
-    }
-    
-    public void addParameter(String name, String[] values) {
-        String[] oldArr = (String[]) this.parameters.get(name);
-        if (oldArr != null) {
-            String[] newArr = new String[oldArr.length + values.length];
-            System.arraycopy(oldArr, 0, newArr, 0, oldArr.length);
-            System.arraycopy(values, 0, newArr, oldArr.length, values.length);
-            this.parameters.put(name, newArr);
-        }
-        else {
-            this.parameters.put(name, values);
-        }
-    }
-    
-    public void removeParameter(String name) {
-        this.parameters.remove(name);
-    }
+//    
+//    public void addParameter(String name, String value) {
+//        addParameter(name, new String[] {value});
+//    }
+//    
+//    public void addParameter(String name, String[] values) {
+//        String[] oldArr = (String[]) this.parameters.get(name);
+//        if (oldArr != null) {
+//            String[] newArr = new String[oldArr.length + values.length];
+//            System.arraycopy(oldArr, 0, newArr, 0, oldArr.length);
+//            System.arraycopy(values, 0, newArr, oldArr.length, values.length);
+//            this.parameters.put(name, newArr);
+//        }
+//        else {
+//            this.parameters.put(name, values);
+//        }
+//    }
+//    
+//    public void removeParameter(String name) {
+//        this.parameters.remove(name);
+//    }
 
     @Override
-    public Enumeration getParameterNames() {
+    public Enumeration<String> getParameterNames() {
         return Collections.enumeration(this.parameters.keySet());
     }
 
     @Override
     public String[] getParameterValues(String name) {
-        return (String[]) this.parameters.get(name);
+        return this.parameters.get(name);
     }
 
     @Override
-    public Map getParameterMap() {
+    public Map<String, String[]> getParameterMap() {
         return Collections.unmodifiableMap(this.parameters);
     }
 
@@ -586,7 +586,7 @@ public class CpfHttpServletRequest implements HttpServletRequest {
     }
 
     @Override
-    public Enumeration getLocales() {
+    public Enumeration<Locale> getLocales() {
         return this.locales.elements();
     }
 
@@ -645,5 +645,5 @@ public class CpfHttpServletRequest implements HttpServletRequest {
     
     public void setLocalPort(int localPort) {
         this.localPort = localPort;
-    }    
+    }
 }

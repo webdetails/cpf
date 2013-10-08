@@ -13,19 +13,18 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.util.Assert;
-import org.springframework.web.util.WebUtils;
+import pt.webdetails.cpf.utils.CharsetHelper;
 
 public class CpfHttpServletResponse implements HttpServletResponse {
 
@@ -38,7 +37,7 @@ public class CpfHttpServletResponse implements HttpServletResponse {
 
     private boolean outputStreamAccessAllowed = true;
     private boolean writerAccessAllowed = true;
-    private String characterEncoding = WebUtils.DEFAULT_CHARACTER_ENCODING;
+    private String characterEncoding = CharsetHelper.getEncoding();
     private final ByteArrayOutputStream content = new ByteArrayOutputStream();
     private final DelegatingServletOutputStream outputStream = new DelegatingServletOutputStream(this.content);
     
@@ -58,7 +57,7 @@ public class CpfHttpServletResponse implements HttpServletResponse {
      * The key is the lowercase header name; the value is a {@link HeaderValueHolder} object.
      */
     
-    private final Map headers = new HashMap();
+    private final Hashtable<String, Object> headers = new Hashtable<String, Object>();
     private int status = HttpServletResponse.SC_OK;
     private String errorMessage;
     private String redirectedUrl;
@@ -111,6 +110,7 @@ public class CpfHttpServletResponse implements HttpServletResponse {
         return this.characterEncoding;
     }
 
+    @Override
     public ServletOutputStream getOutputStream() {
         if (!this.outputStreamAccessAllowed) {
             throw new IllegalStateException("OutputStream access not allowed");
@@ -255,12 +255,12 @@ public class CpfHttpServletResponse implements HttpServletResponse {
         HeaderValueHolder header = HeaderValueHolder.getByName(this.headers, name);
         return (header != null ? header.getValue() : null);
     }
-    
-    public List getHeaders(String name) {
+
+    public Enumeration<Object> getHeaders(String name) {
         HeaderValueHolder header = HeaderValueHolder.getByName(this.headers, name);
-        return (header != null ? header.getValues() : Collections.EMPTY_LIST);
+        return header != null ? header.getValues() : Collections.<Object>emptyEnumeration();
     }
-    
+
     public String encodeURL(String url) {
         return url;
     }
