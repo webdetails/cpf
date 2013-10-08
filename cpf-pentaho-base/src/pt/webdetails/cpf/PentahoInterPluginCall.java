@@ -15,8 +15,6 @@ import java.util.concurrent.Callable;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
-import mondrian.tui.MockHttpServletResponse;
-
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IParameterProvider;
@@ -27,15 +25,18 @@ import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.web.http.request.HttpRequestParameterProvider;
+
 import pt.webdetails.cpf.plugin.CorePlugin;
 import pt.webdetails.cpf.utils.CharsetHelper;
+import pt.webdetails.cpf.web.CpfHttpServletResponse;
+
 
 
 /**
  * Call to another pentaho plugin through its content generator.
  * Not thread safe.
  */
-public class PentahoInterPluginCall extends AbstractInterPluginCall implements Runnable, Callable<String>   {
+public class PentahoInterPluginCall extends AbstractInterPluginCall implements Runnable, Callable<String> {
 
   private ServletResponse response;
   private HttpServletRequest request;
@@ -145,7 +146,7 @@ public class PentahoInterPluginCall extends AbstractInterPluginCall implements R
   public ServletResponse getResponse() {
     if(response == null){
       logger.debug("No response passed to method " + this.method + ", adding mock response.");
-      response = new MockHttpServletResponse();
+      response = new CpfHttpServletResponse();
     }
     
     return response;

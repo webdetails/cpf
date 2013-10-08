@@ -4,6 +4,9 @@ import java.util.Map;
 
 import pt.webdetails.cpf.plugin.CorePlugin;
 
+/**
+ * @deprecated gonna break this one too
+ */
 public interface IPluginCall {
 
 	public final static String DEFAULT_ENCODING = "UTF-8";
