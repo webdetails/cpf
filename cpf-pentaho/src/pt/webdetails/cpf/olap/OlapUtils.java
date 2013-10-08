@@ -62,45 +62,7 @@ public class OlapUtils {
 
   }
 
-  public Object process(IParameterProvider pathParams) {
-    try {
-      String operation = pathParams.getStringParameter("operation", "-");
-
-      if (operation.equals("GetOlapCubes")) {
-
-        return getOlapCubes();
-
-      } else if (operation.equals("GetCubeStructure")) {
-
-        String catalog = pathParams.getStringParameter("catalog", null);
-        String cube = pathParams.getStringParameter("cube", null);
-        String jndi = pathParams.getStringParameter("jndi", null);
-
-        return getCubeStructure(catalog, cube, jndi);
-
-      } else if (operation.equals("GetLevelMembersStructure")) {
-
-        String catalog = pathParams.getStringParameter("catalog", null);
-        String cube = pathParams.getStringParameter("cube", null);
-        String member = pathParams.getStringParameter("member", null);
-        String direction = pathParams.getStringParameter("direction", null);
-
-        return getLevelMembersStructure(catalog, cube, member, direction);
-
-      } else if (operation.equals("test")) {
-
-        // Test method
-        makeTest();
-      }
-
-      return "ok";
-    } catch (Exception e) {
-      logger.error(e);
-    }
-    return null;
-  }
-
-  private JSONObject getOlapCubes() throws JSONException {
+  public JSONObject getOlapCubes() throws JSONException {
 
     logger.debug("Returning Olap cubes");
 
@@ -124,7 +86,7 @@ public class OlapUtils {
 
   }
 
-  private JSONObject getCubeStructure(String catalog, String cube, String jndi) throws JSONException {
+  public JSONObject getCubeStructure(String catalog, String cube, String jndi) throws JSONException {
 
     logger.debug("Returning Olap structure for cube " + cube);
     JSONObject result = new JSONObject();
@@ -304,7 +266,7 @@ public class OlapUtils {
     return catalogs;
   }
 
-  private JSONObject getLevelMembersStructure(String catalog, String cube, String memberString, String direction) throws JSONException {
+  public JSONObject getLevelMembersStructure(String catalog, String cube, String memberString, String direction) throws JSONException {
 
     Connection connection = getMdxConnection(catalog);
 
