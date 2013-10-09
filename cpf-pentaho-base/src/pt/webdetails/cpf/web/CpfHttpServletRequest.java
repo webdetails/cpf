@@ -319,6 +319,8 @@ public class CpfHttpServletRequest implements HttpServletRequest {
         StringBuffer url = new StringBuffer(this.scheme);
         url.append("://").append(this.serverName).append(':').append(this.serverPort);
         url.append(getRequestURI());
+        url.append('?');
+        url.append( getQueryString() );
         return url;
     }
     

@@ -1,17 +1,17 @@
 package pt.webdetails.cpf.messaging;
 
-import java.net.URLEncoder;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Map;
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 
 import pt.webdetails.cpf.Util;
-import pt.webdetails.cpf.utils.CharsetHelper;
 import pt.webdetails.cpf.web.CpfHttpServletRequest;
 
 /**
@@ -54,7 +54,8 @@ public class MockHttpServletRequest extends CpfHttpServletRequest implements Htt
 
   @Override
   public String getContextPath() {
-    return StringUtils.removeEnd( PentahoRequestContextHolder.getRequestContext().getContextPath(), "/" );//XXX ?
+    // apis different, in request no trailing / can be present
+    return StringUtils.removeEnd( PentahoRequestContextHolder.getRequestContext().getContextPath(), "/" );
   }
 
   @Override
@@ -69,19 +70,22 @@ public class MockHttpServletRequest extends CpfHttpServletRequest implements Htt
       return "";
     }
     StringBuilder qb = new StringBuilder();
-    qb.append( "?" );
+
     boolean isFirst = true;
     for (String key : parameters.keySet()) {
       for (String value : parameters.get(key)) {
         if (!isFirst) {
           qb.append( "&" );
         }
-        
-        qb.append( Util.urlEncode( value ) );//TODO: URLEncode etc
+        else {
+          isFirst = false;
+        }
+        qb.append( Util.urlEncode( key ));
+        qb.append( '=' );
+        qb.append( Util.urlEncode( value ) );
       }
     }
-    //for (String key )
-    return super.getQueryString();
+    return qb.toString();
   }
 
   public Enumeration<String> getParameterNames() {
