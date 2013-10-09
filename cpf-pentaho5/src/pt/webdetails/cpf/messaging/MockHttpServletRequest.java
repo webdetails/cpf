@@ -77,7 +77,7 @@ public class MockHttpServletRequest extends CpfHttpServletRequest implements Htt
           qb.append( "&" );
         }
         
-        qb.append( Util.urlEncode( value, CharsetHelper.getEncoding() ) );//TODO: URLEncode etc
+        qb.append( Util.urlEncode( value ) );//TODO: URLEncode etc
       }
     }
     //for (String key )
