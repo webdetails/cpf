@@ -1,13 +1,17 @@
 package pt.webdetails.cpf.messaging;
 
+import java.net.URLEncoder;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 
 import pt.webdetails.cpf.Util;
+import pt.webdetails.cpf.utils.CharsetHelper;
 import pt.webdetails.cpf.web.CpfHttpServletRequest;
 
 /**
@@ -30,12 +34,13 @@ public class MockHttpServletRequest extends CpfHttpServletRequest implements Htt
 //    this(DEFAULT_BASE_REQUEST, requestParameters);
     this.pathInfo = path;
     this.parameters = requestParameters;
+    setParameterMap( this.parameters );
   }
 
-//  @Override
-//  public String getMethod() {
-//    return HttpMethod.GET.toString();//XXX
-//  }
+  @Override
+  public String getMethod() {
+    return "GET";//XXX need to define in pluginCall, no other way
+  }
 
   @Override
   public String getPathInfo() {
@@ -49,12 +54,38 @@ public class MockHttpServletRequest extends CpfHttpServletRequest implements Htt
 
   @Override
   public String getContextPath() {
-    return PentahoRequestContextHolder.getRequestContext().getContextPath();//XXX ?
+    return StringUtils.removeEnd( PentahoRequestContextHolder.getRequestContext().getContextPath(), "/" );//XXX ?
   }
 
   @Override
   public String getRequestURI() {
     return Util.joinPath( getContextPath(), getServletPath() , getPathInfo() );
+  }
+
+  @Override
+  public String getQueryString() {
+
+    if (parameters == null || parameters.size() < 1) {
+      return "";
+    }
+    StringBuilder qb = new StringBuilder();
+    qb.append( "?" );
+    boolean isFirst = true;
+    for (String key : parameters.keySet()) {
+      for (String value : parameters.get(key)) {
+        if (!isFirst) {
+          qb.append( "&" );
+        }
+        
+        qb.append( Util.urlEncode( value, CharsetHelper.getEncoding() ) );//TODO: URLEncode etc
+      }
+    }
+    //for (String key )
+    return super.getQueryString();
+  }
+
+  public Enumeration<String> getParameterNames() {
+    return Collections.enumeration(this.parameters.keySet());
   }
 
   @Override

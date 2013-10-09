@@ -8,6 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -120,6 +121,15 @@ public abstract class Util {
         return bytesToHex(digest.digest());
       } catch ( NoSuchAlgorithmException e ) {
         logger.fatal("No MD5!", e);
+        return null;
+      }
+    }
+
+    public static String urlEncode ( String toEncode ) {
+      try {
+        return URLEncoder.encode( toEncode, CharsetHelper.getEncoding() );
+      } catch ( UnsupportedEncodingException e ) {
+        logger.fatal("No UTF-8!");
         return null;
       }
     }

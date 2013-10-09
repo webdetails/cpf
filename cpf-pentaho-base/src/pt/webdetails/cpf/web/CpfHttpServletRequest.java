@@ -72,7 +72,7 @@ public class CpfHttpServletRequest implements HttpServletRequest {
     private final Hashtable<String, Object> headers = new Hashtable<String, Object>();
     private final Hashtable<String, Object> attributes = new Hashtable<String, Object>();
     
-    private final Map<String, String[]> parameters = null;//must be wrapped
+    private Map<String, String[]> parameters = null;//must be wrapped
 
     
     private final Set<String> userRoles = new HashSet<String>();
@@ -110,6 +110,10 @@ public class CpfHttpServletRequest implements HttpServletRequest {
          this.method = method;
          this.requestURI = requestURI;
          this.locales.add(Locale.ENGLISH);
+     }
+     
+     protected void setParameterMap(Map<String, String[]> parameters) {
+       this.parameters = parameters;
      }
      
      public boolean isActive() {

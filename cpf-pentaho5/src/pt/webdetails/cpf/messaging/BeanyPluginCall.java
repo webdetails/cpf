@@ -29,7 +29,7 @@ public class BeanyPluginCall implements IPluginCall {
   protected String pluginId;
   protected String servicePath;
   protected String methodPath;
-  protected ByteArrayOutputStream outputStream;
+//  protected ByteArrayOutputStream outputStream;
   protected byte[] contents;
   
   public BeanyPluginCall(String pluginId, String servicePath, String methodPath) {
@@ -64,7 +64,8 @@ public class BeanyPluginCall implements IPluginCall {
   }
 
   private void runThroughApi( Map<String, String[]> params ) throws ServletException, IOException {
-    String path = Util.joinPath( "/", servicePath, methodPath );
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    String path = Util.joinPath( "/", pluginId, "api", servicePath, methodPath );
     JAXRSPluginServlet pluginServlet = getApiBean( pluginId );
     MockHttpServletRequest request = new MockHttpServletRequest( path, params );
     MockHttpServletResponse response = new MockHttpServletResponse( outputStream );
