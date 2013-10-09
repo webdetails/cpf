@@ -25,8 +25,7 @@
     <dependency org="commons-io" name="commons-io" rev="1.4"/>
   <dependency org="commons-lang" name="commons-lang" rev="2.6"/>    
     <dependency org="javax.servlet" name="servlet-api" rev="2.4"/>
-    <dependency org="org.json" name="json" rev="3.1"/>
-        <dependency org="org.springframework" name="spring-core" rev="2.5.6"/>        
+        <dependency org="org.springframework" name="spring-core" rev="2.5.6"/>
                 <dependency org="org.springframework" name="spring-context" rev="2.0.8"/>        
             <dependency org="org.springframework" name="spring-beans" rev="3.0.3.RELEASE"/>
                 <dependency org="org.springframework.security" name="spring-security-core" rev="2.0.5.RELEASE"/>

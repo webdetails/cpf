@@ -15,8 +15,9 @@ import mondrian.olap.Level;
 import mondrian.olap.Member;
 import mondrian.olap.Position;
 import mondrian.olap.Query;
-import org.json.JSONArray;
-import org.json.JSONObject;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -29,7 +30,6 @@ import mondrian.rolap.RolapResult;
 import org.json.JSONException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.ICacheManager;
-import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -74,8 +74,8 @@ public class OlapUtils {
       catalogJson.put("name", catalog.getName());
       catalogJson.put("schema", catalog.getDefinition());
       catalogJson.put("jndi", catalog.getJndi());
-      catalogJson.put("cubes", new JSONArray(catalog.getSchema().getCubes()));
-      catalogsArray.put(catalogJson);
+      catalogJson.put("cubes", JSONArray.fromObject(catalog.getSchema().getCubes()));
+      catalogsArray.add(catalogJson);
     }
 
     logger.debug("Cubes found: " + catalogsArray.toString(2));
@@ -147,16 +147,16 @@ public class OlapUtils {
             jsonLevel.put("depth", level.getDepth());
             jsonLevel.put("name", level.getName());
             jsonLevel.put("qualifiedName", level.getQualifiedName().substring(7, level.getQualifiedName().length() - 1));
-            levelsArray.put(jsonLevel);
+            levelsArray.add(jsonLevel);
           }
         }
         jsonHierarchy.put("levels", levelsArray);
 
-        hierarchiesArray.put(jsonHierarchy);
+        hierarchiesArray.add(jsonHierarchy);
       }
       jsonDimension.put("hierarchies", hierarchiesArray);
 
-      dimensionsArray.put(jsonDimension);
+      dimensionsArray.add(jsonDimension);
     }
 
     return dimensionsArray;
@@ -180,7 +180,7 @@ public class OlapUtils {
       jsonMeasure.put("qualifiedName", measure.getQualifiedName().substring(8, measure.getQualifiedName().length() - 1));
       jsonMeasure.put("memberType", measure.getMemberType().toString());
 
-      measuresArray.put(jsonMeasure);
+      measuresArray.add(jsonMeasure);
 
     }
 
@@ -292,7 +292,7 @@ public class OlapUtils {
       jsonMeasure.put("qualifiedName", member.getQualifiedName().substring(8, member.getQualifiedName().length() - 1));
       jsonMeasure.put("memberType", member.getMemberType().toString());
 
-      membersArray.put(jsonMeasure);
+      membersArray.add(jsonMeasure);
 
     }
 
