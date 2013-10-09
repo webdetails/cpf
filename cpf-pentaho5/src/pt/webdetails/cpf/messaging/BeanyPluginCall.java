@@ -16,11 +16,12 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.web.servlet.JAXRSPluginServlet;
 import org.springframework.beans.factory.ListableBeanFactory;
 
+import pt.webdetails.cpf.ClassLoaderAwareCaller;
 import pt.webdetails.cpf.Util;
 import pt.webdetails.cpf.plugincall.api.IPluginCall;
 
 /**
- * PluginManager/Beans/reflection-based plugin call
+ * PluginManager/Beans/reflection-based plugin call <-- nope, ended up being resty
  */
 public class BeanyPluginCall implements IPluginCall {
 
@@ -29,7 +30,7 @@ public class BeanyPluginCall implements IPluginCall {
   protected String pluginId;
   protected String servicePath;
   protected String methodPath;
-//  protected ByteArrayOutputStream outputStream;
+  protected String method = "GET";
   protected byte[] contents;
   
   public BeanyPluginCall(String pluginId, String servicePath, String methodPath) {
@@ -37,7 +38,6 @@ public class BeanyPluginCall implements IPluginCall {
     this.servicePath = servicePath;
     this.methodPath = methodPath;
   }
-
 
 
   //TODO: error handling, cache bean
@@ -63,13 +63,25 @@ public class BeanyPluginCall implements IPluginCall {
     return (JAXRSPluginServlet) beanFactory.getBean("api", JAXRSPluginServlet.class);
   }
 
-  private void runThroughApi( Map<String, String[]> params ) throws ServletException, IOException {
+  private IPluginManager getPluginManager() {
+    return PentahoSystem.get(IPluginManager.class);
+  }
+
+  private void runThroughService( Map<String, String[]> params ) throws Exception {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     String path = Util.joinPath( "/", pluginId, "api", servicePath, methodPath );
-    JAXRSPluginServlet pluginServlet = getApiBean( pluginId );
-    MockHttpServletRequest request = new MockHttpServletRequest( path, params );
-    MockHttpServletResponse response = new MockHttpServletResponse( outputStream );
-    pluginServlet.service( request, response );
+    final JAXRSPluginServlet pluginServlet = getApiBean( pluginId );
+    final MockHttpServletRequest request = new MockHttpServletRequest( path, params );
+    final MockHttpServletResponse response = new MockHttpServletResponse( outputStream );
+    // at this point there
+    ClassLoaderAwareCaller caller = new ClassLoaderAwareCaller( getPluginManager().getClassLoader( pluginId ) );
+    caller.callInClassLoader( new Callable<Object>() {
+      @Override
+      public Object call() throws Exception {
+        pluginServlet.service( request, response );
+        return null;
+      }
+    } );
     contents = outputStream.toByteArray();
   }
 
@@ -96,14 +108,14 @@ public class BeanyPluginCall implements IPluginCall {
   }
 
   @Override
-  public String call( Map<String, String[]> params ) throws ServletException, IOException {
-    runThroughApi( params );
+  public String call( Map<String, String[]> params ) throws Exception {
+    runThroughService( params );
     return Util.toString( getResult() );
   }
 
   @Override
-  public void run( Map<String, String[]> params ) throws ServletException, IOException {
-    runThroughApi( params );
+  public void run( Map<String, String[]> params ) throws Exception {
+    runThroughService( params );
   }
 
   @Override
