@@ -176,8 +176,8 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
 
   
   @Override
-  public IBasicFile fetchFile(String path) {
-    return asBasicFile(getRepository().getFileByPath(getPath(path)));
+  public IBasicFile fetchFile( String path ) {
+    return fileExists( path ) ? asBasicFile( getRepository().getFileByPath( getPath( path ) ) ) : null;
   }
 
   private IBasicFile asBasicFile(final ISolutionFile file) {
@@ -213,7 +213,6 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
         }
         String path = FilenameUtils.separatorsToUnix( file.getSolutionPath() );
         return path;
-        //return StringUtils.stripStart( path, "/" );
       }
 
       public String toString() {
