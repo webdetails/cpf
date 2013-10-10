@@ -83,6 +83,15 @@ public abstract class UnifiedRepositoryAccess {// implements IPluginResourceRWAc
     return new SimpleRepositoryFileData(input, CharsetHelper.getEncoding(), mimeType);
   }
 
+  private boolean rawPathExists(IUnifiedRepository repo, String fullRepoPath) {
+    try {
+      return repo.getFile(fullRepoPath) != null;
+    }
+    catch (UnifiedRepositoryException e) {
+      return false;
+    }
+  }
+
   public boolean saveFile(String path, InputStream input) {
     //TODO: convert to abs before
 //    getRepository().
@@ -109,23 +118,36 @@ public abstract class UnifiedRepositoryAccess {// implements IPluginResourceRWAc
   }
   
   private RepositoryFile getOrCreateFolder(IUnifiedRepository repo, String path) {
+    String fullPath = getFullPath( path );
+
+    // backtrack path to get list of folders to create
     List<String> foldersToCreate = new ArrayList<String>(); 
-    while (!fileExists(path)) {
+    while (!rawPathExists( repo, fullPath )) {
       // "a / b / c"
       // path<-|^|-> to create
-      int sepIdx = RepositoryFilenameUtils.indexOfLastSeparator(path);
-      foldersToCreate.add(path.substring(sepIdx + 1));
-      path = path.substring(0, sepIdx);
+      int sepIdx = RepositoryFilenameUtils.indexOfLastSeparator(fullPath);
+      if (sepIdx < 0) {
+        break;
+      }
+      foldersToCreate.add(fullPath.substring(sepIdx + 1));
+      fullPath = fullPath.substring(0, sepIdx);
     }
-    RepositoryFile baseFolder = repo.getFile(path);
+
+    //in case we reached root
+    if (StringUtils.isEmpty( fullPath )) {
+      fullPath = RepositoryHelper.appendPath( "/", fullPath );
+    }
+
+    RepositoryFile baseFolder = repo.getFile(fullPath);
+
     if (baseFolder == null) {
-      logger.error("Path " + path + " doesn't exist");
+      logger.error("Path " + fullPath + " doesn't exist");
       return null;
     }
     // reverse iterate 
     if (foldersToCreate.size() > 0) {
       for (int i = foldersToCreate.size() -1 ; i >= 0; i--) {
-        String folder = RepositoryFilenameUtils.getPathNoEndSeparator(foldersToCreate.get(i));
+        String folder = foldersToCreate.get(i);
         baseFolder = repo.createFolder(baseFolder.getId(), new RepositoryFile.Builder(folder).folder(true).build(), null); // "creating path " + path);//TODO: ?
       }
     }

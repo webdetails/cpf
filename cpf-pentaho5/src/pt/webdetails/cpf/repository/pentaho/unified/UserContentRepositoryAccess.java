@@ -2,6 +2,7 @@ package pt.webdetails.cpf.repository.pentaho.unified;
 
 import java.util.EnumSet;
 
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
@@ -17,17 +18,19 @@ public class UserContentRepositoryAccess extends UnifiedRepositoryAccess impleme
 
   private IUnifiedRepository repository;
 
+  private static final String DEFAULT_USER_DIR = "/";
+
   /**
    * 
    * @param session User session. If null defaults to user that initiated current thread.
    */
   public UserContentRepositoryAccess(IPentahoSession session) {
-    this(session, "/");
+    this(session, DEFAULT_USER_DIR);
   }
   
   public UserContentRepositoryAccess(IPentahoSession session, String startPath) {
     repository = PentahoSystem.get(IUnifiedRepository.class, session);
-    basePath = startPath;
+    basePath = StringUtils.isEmpty( startPath ) ? DEFAULT_USER_DIR : startPath;
   }
 
   @Override

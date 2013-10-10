@@ -50,7 +50,7 @@ public abstract class PentahoBasePluginEnvironment extends PluginEnvironment imp
    * @return Plugin's directory in repository, relative to root; defaults to plugin id if not overridden
    */
   protected String getPluginRepositoryDir() {
-    return getPluginId();
+    return Util.joinPath( "/public", getPluginId());
   }
 
   /**
