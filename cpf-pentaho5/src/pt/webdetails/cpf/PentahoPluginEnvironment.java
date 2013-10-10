@@ -61,7 +61,7 @@ public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment {
 
       @Override
       public String getPluginStaticBaseUrl( String pluginId ) {
-        return Util.joinPath( getWebappContextPath(), "api/plugins/", pluginId ) + "/";
+        return Util.joinPath( getWebappContextPath(), "api/repos/", pluginId ) + "/";
       }
 
       @Override
@@ -74,7 +74,7 @@ public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment {
         String colonPath = fullPath.replaceAll( "/", ":" );
         return Util.joinPath( getWebappContextPath(), "/api/repos/", colonPath, "/content" );
       }
-      
+
       private String getWebappContextPath() { //TODO: better alternative
         return PentahoRequestContextHolder.getRequestContext().getContextPath();
       }
