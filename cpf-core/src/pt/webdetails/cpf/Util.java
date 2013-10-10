@@ -32,9 +32,12 @@ public abstract class Util {
 //    private static boolean isPlugin = Util.class.getClassLoader() instanceof PluginClassLoader;
 
   /**
-   * {@link IOUtils#toString(InputStream)} and ensure the stream is closed.
+   * {@link IOUtils#toString(InputStream)} with null tolerance and ensure the stream is closed.<br>
    */
     public static String toString(InputStream input) throws IOException {
+      if (input == null) {
+        return null;
+      }
       try {
         return IOUtils.toString( input, CharsetHelper.getEncoding() );
       }
