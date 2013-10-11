@@ -299,8 +299,10 @@ public abstract class UnifiedRepositoryAccess {// implements IPluginResourceRWAc
         }
       }
     }
-    for (RepositoryFileTree branch : tree.getChildren()) {
-      populateList(list, branch, filter, includeDirs, showHidden);
+    if(tree.getChildren() != null){
+	    for (RepositoryFileTree branch : tree.getChildren()) {
+	      populateList(list, branch, filter, includeDirs, showHidden);
+	    }
     }
   }
 
