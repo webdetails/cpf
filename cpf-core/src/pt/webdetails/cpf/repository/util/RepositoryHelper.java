@@ -1,21 +1,29 @@
 package pt.webdetails.cpf.repository.util;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import pt.webdetails.cpf.repository.api.IBasicFile;
+import pt.webdetails.cpf.repository.api.IRWAccess;
+import pt.webdetails.cpf.repository.api.IReadAccess;
 
 /**
  * Utilities around files and paths.
  */
 public class RepositoryHelper {
+
+  private static Log logger = LogFactory.getLog(RepositoryHelper.class);
 
   private RepositoryHelper() {}
 
@@ -53,8 +61,6 @@ public class RepositoryHelper {
       default:
         return first + second;
     }
-    //get rid of ..|.
-//    return FilenameUtils.normalize(result);
   }
 
   public static StringBuilder appendPath(StringBuilder builder, String path) {
@@ -213,5 +219,27 @@ public class RepositoryHelper {
     }
 
     return arr.toString();
+  }
+
+  /**
+   * Copy a file accross different sources
+   * @param reader where to fetch file
+   * @param inFile path to file to read
+   * @param writer where to write file
+   * @param outFile path to file to be written
+   * @return if saved ok
+   */
+  public static boolean copy(IReadAccess reader, String inFile, IRWAccess writer, String outFile) {
+    InputStream input = null; 
+    try {
+      input = reader.getFileInputStream( inFile );
+      return writer.saveFile( outFile, input );
+    } catch ( IOException e ) {
+      logger.error( "Couldn't read " + inFile + " in " + reader );
+      return false;
+    }
+    finally {
+      IOUtils.closeQuietly( input );
+    }
   }
 }

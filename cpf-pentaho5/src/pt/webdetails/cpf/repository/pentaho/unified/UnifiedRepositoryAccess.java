@@ -210,7 +210,7 @@ public abstract class UnifiedRepositoryAccess {// implements IPluginResourceRWAc
   }
   protected IBasicFile asBasicFile(final RepositoryFile file, final String path) {
     final String relativePath = 
-        (path == null) ? relativizePath(RepositoryHelper.appendPath(file.getPath(), file.getName()))
+        (path == null) ? relativizePath(file.getPath())
                        : path;
     return new IBasicFile () {
 
