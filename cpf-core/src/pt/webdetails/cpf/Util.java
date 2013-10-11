@@ -46,7 +46,7 @@ public abstract class Util {
       }
     }
 
-    // TODO: don't like that printStackTrace
+    
     public static String getExceptionDescription(final Exception e) {
 
         final StringBuilder out = new StringBuilder();
@@ -58,9 +58,7 @@ public abstract class Util {
             out.append(e.getCause().getMessage());
         }
 
-        e.printStackTrace();
         return out.toString();
-
     }
 
     /**
@@ -106,7 +104,7 @@ public abstract class Util {
       try {
         return new ByteArrayInputStream(contents.getBytes( CharsetHelper.getEncoding() ));
       } catch ( UnsupportedEncodingException e ) {
-        logger.fatal(CharsetHelper.getEncoding() + " not supported!" , e);
+        logNoEncoding();
         return null;
       }
     }
@@ -131,9 +129,12 @@ public abstract class Util {
       try {
         return URLEncoder.encode( toEncode, CharsetHelper.getEncoding() );
       } catch ( UnsupportedEncodingException e ) {
-        logger.fatal("No UTF-8!");
+        logNoEncoding();
         return null;
       }
     }
 
+    private static void logNoEncoding() {
+      logger.fatal("Encoding " + CharsetHelper.getEncoding() + " not supported!!" );
+    }
 }

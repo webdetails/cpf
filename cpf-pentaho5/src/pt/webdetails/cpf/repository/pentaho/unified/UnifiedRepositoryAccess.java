@@ -93,8 +93,6 @@ public abstract class UnifiedRepositoryAccess {// implements IPluginResourceRWAc
   }
 
   public boolean saveFile(String path, InputStream input) {
-    //TODO: convert to abs before
-//    getRepository().
     IUnifiedRepository repo = getRepository();
     IRepositoryFileData data = createFileData(input, MimeTypes.getMimeType(path));
     RepositoryFile savedFile = null;
@@ -166,20 +164,15 @@ public abstract class UnifiedRepositoryAccess {// implements IPluginResourceRWAc
   protected String getFullPath(String path) {
     return FilenameUtils.normalize(RepositoryHelper.appendPath(basePath, path), true);
   }
+
   //reverse of getFullPath
   protected String relativizePath(String fullPath) {
-    //FIXME not implemented
-    return null;
+    return RepositoryHelper.relativizePath( basePath, fullPath, true );
   }
 
   public boolean saveFile(String path, String contents) {
     return saveFile(path, IOUtils.toInputStream(contents));
   }
-
-//  //TODO: remove! i mean.. delete!
-//  public boolean removeFile(String path) {
-//    return deleteFile(path);
-//  }
 
   public IBasicFile fetchFile(String path) {
     RepositoryFile file = getRepositoryFile(path);
@@ -190,12 +183,6 @@ public abstract class UnifiedRepositoryAccess {// implements IPluginResourceRWAc
     try {
       // copyFile api didn't seem that linear, implemented as saveAs
       return saveFile(pathTo, getFileInputStream(pathFrom));
-
-//      pathTo = getPath(pathTo);
-//      pathFrom = getPath(pathFrom);
-//      //TODO: will probably give error if 
-//      getRepository().copyFile(getRepositoryFile(pathFrom).getId(), getPath(pathTo), null);
-//      return true; 
     } catch (Exception e) {
       return false;
     }
@@ -211,11 +198,11 @@ public abstract class UnifiedRepositoryAccess {// implements IPluginResourceRWAc
   }
 
   public List<IBasicFile> listFiles(String path, IBasicFileFilter filter) {
-    return listFiles(getFullPath(path), false, filter, false, new ArrayList<IBasicFile>());
+    return listFiles(getFullPath(path), -1, false, filter, false, new ArrayList<IBasicFile>());
   }
 
   public List<IBasicFile> listFiles(String path, IBasicFileFilter filter, int maxDepth, boolean includeDirs) {
-    return listFiles(getFullPath(path), includeDirs, filter, false, new ArrayList<IBasicFile>());
+    return listFiles(getFullPath(path), maxDepth, includeDirs, filter, false, new ArrayList<IBasicFile>());
   }
 
   public List<IBasicFile> listFiles(String path, IBasicFileFilter filter, int maxDepth) {
@@ -264,39 +251,57 @@ public abstract class UnifiedRepositoryAccess {// implements IPluginResourceRWAc
    * @param includeDirs
    * @param filter
    * @param showHiddenFiles
-   * @param output
+   * @param listOut
    * @return List of files by the order they're found.
    */
   protected List<IBasicFile> listFiles(
       String path,
+      int depth,
       boolean includeDirs,
       IBasicFileFilter filter,
       boolean showHiddenFiles,
-      final List<IBasicFile> output)
+      final List<IBasicFile> listOut)
   {
-    RepositoryFileTree tree = getRepository().getTree(path, -1, null, showHiddenFiles);
-    RepositoryFile root = tree.getFile();
-    //XXX includeDirs is right? will order make sense?
-    if(showHiddenFiles || !root.isHidden()){
-      IBasicFile file = asBasicFile(root, relativizePath(path));
-      if(tree.getChildren().size() > 0){
-        for(RepositoryFileTree element : tree.getChildren()){
-          listFiles(element.getFile().getPath(), includeDirs, filter, showHiddenFiles, output);
-        } 
-      } else if(root.isFolder() && includeDirs){
-        output.add(file); 
-      } else if(!root.isFolder()){ //is a folder
-        if(filter.accept(file)){
-          if(showHiddenFiles){
-              output.add(file);
-          } else if(!root.isHidden()){
-              output.add(file);
+    // TODO: check for depth coherence with other types
+    // TODO: better impl. how i regret this iface
+    RepositoryFileTree tree = getRepository().getTree(path, depth, null, showHiddenFiles);
+    populateList(listOut, tree, filter, includeDirs, showHiddenFiles);
+    return listOut;
+  }
+
+  // painful thing to do, but it's a unifying interface
+  protected void populateList(
+      List<IBasicFile> list,
+      RepositoryFileTree tree,
+      IBasicFileFilter filter,
+      final boolean includeDirs,
+      final boolean showHidden)
+  {
+    RepositoryFile file = tree.getFile();
+    if (!showHidden && file.isHidden()) {
+      return;
+    }
+
+//    if ( includeDirs || !file.isFolder() ) {
+//      IBasicFile bFile = asBasicFile( file, null );
+//      if ( filter.accept( bFile ) ) {
+//        list.add( bFile );
+//      }
+//    }
+    //TODO: TREE ONLY HAS FOLDERS!
+    if (file.isFolder()) {
+      for (RepositoryFile actualFile : getRepository().getChildren( file.getId() )) {//, "FILES"
+        if ( includeDirs || !actualFile.isFolder() ) {
+          IBasicFile bFile = asBasicFile( actualFile, null );
+          if ( filter.accept( bFile ) ) {
+            list.add( bFile );
           }
         }
       }
     }
-    
-    return output;
+    for (RepositoryFileTree branch : tree.getChildren()) {
+      populateList(list, branch, filter, includeDirs, showHidden);
+    }
   }
 
 }
