@@ -69,7 +69,7 @@ public abstract class UnifiedRepositoryAccess {// implements IPluginResourceRWAc
 
   public long getLastModified(String path) {
     RepositoryFile file = getRepositoryFile(path);
-    if (file != null) {
+    if (file != null && file.getLastModifiedDate() != null) {
       return file.getLastModifiedDate().getTime();
     }
     return 0L;
