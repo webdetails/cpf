@@ -348,29 +348,6 @@ public class PentahoRepositoryAccess implements IRepositoryAccess {
     }
 
 
-    @Deprecated
-    public IRepositoryFile[] getPluginFiles(String baseDir, FileAccess fa) {
-        //TODO: just used to get ".cda" files?
-        final IRepositoryFileFilter filter = plugin.getPluginFileFilter();
-        IFileFilter fileFilter = new IFileFilter() {
-            @Override
-            public boolean accept(ISolutionFile file) {
-                return filter.accept(new PentahoRepositoryFile(file));
-            }
-        };
-        ISolutionFile[] files = listSolutionFiles(baseDir, fileFilter);
-
-        IRepositoryFile[] result = new IRepositoryFile[files.length];
-        int i = 0;
-
-        for (ISolutionFile file : files) {
-            result[i++] = new PentahoRepositoryFile(file);
-        }
-
-        return result;
-
-    }
-
     //SYSTEM
 
     public IRepositoryFile getSettingsFile(String fileName, FileAccess access) {

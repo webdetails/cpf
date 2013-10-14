@@ -3,7 +3,6 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpf.plugins;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -11,13 +10,11 @@ import java.util.List;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import pt.webdetails.cpf.VersionChecker;
 import pt.webdetails.cpf.plugin.CorePlugin;
 import pt.webdetails.cpf.repository.api.IReadAccess;
@@ -27,6 +24,7 @@ import pt.webdetails.cpf.utils.XmlDom4JUtils;
  * @author Luis Paulo Silva
  */
 public class Plugin extends CorePlugin {
+
     private String description;
     private String company;
     private String companyUrl;
@@ -39,13 +37,6 @@ public class Plugin extends CorePlugin {
     protected Log logger = LogFactory.getLog(this.getClass());
 
     private IReadAccess pluginDirAccess;
-
-    /**
-     * @deprecated will blow in your face; use {@link #Plugin(String, IReadAccess)}
-     */
-    public Plugin(String path){
-      throw new NotImplementedException();
-    }
 
     /**
      * 
@@ -141,8 +132,11 @@ public class Plugin extends CorePlugin {
         if (hasPluginXML()) {
         	
             Node documentNode = XmlDom4JUtils.getDocumentFromFile(access, PLUGIN_XML_FILENAME).getRootElement();
-            setId(documentNode.valueOf("/plugin/@title"));
-            setName(documentNode.valueOf("/plugin/content-types/content-type/title"));
+            //String pluginTitle = documentNode.valueOf("/plugin/@title");
+            String pluginName = documentNode.valueOf("/plugin/@name");
+            setName ( pluginName );
+            //setTitle( pluginTitle ); 
+            //setName(documentNode.valueOf("/plugin/content-types/content-type/title"));
             setDescription(documentNode.valueOf("/plugin/content-types/content-type/description"));
             setCompany(documentNode.valueOf("/plugin/content-types/content-type/company/@name"));
             setCompanyUrl(documentNode.valueOf("/plugin/content-types/content-type/company/@url"));
@@ -212,24 +206,14 @@ public class Plugin extends CorePlugin {
     public boolean hasVersionXML(){
       return pluginDirAccess.fileExists(VERSION_XML_FILENAME);
     }
-    @Deprecated
-    @JsonProperty("solutionPath")
-    public String getPluginSolutionPath(){
-        return getId() + File.separator;
-    }
 
-    @Deprecated
-    @JsonProperty("systemPath")
-    public String getPluginRelativePath(){
-        return getPath().replace(PentahoSystem.getApplicationContext().getSolutionPath(""), "");
-    }
-    
     @JsonIgnore
     public String getPluginJson() throws IOException{
+        // TODO: is the convenience here worth all the JsonIgnores?
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(this);
     }
-    
+
     @JsonIgnore
     public String getXmlValue(String xpathExpression, String fileName) {
         try {

@@ -134,15 +134,15 @@ public interface IRepositoryAccess {
     public String getSettingsResourceAsString(String settingsPath)
             throws IOException;
 
-    /**
-     * TODO: MERGE WITH getSettingsFileTree/listRepositoryFiles
-     * known uses:
-     * cda:SolutionRepositoryUtils#getCdaList
-     *  - IRepositoryFile[] cdaTree = repository.getPluginFiles("/", FileAccess.READ);
-     *  after that only uses filename, fullPath
-     */
-    @Deprecated
-    public IRepositoryFile[] getPluginFiles(String baseDir, FileAccess accessMode);
+//    /**
+//     * TODO: MERGE WITH getSettingsFileTree/listRepositoryFiles
+//     * known uses:
+//     * cda:SolutionRepositoryUtils#getCdaList
+//     *  - IRepositoryFile[] cdaTree = repository.getPluginFiles("/", FileAccess.READ);
+//     *  after that only uses filename, fullPath
+//     */
+//    @Deprecated
+//    public IRepositoryFile[] getPluginFiles(String baseDir, FileAccess accessMode);
 
     /**
      * TODO: used anywhere?
