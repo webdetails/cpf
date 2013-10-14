@@ -152,10 +152,7 @@ public abstract class FileBasedResourceAccess implements IRWAccess {
       }
 
       public String getExtension() {
-        if(getName().startsWith(".")) {
-          return StringUtils.lowerCase(FilenameUtils.getExtension(getName().substring(1)));
-        }
-        return StringUtils.lowerCase(FilenameUtils.getExtension(getName()));
+        return RepositoryHelper.getExtension( getName() );
       }
 
       public boolean isDirectory() {

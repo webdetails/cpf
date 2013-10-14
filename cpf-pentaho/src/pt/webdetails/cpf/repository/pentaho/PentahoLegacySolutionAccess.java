@@ -188,7 +188,7 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
       }
 
       public String getExtension() {
-        return StringUtils.lowerCase(FilenameUtils.getExtension(file.getFileName()));
+        return RepositoryHelper.getExtension ( file.getFileName() );
       }
 
       public String getFullPath() {

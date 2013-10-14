@@ -235,7 +235,7 @@ public abstract class UnifiedRepositoryAccess {// implements IPluginResourceRWAc
       }
 
       public String getExtension() {
-        return StringUtils.lowerCase(FilenameUtils.getExtension(getName()));
+        return RepositoryHelper.getExtension( getName() );
       }
 
 	  public boolean isDirectory() {

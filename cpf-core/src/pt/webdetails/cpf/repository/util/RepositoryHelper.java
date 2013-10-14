@@ -178,6 +178,20 @@ public class RepositoryHelper {
       return relative.toString();
   }
 
+  /**
+   * Like {@link FilenameUtils#getExtension(String)} but won't interpret unix hidden files as extensions
+   * @param fileName
+   * @return
+   */
+  public static String getExtension(String fileName) {
+    if ( fileName == null ) { return null; }
+
+    if(fileName.startsWith(".")) {
+      return StringUtils.lowerCase(FilenameUtils.getExtension(fileName.substring(1)));
+    }
+    return StringUtils.lowerCase(FilenameUtils.getExtension(fileName));
+  }
+
   public static String toJQueryFileTree(String baseDir, IBasicFile[] files) {
     StringBuilder out = new StringBuilder();
     out.append("<ul class=\"jqueryFileTree\" style=\"display: none;\">");
@@ -242,4 +256,5 @@ public class RepositoryHelper {
       IOUtils.closeQuietly( input );
     }
   }
+
 }
