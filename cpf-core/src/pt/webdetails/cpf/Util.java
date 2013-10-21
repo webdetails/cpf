@@ -12,6 +12,7 @@ import java.net.URLEncoder;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.DecimalFormat;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
@@ -30,6 +31,9 @@ public abstract class Util {
      * look for the global CPF settings in the solution
      */
 //    private static boolean isPlugin = Util.class.getClassLoader() instanceof PluginClassLoader;
+
+  //
+  private static final DecimalFormat DEFAULT_DURATION_FORMAT_SEC = new DecimalFormat("0.00s");
 
   /**
    * {@link IOUtils#toString(InputStream)} with null tolerance and ensure the stream is closed.<br>
@@ -137,4 +141,13 @@ public abstract class Util {
     private static void logNoEncoding() {
       logger.fatal("Encoding " + CharsetHelper.getEncoding() + " not supported!!" );
     }
+
+
+    /**
+     * @return Pretty print ellapsed time in seconds, rounded to 2 decimal places, eg "2.34s"
+     */
+    public static String getEllapsedSeconds( long startTime ) {
+      return DEFAULT_DURATION_FORMAT_SEC.format( (System.currentTimeMillis() - startTime) / 1000.0 );
+    }
+
 }

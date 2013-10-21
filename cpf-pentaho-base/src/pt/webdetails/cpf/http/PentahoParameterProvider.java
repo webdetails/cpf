@@ -11,7 +11,9 @@ import java.util.Map;
 
 import org.pentaho.platform.api.engine.IParameterProvider;
 
-
+/**
+ * @deprecated
+ */
 public class PentahoParameterProvider implements ICommonParameterProvider {
   private final IParameterProvider provider;
 

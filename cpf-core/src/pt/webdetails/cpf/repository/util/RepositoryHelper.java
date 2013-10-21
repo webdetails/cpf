@@ -15,6 +15,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import pt.webdetails.cpf.repository.api.IBasicFile;
+import pt.webdetails.cpf.repository.api.IBasicFileFilter;
 import pt.webdetails.cpf.repository.api.IRWAccess;
 import pt.webdetails.cpf.repository.api.IReadAccess;
 
@@ -255,6 +256,15 @@ public class RepositoryHelper {
     finally {
       IOUtils.closeQuietly( input );
     }
+  }
+
+  public static IBasicFileFilter getSimpleExtensionFilter(final String extension) {
+    return new IBasicFileFilter() {
+      @Override
+      public boolean accept( IBasicFile file ) {
+        return StringUtils.equals( extension, file.getExtension() );
+      }
+    };
   }
 
 }

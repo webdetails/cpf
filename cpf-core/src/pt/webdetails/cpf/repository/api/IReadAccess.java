@@ -33,7 +33,7 @@ public interface IReadAccess {
   long getLastModified(String path);
 
   /**
-   * (optional)
+   * (optional)<br>
    * @param path
    * @param filter (optional)
    * @param maxDepth -1 for ANY, [1..N] to limit depth
