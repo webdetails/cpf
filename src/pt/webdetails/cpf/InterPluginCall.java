@@ -59,7 +59,7 @@ public class InterPluginCall implements Runnable, Callable<String> {
   public final static Plugin CDF = new Plugin("pentaho-cdf");
   public final static Plugin CDV = new Plugin("cdv");
   
-  public final static String SUFIX = ".utils";
+  public final static String SUFIX = ".api";
   
   private final static String DEFAULT_ENCODING = "UTF-8";
   
