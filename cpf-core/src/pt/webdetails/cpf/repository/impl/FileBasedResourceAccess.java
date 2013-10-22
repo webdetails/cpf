@@ -184,7 +184,7 @@ public abstract class FileBasedResourceAccess implements IRWAccess {
 
   public boolean createFolder(String path){
     File folder = getFile(path);
-    return folder.mkdir();
+    return folder.mkdirs();
   }
 
   
