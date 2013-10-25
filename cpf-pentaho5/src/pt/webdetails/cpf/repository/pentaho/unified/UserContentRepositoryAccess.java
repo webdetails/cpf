@@ -8,13 +8,14 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
+import pt.webdetails.cpf.api.IUserContentAccessExtended;
 import pt.webdetails.cpf.repository.api.FileAccess;
 import pt.webdetails.cpf.repository.api.IUserContentAccess;
 
 /**
  * {@link IUserContentAccess} implementation for {@link IUnifiedRepository}
  */
-public class UserContentRepositoryAccess extends UnifiedRepositoryAccess implements IUserContentAccess {
+public class UserContentRepositoryAccess extends UnifiedRepositoryAccess implements IUserContentAccessExtended {
 
   private IUnifiedRepository repository;
 

@@ -5,6 +5,8 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 
+import pt.webdetails.cpf.api.IContentAccessFactoryExtended;
+import pt.webdetails.cpf.api.IUserContentAccessExtended;
 import pt.webdetails.cpf.context.api.IUrlProvider;
 import pt.webdetails.cpf.messaging.BeanyPluginCall;
 import pt.webdetails.cpf.plugincall.api.IPluginCall;
@@ -16,7 +18,7 @@ import pt.webdetails.cpf.repository.pentaho.unified.UserContentRepositoryAccess;
 import pt.webdetails.cpf.repository.util.RepositoryHelper;
 
 //TODO: there must be another singleton
-public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment {
+public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment implements IContentAccessFactoryExtended {
 
   private static PentahoPluginEnvironment instance = new PentahoPluginEnvironment();
   private static Log logger = LogFactory.getLog(PentahoPluginEnvironment.class);
@@ -27,8 +29,12 @@ public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment {
     return instance;
   }
 
+  public IContentAccessFactoryExtended getContentAccessFactory() {
+	return this;
+  }
+  
   @Override
-  public IUserContentAccess getUserContentAccess(String basePath) {
+  public IUserContentAccessExtended getUserContentAccess(String basePath) {
     return new UserContentRepositoryAccess( PentahoSessionHolder.getSession(), basePath);
   }
 

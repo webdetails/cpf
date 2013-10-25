@@ -3,7 +3,10 @@ package pt.webdetails.cpf.repository.pentaho.unified;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -18,6 +21,8 @@ import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 
+import pt.webdetails.cpf.api.IFileContent;
+import pt.webdetails.cpf.impl.FileContent;
 import pt.webdetails.cpf.repository.api.IBasicFile;
 import pt.webdetails.cpf.repository.api.IBasicFileFilter;
 import pt.webdetails.cpf.repository.util.RepositoryHelper;
@@ -93,24 +98,64 @@ public abstract class UnifiedRepositoryAccess {// implements IPluginResourceRWAc
   }
 
   public boolean saveFile(String path, InputStream input) {
+    
+    FileContent file = new FileContent();
+    file.setPath( path );
+    file.setContents( input );
+    
+    return saveFile( file );
+  }
+  
+  public boolean saveFile( IFileContent file ) {
     IUnifiedRepository repo = getRepository();
-    IRepositoryFileData data = createFileData(input, MimeTypes.getMimeType(path));
+    
+    InputStream is = null;
+    try{
+      is = file.getContents();
+    } catch ( IOException e ){
+      logger.error( e );
+    }
+    
+    IRepositoryFileData data = createFileData(is, MimeTypes.getMimeType(file.getPath()));
     RepositoryFile savedFile = null;
-    if (fileExists(path)) {
+    if (fileExists(file.getPath())) {
       //yay, just update: no muss, no fuss!
-      RepositoryFile file = getRepositoryFile(path);
+      RepositoryFile repositoryFile = getRepositoryFile(file.getPath());
       //TODO: preserve mimeType from file data
-      savedFile = repo.updateFile(file, data, null);//TODO: what happens here when things go wrong?
+      savedFile = repo.updateFile(repositoryFile, data, null);//TODO: what happens here when things go wrong?
     }
     else {
       // oh...
-      RepositoryFile parentDir = getOrCreateFolder(repo, RepositoryFilenameUtils.getPathNoEndSeparator(path));
-      int sepIdx = RepositoryFilenameUtils.indexOfLastSeparator(path);
-      String fileName = sepIdx >= 0 ? path.substring(sepIdx+1) : path;
+      RepositoryFile parentDir = getOrCreateFolder(repo, RepositoryFilenameUtils.getPathNoEndSeparator(file.getPath()));
+      
       if (parentDir == null) {
-        logger.error("Unable to ensure parent folder for " + path + ". Check permissions?");
+        logger.error("Unable to ensure parent folder for " + file.getPath() + ". Check permissions?");
       }
-      savedFile = repo.createFile(parentDir.getId(), new RepositoryFile.Builder(fileName).build(), data, null);
+      
+      String name = !StringUtils.isEmpty( file.getName() ) ? file.getName() : FilenameUtils.getName( file.getPath() );
+      
+      RepositoryFile.Builder fileBuilder = new RepositoryFile.Builder(name);
+      
+      Map<String, Properties> localePropertiesMap = new HashMap<String, Properties>();
+      String defaultLocale = "default"; // use default locale
+      Properties props = new Properties();
+      
+      if( !StringUtils.isEmpty( file.getTitle() ) ){ 
+        
+        fileBuilder = fileBuilder.title( file.getTitle() ); 
+        props.put( "file.title", file.getTitle() );
+      }
+      
+      if( !StringUtils.isEmpty( file.getDescription() ) ){ 
+        
+        fileBuilder = fileBuilder.title( file.getDescription() ); 
+        props.put( "file.description", file.getDescription() );
+      }
+      
+      localePropertiesMap.put( defaultLocale, props );
+      fileBuilder = fileBuilder.localePropertiesMap( localePropertiesMap );
+      
+      savedFile = repo.createFile(parentDir.getId(),fileBuilder.build(), data, null);
     }
     return savedFile != null && savedFile.getId() != null;
   }
