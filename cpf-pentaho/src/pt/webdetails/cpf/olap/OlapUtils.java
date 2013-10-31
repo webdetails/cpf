@@ -126,6 +126,7 @@ public class OlapUtils {
 
       JSONObject jsonDimension = new JSONObject();
       jsonDimension.put("name", dimension.getName());
+      jsonDimension.put("caption", dimension.getCaption().isEmpty() ? dimension.getName() : dimension.getCaption());
       jsonDimension.put("type", dimension.getDimensionType().name());
 
       // Hierarchies
@@ -135,10 +136,11 @@ public class OlapUtils {
         JSONObject jsonHierarchy = new JSONObject();
         jsonHierarchy.put("type", "hierarchy");
         jsonHierarchy.put("name", hierarchy.getName());
+        jsonHierarchy.put("caption", hierarchy.getCaption().isEmpty() ? hierarchy.getName() : hierarchy.getCaption());
         jsonHierarchy.put("qualifiedName", hierarchy.getQualifiedName().substring(11, hierarchy.getQualifiedName().length() - 1));
         jsonHierarchy.put("defaultMember", hierarchy.getAllMember().getName());
         jsonHierarchy.put("defaultMemberQualifiedName", hierarchy.getAllMember().getQualifiedName().substring(8, hierarchy.getAllMember().getQualifiedName().length() - 1));
-        ;
+
         // Levels
         JSONArray levelsArray = new JSONArray();
         Level[] levels = hierarchy.getLevels();
@@ -148,6 +150,7 @@ public class OlapUtils {
             jsonLevel.put("type", "level");
             jsonLevel.put("depth", level.getDepth());
             jsonLevel.put("name", level.getName());
+            jsonLevel.put("caption", level.getCaption().isEmpty() ? level.getName() : level.getCaption());
             jsonLevel.put("qualifiedName", level.getQualifiedName().substring(7, level.getQualifiedName().length() - 1));
             levelsArray.add(jsonLevel);
           }
@@ -179,6 +182,7 @@ public class OlapUtils {
       JSONObject jsonMeasure = new JSONObject();
       jsonMeasure.put("type", "measure");
       jsonMeasure.put("name", ((RolapMemberBase) measure).getName());
+      jsonMeasure.put("caption", ((RolapMemberBase) measure).getCaption().isEmpty() ? ((RolapMemberBase) measure).getName() : ((RolapMemberBase) measure).getCaption());
       jsonMeasure.put("qualifiedName", measure.getQualifiedName().substring(8, measure.getQualifiedName().length() - 1));
       jsonMeasure.put("memberType", measure.getMemberType().toString());
 
@@ -291,6 +295,7 @@ public class OlapUtils {
       JSONObject jsonMeasure = new JSONObject();
       jsonMeasure.put("type", "member");
       jsonMeasure.put("name", member.getName());
+      jsonMeasure.put("caption", member.getCaption().isEmpty() ? member.getName() : member.getCaption());
       jsonMeasure.put("qualifiedName", member.getQualifiedName().substring(8, member.getQualifiedName().length() - 1));
       jsonMeasure.put("memberType", member.getMemberType().toString());
 
