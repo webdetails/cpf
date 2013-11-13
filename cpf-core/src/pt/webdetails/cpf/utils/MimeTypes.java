@@ -10,7 +10,7 @@ import org.apache.commons.lang.StringUtils;
 import pt.webdetails.cpf.repository.util.RepositoryHelper;
 
 /**
- *
+ * Utilities class for creating MIME content type strings
  * @author Luís Paulo Silva
  */
 public class MimeTypes {

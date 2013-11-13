@@ -40,32 +40,38 @@
  * SOFTWARE.
  */
 
-package pt.webdetails.cpf.packager;
+package pt.webdetails.cpf.packager.dependencies;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PushbackInputStream;
+import java.text.ParseException;
 
-
+/**
+ * Minifies javascript code by removing comments and compressing whitespace.
+ * @see #jsmin() 
+ */
 public class JSMin {
 	private static final int EOF = -1;
 
 	private PushbackInputStream in;
 	private OutputStream out;
 
+	// not just any A
 	private int theA;
 	private int theB;
+	// input position, 0-based, for parse exceptions
+	private int pos;
 
 	public JSMin(InputStream in, OutputStream out) {
 		this.in = new PushbackInputStream(in);
 		this.out = out;
+		this.pos = 0;
 	}
 
 	/**
-	 * isAlphanum -- return true if the character is a letter, digit,
+	 * @return true if the character is a letter, digit,
 	 * underscore, dollar sign, or non-ASCII character.
 	 */
 	static boolean isAlphanum(int c) {
@@ -75,12 +81,13 @@ public class JSMin {
 	}
 
 	/**
-	 * get -- return the next character from stdin. Watch out for lookahead. If
+	 * @return the next character from stdin. Watch out for lookahead. If
 	 * the character is a control character, translate it to a space or
 	 * linefeed.
 	 */
 	int get() throws IOException {
 		int c = in.read();
+		pos++;
 
 		if (c >= ' ' || c == '\n' || c == EOF) {
 			return c;
@@ -105,7 +112,7 @@ public class JSMin {
 	}
 
 	/**
-	 * next -- get the next character, excluding comments. peek() is used to see
+	 * get the next character, excluding comments. peek() is used to see
 	 * if a '/' is followed by a '/' or '*'.
 	 */
 	int next() throws IOException, UnterminatedCommentException {
@@ -131,7 +138,7 @@ public class JSMin {
 						}
 						break;
 					case EOF:
-						throw new UnterminatedCommentException();
+						throw new UnterminatedCommentException(pos);
 					}
 				}
 
@@ -144,10 +151,12 @@ public class JSMin {
 	}
 
 	/**
-	 * action -- do something! What you do is determined by the argument: 1
-	 * Output A. Copy B to A. Get the next B. 2 Copy B to A. Get the next B.
-	 * (Delete A). 3 Get the next B. (Delete B). action treats a string as a
-	 * single character. Wow! action recognizes a regular expression if it is
+	 * do something!<br> What you do is determined by the argument:<br>
+	 * 1) Output A. Copy B to A. Get the next B.<br>
+	 * 2) Copy B to A. Get the next B. (Delete A).<br>
+	 * 3) Get the next B. (Delete B). action treats a string as a
+	 * single character.<br>
+	 * Wow! action recognizes a regular expression if it is
 	 * preceded by ( or , or =.
 	 */
 
@@ -167,7 +176,7 @@ public class JSMin {
 						break;
 					}
 					if (theA <= '\n') {
-						throw new UnterminatedStringLiteralException();
+						throw new UnterminatedStringLiteralException(pos);
 					}
 					if (theA == '\\') {
 						out.write(theA);
@@ -193,7 +202,7 @@ public class JSMin {
 						out.write(theA);
 						theA = get();
 					} else if (theA <= '\n') {
-						throw new UnterminatedRegExpLiteralException();
+						throw new UnterminatedRegExpLiteralException(pos);
 					}
 					out.write(theA);
 				}
@@ -203,12 +212,12 @@ public class JSMin {
 	}
 
 	/**
-	 * jsmin -- Copy the input to the output, deleting the characters which are
+	 * Copy the input to the output, deleting the characters which are
 	 * insignificant to JavaScript. Comments will be removed. Tabs will be
 	 * replaced with spaces. Carriage returns will be replaced with linefeeds.
 	 * Most spaces and linefeeds will be removed.
 	 */
-	public void jsmin() throws IOException, UnterminatedRegExpLiteralException, UnterminatedCommentException, UnterminatedStringLiteralException{
+	public void jsmin() throws IOException, ParseException {
 		theA = '\n';
 		action(3);
 		while (theA != EOF) {
@@ -277,36 +286,29 @@ public class JSMin {
 		out.flush();
 	}
 
-	@SuppressWarnings("serial")
-	class UnterminatedCommentException extends Exception {
+
+	class UnterminatedCommentException extends ParseException {
+      private static final long serialVersionUID = 1L;
+
+      public UnterminatedCommentException(int errorOffset) {
+        super("Comment not terminated.", errorOffset);
+      }
 	}
 
-	@SuppressWarnings("serial")
-	class UnterminatedStringLiteralException extends Exception {
+	class UnterminatedStringLiteralException extends ParseException {
+      private static final long serialVersionUID = 1L;
+
+      public UnterminatedStringLiteralException(int errorOffset) {
+        super("String literal not terminated.", errorOffset);
+      }
 	}
 
-	@SuppressWarnings("serial")
-	class UnterminatedRegExpLiteralException extends Exception {
-	}
+	class UnterminatedRegExpLiteralException extends ParseException {
+      private static final long serialVersionUID = 1L;
 
-	public static void main(String arg[]) {
-		try {
-			JSMin jsmin = new JSMin(new FileInputStream(arg[0]), System.out);
-			jsmin.jsmin();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (ArrayIndexOutOfBoundsException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (UnterminatedRegExpLiteralException e) {
-			e.printStackTrace();
-		} catch (UnterminatedCommentException e) {
-			e.printStackTrace();
-		} catch (UnterminatedStringLiteralException e) {
-			e.printStackTrace();
-		}
+      public UnterminatedRegExpLiteralException(int errorOffset) {
+        super("Regular Expression not terminated.", errorOffset);
+      }
 	}
-
 
 }

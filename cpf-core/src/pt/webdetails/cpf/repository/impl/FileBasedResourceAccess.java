@@ -9,9 +9,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 
 import pt.webdetails.cpf.repository.api.IBasicFile;
 import pt.webdetails.cpf.repository.api.IBasicFileFilter;
@@ -76,8 +74,7 @@ public abstract class FileBasedResourceAccess implements IRWAccess {
       return false;
     }
   }
-  
-//  protected File getFile(String path) { return null; }
+
   protected abstract File getFile(String path);
 
   public IBasicFile fetchFile(String path) {

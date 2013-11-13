@@ -1,114 +1,72 @@
 /**
-CSSMin Copyright License Agreement (BSD License)
-
-Copyright (c) 2011, Barry van Oudtshoorn
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions
-are met:
-
-* Redistributions of source code must retain the above
-  copyright notice, this list of conditions and the
-following disclaimer.
-
-* Redistributions in binary form must reproduce the above
-  copyright notice, this list of conditions and the
-following disclaimer in the documentation and/or other
-materials provided with the distribution.
-
-* Neither the name of Barryvan nor the names of its
-  contributors may be used to endorse or promote products
-derived from this software without specific prior
-written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
+  CSSMin Copyright License Agreement (BSD License)
+  
+  Copyright (c) 2011, Barry van Oudtshoorn
+  All rights reserved.
+  
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met:
+  
+  * Redistributions of source code must retain the above
+    copyright notice, this list of conditions and the
+    following disclaimer.
+  
+  * Redistributions in binary form must reproduce the above
+    copyright notice, this list of conditions and the
+    following disclaimer in the documentation and/or other
+    materials provided with the distribution.
+  
+  * Neither the name of Barryvan nor the names of its
+    contributors may be used to endorse or promote products
+    derived from this software without specific prior
+    written permission.
+  
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  POSSIBILITY OF SUCH DAMAGE.
 */
-package pt.webdetails.cpf.packager;
+
+package pt.webdetails.cpf.packager.dependencies;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Vector;
-import java.util.regex.PatternSyntaxException;
+import java.util.regex.*;
 
+import pt.webdetails.cpf.utils.CharsetHelper;
+
+//TODO never used
 public class CSSMin
 {
 
   protected static boolean bDebug = false;
 
-  public static void main(String[] args)
-  {
-    if (args.length < 1)
-    {
-      System.out.println("Usage: ");
-      System.out.println("CSSMin [Input file] [Output file] [DEBUG]");
-      System.out.println("If no output file is specified, stdout will be used.");
-      return;
-    }
-
-    bDebug = (args.length > 2);
-
-    PrintStream out;
-
-    if (args.length > 1)
-    {
-      try
-      {
-        out = new PrintStream(args[1]);
-      }
-      catch (Exception e)
-      {
-        System.err.println("Error outputting to " + args[1] + "; redirecting to stdout");
-        out = System.out;
-      }
-    }
-    else
-    {
-      out = System.out;
-    }
-
-    formatFile(args[0], out);
-  }
-
-  public static void formatFile(String f, PrintStream out)
-  {
-    try
-    {
-      formatFile(new FileReader(f), out);
-    }
-    catch (Exception e)
-    {
-      System.out.println(e.getMessage());
-    }
-  }
-
-  public static void formatFile(Reader input, OutputStream out)
+  public static void formatFile(InputStream input, OutputStream out)
   {
     formatFile(input, new PrintStream(out));
   }
 
-  public static void formatFile(Reader input, PrintStream out)
+  public static void formatFile(InputStream input, PrintStream out)
   {
     try
     {
       int k, n;
 
-      BufferedReader br = new BufferedReader(input);
+      BufferedReader br = new BufferedReader(new InputStreamReader(input, CharsetHelper.getEncoding()));
       StringBuffer sb = new StringBuffer();
 
       if (bDebug)
