@@ -2,6 +2,7 @@ package pt.webdetails.cpf;
 
 import java.io.IOException;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Node;
@@ -62,7 +63,10 @@ public abstract class PentahoBasePluginEnvironment extends PluginEnvironment imp
         // this depends on cpf being loaded by the plugin classloader
         IReadAccess reader = new SystemPluginResourceAccess(PentahoBasePluginEnvironment.class.getClassLoader(), null);
         Node documentNode = XmlDom4JUtils.getDocumentFromFile(reader, "plugin.xml").getRootElement();
-        pluginId = documentNode.valueOf("/plugin/@title");
+        pluginId = documentNode.valueOf("/plugin/@name");
+        if ( StringUtils.isEmpty( pluginId ) ) {
+          pluginId = documentNode.valueOf( "/plugin/@title" );
+        }
       } catch (IOException e) {
         logger.fatal("Problem reading plugin.xml", e);
         return "cpf";
