@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -133,7 +132,8 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
 
   @Override
   public long getLastModified(String path) {
-    return getRepositoryFile(path).getLastModified();
+    ISolutionFile solutionFile = getRepositoryFile( path );
+    return ( solutionFile == null ) ? 0L : solutionFile.getLastModified();
   }
 
 
