@@ -29,7 +29,8 @@ import org.pentaho.platform.engine.security.SecurityHelper;
 import pt.webdetails.cpf.CpfProperties;
 import pt.webdetails.cpf.InvalidOperationException;
 import pt.webdetails.cpf.Util;
-import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
+import pt.webdetails.cpf.repository.api.IReadAccess;
+import pt.webdetails.cpf.repository.pentaho.PluginLegacySolutionResourceAccess;
 import pt.webdetails.cpf.utils.CharsetHelper;
 
 
@@ -591,7 +592,8 @@ public class PersistenceEngine {
     public void startOrient() throws Exception {
         InputStream conf;
         try {
-            conf = PentahoRepositoryAccess.getRepository().getResourceInputStream("/cpf/orient.xml");
+            IReadAccess reader = new PluginLegacySolutionResourceAccess("cpf");
+            conf =  reader.getFileInputStream( "orient.xml" );
         } catch (Exception e) {
             logger.warn("Falling back to built-in config");
             conf = getClass().getResourceAsStream("orient.xml");

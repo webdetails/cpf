@@ -26,6 +26,10 @@ public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment imple
   }
   private static Log logger = LogFactory.getLog(PentahoPluginEnvironment.class);
 
+  static {
+    PluginEnvironment.init( instance );
+  }
+
   protected PentahoPluginEnvironment() {}
 
   public static PentahoPluginEnvironment getInstance() {

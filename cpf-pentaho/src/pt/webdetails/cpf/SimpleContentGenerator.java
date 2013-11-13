@@ -29,7 +29,6 @@ import org.json.JSONException;
 import org.pentaho.platform.api.engine.IMimeTypeListener;
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IParameterProvider;
-import org.pentaho.platform.api.repository.IContentItem;
 
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.security.SecurityHelper;
@@ -41,8 +40,8 @@ import pt.webdetails.cpf.annotations.Audited;
 import pt.webdetails.cpf.annotations.Exposed;
 import pt.webdetails.cpf.audit.CpfAuditHelper;
 import pt.webdetails.cpf.messaging.JsonSerializable;
-import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
 import pt.webdetails.cpf.utils.CharsetHelper;
+import pt.webdetails.cpf.utils.MimeTypes;
 
 /**
  *
@@ -65,7 +64,9 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
         return valueOf(StringUtils.upperCase(value));
       }
     }
-    
+    /**
+     * @deprecated use {@link MimeTypes}
+     */
     public static class MimeType {
       public static final String CSS = "text/css";
       public static final String JAVASCRIPT = "text/javascript";
@@ -88,7 +89,7 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
       public static final String PPT = "application/mspowerpoint";
       public static final String PPTX = "application/mspowerpoint";
     }
-    
+
     protected static final EnumMap<FileType, String> mimeTypes = new EnumMap<FileType, String>(FileType.class);
     
     static
@@ -187,7 +188,7 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
 //          ||
 //          (e instanceof RuntimeException &&
 //              StringUtils.containsIgnoreCase(e.getClass().getName(), "timeout"))) 
-      {
+      { //XXX not correct use
         getResponse().sendError(HttpServletResponse.SC_REQUEST_TIMEOUT, msg);
       }
       else {// default to 500
@@ -212,10 +213,11 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
     public abstract String getPluginName();
     
     /**
+     * @deprecated
      * @return this plugin's path
      */
     public String getPluginPath(){
-      return PentahoRepositoryAccess.getSystemDir() + "/" + getPluginName();
+      return PentahoPluginEnvironment.getInstance().getPluginId();
     }
     
     /**
@@ -251,8 +253,9 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
     }
     
     protected OutputStream getResponseOutputStream(final String mimeType) throws IOException {
-      IContentItem contentItem = outputHandler.getOutputContentItem(IOutputHandler.RESPONSE, IOutputHandler.CONTENT, "", instanceId, mimeType);
-      return contentItem.getOutputStream(null);
+      return outputHandler
+        .getOutputContentItem(IOutputHandler.RESPONSE, IOutputHandler.CONTENT, "", instanceId, mimeType)
+        .getOutputStream( null );
     }
 
     protected HttpServletRequest getRequest(){
@@ -276,10 +279,10 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
     
     private boolean canAccessMethod(Method method, Exposed exposed){
       if (exposed != null) {
-        
+
         AccessLevel accessLevel = exposed.accessLevel();
         if(accessLevel != null) {
-          
+
           boolean accessible = false;
           switch (accessLevel) {
             case ADMIN:
@@ -297,7 +300,7 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
             default:
               logger.error("Unsupported AccessLevel " + accessLevel);
           }
-          
+
           return accessible;
         }
         
