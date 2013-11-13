@@ -29,7 +29,7 @@ import pt.webdetails.cpf.repository.util.RepositoryHelper;
 import pt.webdetails.cpf.utils.CharsetHelper;
 import pt.webdetails.cpf.utils.MimeTypes;
 
-public abstract class UnifiedRepositoryAccess {// implements IPluginResourceRWAccess, IUserContentAccess {
+public abstract class UnifiedRepositoryAccess {
 
   private static final Log logger = LogFactory.getLog(UnifiedRepositoryAccess.class);
   protected String basePath;
@@ -243,7 +243,7 @@ public abstract class UnifiedRepositoryAccess {// implements IPluginResourceRWAc
   }
 
   public List<IBasicFile> listFiles(String path, IBasicFileFilter filter) {
-    return listFiles(getFullPath(path), -1, false, filter, false, new ArrayList<IBasicFile>());
+    return listFiles(getFullPath(path), 1, false, filter, false, new ArrayList<IBasicFile>());
   }
 
   public List<IBasicFile> listFiles(String path, IBasicFileFilter filter, int maxDepth, boolean includeDirs) {
@@ -307,8 +307,7 @@ public abstract class UnifiedRepositoryAccess {// implements IPluginResourceRWAc
       boolean showHiddenFiles,
       final List<IBasicFile> listOut)
   {
-    // TODO: check for depth coherence with other types
-    // TODO: better impl. how i regret this iface
+    // TODO: check for depth coherence with other types, better impl
     RepositoryFileTree tree = getRepository().getTree(path, depth, null, showHiddenFiles);
     populateList(listOut, tree, filter, includeDirs, showHiddenFiles);
     return listOut;
@@ -327,15 +326,9 @@ public abstract class UnifiedRepositoryAccess {// implements IPluginResourceRWAc
       return;
     }
 
-//    if ( includeDirs || !file.isFolder() ) {
-//      IBasicFile bFile = asBasicFile( file, null );
-//      if ( filter.accept( bFile ) ) {
-//        list.add( bFile );
-//      }
-//    }
-    //TODO: TREE ONLY HAS FOLDERS!
     if (file.isFolder()) {
-      for (RepositoryFile actualFile : getRepository().getChildren( file.getId() )) {//, "FILES"
+      // TODO "FILES" doesn't seem to work here
+      for (RepositoryFile actualFile : getRepository().getChildren( file.getId() )) {
         if ( includeDirs || !actualFile.isFolder() ) {
           IBasicFile bFile = asBasicFile( actualFile, null );
           if ( filter.accept( bFile ) ) {
