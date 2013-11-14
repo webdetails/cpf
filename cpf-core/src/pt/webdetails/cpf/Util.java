@@ -225,10 +225,4 @@ public abstract class Util {
       return DEFAULT_DURATION_FORMAT_SEC.format( (System.currentTimeMillis() - startTime) / 1000.0 );
     }
 
-    /**
-     * @deprecated spelling! {@link #getElapsedSeconds(long)}
-     */
-    public static String getEllapsedSeconds( long startTime ) {
-      return getElapsedSeconds( startTime );
-    }
 }
