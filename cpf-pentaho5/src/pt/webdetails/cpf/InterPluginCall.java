@@ -203,7 +203,7 @@ public class InterPluginCall implements Runnable, Callable<String>, IPluginCall 
 
     for (Method m : methods) {
       if (m.getName() == method) {
-        operation = m;
+        operation = m;//XXX this could have a continue/break, to stop searching when found??
       }
     }
 
@@ -232,7 +232,17 @@ public class InterPluginCall implements Runnable, Callable<String>, IPluginCall 
             for (Map.Entry<String, Object> entry : requestParameters.entrySet()) {
               String key = entry.getKey();
 
-              cpfRequest.setParameter(key, (String)entry.getValue());
+              Object paramValue = entry.getValue();
+              String reqValue = null;
+              if (paramValue instanceof String[]) {
+                String[] lValues = (String[])paramValue;
+                if (lValues.length > 0)
+                  reqValue = lValues[0];
+              } else if (paramValue != null) {
+                reqValue = paramValue.toString();
+              }
+
+              cpfRequest.setParameter(key, reqValue);
             }
 
             parameters.add((HttpServletRequest)cpfRequest);
