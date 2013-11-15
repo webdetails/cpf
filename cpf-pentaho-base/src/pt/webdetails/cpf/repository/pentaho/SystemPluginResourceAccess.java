@@ -19,52 +19,59 @@ public class SystemPluginResourceAccess extends FileBasedResourceAccess implemen
 
   protected File basePath;
 
-  public SystemPluginResourceAccess(ClassLoader classLoader, String basePath) {
-    initPathFromClassLoader(classLoader, basePath);
+  public SystemPluginResourceAccess( ClassLoader classLoader, String basePath ) {
+    initPathFromClassLoader( classLoader, basePath );
   }
 
-  public SystemPluginResourceAccess(String pluginId, String basePath) {
-    IPluginManager pm = PentahoSystem.get(IPluginManager.class);
-    ClassLoader classLoader = pm.getClassLoader(pluginId);
-    initPathFromClassLoader(classLoader, basePath);
+  public SystemPluginResourceAccess( String pluginId, String basePath ) {
+    IPluginManager pm = PentahoSystem.get( IPluginManager.class );
+    ClassLoader classLoader = pm.getClassLoader( pluginId );
+    initPathFromClassLoader( classLoader, basePath );
   }
 
   /**
-   * 
    * @param classLoader Current plugin's ClassLoader
-   * @param basePath All paths will be considered relative to this (optional) 
+   * @param basePath    All paths will be considered relative to this (optional)
    */
-  private void initPathFromClassLoader(ClassLoader classLoader, String basePath) {
-    if (classLoader == null) {
-      throw new IllegalArgumentException("Unknown plugin");
+  private void initPathFromClassLoader( ClassLoader classLoader, String basePath ) {
+    if ( classLoader == null ) {
+      throw new IllegalArgumentException( "Unknown plugin" );
     }
-    if (classLoader instanceof PluginClassLoader) {
-      this.basePath = ((PluginClassLoader) classLoader).getPluginDir();
-    }
-    else {//shouldn't get here, but..
-      URL rootFileUrl = RepositoryHelper.getClosestResource(classLoader, "plugin.xml");
-      if (rootFileUrl != null) {
-        this.basePath = new File(rootFileUrl.getPath()).getParentFile();
+    if ( classLoader instanceof PluginClassLoader ) {
+      this.basePath = ( (PluginClassLoader) classLoader ).getPluginDir();
+    } else {//shouldn't get here, but..
+      URL rootFileUrl = RepositoryHelper.getClosestResource( classLoader, "plugin.xml" );
+      if ( rootFileUrl != null ) {
+        this.basePath = new File( rootFileUrl.getPath() ).getParentFile();
       }
     }
-    if (this.basePath == null) {
-      throw new IllegalArgumentException("Couldn't find a valid base path from class loader");
+    if ( this.basePath == null ) {
+      throw new IllegalArgumentException( "Couldn't find a valid base path from class loader" );
     }
 
-    if (!StringUtils.isEmpty(basePath)) {
-      this.basePath = new File(this.basePath, basePath);
+    if ( !StringUtils.isEmpty( basePath ) ) {
+      this.basePath = new File( this.basePath, basePath );
     }
   }
 
   @Override
-  protected File getFile(String path) {
-    return StringUtils.isEmpty(path) ? basePath : new File(basePath, path);
+  protected File getFile( String path ) {
+    if(path != null && path.startsWith( "/system/" ))  {           //XXX - review ...
+      String[] sections = path.split( "/" );
+      String sysPluginDir = sections[1] + "/" + sections[2];
+      String baseString = basePath.toString();
+     if(baseString.indexOf( sysPluginDir) != -1 &&
+       (baseString.lastIndexOf( sysPluginDir ) + sysPluginDir.length() == baseString.length())) {
+       path = path.replaceFirst( "/.*?/.*?/","/" );
+     }
+    }
+    return StringUtils.isEmpty( path ) ? basePath : new File( basePath, path );
   }
 
   @Override
-  public String toString(){
-  	StringBuffer sb = new StringBuffer(getClass().getSimpleName());
-  	sb.append(":").append(basePath);
-  	return sb.toString();
+  public String toString() {
+    StringBuffer sb = new StringBuffer( getClass().getSimpleName() );
+    sb.append( ":" ).append( basePath );
+    return sb.toString();
   }
 }
