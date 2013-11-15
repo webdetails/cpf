@@ -21,6 +21,9 @@ import pt.webdetails.cpf.repository.util.RepositoryHelper;
 public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment implements IContentAccessFactoryExtended {
 
   private static PentahoPluginEnvironment instance = new PentahoPluginEnvironment();
+  static {
+    PluginEnvironment.init( instance );
+  }
   private static Log logger = LogFactory.getLog(PentahoPluginEnvironment.class);
 
   protected PentahoPluginEnvironment() {}

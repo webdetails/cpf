@@ -20,8 +20,14 @@ import pt.webdetails.cpf.repository.util.RepositoryHelper;
 
 public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment implements IContentAccessFactory {
 
+    private static final PentahoPluginEnvironment instance = new PentahoPluginEnvironment();
+
+    static {
+        PluginEnvironment.init( instance );
+    }
+
   public static PentahoPluginEnvironment getInstance() {
-    return new PentahoPluginEnvironment();
+    return instance;
   }
 
 
