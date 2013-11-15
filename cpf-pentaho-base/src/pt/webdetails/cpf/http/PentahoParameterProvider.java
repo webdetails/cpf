@@ -70,7 +70,7 @@ public class PentahoParameterProvider implements ICommonParameterProvider {
     return provider.hasParameter(string);
   }
 
-  @Override
+
   public Map<String, Object> getParameters() {
 	
 	  Map<String,Object> params = new HashMap<String,Object>();

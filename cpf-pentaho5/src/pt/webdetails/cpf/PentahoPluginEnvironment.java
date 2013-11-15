@@ -88,7 +88,7 @@ public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment imple
   }
 
   public IPluginCall getPluginCall( String pluginId, String servicePath, String method ) {
-    return new BeanyPluginCall( pluginId, servicePath, method );
+    return new InterPluginCall( new InterPluginCall.Plugin(pluginId), servicePath, method );
   }
 
 }

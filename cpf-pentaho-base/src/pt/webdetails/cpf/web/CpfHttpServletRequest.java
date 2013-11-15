@@ -13,16 +13,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletContext;
@@ -110,6 +101,7 @@ public class CpfHttpServletRequest implements HttpServletRequest {
          this.method = method;
          this.requestURI = requestURI;
          this.locales.add(Locale.ENGLISH);
+         this.parameters = new HashMap<String, String[]>();
      }
      
      protected void setParameterMap(Map<String, String[]> parameters) {
