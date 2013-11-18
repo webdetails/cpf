@@ -23,6 +23,6 @@ public class JsonPluginCall {
     String result = internal.call();
     return new JSONObject(result);
   }
-  
+
 
 }

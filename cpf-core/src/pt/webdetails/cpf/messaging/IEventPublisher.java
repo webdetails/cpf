@@ -10,5 +10,4 @@ package pt.webdetails.cpf.messaging;
  */
 public interface IEventPublisher {
     public void publish(final PluginEvent event);
-    
 }

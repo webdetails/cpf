@@ -17,6 +17,7 @@ import pt.webdetails.cpf.CpfProperties;
 import pt.webdetails.cpf.InterPluginCall;
 import pt.webdetails.cpf.JsonPluginCall;
 import pt.webdetails.cpf.PentahoInterPluginCall;
+import pt.webdetails.cpf.PentahoLegacyInterPluginCall;
 import pt.webdetails.cpf.Result;
 import pt.webdetails.cpf.plugin.CorePlugin;
 
@@ -94,7 +95,7 @@ public class EventPublisher implements IEventPublisher {
     };
     return publishAndLog;
   }
-  
+
   private FutureTask<Result> getPublishTask(final PluginEvent event){
     return new FutureTask<Result>(new Callable<Result>(){
 
