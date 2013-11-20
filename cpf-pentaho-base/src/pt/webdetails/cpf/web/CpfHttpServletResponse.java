@@ -258,7 +258,7 @@ public class CpfHttpServletResponse implements HttpServletResponse {
 
     public Enumeration<Object> getHeaders(String name) {
         HeaderValueHolder header = HeaderValueHolder.getByName(this.headers, name);
-        return header != null ? header.getValues() : Collections.<Object>emptyEnumeration();
+        return header != null ? header.getValues() : Collections.enumeration( Collections.emptyList() );
     }
 
     public String encodeURL(String url) {

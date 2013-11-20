@@ -192,7 +192,7 @@ public class CpfHttpServletRequest implements HttpServletRequest {
     @Override
     public Enumeration<Object> getHeaders(String name) {
         HeaderValueHolder header = HeaderValueHolder.getByName(this.headers, name);
-        return header != null ? header.getValues() : Collections.<Object>emptyEnumeration();
+        return header != null ? header.getValues() : Collections.enumeration( Collections.emptyList() );
     }
 
     @Override
