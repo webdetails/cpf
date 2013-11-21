@@ -367,7 +367,10 @@ public abstract class UnifiedRepositoryAccess {
     if (file.isFolder()) {
       // TODO "FILES" doesn't seem to work here
       for (RepositoryFile actualFile : getRepository().getChildren( file.getId() )) {
-        if ( includeDirs || !actualFile.isFolder() ) {
+        if (includeDirs || !actualFile.isFolder() ) {
+          if (!showHidden && actualFile.isHidden()) {
+            continue;
+          }
           IBasicFile bFile = asBasicFile( actualFile, null );
           if ( filter.accept( bFile ) && !hideSystemFile(actualFile)) {
             list.add( bFile );
