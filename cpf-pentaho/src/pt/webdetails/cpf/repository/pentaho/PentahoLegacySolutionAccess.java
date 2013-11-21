@@ -146,13 +146,25 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
   }
 
   public List<IBasicFile> listFiles(String path, final IBasicFileFilter filter, int maxDepth, boolean includeDirs) {
-    path = getPath(path);
-    IFileFilter fileFilter = new IFileFilter() {
-        @Override
-        public boolean accept(ISolutionFile isf) {
-            return filter.accept(asBasicFile(isf));
-        }
-    };
+ 	  
+	path = getPath(path);
+    IFileFilter fileFilter = null;
+    
+    if( filter != null ){
+    	
+    	fileFilter = new IFileFilter() {
+            @Override
+            public boolean accept(ISolutionFile isf) { return filter.accept(asBasicFile(isf)); }
+        };
+        
+    } else {
+    	// 'accept all' filter
+    	fileFilter = new IFileFilter() {
+            @Override
+            public boolean accept(ISolutionFile isf) { return true; }
+        };
+    }
+    
     ISolutionFile baseDir = getRepository().getSolutionFile(path, toResourceAction(FileAccess.READ));
     return listFiles(new ArrayList<IBasicFile>(), baseDir, fileFilter, includeDirs, maxDepth, 0);
   }
