@@ -309,7 +309,10 @@ public abstract class UnifiedRepositoryAccess {
   {
     // TODO: check for depth coherence with other types, better impl
     RepositoryFileTree tree = getRepository().getTree(path, depth, null, showHiddenFiles);
-    populateList(listOut, tree, filter, includeDirs, showHiddenFiles);
+    // TODO: in case there are no files / folder is hidden the tree could be null?
+    if (tree != null) {
+      populateList(listOut, tree, filter, includeDirs, showHiddenFiles);
+    }
     return listOut;
   }
 
