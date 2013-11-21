@@ -20,7 +20,7 @@ import pt.webdetails.cpf.repository.api.IReadAccess;
 import pt.webdetails.cpf.repository.util.RepositoryHelper;
 import pt.webdetails.cpf.utils.CharsetHelper;
 
-public class TestPluginSystemAccess extends TestCase {
+public class PluginSystemAccessTest extends TestCase {
   private final String userDir = System.getProperty("user.dir");
 
   @Test
@@ -135,12 +135,12 @@ public class TestPluginSystemAccess extends TestCase {
       for (IBasicFile txtFile : txtFiles) {
         if (txtFile.getName().equals("stuffedBogus.txt")) {
           stuffFound = true;
-          assertEquals("stuff/stuffedBogus.txt", txtFile.getPath());
+          assertEquals("/stuff/stuffedBogus.txt", txtFile.getPath());
           assertEquals(getFullPluginDir("bogusPlugin/resources/stuff/stuffedBogus.txt"), txtFile.getFullPath());
         }
         if (txtFile.getName().equals("moreStuffedBogus.txt")) {
           moreFound = true;
-          assertEquals("stuff/moreStuff/moreStuffedBogus.txt", txtFile.getPath());
+          assertEquals("/stuff/moreStuff/moreStuffedBogus.txt", txtFile.getPath());
         }
         if (txtFile.getName().equals("bogus.txt")) {
           bogusFound = true;

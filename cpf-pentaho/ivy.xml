@@ -76,7 +76,8 @@
       rev="${dependency.orientdb.rev}" transitive="false"/>
 
     <!-- TESTS -->
-    <dependency org="junit" name="junit" conf="test->default" rev='4.10'/>
+    <dependency org="junit" name="junit" rev='4.10' conf="test->default" />
+    <dependency org="jaxen" name="jaxen" rev="1.1.1" conf="test->default"/>
   </dependencies>
 
 </ivy-module>
