@@ -3,6 +3,7 @@ package pt.webdetails.cpf.repository.pentaho;
 import java.io.File;
 import java.net.URL;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -59,7 +60,7 @@ public class SystemPluginResourceAccess extends FileBasedResourceAccess implemen
     if(path != null && path.startsWith( "/system/" ))  {           //XXX - review ...
       String[] sections = path.split( "/" );
       String sysPluginDir = sections[1] + "/" + sections[2];
-      String baseString = basePath.toString();
+      String baseString = FilenameUtils.separatorsToUnix(  basePath.toString() );
      if(baseString.indexOf( sysPluginDir) != -1 &&
        (baseString.lastIndexOf( sysPluginDir ) + sysPluginDir.length() == baseString.length())) {
        path = path.replaceFirst( "/.*?/.*?/","/" );
