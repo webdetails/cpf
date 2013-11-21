@@ -325,6 +325,14 @@ public abstract class UnifiedRepositoryAccess {
     if (!showHidden && file.isHidden()) {
       return;
     }
+    
+    if( filter == null ){
+		// no filter == 'accept all' filter
+		filter = new IBasicFileFilter() {			
+			@Override
+			public boolean accept(IBasicFile file) { return true; }
+		};
+	}
 
     if (file.isFolder()) {
       // TODO "FILES" doesn't seem to work here
