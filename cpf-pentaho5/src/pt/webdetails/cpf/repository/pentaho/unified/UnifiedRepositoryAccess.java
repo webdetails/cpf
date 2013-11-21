@@ -2,6 +2,7 @@ package pt.webdetails.cpf.repository.pentaho.unified;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,13 +14,16 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 
 import pt.webdetails.cpf.api.IFileContent;
 import pt.webdetails.cpf.impl.FileContent;
@@ -316,6 +320,21 @@ public abstract class UnifiedRepositoryAccess {
     return listOut;
   }
 
+  // replicate pentaho web service behaviour
+  protected boolean hideSystemFile(RepositoryFile file) {
+    IAuthorizationPolicy policy = PentahoSystem.get( IAuthorizationPolicy.class );
+    boolean isAdmin = policy.isAllowed( AdministerSecurityAction.NAME );
+    Map<String, Serializable> fileMeta = getRepository().getFileMetadata( file.getId() );
+    boolean isSystemFolder =
+      fileMeta.containsKey( IUnifiedRepository.SYSTEM_FOLDER ) ? 
+          (Boolean) fileMeta.get( IUnifiedRepository.SYSTEM_FOLDER ) : false;
+
+    if ( !isAdmin && isSystemFolder ) {
+      return true;
+    }
+    return false;
+  }
+
   // painful thing to do, but it's a unifying interface
   protected void populateList(
       List<IBasicFile> list,
@@ -325,9 +344,17 @@ public abstract class UnifiedRepositoryAccess {
       final boolean showHidden)
   {
     RepositoryFile file = tree.getFile();
+
     if (!showHidden && file.isHidden()) {
       return;
     }
+
+    if (hideSystemFile(file)) {
+      return;
+    }
+
+    
+
     
     if( filter == null ){
 		// no filter == 'accept all' filter
@@ -342,7 +369,7 @@ public abstract class UnifiedRepositoryAccess {
       for (RepositoryFile actualFile : getRepository().getChildren( file.getId() )) {
         if ( includeDirs || !actualFile.isFolder() ) {
           IBasicFile bFile = asBasicFile( actualFile, null );
-          if ( filter.accept( bFile ) ) {
+          if ( filter.accept( bFile ) && !hideSystemFile(actualFile)) {
             list.add( bFile );
           }
         }
