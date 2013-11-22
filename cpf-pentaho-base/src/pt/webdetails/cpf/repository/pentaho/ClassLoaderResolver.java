@@ -33,5 +33,9 @@ public class ClassLoaderResolver extends ClassLoaderResourceAccess implements IR
   public List<IBasicFile> listFiles(String path, IBasicFileFilter filter, int maxDepth, boolean includeDirs) {
     throw new NotImplementedException();
   }
+  
+  public List<IBasicFile> listFiles(String path, IBasicFileFilter filter, int maxDepth, boolean includeDirs, boolean showHiddenFilesAndFolders) {
+    throw new NotImplementedException();
+  }
 
 }

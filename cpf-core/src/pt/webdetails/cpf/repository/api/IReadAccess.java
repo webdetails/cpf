@@ -38,12 +38,23 @@ public interface IReadAccess {
    * @param filter (optional)
    * @param maxDepth -1 for ANY, [1..N] to limit depth
    * @param includeDirs if directories should be tested and included as well.
+   * @param showHiddenFilesAndFolders true if list of IBasicFile returned should also include files/folders marked as hidden, false otherwise
+   * @return Files under path matching filter
+   */
+  List<IBasicFile> listFiles(String path, IBasicFileFilter filter, int maxDepth, boolean includeDirs, boolean showHiddenFilesAndFolders);
+  
+  /**
+   * (optional)<br>
+   * @param path
+   * @param filter (optional)
+   * @param maxDepth -1 for ANY, [1..N] to limit depth
+   * @param includeDirs if directories should be tested and included as well.
    * @return Files under path matching filter
    */
   List<IBasicFile> listFiles(String path, IBasicFileFilter filter, int maxDepth, boolean includeDirs);
 
   /**
-   * @deprecated use {@link #listFiles(String, IBasicFileFilter, int, boolean)}, we're not going to have every combination
+   * @deprecated use {@link #listFiles(String, IBasicFileFilter, int, boolean, boolean)}, we're not going to have every combination
    */
   List<IBasicFile> listFiles(String path, IBasicFileFilter filter, int maxDepth);
 

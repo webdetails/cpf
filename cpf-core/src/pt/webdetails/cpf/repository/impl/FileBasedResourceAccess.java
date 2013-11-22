@@ -82,18 +82,22 @@ public abstract class FileBasedResourceAccess implements IRWAccess {
   }
 
   public List<IBasicFile> listFiles(String path, IBasicFileFilter filter) {
-    return listFiles(new ArrayList<IBasicFile>(), getFile(path), asFileFilter(filter), false, -1);
+    return listFiles(new ArrayList<IBasicFile>(), getFile(path), asFileFilter(filter), false, false, -1);
   }
 
   public List<IBasicFile> listFiles(String path, IBasicFileFilter filter, int maxDepth, boolean includeDirs) {
-    return listFiles(new ArrayList<IBasicFile>(), getFile(path), asFileFilter(filter), includeDirs, -1);
+    return listFiles(new ArrayList<IBasicFile>(), getFile(path), asFileFilter(filter), includeDirs, false, -1);
   }
 
   public List<IBasicFile> listFiles(String path, IBasicFileFilter filter, int maxDepth) {
-    return listFiles(new ArrayList<IBasicFile>(), getFile(path), asFileFilter(filter), false, maxDepth);
+    return listFiles(new ArrayList<IBasicFile>(), getFile(path), asFileFilter(filter), false, false, maxDepth);
+  }
+  
+  public List<IBasicFile> listFiles(String path, IBasicFileFilter filter, int maxDepth, boolean includeDirs, boolean showHiddenFilesAndFolders) {
+    return listFiles(new ArrayList<IBasicFile>(), getFile(path), asFileFilter(filter), includeDirs, showHiddenFilesAndFolders, maxDepth);
   }
 
-  private List<IBasicFile> listFiles(List<IBasicFile> list, File root, FileFilter filter, boolean includeDirs, int depth) {
+  private List<IBasicFile> listFiles(List<IBasicFile> list, File root, FileFilter filter, boolean includeDirs, boolean showHiddenFilesAndFolders, int depth) {
 
     if (root.isDirectory()) {
       if (includeDirs && filter.accept(root)) {
@@ -101,7 +105,7 @@ public abstract class FileBasedResourceAccess implements IRWAccess {
       }
       if (depth != 0) {
         for (File file : root.listFiles()) {
-          listFiles(list, file, filter, includeDirs, depth -1);
+          listFiles(list, file, filter, includeDirs, showHiddenFilesAndFolders, depth -1);
         }
       }
     }

@@ -246,12 +246,39 @@ public abstract class UnifiedRepositoryAccess {
     return true;
   }
 
+  /**
+   * list all files under a given base path
+   * @param path the base/root path
+   * @param filter (optional) allows for filtering of the returned list of files (@see pt.webdetails.cpf.repository.api.IBasicFileFilter)
+   * @return list of files under a given base path
+   */
   public List<IBasicFile> listFiles(String path, IBasicFileFilter filter) {
     return listFiles(getFullPath(path), 1, false, filter, false, new ArrayList<IBasicFile>());
   }
 
+  /**
+   * list all files/folders under a given base path
+   * @param path the base/root path
+   * @param filter (optional) allows for filtering of the returned list of files (@see pt.webdetails.cpf.repository.api.IBasicFileFilter)
+   * @param maxDepth the search and listing depth; -1 for full depth, zero for no depth (i.e only the base path's direct children)
+   * @param includeDirs true if list of IBasicFile returned should also include folders, false otherwise
+   * @return list of files/folders under a given base path
+   */
   public List<IBasicFile> listFiles(String path, IBasicFileFilter filter, int maxDepth, boolean includeDirs) {
     return listFiles(getFullPath(path), maxDepth, includeDirs, filter, false, new ArrayList<IBasicFile>());
+  }
+  
+  /**
+   * list all files/folders under a given base path
+   * @param path the base/root path
+   * @param filter (optional) allows for filtering of the returned list of files (@see pt.webdetails.cpf.repository.api.IBasicFileFilter)
+   * @param maxDepth the search and listing depth; -1 for full depth, zero for no depth (i.e only the base path's direct children)
+   * @param includeDirs true if list of IBasicFile returned should also include folders, false otherwise 
+   * @param showHiddenFilesAndFolders true if list of IBasicFile returned should also include files/folders marked as hidden, false otherwise 
+   * @return list of files/folders under a given base path
+   */
+  public List<IBasicFile> listFiles(String path, IBasicFileFilter filter, int maxDepth, boolean includeDirs, boolean showHiddenFilesAndFolders) {
+    return listFiles(getFullPath(path), maxDepth, includeDirs, filter, showHiddenFilesAndFolders, new ArrayList<IBasicFile>());
   }
 
   public List<IBasicFile> listFiles(String path, IBasicFileFilter filter, int maxDepth) {
