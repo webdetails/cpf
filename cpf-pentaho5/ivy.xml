@@ -34,10 +34,6 @@
                 rev="${dependency.bi-platform.revision}" changing="true" transitive="false" />
     <dependency org="pentaho" name="pentaho-platform-scheduler" 
                 rev="${dependency.bi-platform.revision}" changing="true" transitive="false" />
-    <dependency org="pentaho" name="common-ui" 
-                rev="${dependency.bi-platform.revision}" changing="true" transitive="false" >
-      <artifact name="common-ui" type="zip" />
-    </dependency>
 
     <dependency org="pentaho" name="mondrian" rev="${dependency.mondrian.revision}" transitive="false"/>
 
