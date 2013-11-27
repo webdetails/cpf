@@ -81,7 +81,8 @@
 
 
       <dependency org="org.json" name="json" rev="3.1"/>
-  <dependency org="junit" name="junit" conf="test->default" rev='4.10'/>
+  <dependency org="junit" name="junit" rev='4.10'  conf="test->default"/>
+  <dependency org="jaxen" name="jaxen" rev="1.1.1" conf="test->default"/>
 
     <dependency org="com.orientechnologies" name="orient-commons" rev="1.5.0" transitive="false" conf="runtime,default->default"/>
     <dependency org="com.orientechnologies" name="orientdb-core" rev="1.5.0" transitive="false" conf="runtime,default->default"/>
