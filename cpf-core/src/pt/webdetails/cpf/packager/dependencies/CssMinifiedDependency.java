@@ -19,7 +19,10 @@ import pt.webdetails.cpf.context.api.IUrlProvider;
 import pt.webdetails.cpf.packager.origin.PathOrigin;
 import pt.webdetails.cpf.repository.api.IRWAccess;
 
-
+/**
+ * CSS files aren't minified, just concatenated.<br>
+ * Relative resource URLs are updated to reflect new location.
+ */
 public class CssMinifiedDependency extends PackagedFileDependency {
 
   private static Log logger = LogFactory.getLog(CssMinifiedDependency.class);
@@ -52,16 +55,17 @@ public class CssMinifiedDependency extends PackagedFileDependency {
     public InputStream nextElement() {
       FileDependency dep = deps.next();
       try {
-
         String contents = Util.toString( dep.getFileInputStream() );
         //strip filename from url
         String originalUrlPath = FilenameUtils.getFullPath(dep.getUrlFilePath());
         contents = replacer.processContents( contents, originalUrlPath );
         return Util.toInputStream( contents );
       } catch ( IOException e ) {
-        logger.error("Error getting input stream for dependency " + dep +", skipping", e);
-        return Util.toInputStream( "" );
+        logger.error("Error getting input stream for dependency " + dep +". Skipping..", e);
+      } catch ( Exception e ) {
+        logger.error("Error with dependency " + dep +". Skipping..", e);
       }
+      return Util.toInputStream( "" );
     }
   }
 }

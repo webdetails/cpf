@@ -7,22 +7,18 @@ package pt.webdetails.cpf.packager.dependencies;
 import java.io.IOException;
 
 
-public abstract class Dependency
-{
-  protected String version;
+public abstract class Dependency {
 
-  protected Dependency(String version)
-  {
-    this.version = version;
-  }
-
-  public boolean isOlderVersionThan(Dependency other) {
+  public boolean isOlderVersionThan( Dependency other ) {
     // assuming version numberings always increase lexicographically
-    return this.version == null || this.version.compareTo( other.version ) < 0;
+    String version = getVersion();
+    return version == null || version.compareTo( other.getVersion() ) < 0;
   }
+
+  public abstract String getVersion();
 
   //TODO: does it make sense to have the same for both?
-  abstract public String getDependencyInclude();
+  public abstract String getDependencyInclude();
 
-  abstract public String getContents() throws IOException;
+  public abstract String getContents() throws IOException;
 }
