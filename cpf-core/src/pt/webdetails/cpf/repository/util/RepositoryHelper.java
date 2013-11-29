@@ -185,6 +185,20 @@ public class RepositoryHelper {
   }
 
   /**
+   * {@link FilenameUtils#normalize(String)} forcing /.
+   */
+  public static String normalize( String path ) {
+    return FilenameUtils.separatorsToUnix( FilenameUtils.normalize( path ) );
+  }
+
+  /**
+   * {@link FilenameUtils#getPathNoEndSeparator(String)} forcing /.
+   */
+  public static String getPathNoEndSeparator( String path ) {
+    return FilenameUtils.separatorsToUnix( FilenameUtils.getPathNoEndSeparator( path ) );
+  }
+
+  /**
    * Like {@link FilenameUtils#getExtension(String)} but won't interpret unix hidden files as extensions
    * @param fileName
    * @return
