@@ -159,8 +159,8 @@ public abstract class UnifiedRepositoryAccess {
   }
 
   private RepositoryFile getOrCreateFolder( IUnifiedRepository repo, String path ) {
-    String fullPath = getFullPath( path );
-
+    // full path, no slash at end
+    String fullPath = StringUtils.chomp( getFullPath( path ), "/" );
     // backtrack path to get list of folders to create
     List<String> foldersToCreate = new ArrayList<String>();
     while ( !rawPathExists( repo, fullPath ) ) {
