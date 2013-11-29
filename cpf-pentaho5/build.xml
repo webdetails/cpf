@@ -79,9 +79,9 @@
 
   <echo>distribution.version = ${distribution.version}</echo>
 
-  <target name="dist" depends="clean,resolve,jar,source.jar"/>
-  <target name="dist-compile" depends="jar"/>
 
+    <target name="publish" depends="dist, dist-source, cobertura, publish-nojar">
+    </target>
 
 
 

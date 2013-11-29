@@ -69,8 +69,9 @@
 
   <echo>distribution.version = ${distribution.version}</echo>
 
-  <target name="dist" depends="clean,resolve,jar,test,source.jar"/>
-  <target name="dist-compile" depends="jar"/>
+
+    <target name="publish" depends="dist, dist-source, cobertura, publish-nojar">
+    </target>
 
   <property name="plugin.artifact.id" value="${plugin.name}"/>
   <property name="plugin.zipfile" value="${plugin.artifact.id}-${distribution.version}.zip"/>
