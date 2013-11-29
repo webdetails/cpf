@@ -7,6 +7,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
+import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 
 import pt.webdetails.cpf.repository.api.IBasicFile;
@@ -41,5 +42,20 @@ public class XmlDom4JUtils {
       return getDocumentFromFile( access.fetchFile( filePath ) );
     }
     return null;
+  }
+  
+  public static String getNodeText(final String xpath, final Node node) {
+    return getNodeText(xpath, node, null);
+  }
+  
+  public static String getNodeText(final String xpath, final Node node, final String defaultValue) {
+    if (node == null) {
+      return defaultValue;
+    }
+    Node n = node.selectSingleNode(xpath);
+    if (n == null) {
+      return defaultValue;
+    }
+    return n.getText();
   }
 }
