@@ -128,19 +128,19 @@ public class PluginSystemAccessTest extends TestCase {
           return file.getExtension().equals("txt");
         }
       };
-      List<IBasicFile> txtFiles = reader.listFiles("", txtFilter, -1);
+      List<IBasicFile> txtFiles = reader.listFiles("", txtFilter, -1, false);
       assertEquals("listFiles result", 3, txtFiles.size());
       boolean bogusFound = false, stuffFound = false, moreFound = false;
       // no contract on order
       for (IBasicFile txtFile : txtFiles) {
         if (txtFile.getName().equals("stuffedBogus.txt")) {
           stuffFound = true;
-          assertEquals("/stuff/stuffedBogus.txt", txtFile.getPath());
+          assertEquals("stuff/stuffedBogus.txt", txtFile.getPath());
           assertEquals(getFullPluginDir("bogusPlugin/resources/stuff/stuffedBogus.txt"), txtFile.getFullPath());
         }
         if (txtFile.getName().equals("moreStuffedBogus.txt")) {
           moreFound = true;
-          assertEquals("/stuff/moreStuff/moreStuffedBogus.txt", txtFile.getPath());
+          assertEquals("stuff/moreStuff/moreStuffedBogus.txt", txtFile.getPath());
         }
         if (txtFile.getName().equals("bogus.txt")) {
           bogusFound = true;

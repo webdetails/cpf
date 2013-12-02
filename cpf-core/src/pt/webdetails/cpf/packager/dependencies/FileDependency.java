@@ -28,31 +28,35 @@ public class FileDependency extends Dependency {
   protected PathOrigin origin;
   protected IUrlProvider urlProvider;
   private String hash;
+  // TODO: why not just a timestamp?
+  // use checksums for versions, otherwise use timestamps
+  protected boolean useChecksumVersion = true;
 
   public FileDependency(String version, PathOrigin origin, String path, IUrlProvider urlProvider) {
-    super(version);
+    super();
     this.filePath = path;
     this.hash = null;
     this.origin = origin;
     this.urlProvider = urlProvider;
   }
 
-
-  public String getCheckSum() {
+  protected String getCheckSum() {
     if (hash == null) {
       InputStream in = null;
       try {
         in = getFileInputStream();
         hash = Util.getMd5Digest( in );
-      }
-      catch (IOException e) {
+      } catch ( Exception e ) {
         logger.error( "Could not compute md5 checksum.", e);
-      }
-      finally {
+      } finally {
         IOUtils.closeQuietly( in );
       }
     }
     return hash;
+  }
+
+  public String getVersion() {
+    return useChecksumVersion ? getCheckSum() : Long.toString( getTimeStamp() );
   }
 
   protected long getTimeStamp() {
@@ -66,15 +70,10 @@ public class FileDependency extends Dependency {
   /**
    * @return path for including this file
    */
-  public String getDependencyInclude()
-  {
-    // the ?v=<hash> is used to bypass browser cache when needed
-    // TODO: why not just a timestamp?
-    // String ts = "?ts=" + getTimeStamp();
-    String md5 = getCheckSum();
-    String urlAppend = ((md5 == null) ? "" : "?v=" + md5);
-//    String file = filePath + ((md5 == null) ? "" : "?v=" + md5);
-    // translate local path to a url path
+  public String getDependencyInclude() {
+    // the ?v=<version> is used to bypass browser cache when needed
+    String version = getVersion();
+    String urlAppend = ((version == null) ? "" : "?v=" + version);
     return origin.getUrl(filePath, urlProvider) + urlAppend;
   }
 
@@ -91,4 +90,7 @@ public class FileDependency extends Dependency {
     return PluginEnvironment.env().getContentAccessFactory();
   }
 
+  public String toString() {
+    return filePath;
+  }
 }

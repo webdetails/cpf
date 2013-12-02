@@ -38,14 +38,16 @@ public class DependenciesPackage {
     CSS, JS
   };
 
-  //FIXME TODO raw dependencies, check streams
-  //TODO: separate raw from rest
   private String name;
-  protected Map<String, FileDependency> fileDependencies;
-  protected PackagedFileDependency packagedDependency;
   private PackageType type;
 
+  protected Map<String, FileDependency> fileDependencies;
+
+  protected PackagedFileDependency packagedDependency;
+  protected Object packagingLock = new Object();
+
   private Map<String, SnippetDependency> rawDependencies;
+
   protected IContentAccessFactory factory;
   protected IUrlProvider urlProvider;
   
@@ -74,10 +76,12 @@ public class DependenciesPackage {
    */
   public boolean registerFileDependency(String name, String version, PathOrigin origin, String path) {
     FileDependency newDep = new FileDependency( version, origin, path, urlProvider);
-    if (registerDependency( name, newDep, fileDependencies )) {
-      //invalidate packaged if there
-      packagedDependency = null;
-      return true;
+    synchronized( packagingLock ) {
+      if (registerDependency( name, newDep, fileDependencies )) {
+        //invalidate packaged if there
+        packagedDependency = null;
+        return true;
+      }
     }
     return false;
   }
@@ -96,12 +100,11 @@ public class DependenciesPackage {
     return false;
   }
 
-  //TODO: entryPoint
   /**
-   * 
-   * @param format
-   * @param isPackaged 
-   * @return
+   * Get references to the dependencies with customized output.
+   * @param format receives file path strings
+   * @param isPackaged if to return a single compressed file
+   * @return script or link tag with file references
    */
   public String getDependencies(StringFilter format, boolean isPackaged) {
     return isPackaged ?
@@ -127,60 +130,61 @@ public class DependenciesPackage {
     return getDependencies( getDefaultStringFilter( type ), isPackaged );
   }
 
-  public String getName() {//TODO: never used
+  public String getName() {
     return name;
   }
 
-  public String getUnpackagedDependencies(StringFilter format) {
+  public String getUnpackagedDependencies( StringFilter format ) {
     StringBuilder sb = new StringBuilder();
     sb.append( "\n" );
-//    sb.append( "\t<!-- " + getName() + "-->\n" );
-    for (Dependency dep : fileDependencies.values()) {
+    // sb.append( "\t<!-- " + getName() + "-->\n" );
+    for ( Dependency dep : fileDependencies.values() ) {
       sb.append( format.filter( dep.getDependencyInclude() ) );
     }
     return sb.toString();
   }
 
-  protected synchronized String getPackagedDependency(StringFilter format) {
-    if (packagedDependency == null) {
-      String packagedPath = name + "." + type.toString().toLowerCase();
-      String baseDir = type.toString().toLowerCase();
-      IRWAccess writer = factory.getPluginSystemWriter( baseDir );
-      PathOrigin origin = new StaticSystemOrigin( baseDir );
-      switch ( type ) {
-        case CSS:
-          packagedDependency = new CssMinifiedDependency( origin, packagedPath, writer, fileDependencies.values(), urlProvider );
-          break;
-        case JS:
-          packagedDependency = new JsMinifiedDependency( origin, packagedPath, writer, fileDependencies.values(), urlProvider );
-          break;
-        default:
-          break;//TODO:
+  protected String getPackagedDependency( StringFilter format ) {
+    synchronized ( packagingLock ) {
+      if ( packagedDependency == null ) {
+        String packagedPath = name + "." + type.toString().toLowerCase();
+        String baseDir = type.toString().toLowerCase();
+        IRWAccess writer = factory.getPluginSystemWriter( baseDir );
+        PathOrigin origin = new StaticSystemOrigin( baseDir );
+        switch ( type ) {
+          case CSS:
+            packagedDependency =
+                new CssMinifiedDependency( origin, packagedPath, writer, fileDependencies.values(), urlProvider );
+            break;
+          case JS:
+            packagedDependency =
+                new JsMinifiedDependency( origin, packagedPath, writer, fileDependencies.values(), urlProvider );
+            break;
+          default:
+            throw new IllegalStateException( getClass().getSimpleName() + " does not have a recognized type: " + type );
+        }
       }
+      return format.filter( packagedDependency.getDependencyInclude() );
     }
-    return format.filter( packagedDependency.getDependencyInclude() );
   }
 
-  private static StringFilter getDefaultStringFilter(PackageType type) {
-    switch (type) {
+  public StringFilter getDefaultFilter() {
+    return getDefaultStringFilter( this.type );
+  }
+
+  private static StringFilter getDefaultStringFilter( PackageType type ) {
+    switch ( type ) {
       case CSS:
-        return new StringFilter()
-        {
-          public String filter(String input)
-          {
-            return String.format(
-              "\t\t<link href=\"%s\" rel=\"stylesheet\" type=\"text/css\" />\n",
-              input);
+        return new StringFilter() {
+          public String filter( String input ) {
+            return String.format( "\t\t<link href=\"%s\" rel=\"stylesheet\" type=\"text/css\" />\n", input );
           }
         };
       case JS:
-        return new StringFilter()
-        {
-          public String filter(String input)
-          {
+        return new StringFilter() {
+          public String filter( String input ) {
             return String.format(
-              "\t\t<script language=\"javascript\" type=\"text/javascript\" src=\"%s\"></script>\n",
-              input);
+                "\t\t<script language=\"javascript\" type=\"text/javascript\" src=\"%s\"></script>\n", input );
           }
         };
       default:

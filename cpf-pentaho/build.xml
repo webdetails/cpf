@@ -24,6 +24,13 @@
       FOUND IN common_build.xml.
     -->
 
+  <!-- overrides subfloor clean to also cleanup runtime-lib -->
+  <property name="runtimelib.dir" value="${basedir}/runtime-lib" />
+
+  <target name="clean" depends="subfloor.clean">
+    <delete dir="${runtimelib.dir}" />
+  </target>
+
 
  <!-- Define the Sonar task if this hasn't been done in a common script -->
   <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">

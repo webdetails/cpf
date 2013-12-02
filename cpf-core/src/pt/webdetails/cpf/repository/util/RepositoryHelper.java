@@ -149,6 +149,7 @@ public class RepositoryHelper {
       StringBuilder common = new StringBuilder();
 
       int commonIndex = 0;
+
       while (commonIndex < target.length && commonIndex < base.length
               && target[commonIndex].equals(base[commonIndex])) {
           common.append(target[commonIndex]);
@@ -162,6 +163,10 @@ public class RepositoryHelper {
           throw new IllegalArgumentException(
               "No common path element found for '" + normalizedTargetPath
               + "' and '" + normalizedBasePath + "'");
+      }
+      else if ( normalizedBasePath.startsWith( "" + SEPARATOR ) ) {
+        // starting slash if had one
+        common.insert( 0, SEPARATOR );
       }
 
       StringBuilder relative = new StringBuilder();
@@ -177,6 +182,20 @@ public class RepositoryHelper {
       }
 
       return relative.toString();
+  }
+
+  /**
+   * {@link FilenameUtils#normalize(String)} forcing /.
+   */
+  public static String normalize( String path ) {
+    return FilenameUtils.separatorsToUnix( FilenameUtils.normalize( path ) );
+  }
+
+  /**
+   * {@link FilenameUtils#getPathNoEndSeparator(String)} forcing /.
+   */
+  public static String getPathNoEndSeparator( String path ) {
+    return FilenameUtils.separatorsToUnix( FilenameUtils.getPathNoEndSeparator( path ) );
   }
 
   /**

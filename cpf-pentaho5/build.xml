@@ -54,6 +54,13 @@
   <property name="plugin.samples.zipfile" value="${plugin.artifact.id}-samples-${distribution.version}.zip"/>
   <property name="plugin.solution.zipfile" value="${plugin.artifact.id}-solution-${distribution.version}.zip"/>
   
+  <!-- overrides subfloor clean to also cleanup runtime-lib -->
+  <property name="runtimelib.dir" value="${basedir}/runtime-lib" />
+
+  <target name="clean" depends="subfloor.clean">
+    <delete dir="${runtimelib.dir}" />
+  </target>
+  
   <target name="compile.compile" depends="init" description="Performs the actual javac compile">
     <javac destdir="${classes.dir}"
            debug="${javac.debug}"

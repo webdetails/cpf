@@ -22,6 +22,9 @@ import pt.webdetails.cpf.context.api.IUrlProvider;
 import pt.webdetails.cpf.packager.origin.PathOrigin;
 import pt.webdetails.cpf.repository.api.IRWAccess;
 
+/**
+ * Minifies javascript files using {@link JSMin}.
+ */
 public class JsMinifiedDependency extends PackagedFileDependency {
 
   private static Log logger = LogFactory.getLog(JsMinifiedDependency.class);
@@ -59,17 +62,18 @@ public class JsMinifiedDependency extends PackagedFileDependency {
         jsMin.jsmin();
         return new ByteArrayInputStream( bytesOut.toByteArray() );
       } catch ( ParseException e ) {
-        logger.error( "Error parsing javascript dependency " + dep + " at offset " + e.getErrorOffset() + ", skipping..", e );
+        logger.error( "Error parsing javascript dependency " + dep + " at offset " + e.getErrorOffset() + ". Skipping..", e );
       } catch ( IOException e ) {
-        logger.error( "Error getting input stream for dependency " + dep + ", skipping..", e );
+        logger.error( "Error getting input stream for dependency " + dep + ". Skipping..", e );
+      } catch ( Exception e ) {
+        logger.error( String.format( "Error while processing dependency %s. Skipping..", dep ) );
       }
       finally {
         IOUtils.closeQuietly( input );
       }
       return Util.toInputStream( "" );
     }
-  
-  }
 
+  }
 
 }
