@@ -104,7 +104,6 @@
   </target>
 
 
-<!--
 
   <target name="resolve"
           depends="resolve-default, resolve-test, resolve-runtime, ivy.check-releasable"
@@ -112,21 +111,6 @@
 
 
 
-  <target name="resolve-runtime" depends="resolve-init">
-    <ivy:resolve file="ivy.xml" conf="runtime" />
-    <ivy:retrieve conf="runtime" pattern="runtime-lib/[module]-[revision](-[classifier]).[ext]" />
-  </target>
-
--->
-  <!-- ================ 
-        Legacy Compat
-       ================ -->
-  <target name="resolve-legacy" depends="resolve-init">
-    <ivy:resolve file="ivy.xml" conf="legacy" />
-    <ivy:retrieve conf="legacy" pattern="${lib.dir}/[module]-[revision](-[classifier]).[ext]" />
-  </target>
-  <target name="dist-legacy" depends="clean,resolve-legacy,jar"/>
-  <!-- ================= --> 
 
 
   <!--=======================================================================
