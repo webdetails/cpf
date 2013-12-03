@@ -19,6 +19,7 @@ import java.text.DecimalFormat;
 import java.util.Enumeration;
 import java.util.Iterator;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.logging.Log;
@@ -103,7 +104,7 @@ public abstract class Util {
     }
 
     public static String joinPath(String... paths) {
-      return RepositoryHelper.joinPaths( paths );
+      return FilenameUtils.separatorsToUnix( RepositoryHelper.joinPaths( paths ) );
       //return StringUtils.defaultString(StringUtils.join(paths, "/")).replaceAll("\\\\", "/").replaceAll("/+", "/");
     }
 

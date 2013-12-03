@@ -2,12 +2,14 @@ package pt.webdetails.cpf.repository.pentaho.unified;
 
 import java.util.EnumSet;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
+import pt.webdetails.cpf.Util;
 import pt.webdetails.cpf.api.IUserContentAccessExtended;
 import pt.webdetails.cpf.repository.api.FileAccess;
 import pt.webdetails.cpf.repository.api.IUserContentAccess;
@@ -40,7 +42,8 @@ public class UserContentRepositoryAccess extends UnifiedRepositoryAccess impleme
   }
 
   public boolean hasAccess(String path, FileAccess access) {
-    return getRepository().hasAccess(path, toRepositoryFilePermissions(access));
+    String normalizedPath = Util.joinPath(basePath,path);
+    return getRepository().hasAccess( normalizedPath, toRepositoryFilePermissions(access) );
   }
 
   protected static EnumSet<RepositoryFilePermission> toRepositoryFilePermissions(FileAccess access) {
