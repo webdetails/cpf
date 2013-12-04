@@ -34,13 +34,15 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
 
   private static Log logger = LogFactory.getLog( PentahoLegacySolutionAccess.class );
 
+  private static String DEFAULT_PATH = "/";
+
   private ISolutionRepository repository;
   private ISolutionRepositoryService repositoryService;
   private String basePath;
   private IPentahoSession userSession;
 
   public PentahoLegacySolutionAccess( String basePath, IPentahoSession session ) {
-    this.basePath = basePath;
+    this.basePath = StringUtils.isEmpty( basePath ) ? DEFAULT_PATH : basePath;
     this.repository = PentahoSystem.get( ISolutionRepository.class, session );
     this.repositoryService = PentahoSystem.get( ISolutionRepositoryService.class, session );
     this.userSession = session;
