@@ -30,7 +30,10 @@
   <target name="clean" depends="subfloor.clean">
     <delete dir="${runtimelib.dir}" />
   </target>
-
+<!--
+  <target name="resolve-init" depends="subfloor.resolve-init">
+    <mkdir dir="${runtimelib.dir}"/>
+  </target>-->
  <!-- Define the Sonar task if this hasn't been done in a common script -->
   <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
     <classpath path="sonar-ant-task-1.3.jar" />
