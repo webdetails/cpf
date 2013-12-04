@@ -65,6 +65,13 @@ public class SystemPluginResourceAccess extends FileBasedResourceAccess implemen
        (baseString.lastIndexOf( sysPluginDir ) + sysPluginDir.length() == baseString.length())) {
        path = path.replaceFirst( "/.*?/.*?/","/" );
      }
+     else if (baseString.indexOf( sysPluginDir ) == -1)
+     {
+       String systemPath = StringUtils.substringBeforeLast(basePath.getAbsolutePath(), "system" );
+       systemPath = systemPath + sysPluginDir;
+       path = path.replaceFirst( "/.*?/.*?/","/" );
+       return new File(systemPath, path);
+     }
     }
     return StringUtils.isEmpty( path ) ? basePath : new File( basePath, path );
   }

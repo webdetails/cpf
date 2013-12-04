@@ -202,8 +202,9 @@ public class InterPluginCall implements Runnable, Callable<String>, IPluginCall 
 
 
     for (Method m : methods) {
-      if (m.getName() == method) {
-        operation = m;//XXX this could have a continue/break, to stop searching when found??
+      if (m.getName().equals( method )) {
+        operation = m;
+        break;
       }
     }
 
