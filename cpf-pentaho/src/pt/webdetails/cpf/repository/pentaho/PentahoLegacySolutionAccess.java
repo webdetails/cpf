@@ -225,8 +225,7 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
       }
 
       public String getPath() {
-        return RepositoryHelper.relativizePath( basePath, RepositoryHelper.appendPath( getSolutionPath( file ), file
-            .getFileName() ), true );
+        return RepositoryHelper.relativizePath( basePath, file.getFullPath(), true );
       }
 
       public boolean isDirectory() {
