@@ -27,13 +27,13 @@
   <!-- overrides subfloor clean to also cleanup runtime-lib -->
   <property name="runtimelib.dir" value="${basedir}/runtime-lib" />
 
-  <target name="clean" depends="subfloor.clean">
+  <target name="clean-jars" depends="subfloor.clean-jars">
     <delete dir="${runtimelib.dir}" />
   </target>
-<!--
-  <target name="resolve-init" depends="subfloor.resolve-init">
+
+  <target name="init" depends="subfloor.init">
     <mkdir dir="${runtimelib.dir}"/>
-  </target>-->
+  </target>
  <!-- Define the Sonar task if this hasn't been done in a common script -->
   <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
     <classpath path="sonar-ant-task-1.3.jar" />
