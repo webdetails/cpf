@@ -140,6 +140,16 @@ public class CpfHttpServletResponse implements HttpServletResponse {
         return this.writer;
     }
 
+    public byte[] getContentAsByteArray() {
+        flushBuffer();
+        return this.content.toByteArray();
+    }
+
+    public String getContentAsString() throws UnsupportedEncodingException {
+        flushBuffer();
+        return (this.characterEncoding != null) ? this.content.toString(this.characterEncoding) : this.content.toString();
+    }
+    
     public void setContentLength(int contentLength) {
         this.contentLength = contentLength;
     }
@@ -171,12 +181,16 @@ public class CpfHttpServletResponse implements HttpServletResponse {
         return this.bufferSize;
     }
     
-    public void flushBuffer() throws IOException {
+    public void flushBuffer() {
         if (this.writer != null) {
             this.writer.flush();
         }
-        if (this.servletOutputStream != null) {
-          this.servletOutputStream.flush();
+        if ( this.servletOutputStream != null ) {
+          try {
+            this.servletOutputStream.flush();
+          } catch ( IOException ex ) {
+            throw new IllegalStateException( "Could not flush OutputStream: " + ex.getMessage() );
+          }
         }
         this.committed = true;
     }
