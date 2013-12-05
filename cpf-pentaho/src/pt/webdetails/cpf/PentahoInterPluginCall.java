@@ -148,10 +148,20 @@ public class PentahoInterPluginCall extends AbstractInterPluginCall implements R
   public ServletResponse getResponse() {
     if(response == null){
       logger.debug("No response passed to method " + this.method + ", adding mock response.");
-      response = new CpfHttpServletResponse();
+      createDefaultResponse();
     }
     
     return response;
+  }
+
+  private void createDefaultResponse() {
+    if ( output instanceof ByteArrayOutputStream ) {
+      response = new CpfHttpServletResponse( ( ByteArrayOutputStream ) output );
+    }
+    else {
+      response = new CpfHttpServletResponse();
+      logger.warn( "OutputStream from response will not be available." );
+    }
   }
 
   public void setResponse(ServletResponse response) {

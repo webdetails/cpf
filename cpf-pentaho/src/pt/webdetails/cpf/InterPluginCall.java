@@ -14,8 +14,6 @@ import java.util.concurrent.Callable;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
-import mondrian.tui.MockHttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IContentGenerator;
@@ -31,6 +29,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.web.http.request.HttpRequestParameterProvider;
 
 import pt.webdetails.cpf.utils.CharsetHelper;
+import pt.webdetails.cpf.web.CpfHttpServletResponse;
 
 /**
  * Call to another pentaho plugin through its content generator. Not thread
@@ -202,10 +201,20 @@ public class InterPluginCall implements Runnable, Callable<String> {
     public ServletResponse getResponse() {
         if (response == null) {
             logger.debug("No response passed to method " + this.method + ", adding mock response.");
-            response = new MockHttpServletResponse();
+            createDefaultResponse();
         }
 
         return response;
+    }
+
+    private void createDefaultResponse() {
+      if ( output instanceof ByteArrayOutputStream ) {
+        response = new CpfHttpServletResponse( ( ByteArrayOutputStream ) output );
+      }
+      else {
+        response = new CpfHttpServletResponse();
+        logger.debug( "OutputStream from response will not be available." );
+      }
     }
 
     public void setResponse(ServletResponse response) {

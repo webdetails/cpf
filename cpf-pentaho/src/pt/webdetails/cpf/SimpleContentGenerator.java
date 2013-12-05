@@ -252,6 +252,7 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
      return new Class<?>[]{ OutputStream.class };
     }
     
+    @SuppressWarnings( "deprecation" )
     protected OutputStream getResponseOutputStream(final String mimeType) throws IOException {
       return outputHandler
         .getOutputContentItem(IOutputHandler.RESPONSE, IOutputHandler.CONTENT, "", instanceId, mimeType)

@@ -7,6 +7,7 @@ package pt.webdetails.cpf.web;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -15,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -26,9 +26,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import pt.webdetails.cpf.utils.CharsetHelper;
 
+/**
+ * 
+ */
 public class CpfHttpServletResponse implements HttpServletResponse {
 
-    public static final int DEFAULT_SERVER_PORT = 80;
     private static final String CHARSET_PREFIX = "charset=";
 
     //---------------------------------------------------------------------
@@ -38,8 +40,8 @@ public class CpfHttpServletResponse implements HttpServletResponse {
     private boolean outputStreamAccessAllowed = true;
     private boolean writerAccessAllowed = true;
     private String characterEncoding = CharsetHelper.getEncoding();
-    private final ByteArrayOutputStream content = new ByteArrayOutputStream();
-    private final DelegatingServletOutputStream outputStream = new DelegatingServletOutputStream(this.content);
+    private final ByteArrayOutputStream content;
+    private final DelegatingServletOutputStream servletOutputStream;
     
     private PrintWriter writer;
     private int contentLength = 0;
@@ -52,7 +54,7 @@ public class CpfHttpServletResponse implements HttpServletResponse {
     // HttpServletResponse properties
     //---------------------------------------------------------------------
 
-    private final List cookies = new ArrayList();
+    private final List<Cookie> cookies = new ArrayList<Cookie>();
     /**
      * The key is the lowercase header name; the value is a {@link HeaderValueHolder} object.
      */
@@ -63,8 +65,16 @@ public class CpfHttpServletResponse implements HttpServletResponse {
     private String redirectedUrl;
     private String forwardedUrl;
     private String includedUrl;
-    
-    
+
+    public CpfHttpServletResponse( ByteArrayOutputStream outputStream ) {
+      this.content = outputStream;
+      this.servletOutputStream = new DelegatingServletOutputStream(this.content);
+    }
+
+    public CpfHttpServletResponse() {
+      this( new ByteArrayOutputStream() );
+    }
+
     //---------------------------------------------------------------------
     // ServletResponse interface
     //---------------------------------------------------------------------
@@ -115,7 +125,7 @@ public class CpfHttpServletResponse implements HttpServletResponse {
         if (!this.outputStreamAccessAllowed) {
             throw new IllegalStateException("OutputStream access not allowed");
         }
-        return this.outputStream;
+        return this.servletOutputStream;
     }
     
     public PrintWriter getWriter() throws UnsupportedEncodingException {
@@ -129,17 +139,7 @@ public class CpfHttpServletResponse implements HttpServletResponse {
         }
         return this.writer;
     }
-    
-    public byte[] getContentAsByteArray() {
-        flushBuffer();
-        return this.content.toByteArray();
-    }
-    
-    public String getContentAsString() throws UnsupportedEncodingException {
-        flushBuffer();
-        return (this.characterEncoding != null) ? this.content.toString(this.characterEncoding) : this.content.toString();
-    }
-    
+
     public void setContentLength(int contentLength) {
         this.contentLength = contentLength;
     }
@@ -171,21 +171,16 @@ public class CpfHttpServletResponse implements HttpServletResponse {
         return this.bufferSize;
     }
     
-    public void flushBuffer() {
+    public void flushBuffer() throws IOException {
         if (this.writer != null) {
             this.writer.flush();
         }
-        if (this.outputStream != null) {
-            try {
-                this.outputStream.flush();
-            }
-            catch (IOException ex) {
-                throw new IllegalStateException("Could not flush OutputStream: " + ex.getMessage());
-            }
+        if (this.servletOutputStream != null) {
+          this.servletOutputStream.flush();
         }
         this.committed = true;
     }
-    
+
     public void resetBuffer() {
         if (this.committed) {
             throw new IllegalStateException("Cannot reset buffer - response is already committed");
@@ -234,8 +229,7 @@ public class CpfHttpServletResponse implements HttpServletResponse {
     }
     
     public Cookie getCookie(String name) {
-        for (Iterator it = this.cookies.iterator(); it.hasNext();) {
-            Cookie cookie = (Cookie) it.next();
+      for ( Cookie cookie : cookies ) {
             if (name.equals(cookie.getName())) {
                 return cookie;
             }
@@ -247,7 +241,7 @@ public class CpfHttpServletResponse implements HttpServletResponse {
         return (HeaderValueHolder.getByName(this.headers, name) != null);
     }
 
-    public Set getHeaderNames() {
+    public Set<String> getHeaderNames() {
         return this.headers.keySet();
     }
     
@@ -382,8 +376,9 @@ public class CpfHttpServletResponse implements HttpServletResponse {
     public void setIncludedUrl(String includedUrl) {
         this.includedUrl = includedUrl;
     }
-    
+
     public String getIncludedUrl() {
         return this.includedUrl;
     }
+
 }
