@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -83,6 +84,16 @@ public class RepositoryHelper {
   }
 
   public static String joinPaths(String...paths) {
+    StringBuilder builder = new StringBuilder();
+    for (String path : paths) {
+      if(!StringUtils.isEmpty(path)) {
+        appendPath(builder, path);
+      }
+    }
+    return builder.toString();
+  }
+
+  public static String joinPaths(List<String> paths) {
     StringBuilder builder = new StringBuilder();
     for (String path : paths) {
       if(!StringUtils.isEmpty(path)) {

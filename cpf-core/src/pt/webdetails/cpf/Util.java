@@ -18,6 +18,8 @@ import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -104,8 +106,12 @@ public abstract class Util {
     }
 
     public static String joinPath(String... paths) {
-      return FilenameUtils.separatorsToUnix( RepositoryHelper.joinPaths( paths ) );
-      //return StringUtils.defaultString(StringUtils.join(paths, "/")).replaceAll("\\\\", "/").replaceAll("/+", "/");
+      List<String> normalizedPaths = new LinkedList<String>();
+      for(String path : paths){
+        normalizedPaths.add(FilenameUtils.separatorsToUnix(path));
+      }
+
+      return RepositoryHelper.joinPaths( normalizedPaths );
     }
 
     private static String bytesToHex(byte[] bytes) {

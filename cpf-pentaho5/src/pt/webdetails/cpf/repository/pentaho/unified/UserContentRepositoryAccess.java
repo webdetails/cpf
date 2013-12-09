@@ -20,9 +20,9 @@ import pt.webdetails.cpf.repository.api.IUserContentAccess;
 public class UserContentRepositoryAccess extends UnifiedRepositoryAccess implements IUserContentAccessExtended {
 
   private IUnifiedRepository repository;
+  private IPentahoSession session;
 
   private static final String DEFAULT_USER_DIR = "/";
-
   /**
    * 
    * @param session User session. If null defaults to user that initiated current thread.
@@ -31,13 +31,21 @@ public class UserContentRepositoryAccess extends UnifiedRepositoryAccess impleme
     this(session, DEFAULT_USER_DIR);
   }
   
-  public UserContentRepositoryAccess(IPentahoSession session, String startPath) {
-    repository = PentahoSystem.get(IUnifiedRepository.class, session);
+  public UserContentRepositoryAccess(IPentahoSession pentahoSession, String startPath) {
+    session = pentahoSession;
+    initRepository();
     basePath = StringUtils.isEmpty( startPath ) ? DEFAULT_USER_DIR : startPath;
+  }
+
+  protected IUnifiedRepository initRepository() {
+    return PentahoSystem.get(IUnifiedRepository.class, session);
   }
 
   @Override
   protected IUnifiedRepository getRepository() {
+    if(repository == null){
+      repository = initRepository();
+    }
     return repository;
   }
 
