@@ -1,6 +1,15 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this file,
- * You can obtain one at http://mozilla.org/MPL/2.0/. */
+/*!
+* Copyright 2002 - 2013 Webdetails, a Pentaho company.  All rights reserved.
+*
+* This software was developed by Webdetails and is provided under the terms
+* of the Mozilla Public License, Version 2.0, or any later version. You may not use
+* this file except in compliance with the license. If you need a copy of the license,
+* please go to  http://mozilla.org/MPL/2.0/. The Initial Developer is Webdetails.
+*
+* Software distributed under the Mozilla Public License is distributed on an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or  implied. Please refer to
+* the license for the specific language governing your rights and limitations.
+*/
 package pt.webdetails.cpf.persistence;
 
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentPool;
@@ -42,11 +51,8 @@ import pt.webdetails.cpf.CpfProperties;
 import pt.webdetails.cpf.Util;
 import pt.webdetails.cpf.repository.RepositoryAccess;
 
-/**
- *
- * @author pdpi
- */
-public class PersistenceEngine {
+
+public class PersistenceEngine implements IPersistenceEngine {
 
     private static final Log logger = LogFactory.getLog(PersistenceEngine.class);
     private static PersistenceEngine _instance;
@@ -92,6 +98,7 @@ public class PersistenceEngine {
         startOrient();
     }
 
+    @Override
     public String process(IParameterProvider requestParams, IPentahoSession userSession) throws InvalidOperationException {
         String methodString = requestParams.getStringParameter("method", "none");
         JSONObject reply = null;
@@ -135,6 +142,7 @@ public class PersistenceEngine {
     }
     //TODO: changed temporarily from private
 
+    @Override
     public Object executeCommand(String query, Map<String, Object> params) {
         ODatabaseDocumentTx db = getConnection();
         try {
@@ -156,6 +164,7 @@ public class PersistenceEngine {
     }
 
     //TODO: changed temporarily from private
+    @Override
     public List<ODocument> executeQuery(String query, Map<String, Object> params) {
         ODatabaseDocumentTx db = getConnection();
         try {
@@ -177,6 +186,7 @@ public class PersistenceEngine {
     }
 
     //TODO: delete inner stuff
+    @Override
     public synchronized int deleteAll(String classTable) {
         ODatabaseDocumentTx db = getConnection();
         int counter = 0;
@@ -205,12 +215,14 @@ public class PersistenceEngine {
     }
 
     //TODO:adapt
+    @Override
     public ODocument createDocument(String baseClass, String json) {
         ODocument doc = new ODocument(baseClass);
         doc.fromJSON(json);
         return doc;
     }
 
+    @Override
     public ODocument createDocument(String baseClass, JSONObject json) {
         ODocument doc = new ODocument(baseClass);
         @SuppressWarnings("unchecked")
@@ -269,6 +281,7 @@ public class PersistenceEngine {
         return query(queryString, (Map) null);
     }
 
+    @Override
     public JSONObject query(String query, Map<String, Object> params) throws JSONException {
         JSONObject json = new JSONObject();
 
@@ -292,6 +305,7 @@ public class PersistenceEngine {
         return json;
     }
 
+    @Override
     public JSONObject command(String query, Map<String, Object> params) throws JSONException {
         JSONObject json = new JSONObject();
 
@@ -365,6 +379,7 @@ public class PersistenceEngine {
         return deleteRecord(id);
     }
 
+    @Override
     public JSONObject deleteRecord(String id) throws JSONException {
 
 
@@ -411,6 +426,7 @@ public class PersistenceEngine {
         return store(id, className, data);
     }
 
+    @Override
     public boolean initializeClass(String className) {
         ODatabaseDocumentTx database = null;
         try {
@@ -428,6 +444,7 @@ public class PersistenceEngine {
         }
     }
 
+    @Override
     public boolean dropClass(String className) {
         ODatabaseDocumentTx database = null;
         try {
@@ -445,6 +462,7 @@ public class PersistenceEngine {
         }
     }
 
+    @Override
     public boolean classExists(String className) {
         ODatabaseDocumentTx database = null;
         try {
@@ -457,10 +475,12 @@ public class PersistenceEngine {
         }
     }
 
+    @Override
     public boolean classExists(String className, ODatabaseDocumentTx database) {
         return database.getMetadata().getSchema().getClass(className) != null;
     }
 
+    @Override
     public JSONObject store(Persistable obj) {
         String key = obj.getKey();
         String className = obj.getClass().getName();
@@ -474,10 +494,12 @@ public class PersistenceEngine {
         }
     }
 
+    @Override
     public JSONObject store(String id, String className, JSONObject data) {
         return store(id, className, data, null);
     }
 
+    @Override
     public synchronized JSONObject store(String id, String className, JSONObject data, ODocument doc) {
         JSONObject json = new JSONObject();
         try {
@@ -578,6 +600,7 @@ public class PersistenceEngine {
          }*/
     }
 
+    @Override
     public JSONObject store(String id, String className, String inputData) throws JSONException {
         JSONObject data = new JSONObject(inputData);
         return store(id, className, data);
@@ -587,6 +610,7 @@ public class PersistenceEngine {
         return ex.getCause().getClass().getName() + " - " + ex.getMessage();
     }
 
+    @Override
     public void startOrient() throws Exception {
         InputStream conf;
         try {
