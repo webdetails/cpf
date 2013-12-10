@@ -33,7 +33,14 @@ public class UserContentRepositoryAccessTest extends TestCase {
 
   @Test
   public void testHasAccess() throws IOException {
-    setupTest();
+    //setup test
+    IUnifiedRepository unifiedRepository = mock(IUnifiedRepository.class);
+    repositoryAccess = new UserContentRepositoryForTest(unifiedRepository);
+
+    when(unifiedRepository.hasAccess("/home/admin", EnumSet.of( RepositoryFilePermission.READ))).thenReturn(true);
+    when(unifiedRepository.hasAccess("/home/admin", EnumSet.of( RepositoryFilePermission.WRITE))).thenReturn(true);
+    when(unifiedRepository.hasAccess("/home/pat", EnumSet.of( RepositoryFilePermission.READ))).thenReturn(true);
+
 
     //unix
     assertTrue("Access allowed to /home/admin on unix", repositoryAccess.hasAccess("/home/admin", FileAccess.READ));
@@ -48,31 +55,17 @@ public class UserContentRepositoryAccessTest extends TestCase {
     assertFalse("Access defined to home/suzy on windows", repositoryAccess.hasAccess("home\\suzy", FileAccess.READ));
   }
 
-  private void setupTest() {
-    repositoryAccess = new UserContentRepositoryForTest(null);
-  }
-
   class UserContentRepositoryForTest extends UserContentRepositoryAccess {
+    IUnifiedRepository unifiedRepository;
 
-    public UserContentRepositoryForTest(IPentahoSession session) {
-      super(session);
+    public UserContentRepositoryForTest(IUnifiedRepository repository) {
+      super(null);
+      unifiedRepository = repository;
     }
 
     @Override
     protected IUnifiedRepository initRepository(){
-      IUnifiedRepository repository = buildMockUnifiedRepository();
-      defineMockUnifiedRepository(repository);
-      return repository;
-    }
-
-    private IUnifiedRepository buildMockUnifiedRepository(){
-      return mock(IUnifiedRepository.class);
-    }
-
-    private void defineMockUnifiedRepository(final IUnifiedRepository mockedRepository){
-      when(mockedRepository.hasAccess("/home/admin", EnumSet.of( RepositoryFilePermission.READ))).thenReturn(true);
-      when(mockedRepository.hasAccess("/home/admin", EnumSet.of( RepositoryFilePermission.WRITE))).thenReturn(true);
-      when(mockedRepository.hasAccess("/home/pat", EnumSet.of( RepositoryFilePermission.READ))).thenReturn(true);
+      return unifiedRepository;
     }
   }
 
