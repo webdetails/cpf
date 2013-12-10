@@ -3,13 +3,14 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 package pt.webdetails.cpf.datasources;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import pt.webdetails.cpf.InterPluginCall;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import pt.webdetails.cpf.InterPluginCall;
 
 /**
  *
@@ -29,7 +30,7 @@ public class CdaDatasource implements Datasource {
         //TODO:response
         return pluginCall.callInPluginClassLoader();
     }
-    
+
     public String execute() {
         return getQueryData();
     }
