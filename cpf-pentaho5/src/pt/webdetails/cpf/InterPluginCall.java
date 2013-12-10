@@ -190,6 +190,11 @@ public class InterPluginCall implements Runnable, Callable<String>, IPluginCall 
     return beanFactory.getBean(service);
   }
 
+    //There are some issues to be resolved in InterPluginCall
+    //ONE: that is very bug prone is the reflection analysis to get de method to invoke, if there are two methods
+    //with same name but invocation signatures different the first one is chooses
+    //TWO: we are only reading annotated params so if we try to call a method with no annotated params but with params
+    //those params are not passed to the invoked method.
   public void run() {
 
     Class<?> classe = null;
