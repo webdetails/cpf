@@ -239,16 +239,16 @@ public class InterPluginCall implements Runnable, Callable<String>, IPluginCall 
               String key = entry.getKey();
 
               Object paramValue = entry.getValue();
-              String reqValue = null;
               if (paramValue instanceof String[]) {
                 String[] lValues = (String[])paramValue;
-                if (lValues.length > 0)
-                  reqValue = lValues[0];
+                if (lValues.length == 1)
+                  cpfRequest.setParameter(key, lValues[0]);
+                else
+                  cpfRequest.setParameter(key, lValues);
               } else if (paramValue != null) {
-                reqValue = paramValue.toString();
+                cpfRequest.setParameter(key, paramValue.toString());
               }
 
-              cpfRequest.setParameter(key, reqValue);
             }
 
             parameters.add((HttpServletRequest)cpfRequest);
