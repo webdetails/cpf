@@ -175,7 +175,7 @@ public class RepositoryHelper {
               "No common path element found for '" + normalizedTargetPath
               + "' and '" + normalizedBasePath + "'");
       }
-      else if ( normalizedBasePath.startsWith( "" + SEPARATOR ) ) {
+      else if ( normalizedBasePath.startsWith( "" + SEPARATOR ) && normalizedTargetPath.startsWith( "" + SEPARATOR ) ) {
         // starting slash if had one
         common.insert( 0, SEPARATOR );
       }
