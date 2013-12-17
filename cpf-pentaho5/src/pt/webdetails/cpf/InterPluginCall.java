@@ -83,6 +83,17 @@ public class InterPluginCall implements Runnable, Callable<String>, IPluginCall 
     return null;  //REVIEW
   }
 
+  /**
+   * Deprecated<br /> 
+   * This simply calls new method 'exists()';<br />
+   * This was the method name used in cpf-pentaho 4.x;<br />
+   * Useful for blocks of code in core or pentaho-base, where method name must remain the same.
+   */
+  @Deprecated
+  public boolean pluginExists() {
+    return exists();
+  }
+  
   @Override
   public boolean exists() {
     return getPluginManager().getClassLoader(plugin.getName()) != null;
