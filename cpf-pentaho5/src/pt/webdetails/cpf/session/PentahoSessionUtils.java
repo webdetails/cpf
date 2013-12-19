@@ -15,7 +15,10 @@ public class PentahoSessionUtils implements ISessionUtils {
   
   
    public IUserSession getCurrentSession() {
-     return new PentahoSession(PentahoSessionHolder.getSession());
+     if ( PentahoSessionHolder.getSession() != null ) {
+       return new PentahoSession(PentahoSessionHolder.getSession());
+     }
+     return null;
    }
 
 	@Override
