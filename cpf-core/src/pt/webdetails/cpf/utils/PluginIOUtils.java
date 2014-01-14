@@ -53,5 +53,30 @@ public class PluginIOUtils {
       logger.error(JSON_MESSAGE, ex);
     }
   }
+  
+  public static void writeOutAndFlush( OutputStream out, String data ) {
+    writeOut( out, data );
+    flush( out );
+  }
+  
+  public static void writeOutAndFlush( OutputStream out, InputStream data ) {
+    writeOut( out, data );
+    flush( out );
+  }
+  
+  public static void writeOutAndFlush( OutputStream out, JsonSerializable data ) {
+    writeOut( out, data );
+    flush( out );
+  }
+  
+  private static void flush( OutputStream out ) {
+    try {
+      if ( out != null ) {
+        out.flush();
+      }
+    } catch ( IOException ex ) {
+      logger.error( WRITE_MESSAGE, ex );
+    }
+  }
 
 }
