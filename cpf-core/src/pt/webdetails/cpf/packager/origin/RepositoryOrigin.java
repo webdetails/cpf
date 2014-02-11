@@ -28,7 +28,6 @@ public class RepositoryOrigin extends PathOrigin {
     // want it resolving to: /pentaho/content/pentaho-cdf-dd/res/<basePath>/<localPath>
     String relPath = RepositoryHelper.joinPaths( basePath, localPath );
     return urlProvider.getRepositoryUrl( relPath );
-//    return RepositoryHelper.joinPaths( CdeEngine.getEnv().getRepositoryBaseContentUrl(), basePath, localPath );
   }
 
 }
