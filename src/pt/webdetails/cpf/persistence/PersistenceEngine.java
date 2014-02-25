@@ -20,13 +20,16 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+
 import java.text.SimpleDateFormat;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 
 import com.orientechnologies.orient.server.OServerMain;
 import com.orientechnologies.orient.server.OServer;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
@@ -35,6 +38,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
+
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -54,145 +58,164 @@ import pt.webdetails.cpf.repository.RepositoryAccess;
 
 public class PersistenceEngine implements IPersistenceEngine {
 
-    private static final Log logger = LogFactory.getLog(PersistenceEngine.class);
-    private static PersistenceEngine _instance;
-    private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-    private static final CpfProperties SETTINGS = CpfProperties.getInstance();
-    private static final int JSON_INDENT = 2;
+  private static final Log logger = LogFactory.getLog( PersistenceEngine.class );
+  private static PersistenceEngine _instance;
+  private static final SimpleDateFormat format = new SimpleDateFormat( "yyyy-MM-dd HH:mm" );
+  private static final CpfProperties SETTINGS = CpfProperties.getInstance();
+  private static final int JSON_INDENT = 2;
+  private OServer server;
 
-    public static synchronized PersistenceEngine getInstance() {
-        if (_instance == null) {
-            _instance = new PersistenceEngine();
-        }
-        return _instance;
+  public static synchronized PersistenceEngine getInstance() {
+    if ( _instance == null ) {
+      _instance = new PersistenceEngine();
+    }
+    return _instance;
+  }
+
+  private enum Method {
+
+    HEAD, DELETE, GET, STORE, QUERY
+  }
+
+  private PersistenceEngine() {
+    try {
+      logger.info( "Creating PersistenceEngine instance" );
+      initialize();
+    } catch ( Exception ex ) {
+      logger.fatal( "Could not create PersistenceEngine: " + Util.getExceptionDescription( ex ) ); //$NON-NLS-1$
+      return;
     }
 
-    private enum Method {
+  }
 
-        HEAD, DELETE, GET, STORE, QUERY
+  private String getOrientPath() {
+    return Util.isPlugin() ? PentahoSystem.getApplicationContext().getSolutionPath( "/system/.orient" ) : ".";
+  }
+
+  private void initialize() throws Exception {
+
+    //Ensure .orient folder exists on system
+    String orientPath = getOrientPath();
+    File dirPath = new File( orientPath );
+    if ( !dirPath.exists() ) {
+      dirPath.mkdir();
+    }
+    startOrient();
+  }
+
+  //only want this to run if instance was previously initialized
+  public static void shutdown() {
+    if ( _instance != null ) {
+      logger.info( "Shutting down PersistenceEngine" );
+      _instance.serverShutdown();
+    }
+  }
+
+  private void serverShutdown() {
+    if ( server != null ) {
+      server.shutdown();
+    }
+  }
+
+
+  @Override
+  public String process( IParameterProvider requestParams, IPentahoSession userSession )
+    throws InvalidOperationException {
+
+    String methodString = requestParams.getStringParameter( "method", "none" );
+    JSONObject reply = null;
+    try {
+      Method mthd = Method.valueOf( methodString.toUpperCase() );
+      switch ( mthd ) {
+        case DELETE:
+          reply = deleteRecord( requestParams, userSession );
+          break;
+        case GET:
+          logger.error(
+                  "get requests to PersistenceEngine are no longer supported. please use the SimplePersistence API." );
+          return "{'result': false}";
+        case STORE:
+          reply = store( requestParams, userSession );
+          break;
+        case QUERY:
+          if ( !SecurityHelper.getInstance().isPentahoAdministrator( PentahoSessionHolder.getSession() ) ) {
+            throw new SecurityException( "Arbitrary querying is only available to admins" );
+          }
+          reply = query( requestParams, userSession );
+          break;
+      }
+
+      return reply.toString( JSON_INDENT );
+    } catch ( IllegalArgumentException e ) {
+      logger.error( "Invalid method: " + methodString );
+      return "{'result': false}";
+    } catch ( JSONException e ) {
+      logger.error( "error processing: " + methodString );
+      return "{'result': false}";
+    }
+  }
+
+  private ODatabaseDocumentTx getConnection() {
+
+    final String url = SETTINGS.getProperty( "ORIENT.DBURL" );
+    final String user = SETTINGS.getProperty( "ORIENT.USER" );
+    final String password = SETTINGS.getProperty( "ORIENT.PASSWORD" );
+
+    return ODatabaseDocumentPool.global().acquire( url, user, password );
+  }
+  //TODO: changed temporarily from private
+
+  @Override
+  public Object executeCommand( String query, Map<String, Object> params ) {
+    ODatabaseDocumentTx db = getConnection();
+    try {
+      OCommandSQL preparedQuery = new OCommandSQL( query );
+      if ( params == null ) {
+        return db.command( preparedQuery ).execute();
+      } else {
+        return db.command( preparedQuery ).execute( params );
+      }
+    } catch ( Exception e ) {
+      logger.error( e );
+      return null;
+    } finally {
+      if ( db != null ) {
+        db.close();
+      }
     }
 
-    private PersistenceEngine() {
-        try {
-            logger.info("Creating PersistenceEngine instance");
-            initialize();
-        } catch (Exception ex) {
-            logger.fatal("Could not create PersistenceEngine: " + Util.getExceptionDescription(ex)); //$NON-NLS-1$
-            return;
-        }
+  }
 
+  //TODO: changed temporarily from private
+  @Override
+  public List<ODocument> executeQuery( String query, Map<String, Object> params ) {
+    ODatabaseDocumentTx db = getConnection();
+    try {
+      OSQLSynchQuery<ODocument> preparedQuery = new OSQLSynchQuery<ODocument>( query );
+      if ( params == null ) {
+        return db.command( preparedQuery ).execute();
+      } else {
+        return db.command( preparedQuery ).execute( params );
+      }
+    } catch ( RuntimeException e ) {
+      logger.error( e );
+      throw e;
+    } finally {
+      if ( db != null ) {
+        db.close();
+      }
     }
 
-    private String getOrientPath() {
-        return Util.isPlugin() ? PentahoSystem.getApplicationContext().getSolutionPath("/system/.orient") : ".";
-    }
+  }
 
-    private void initialize() throws Exception {
-
-        //Ensure .orient folder exists on system
-        String orientPath = getOrientPath();
-        File dirPath = new File(orientPath);
-        if (!dirPath.exists()) {
-            dirPath.mkdir();
-        }
-        startOrient();
-    }
-
-    @Override
-    public String process(IParameterProvider requestParams, IPentahoSession userSession) throws InvalidOperationException {
-        String methodString = requestParams.getStringParameter("method", "none");
-        JSONObject reply = null;
-        try {
-            Method mthd = Method.valueOf(methodString.toUpperCase());
-            switch (mthd) {
-                case DELETE:
-                    reply = deleteRecord(requestParams, userSession);
-                    break;
-                case GET: 
-                    logger.error("get requests to PersistenceEngine are no longer supported. please use the SimplePersistence API.");
-                    return "{'result': false}";
-                case STORE:
-                    reply = store(requestParams, userSession);
-                    break;
-                case QUERY:
-                    if (!SecurityHelper.getInstance().isPentahoAdministrator(PentahoSessionHolder.getSession())) {
-                        throw new SecurityException("Arbitrary querying is only available to admins");
-                    }
-                    reply = query(requestParams, userSession);
-                    break;
-            }
-
-            return reply.toString(JSON_INDENT);
-        } catch (IllegalArgumentException e) {
-            logger.error("Invalid method: " + methodString);
-            return "{'result': false}";
-        } catch (JSONException e) {
-            logger.error("error processing: " + methodString);
-            return "{'result': false}";
-        }
-    }
-
-    private ODatabaseDocumentTx getConnection() {
-
-        final String url = SETTINGS.getProperty("ORIENT.DBURL");
-        final String user = SETTINGS.getProperty("ORIENT.USER");
-        final String password = SETTINGS.getProperty("ORIENT.PASSWORD");
-
-        return ODatabaseDocumentPool.global().acquire(url, user, password);
-    }
-    //TODO: changed temporarily from private
-
-    @Override
-    public Object executeCommand(String query, Map<String, Object> params) {
-        ODatabaseDocumentTx db = getConnection();
-        try {
-            OCommandSQL preparedQuery = new OCommandSQL(query);
-            if (params == null) {
-                return db.command(preparedQuery).execute();
-            } else {
-                return db.command(preparedQuery).execute(params);
-            }
-        } catch (Exception e) {
-            logger.error(e);
-            return null;
-        } finally {
-            if (db != null) {
-                db.close();
-            }
-        }
-
-    }
-
-    //TODO: changed temporarily from private
-    @Override
-    public List<ODocument> executeQuery(String query, Map<String, Object> params) {
-        ODatabaseDocumentTx db = getConnection();
-        try {
-            OSQLSynchQuery<ODocument> preparedQuery = new OSQLSynchQuery<ODocument>(query);
-            if (params == null) {
-                return db.command(preparedQuery).execute();
-            } else {
-                return db.command(preparedQuery).execute(params);
-            }
-        } catch (RuntimeException e) {
-            logger.error(e);
-            throw e;
-        } finally {
-            if (db != null) {
-                db.close();
-            }
-        }
-
-    }
-
-    //TODO: delete inner stuff
-    @Override
-    public synchronized int deleteAll(String classTable) {
-        ODatabaseDocumentTx db = getConnection();
-        int counter = 0;
-        try {
-            counter = 0;
-            for (ODocument doc : db.browseClass(classTable)) {
+  //TODO: delete inner stuff
+  @Override
+  public synchronized int deleteAll( String classTable ) {
+    ODatabaseDocumentTx db = getConnection();
+    int counter = 0;
+    try {
+      counter = 0;
+      for ( ODocument doc : db.browseClass( classTable ) ) {
 
 //        for(Object inner: doc.fieldValues()){//nah...
 //          if(inner instanceof ODocument){
@@ -200,133 +223,131 @@ public class PersistenceEngine implements IPersistenceEngine {
 //          }
 //        }
 
-                doc.delete();
-                counter++;
-            }
-        } catch (Exception e) {
-            logger.error(e);
-            return counter;
-        } finally {
-            if (db != null) {
-                db.close();
-            }
-        }
-        return counter;
+        doc.delete();
+        counter++;
+      }
+    } catch ( Exception e ) {
+      logger.error( e );
+      return counter;
+    } finally {
+      if ( db != null ) {
+        db.close();
+      }
     }
+    return counter;
+  }
 
-    //TODO:adapt
-    @Override
-    public ODocument createDocument(String baseClass, String json) {
-        ODocument doc = new ODocument(baseClass);
-        doc.fromJSON(json);
-        return doc;
-    }
+  //TODO:adapt
+  @Override
+  public ODocument createDocument( String baseClass, String json ) {
+    ODocument doc = new ODocument( baseClass );
+    doc.fromJSON( json );
+    return doc;
+  }
 
-    @Override
-    public ODocument createDocument(String baseClass, JSONObject json) {
-        ODocument doc = new ODocument(baseClass);
-        @SuppressWarnings("unchecked")
-        Iterator<String> fields = json.keys();
-        while (fields.hasNext()) {
-            String field = fields.next();
-            if (field.equals("key")) {
-                continue;
-            }
+  @Override
+  public ODocument createDocument( String baseClass, JSONObject json ) {
+    ODocument doc = new ODocument( baseClass );
+    @SuppressWarnings( "unchecked" )
+    Iterator<String> fields = json.keys();
+    while ( fields.hasNext() ) {
+      String field = fields.next();
+      if ( field.equals( "key" ) ) {
+        continue;
+      }
 
-            try {
-                Object value = json.get(field);
-                if (value instanceof JSONObject) {
+      try {
+        Object value = json.get( field );
+        if ( value instanceof JSONObject ) {
 
-                    doc.field(field, createDocument(baseClass + "_" + field, (JSONObject) value));
+          doc.field( field, createDocument( baseClass + "_" + field, (JSONObject) value ) );
 
-                    JSONObject obj = json.getJSONObject(field);
-                    logger.debug("obj:" + obj.toString(2));
-                } else {
-                    doc.field(field, value);
-                }
-
-            } catch (JSONException e) {
-                logger.error(e);
-            }
+          JSONObject obj = json.getJSONObject( field );
+          logger.debug( "obj:" + obj.toString( 2 ) );
+        } else {
+          doc.field( field, value );
         }
 
-        return doc;
+      } catch ( JSONException e ) {
+        logger.error( e );
+      }
     }
 
-    //TODO: adapt
-    private JSONObject createJson(ODocument doc) {
-        JSONObject json = new JSONObject();
+    return doc;
+  }
 
-        for (String field : doc.fieldNames()) {
-            try {
-                Object value = doc.field(field); //doc.<Object>field(field)
-                if (value instanceof ODocument) {
-                    ODocument docVal = (ODocument) value;
-                    logger.debug("obj odoc:" + docVal.toJSON());
-                    json.put(field, createJson(docVal));
-                } else if (value != null) {
-                    logger.debug(value.getClass());
-                    json.put(field, value);
-                }
-            } catch (JSONException e) {
-                logger.error(e);
-            }
+  //TODO: adapt
+  private JSONObject createJson( ODocument doc ) {
+    JSONObject json = new JSONObject();
+
+    for ( String field : doc.fieldNames() ) {
+      try {
+        Object value = doc.field( field ); //doc.<Object>field(field)
+        if ( value instanceof ODocument ) {
+          ODocument docVal = (ODocument) value;
+          logger.debug( "obj odoc:" + docVal.toJSON() );
+          json.put( field, createJson( docVal ) );
+        } else if ( value != null ) {
+          logger.debug( value.getClass() );
+          json.put( field, value );
         }
-
-        return json;
+      } catch ( JSONException e ) {
+        logger.error( e );
+      }
     }
 
-    private JSONObject query(IParameterProvider requestParams, IPentahoSession userSession) throws JSONException {
-        final String queryString = requestParams.getStringParameter("query", "");
-        return query(queryString, (Map) null);
-    }
+    return json;
+  }
 
-    @Override
-    public JSONObject query(String query, Map<String, Object> params) throws JSONException {
-        JSONObject json = new JSONObject();
+  private JSONObject query( IParameterProvider requestParams, IPentahoSession userSession ) throws JSONException {
+    final String queryString = requestParams.getStringParameter( "query", "" );
+    return query( queryString, (Map) null );
+  }
 
-        try {
-            json.put("result", Boolean.TRUE);
+  @Override
+  public JSONObject query( String query, Map<String, Object> params ) throws JSONException {
+    JSONObject json = new JSONObject();
 
-            List<ODocument> result = executeQuery(query, params);
-            if (result != null) {
-                JSONArray arr = new JSONArray();
-                for (ODocument resDoc : result) {
-                    arr.put(new JSONObject(resDoc.toJSON()));
-                }
-                json.put("object", arr);
-            }
-        } catch (ODatabaseException ode) {
-            json.put("result", Boolean.FALSE);
-            json.put("errorMessage", "DatabaseException: Review query");
-            logger.error(getExceptionDescription(ode));
+    try {
+      json.put( "result", Boolean.TRUE );
 
+      List<ODocument> result = executeQuery( query, params );
+      if ( result != null ) {
+        JSONArray arr = new JSONArray();
+        for ( ODocument resDoc : result ) {
+          arr.put( new JSONObject( resDoc.toJSON() ) );
         }
-        return json;
+        json.put( "object", arr );
+      }
+    } catch ( ODatabaseException ode ) {
+      json.put( "result", Boolean.FALSE );
+      json.put( "errorMessage", "DatabaseException: Review query" );
+      logger.error( getExceptionDescription( ode ) );
+
     }
+    return json;
+  }
 
-    @Override
-    public JSONObject command(String query, Map<String, Object> params) throws JSONException {
-        JSONObject json = new JSONObject();
+  @Override
+  public JSONObject command( String query, Map<String, Object> params ) throws JSONException {
+    JSONObject json = new JSONObject();
 
-        try {
+    try {
 
 
-            Object result = executeCommand(query, params);
-            if (result != null) {
-                json.put("result", Boolean.TRUE);
-            } else {
-            }
-        } catch (ODatabaseException ode) {
-            json.put("result", Boolean.FALSE);
-            json.put("errorMessage", "DatabaseException: Review query");
-            logger.error(getExceptionDescription(ode));
+      Object result = executeCommand( query, params );
+      if ( result != null ) {
+        json.put( "result", Boolean.TRUE );
+      }
+    } catch ( ODatabaseException ode ) {
+      json.put( "result", Boolean.FALSE );
+      json.put( "errorMessage", "DatabaseException: Review query" );
+      logger.error( getExceptionDescription( ode ) );
 
-        }
-        return json;
     }
+    return json;
+  }
 
-    
     /*
     private JSONObject get(IParameterProvider requestParams, IPentahoSession userSession) throws JSONException {
         final String id = requestParams.getStringParameter("rid", "");
@@ -373,252 +394,255 @@ public class PersistenceEngine implements IPersistenceEngine {
         return json;
     }
 */
-    
-    private JSONObject deleteRecord(IParameterProvider requestParams, IPentahoSession userSession) throws JSONException {
-        final String id = requestParams.getStringParameter("rid", "");
-        return deleteRecord(id);
-    }
 
-    @Override
-    public JSONObject deleteRecord(String id) throws JSONException {
+  private JSONObject deleteRecord( IParameterProvider requestParams, IPentahoSession userSession )
+    throws JSONException {
 
+    final String id = requestParams.getStringParameter( "rid", "" );
+    return deleteRecord( id );
+  }
 
-        JSONObject json = new JSONObject();
-        ODatabaseDocumentTx db = getConnection();
-        try {
-
-            ODocument doc = db.getRecord(new com.orientechnologies.orient.core.id.ORecordId(id));
-
-            if (doc == null) {
-                json.put("result", Boolean.FALSE);
-                json.put("errorMessage", "No element found with id " + id);
-                return json;
-            }
-            doc.delete();
-            json.put("result", Boolean.TRUE);
+  @Override
+  public JSONObject deleteRecord( String id ) throws JSONException {
 
 
-        } catch (ODatabaseException orne) {
+    JSONObject json = new JSONObject();
+    ODatabaseDocumentTx db = getConnection();
+    try {
 
-            if (orne.getCause().getClass() == ORecordNotFoundException.class) {
-                logger.error(
-                        "Record with id " + id + " not found");
-                json.put(
-                        "result", Boolean.FALSE);
-                json.put(
-                        "errorMessage", "No record found with id " + id);
-            } else {
-                logger.error(getExceptionDescription(orne));
-                throw orne;
-            }
-        } finally {
-            if (db != null) {
-                db.close();
-            }
-        }
+      ODocument doc = db.getRecord( new com.orientechnologies.orient.core.id.ORecordId( id ) );
+
+      if ( doc == null ) {
+        json.put( "result", Boolean.FALSE );
+        json.put( "errorMessage", "No element found with id " + id );
         return json;
+      }
+      doc.delete();
+      json.put( "result", Boolean.TRUE );
+
+
+    } catch ( ODatabaseException orne ) {
+
+      if ( orne.getCause().getClass() == ORecordNotFoundException.class ) {
+        logger.error(
+                "Record with id " + id + " not found" );
+        json.put(
+                "result", Boolean.FALSE );
+        json.put(
+                "errorMessage", "No record found with id " + id );
+      } else {
+        logger.error( getExceptionDescription( orne ) );
+        throw orne;
+      }
+    } finally {
+      if ( db != null ) {
+        db.close();
+      }
     }
+    return json;
+  }
 
-    private JSONObject store(IParameterProvider requestParams, IPentahoSession userSession) throws JSONException {
-        final String id = requestParams.getStringParameter("rid", "");
-        String className = requestParams.getStringParameter("class", "");
-        String data = requestParams.getStringParameter("data", "");
-        return store(id, className, data);
+  private JSONObject store( IParameterProvider requestParams, IPentahoSession userSession ) throws JSONException {
+    final String id = requestParams.getStringParameter( "rid", "" );
+    String className = requestParams.getStringParameter( "class", "" );
+    String data = requestParams.getStringParameter( "data", "" );
+    return store( id, className, data );
+  }
+
+  @Override
+  public boolean initializeClass( String className ) {
+    ODatabaseDocumentTx database = null;
+    try {
+      database = getConnection();
+      if ( classExists( className, database ) ) {
+        return false;
+      } else {
+        database.getMetadata().getSchema().createClass( className );
+        return true;
+      }
+    } finally {
+      if ( database != null ) {
+        database.close();
+      }
     }
+  }
 
-    @Override
-    public boolean initializeClass(String className) {
-        ODatabaseDocumentTx database = null;
-        try {
-            database = getConnection();
-            if (classExists(className, database)) {
-                return false;
-            } else {
-                database.getMetadata().getSchema().createClass(className);
-                return true;
-            }
-        } finally {
-            if (database != null) {
-                database.close();
-            }
-        }
+  @Override
+  public boolean dropClass( String className ) {
+    ODatabaseDocumentTx database = null;
+    try {
+      database = getConnection();
+      if ( !classExists( className, database ) ) {
+        return false;
+      } else {
+        database.getMetadata().getSchema().dropClass( className );
+        return true;
+      }
+    } finally {
+      if ( database != null ) {
+        database.close();
+      }
     }
+  }
 
-    @Override
-    public boolean dropClass(String className) {
-        ODatabaseDocumentTx database = null;
-        try {
-            database = getConnection();
-            if (!classExists(className, database)) {
-                return false;
-            } else {
-                database.getMetadata().getSchema().dropClass(className);
-                return true;
-            }
-        } finally {
-            if (database != null) {
-                database.close();
-            }
-        }
+  @Override
+  public boolean classExists( String className ) {
+    ODatabaseDocumentTx database = null;
+    try {
+      database = getConnection();
+      return classExists( className, database );
+    } finally {
+      if ( database != null ) {
+        database.close();
+      }
     }
+  }
 
-    @Override
-    public boolean classExists(String className) {
-        ODatabaseDocumentTx database = null;
-        try {
-            database = getConnection();
-            return classExists(className, database);
-        } finally {
-            if (database != null) {
-                database.close();
-            }
-        }
+  @Override
+  public boolean classExists( String className, ODatabaseDocumentTx database ) {
+    return database.getMetadata().getSchema().getClass( className ) != null;
+  }
+
+  @Override
+  public JSONObject store( Persistable obj ) {
+    String key = obj.getKey();
+    String className = obj.getClass().getName();
+    try {
+      JSONObject json = obj.toJSON();
+      JSONObject ret = store( key, className, json );
+      obj.setKey( ret.getString( "id" ) );
+      return ret;
+    } catch ( JSONException e ) {
+      return null;
     }
+  }
 
-    @Override
-    public boolean classExists(String className, ODatabaseDocumentTx database) {
-        return database.getMetadata().getSchema().getClass(className) != null;
-    }
+  @Override
+  public JSONObject store( String id, String className, JSONObject data ) {
+    return store( id, className, data, null );
+  }
 
-    @Override
-    public JSONObject store(Persistable obj) {
-        String key = obj.getKey();
-        String className = obj.getClass().getName();
-        try {
-            JSONObject json = obj.toJSON();
-            JSONObject ret = store(key, className, json);
-            obj.setKey(ret.getString("id"));
-            return ret;
-        } catch (JSONException e) {
-            return null;
-        }
-    }
+  @Override
+  public synchronized JSONObject store( String id, String className, JSONObject data, ODocument doc ) {
+    JSONObject json = new JSONObject();
+    try {
+      ODatabaseDocumentTx db = null;
+      try {
 
-    @Override
-    public JSONObject store(String id, String className, JSONObject data) {
-        return store(id, className, data, null);
-    }
-
-    @Override
-    public synchronized JSONObject store(String id, String className, JSONObject data, ODocument doc) {
-        JSONObject json = new JSONObject();
-        try {
-            ODatabaseDocumentTx db = null;
-            try {
-
-                json.put("result", Boolean.TRUE);
+        json.put( "result", Boolean.TRUE );
 
 
-                db = getConnection();
+        db = getConnection();
 
 
-                if (!StringUtils.isEmpty(id)) {
+        if ( !StringUtils.isEmpty( id ) ) {
 
-                    Map<String, Object> params = new HashMap<String, Object>();
-                    params.put("id", id);
-                    List<ODocument> result = executeQuery("select * from " + className + " where @rid = :id", params);
-                    if (result.size() == 1) {
-                        doc = result.get(0);
-                        if (Util.isPlugin()) {
-                            String user = PentahoSessionHolder.getSession().getName();
-                            if (doc.field("userid") != null && !doc.field("userid").toString().equals(user)) {
-                                json.put("result", Boolean.FALSE);
-                                json.put("errorMessage", "Object id " + id + " belongs to another user");
-                                return json;
-                            }
-                        }
-
-                        fillDocument(doc, data);
-
-                    } else if (result.size() == 0) {
-                        json.put("result", Boolean.FALSE);
-                        json.put("errorMessage", "No " + className + " found with id " + id);
-                        return json;
-                    } else {
-                        json.put("result", Boolean.FALSE);
-                        json.put("errorMessage", "Multiple " + className + " found with id " + id);
-                        return json;
-                    }
-                } else if (doc == null) {
-                    doc = createDocument(id, className, data, json, db);
-                }
-                // SAVE THE DOCUMENT
-                doc.save();
-
-                if (id == null || id.length() == 0) {
-                    ORID newId = doc.getIdentity();
-                    json.put("id", newId.toString());
-                }
-
+          Map<String, Object> params = new HashMap<String, Object>();
+          params.put( "id", id );
+          List<ODocument> result = executeQuery( "select * from " + className + " where @rid = :id", params );
+          if ( result.size() == 1 ) {
+            doc = result.get( 0 );
+            if  ( Util.isPlugin() ) {
+              String user = PentahoSessionHolder.getSession().getName();
+              if ( doc.field( "userid" ) != null && !doc.field( "userid" ).toString().equals( user ) ) {
+                json.put( "result", Boolean.FALSE );
+                json.put( "errorMessage", "Object id " + id + " belongs to another user" );
                 return json;
-
-
-            } catch (ODatabaseException orne) {
-
-                if (orne.getCause().getClass() == ORecordNotFoundException.class) {
-                    logger.error(
-                            "Record with id " + id + " not found");
-                    json.put(
-                            "result", Boolean.FALSE);
-                    json.put(
-                            "errorMessage", "No " + className + " found with id " + id);
-                    return json;
-                }
-                logger.error(getExceptionDescription(orne));
-                throw orne;
-            } finally {
-                if (db != null) {
-                    db.close();
-                }
+              }
             }
-        } catch (JSONException e) {
+
+            fillDocument( doc, data );
+
+          } else if ( result.size() == 0 ) {
+            json.put( "result", Boolean.FALSE );
+            json.put( "errorMessage", "No " + className + " found with id " + id );
             return json;
+          } else {
+            json.put( "result", Boolean.FALSE );
+            json.put( "errorMessage", "Multiple " + className + " found with id " + id );
+            return json;
+          }
+        } else if ( doc == null ) {
+          doc = createDocument( id, className, data, json, db );
         }
-    }
+        // SAVE THE DOCUMENT
+        doc.save();
 
-    /**
-     * generic json to document
-     */
-    private ODocument createDocument(String id, String className, JSONObject data, JSONObject json, ODatabaseDocumentTx db) throws JSONException {
-
-        ODocument doc = new ODocument(db, className);
-        fillDocument(doc, data);
-        if (Util.isPlugin()) {
-            String user = PentahoSessionHolder.getSession().getName();
-            doc.field("userid", user);
+        if ( id == null || id.length() == 0 ) {
+          ORID newId = doc.getIdentity();
+          json.put( "id", newId.toString() );
         }
-        return doc;
-    }
 
-    private void fillDocument(ODocument doc, JSONObject data) throws JSONException {
-        doc.fromJSON(data.toString(2));
+        return json;
+
+
+      } catch ( ODatabaseException orne ) {
+
+        if ( orne.getCause().getClass() == ORecordNotFoundException.class ) {
+          logger.error(
+                  "Record with id " + id + " not found" );
+          json.put(
+                  "result", Boolean.FALSE );
+          json.put(
+                  "errorMessage", "No " + className + " found with id " + id );
+          return json;
+        }
+        logger.error( getExceptionDescription( orne ) );
+        throw orne;
+      } finally {
+        if ( db != null ) {
+          db.close();
+        }
+      }
+    } catch ( JSONException e ) {
+      return json;
+    }
+  }
+
+  /**
+   * generic json to document
+   */
+  private ODocument createDocument( String id, String className, JSONObject data, JSONObject json,
+                                    ODatabaseDocumentTx db ) throws JSONException {
+
+    ODocument doc = new ODocument( db, className );
+    fillDocument( doc, data );
+    if ( Util.isPlugin() ) {
+      String user = PentahoSessionHolder.getSession().getName();
+      doc.field( "userid", user );
+    }
+    return doc;
+  }
+
+  private void fillDocument( ODocument doc, JSONObject data ) throws JSONException {
+    doc.fromJSON( data.toString( 2 ) );
         /*
          Iterator keyIterator = data.keys();
          while (keyIterator.hasNext()) {
          String key = (String) keyIterator.next();
          doc.field(key, data.getString(key));
          }*/
-    }
+  }
 
-    @Override
-    public JSONObject store(String id, String className, String inputData) throws JSONException {
-        JSONObject data = new JSONObject(inputData);
-        return store(id, className, data);
-    }
+  @Override
+  public JSONObject store( String id, String className, String inputData ) throws JSONException {
+    JSONObject data = new JSONObject( inputData );
+    return store( id, className, data );
+  }
 
-    private String getExceptionDescription(Exception ex) {
-        return ex.getCause().getClass().getName() + " - " + ex.getMessage();
-    }
+  private String getExceptionDescription( Exception ex ) {
+    return ex.getCause().getClass().getName() + " - " + ex.getMessage();
+  }
 
-    @Override
-    public void startOrient() throws Exception {
-        InputStream conf;
-        try {
-            conf = RepositoryAccess.getRepository().getResourceInputStream("/cpf/orient.xml");
-        } catch (Exception e) {
-            logger.warn("Falling back to built-in config");
-            conf = getClass().getResourceAsStream("orient.xml");
-        }
+  @Override
+  public void startOrient() throws Exception {
+    InputStream conf;
+    try {
+      conf = RepositoryAccess.getRepository().getResourceInputStream( "/cpf/orient.xml" );
+    } catch ( Exception e ) {
+      logger.warn( "Falling back to built-in config" );
+      conf = getClass().getResourceAsStream( "orient.xml" );
+    }
 
         /* Acquiring a database connection will throw an
          * exception if the db isn't up. We take advantage
@@ -626,26 +650,26 @@ public class PersistenceEngine implements IPersistenceEngine {
          * up the server
          */
 
-        ODatabaseDocumentTx tx = null;
-        try {
-            tx = getConnection();
-        } catch (Exception e) {
+    ODatabaseDocumentTx tx = null;
+    try {
+      tx = getConnection();
+    } catch ( Exception e ) {
 
-            //Change the default database location to orientPath
-            String confAsString = IOUtils.toString(conf, "UTF-8");
-            confAsString = confAsString.replaceAll(Matcher.quoteReplacement("$PATH$"), getOrientPath() + "/");
-            conf.close();
-            conf = new ByteArrayInputStream(confAsString.getBytes("UTF-8"));
+      //Change the default database location to orientPath
+      String confAsString = IOUtils.toString( conf, "UTF-8" );
+      confAsString = confAsString.replaceAll( Matcher.quoteReplacement( "$PATH$" ), getOrientPath() + "/" );
+      conf.close();
+      conf = new ByteArrayInputStream( confAsString.getBytes( "UTF-8" ) );
 
-            OServer server = OServerMain.create();
-            server.startup(conf);
-            server.activate();
+      server = OServerMain.create();
+      server.startup( conf );
+      server.activate();
 
-        } finally {
-            if (tx != null) {
-                tx.close();
-            }
-            conf.close();
-        }
+    } finally {
+      if ( tx != null ) {
+        tx.close();
+      }
+      conf.close();
     }
+  }
 }
