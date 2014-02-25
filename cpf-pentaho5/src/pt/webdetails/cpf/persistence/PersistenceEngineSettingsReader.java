@@ -30,7 +30,7 @@ public class PersistenceEngineSettingsReader {
     try {
       IReadAccess reader = new UserContentRepositoryAccess( PentahoSessionHolder.getSession(), "cpf" );
       conf =  reader.getFileInputStream( "orient.xml" );
-    } catch ( Exception e ) {
+    } catch ( Throwable e ) {
       logger.warn( "Falling back to built-in config" );
       conf = getClass().getResourceAsStream( "orient.xml" );
     }
