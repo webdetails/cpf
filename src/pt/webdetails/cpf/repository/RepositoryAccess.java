@@ -323,22 +323,27 @@ public class RepositoryAccess {
     return tree;
   }
   
-  public List<RepositoryFile> listSolutionFiles(String solutionPath, boolean includeDirs, List<String> extensions, boolean showHiddenFiles, final List<RepositoryFile> output) {
-      RepositoryFileTree tree = getUnifiedRepository().getTree(solutionPath, -1, null, showHiddenFiles);
+  public List<RepositoryFile> listSolutionFiles( String solutionPath, boolean includeDirs, List<String> extensions,
+                                                boolean showHiddenFiles, final List<RepositoryFile> output ) {
+      RepositoryFileTree tree = getUnifiedRepository().getTree( solutionPath, -1, null, showHiddenFiles );
       RepositoryFile root = tree.getFile();
       
-      if(showHiddenFiles || !root.isHidden()){
-        if(tree.getChildren().size() > 0){
-          for(RepositoryFileTree element : tree.getChildren()){
-            listSolutionFiles(element.getFile().getPath(), includeDirs, extensions, showHiddenFiles, output);
+      if ( showHiddenFiles || !root.isHidden() ) {
+        if ( tree.getChildren().size() > 0 ) {
+          for ( RepositoryFileTree element : tree.getChildren() ) {
+            listSolutionFiles( element.getFile().getPath(), includeDirs, extensions, showHiddenFiles, output );
           } 
-        } else if(root.isFolder() && includeDirs){
-          output.add(root);
-        } else if(!root.isFolder()){ //is a folder
+        } else if ( root.isFolder() && includeDirs ) {
+          output.add( root );
+        } else if ( !root.isFolder() ) { //is a folder
           String name = root.getName();
-          String extension = name.substring(root.getTitle().length()+1);
-          
-          if(extensions.contains(extension)){
+          String extension = "";
+          int lastDot = name.lastIndexOf( '.' );
+          if ( lastDot > 0 && lastDot < name.length() ) {
+            extension = name.substring( lastDot+1 );
+          }
+
+          if (extensions.contains(extension)){
             if(showHiddenFiles){
                 output.add(root);
             } else if(!root.isHidden()){
