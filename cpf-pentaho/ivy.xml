@@ -55,11 +55,14 @@
                 
                 
     <!-- orient db (persistence) -->
-  <dependency org="com.orientechnologies" name="orient-commons" conf="runtime->default" rev="1.3.0"/>
-  <dependency org="com.orientechnologies" name="orientdb-core" conf="runtime->default" rev="1.3.0"/>
-  <dependency org="com.orientechnologies" name="orientdb-server" conf="runtime->default" rev="1.3.0"/>
+  <dependency org="com.orientechnologies" name="orient-commons" conf="runtime->default" rev="1.5.0"/>
+  <dependency org="com.orientechnologies" name="orientdb-core" conf="runtime->default" rev="1.5.0"/>
+  <dependency org="com.orientechnologies" name="orientdb-server" conf="runtime->default" rev="1.5.0"/>
 
   <dependency org="junit" name="junit" conf="test->default" rev='4.10'/>
+  <dependency org="com.orientechnologies" name="orient-commons" conf="test->default" rev="1.5.0"/>
+  <dependency org="com.orientechnologies" name="orientdb-core" conf="test->default" rev="1.5.0"/>
+  <dependency org="com.orientechnologies" name="orientdb-server" conf="test->default" rev="1.5.0"/>
 
   </dependencies>
 
