@@ -1,3 +1,16 @@
+/*!
+* Copyright 2002 - 2014 Webdetails, a Pentaho company. All rights reserved.
+*
+* This software was developed by Webdetails and is provided under the terms
+* of the Mozilla Public License, Version 2.0, or any later version. You may not use
+* this file except in compliance with the license. If you need a copy of the license,
+* please go to http://mozilla.org/MPL/2.0/. The Initial Developer is Webdetails.
+*
+* Software distributed under the Mozilla Public License is distributed on an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. Please refer to
+* the license for the specific language governing your rights and limitations.
+*/
+
 package pt.webdetails.cpf.repository.pentaho;
 
 import java.io.ByteArrayInputStream;
@@ -36,16 +49,25 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
 
   private static String DEFAULT_PATH = "/";
 
-  private ISolutionRepository repository;
-  private ISolutionRepositoryService repositoryService;
+  protected ISolutionRepository repository;
+  protected ISolutionRepositoryService repositoryService;
   private String basePath;
   private IPentahoSession userSession;
 
   public PentahoLegacySolutionAccess( String basePath, IPentahoSession session ) {
     this.basePath = StringUtils.isEmpty( basePath ) ? DEFAULT_PATH : basePath;
-    this.repository = PentahoSystem.get( ISolutionRepository.class, session );
-    this.repositoryService = PentahoSystem.get( ISolutionRepositoryService.class, session );
+    this.repository = initSolutionRepository( session );
+    this.repositoryService = initRepositoryService( session );
     this.userSession = session;
+    ensureBasePathExists();
+  }
+
+  protected ISolutionRepository initSolutionRepository( IPentahoSession session ) {
+    return PentahoSystem.get( ISolutionRepository.class, session );
+  }
+
+  protected ISolutionRepositoryService initRepositoryService( IPentahoSession session ) {
+    return PentahoSystem.get( ISolutionRepositoryService.class, session );
   }
 
   @Override
@@ -86,8 +108,9 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
     return repository;
   }
 
-  protected ISolutionRepositoryService getSolutionRepositoryService() {
-    return PentahoSystem.get( ISolutionRepositoryService.class, ( (PentahoSession) userSession ).getPentahoSession() );
+
+  protected ISolutionRepositoryService getRepositoryService() {
+    return repositoryService;
   }
 
   protected ISolutionFile getRepositoryFile( String path ) {
@@ -112,19 +135,24 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
 
   @Override
   public boolean createFolder( String path ) { // TODO: shouldn't this be recursive?
-    path = StringUtils.chomp( path, "/" );// strip trailing / if there
+    path = StringUtils.chomp( path, "/" ); // strip trailing / if there
     String folderName = FilenameUtils.getBaseName( getPath( path ) );
     String folderPath = getPath( path ).substring( 0, StringUtils.lastIndexOf( getPath( path ), folderName ) );
 
     try {
-      repositoryService.createFolder( userSession, "", folderPath, folderName, "" );
+      return getRepositoryService().createFolder( userSession, "", folderPath, folderName, "" );
     } catch ( IOException ex ) {
       logger.error( ex );
       return false;
     }
-
-    return true;
   }
+
+  protected void ensureBasePathExists() {
+    if ( !fileExists( null ) ) {
+      createFolder( "" );
+    }
+  }
+
 
   @Override
   public InputStream getFileInputStream( String path ) throws IOException {
@@ -227,7 +255,9 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
       }
 
       public String getPath() {
-        return RepositoryHelper.relativizePath( basePath, RepositoryHelper.appendPath( getSolutionPath( file ), file.getFileName() ), true );
+        return RepositoryHelper.relativizePath( basePath,
+                RepositoryHelper.appendPath( getSolutionPath( file ), file.getFileName() ),
+                true );
       }
 
       public boolean isDirectory() {
