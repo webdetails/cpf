@@ -76,8 +76,11 @@
       rev="${dependency.orientdb.rev}" transitive="false"/>
 
     <!-- TESTS -->
-    <dependency org="junit" name="junit" rev='4.10' conf="test->default" />
-    <dependency org="jaxen" name="jaxen" rev="1.1.1" conf="test->default"/>
+    <dependency org="junit"         name="junit"                rev='4.10'  conf="test->default" />
+    <dependency org="jaxen"         name="jaxen"                rev="1.1.1" conf="test->default"/>
+    <dependency org="org.mockito"   name="mockito-all"          rev="1.8.4" conf="test->default"/>
+    <dependency org="pentaho"       name="pentaho-connections"  rev="2.2.3" conf="test->default"/>
+
   </dependencies>
 
 </ivy-module>
