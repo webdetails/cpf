@@ -22,5 +22,6 @@ public interface ISimplePersistence {
   public void deleteAll( Collection<? extends Persistable> items );
   public void delete( Class<? extends Persistable> klass, Filter filter );
   public <T extends Persistable> List<T> load( Class<T> klass, Filter filter );
+  public <T extends Persistable> List<T> loadAll( Class<T> klass );
 
 }
