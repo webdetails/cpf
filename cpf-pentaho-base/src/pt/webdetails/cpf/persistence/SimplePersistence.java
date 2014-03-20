@@ -17,7 +17,7 @@ import org.json.JSONObject;
  *
  * @author pdpi
  */
-public class SimplePersistence {
+public class SimplePersistence implements ISimplePersistence {
 
     private static SimplePersistence instance;
     private static final Log logger = LogFactory.getLog(SimplePersistence.class);
