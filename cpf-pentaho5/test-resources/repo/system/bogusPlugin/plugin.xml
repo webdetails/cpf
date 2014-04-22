@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin title="bogus">
+
+  <lifecycle-listener class="pt.webdetails.cpf.bogus.BogusLifeCycleListener"/>
+  <static-paths>
+    <static-path url="/bogus/resources" localFolder="resources"/>
+  </static-paths>
+
+  <content-generator scope="local" id="bogus" type="bogus" url="">
+    <classname>pt.webdetails.cpf.bogus.BogusContentGenerator</classname>
+    <title>Bogus</title>
+  </content-generator>
+
+</plugin>

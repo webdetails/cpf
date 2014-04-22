@@ -42,7 +42,14 @@ public class CpfAuditHelper {
    * @param requestParams parameters associated to the request
 	 * @return  UUID of start event
 	 */
-    static public UUID startAudit(String processId, String actionName, String objectName, IPentahoSession userSession, ILogger logger, IParameterProvider requestParams) {
+    static public UUID startAudit(
+        String processId,
+        String actionName,
+        String objectName,
+        IPentahoSession userSession,
+        ILogger logger,
+        IParameterProvider requestParams)
+    {
       UUID uuid = UUID.randomUUID();
   
       StringBuilder sb = new StringBuilder();

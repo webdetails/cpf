@@ -16,24 +16,22 @@ package pt.webdetails.cpf;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import pt.webdetails.cpf.plugin.CorePlugin;
+import pt.webdetails.cpf.InterPluginCall.Plugin;
 
 public class JsonPluginCall {
   
-  PentahoInterPluginCall internal;
+  InterPluginCall internal;
   
-  public JsonPluginCall(CorePlugin plugin, String method) {
-      internal = new PentahoInterPluginCall(plugin, method);
-      
-
+  public JsonPluginCall(Plugin plugin, String method) {
+    internal = new InterPluginCall(plugin, method);
   }
   
   public JSONObject call(JSONObject request) throws JSONException {
-    internal.setOutputStream(null);
+    //internal.setOutputStream(null);
     internal.putParameter(JsonRequestHandler.JSON_REQUEST_PARAM, request);
     String result = internal.call();
     return new JSONObject(result);
   }
-  
+
 
 }

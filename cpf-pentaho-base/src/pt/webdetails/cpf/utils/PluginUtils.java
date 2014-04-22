@@ -17,7 +17,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -117,8 +119,17 @@ public class PluginUtils implements IPluginUtils {
         IOFileFilter dirFilter = recursive.equals(Boolean.TRUE) ? TrueFileFilter.TRUE : null;
         // TODO: why doesn't this use repository access?
         // Get directory name. We need to make sure we're not allowing this to fetch other resources
-        String basePath = FilenameUtils.normalize(getPluginDirectory().getAbsolutePath());
-        String elementFullPath = FilenameUtils.normalize(basePath + File.separator + elementPath);
+      String basePath = null;
+      String elementFullPath = null;
+
+      try{
+        basePath = URLDecoder.decode(
+          FilenameUtils.normalize(getPluginDirectory().getAbsolutePath()), CharsetHelper.getEncoding());
+        elementFullPath = URLDecoder.decode(
+          FilenameUtils.normalize(basePath + File.separator + elementPath), CharsetHelper.getEncoding());
+      } catch ( UnsupportedEncodingException e) {
+        //CharseHelper.getEncoding() returns a valid encoding
+      }
 
         if (!elementFullPath.startsWith(basePath)) {
             logger.warn("PluginUtils.getPluginResources is trying to access a parent path - denied : " + elementFullPath);
@@ -149,9 +160,16 @@ public class PluginUtils implements IPluginUtils {
         if (includePluginDir) {
             pluginDir = pluginDir.getParentFile();
         }
-
-        String basePath = FilenameUtils.normalize(pluginDir.getAbsolutePath());
-        String elementFullPath = FilenameUtils.getFullPath(FilenameUtils.normalize(fullPath));
+        String basePath = null;
+        String elementFullPath = null;
+        try{
+        basePath = URLDecoder.decode(
+          FilenameUtils.normalize( pluginDir.getAbsolutePath()), CharsetHelper.getEncoding());
+        elementFullPath = URLDecoder.decode(
+          FilenameUtils.getFullPath( FilenameUtils.normalize( fullPath ) ), CharsetHelper.getEncoding() );
+        } catch ( UnsupportedEncodingException e) {
+          //CharseHelper.getEncoding() returns a valid encoding
+        }
 
         if (elementFullPath.indexOf(basePath) < 0) {
             throw new FileNotFoundException("Can't extract relative path from file " + fullPath);

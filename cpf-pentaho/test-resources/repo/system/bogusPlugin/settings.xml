@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- needed but not used --><settings>
+	<bogus>
+		<bogus-string>Baah</bogus-string>
+		<bogus-bool>true</bogus-bool>
+		<mister>
+			<bogus>It's a string!</bogus>
+		</mister>
+	</bogus>	
+</settings>

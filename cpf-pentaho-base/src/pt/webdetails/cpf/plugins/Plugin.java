@@ -13,31 +13,28 @@
 
 package pt.webdetails.cpf.plugins;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Collections;
+import java.util.List;
+
 import org.dom4j.Document;
+import org.dom4j.Element;
 import org.dom4j.Node;
-import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import pt.webdetails.cpf.VersionChecker;
 import pt.webdetails.cpf.plugin.CorePlugin;
+import pt.webdetails.cpf.repository.api.IReadAccess;
+import pt.webdetails.cpf.utils.XmlDom4JUtils;
 
 /**
- *
  * @author Luis Paulo Silva
  */
-public class Plugin extends CorePlugin{
-    //private String id;
-    //private String name;
+public class Plugin extends CorePlugin {
+
     private String description;
     private String company;
     private String companyUrl;
@@ -48,19 +45,19 @@ public class Plugin extends CorePlugin{
     private final String SETTINGS_XML_FILENAME = "settings.xml";
     private final String VERSION_XML_FILENAME = "version.xml";
     protected Log logger = LogFactory.getLog(this.getClass());
-    
-    public Plugin(String path){
-        super();
-        if(!path.endsWith("/"))
-        {
-            setPath(path+"/");
-        }else{
-            setPath(path);
-        }
-        pluginSelfBuild();
+
+    private IReadAccess pluginDirAccess;
+
+    /**
+     * 
+     * @param id Plugin ID (aka title)
+     * @param pluginSysDir access to target plugin's system folder
+     */
+    public Plugin(String id, IReadAccess pluginSysDir) {
+        super(id);
+        pluginSelfBuild(pluginSysDir);
     }
     
-        
     /**
      * 
      * @return Returns the path to the plugin directory (system) 
@@ -130,132 +127,112 @@ public class Plugin extends CorePlugin{
         return this.id;
     }
 
-  
-
     @JsonProperty("name")
     public String getName() {
         return this.name;
     }
-
-
     
     @JsonIgnore
-    private Node getXmlFileContent(String filePath){
-        FileInputStream fis = null;
-        BufferedInputStream bis = null;
-        File xmlFile = null;
-        Document xml = null;
-        Node node = null;
-        
-        try {
-            xmlFile = new File(filePath);
-            fis = new FileInputStream(xmlFile);
-            bis = new BufferedInputStream(fis);
-            xml = XmlDom4JHelper.getDocFromStream(bis, null);
-            node = xml.getRootElement();
+    private void pluginSelfBuild(IReadAccess access){
 
-            bis.close();
-            fis.close();
-        } catch (Exception ex) {
-            Logger.getLogger(PluginsAnalyzer.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        this.pluginDirAccess = access;
+
+        try{
         
-        return node;
-    }
-    
-    @JsonIgnore
-    private void pluginSelfBuild(){
-        if(hasPluginXML()){
-            Node documentNode = getXmlFileContent(getPath()+PLUGIN_XML_FILENAME);
-            setId(documentNode.valueOf("/plugin/@title"));
-            setName(documentNode.valueOf("/plugin/content-types/content-type/title"));
+        if (hasPluginXML()) {
+        	
+            Node documentNode = XmlDom4JUtils.getDocumentFromFile(access, PLUGIN_XML_FILENAME).getRootElement();
+            //String pluginTitle = documentNode.valueOf("/plugin/@title");
+            String pluginName = documentNode.valueOf("/plugin/@name");
+            setName ( pluginName );
+            //setTitle( pluginTitle ); 
+            //setName(documentNode.valueOf("/plugin/content-types/content-type/title"));
             setDescription(documentNode.valueOf("/plugin/content-types/content-type/description"));
             setCompany(documentNode.valueOf("/plugin/content-types/content-type/company/@name"));
             setCompanyUrl(documentNode.valueOf("/plugin/content-types/content-type/company/@url"));
             setCompanyLogo(documentNode.valueOf("/plugin/content-types/content-type/company/@logo"));
         }
-        
-        if(hasVersionXML()){            
-            this.version = new VersionChecker.Version(getXmlFileContent(getPath()+VERSION_XML_FILENAME).getDocument()).toString();
-        }else{
+
+        if(hasVersionXML()){
+        	
+            Document versionDoc = XmlDom4JUtils.getDocumentFromFile(access, VERSION_XML_FILENAME);
+            this.version = new VersionChecker.Version(versionDoc).toString();
+        } else {
             String unspecified = "unspecified or no version.xml present in plugin directory";
             this.version = unspecified;
         }
+        
+        } catch(IOException e) {
+    		logger.error(e);
+    	}
     }
-    
+
+    /**
+     * what's a registered entity?
+     */
     @JsonIgnore
-    public Node getRegisteredEntities(String entityName){
-        Node documentNode = null;
-        Node node = null;
-        if(hasSettingsXML()){
-            documentNode = getXmlFileContent(getPath()+SETTINGS_XML_FILENAME);
-            node = documentNode.selectSingleNode("/settings"+entityName);
+    public Node getRegisteredEntities(String entityName) {
+      if (hasSettingsXML()) {
+        try {
+          Node documentNode = XmlDom4JUtils.getDocumentFromFile(pluginDirAccess, SETTINGS_XML_FILENAME);
+          return documentNode.selectSingleNode("/settings" + entityName);
+        } catch (IOException e) {
+          logger.error(e);
         }
-        
-        return node;
+      }
+      return null;
     }
-    
-    @JsonIgnore
-    public boolean hasPluginXML(){
-        boolean has = false;
-        
-        if(new File(getPath()+PLUGIN_XML_FILENAME).exists()){
-            has = true;
+
+    /**
+     * 
+     * @param xpath path from root settings node
+     * @return list of matching nodes, empty if not found
+     */
+    @JsonIgnore //TODO: do we have to stick this in everything now?
+    @SuppressWarnings("unchecked")
+    public List<Element> getSettingsSection(String xpath) {
+      if (hasSettingsXML()) {
+        try {
+          Node documentNode = XmlDom4JUtils.getDocumentFromFile(pluginDirAccess, SETTINGS_XML_FILENAME);
+          return documentNode.selectNodes("/settings" + xpath);
+        } catch (IOException e) {
+          logger.error(e);
         }
-        
-        return has;
+      }
+      return Collections.<Element>emptyList();
+    }
+
+    @JsonIgnore
+    public boolean hasPluginXML() {//TODO: by definition, a plugin shoud have this
+      return pluginDirAccess.fileExists(PLUGIN_XML_FILENAME);
     }
     
     @JsonIgnore
     public boolean hasSettingsXML(){
-        boolean has = false;
-        
-        if(new File(getPath()+SETTINGS_XML_FILENAME).exists()){
-            has = true;
-        }
-        
-        return has;
+      return pluginDirAccess.fileExists(SETTINGS_XML_FILENAME);
     }
     
     @JsonIgnore
     public boolean hasVersionXML(){
-        boolean has = false;
-        
-        if(new File(getPath()+VERSION_XML_FILENAME).exists()){
-            has = true;
-        }
-        
-        return has;
+      return pluginDirAccess.fileExists(VERSION_XML_FILENAME);
     }
-    
-    @JsonProperty("solutionPath")
-    public String getPluginSolutionPath(){
-        return getId()+File.separator;
-    }
-    
-    @JsonProperty("systemPath")
-    public String getPluginRelativePath(){
-        return getPath().replace(PentahoSystem.getApplicationContext().getSolutionPath(""), "");
-    }
-    
+
     @JsonIgnore
     public String getPluginJson() throws IOException{
+        // TODO: is the convenience here worth all the JsonIgnores?
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(this);
     }
-    
+
     @JsonIgnore
-    public String getXmlValue(String xpathExpression, String filename){
-        Node documentNode = getXmlFileContent(this.getPath()+filename);
-        String value = null;
-        
-            try{
-                value = documentNode.valueOf(xpathExpression);
-            }catch(Exception ex){
-                logger.error(ex);
-            }
-            
-        return value;
+    public String getXmlValue(String xpathExpression, String fileName) {
+        try {
+        	Node documentRoot = XmlDom4JUtils.getDocumentFromFile(pluginDirAccess, fileName);
+            return documentRoot != null ? documentRoot.valueOf(xpathExpression) : null;
+        } catch(Exception ex){
+            logger.error(ex);
+        }
+        return null;
     }
     
     public String getVersion(){

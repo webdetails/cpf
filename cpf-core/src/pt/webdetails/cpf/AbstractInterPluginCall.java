@@ -47,7 +47,6 @@ public abstract class AbstractInterPluginCall implements IPluginCall {
   
 
 
-    @Override
     public void init(CorePlugin plugin, String method, Map<String, Object> params) {
         if (plugin == null) {
             throw new IllegalArgumentException("Plugin must be specified");
@@ -64,17 +63,14 @@ public abstract class AbstractInterPluginCall implements IPluginCall {
                 : new HashMap<String, Object>());
     }
 
-    @Override
     public String getMethod() {
         return method;
     }
 
-    @Override
     public void setMethod(String method) {
         this.method = method;
     }
 
-    @Override
 	public abstract String call();
 
 }
