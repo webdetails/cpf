@@ -55,7 +55,7 @@ import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.OServerMain;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginClassLoader;
 
-public class PersistenceEngine {
+public class PersistenceEngine implements IPersistenceEngine {
 
   private static final Log logger = LogFactory.getLog( PersistenceEngine.class );
   private static final CpfProperties SETTINGS = CpfProperties.getInstance();
