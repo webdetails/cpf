@@ -319,6 +319,71 @@ public class OlapUtils {
 
   }
 
+  public JSONObject getPaginatedLevelMembers( String catalog, String cube, String level, String startMember,
+                                              String context, String searchTerm, long pageSize, long pageStart ) {
+
+    Connection connection = getMdxConnection( catalog );
+
+    boolean hasStartMember = true;
+    boolean hasFilter = !( searchTerm.equals( "" ) );
+
+    if ( startMember == null || startMember.equals( "" ) ) {
+
+      hasStartMember = false;
+      startMember = level + ".Hierarchy.defaultMember";
+
+    }
+
+    String query =
+      "with " + "set descendantsSet as Descendants(" + startMember + " , " + level + ") " + "set membersSet as "
+        + level + ".Members " + "set resultSet as " + ( hasStartMember ? "descendantsSet" : "membersSet" ) + " "
+        + "set filteredSet as filter(resultSet, " + level + ".hierarchy.currentMember.name MATCHES '(?i).*"
+        + searchTerm + ".*' ) " + "select {} ON COLUMNS,  " + "Subset(Order( "
+        + ( hasFilter ? "filteredSet " : "resultSet " )
+            /*
+             * Try to fetch pageSize + 1 results -- the extra element allows us to know whether there are any more
+             * members for the next page
+             */
+        + ", " + level + ".hierarchy.currentMember.Name,BASC), " + pageStart + ", " + ( pageSize + 1 )
+        + ") ON ROWS " + "from [" + cube + "] where {" + context + "}";
+
+    Query mdxQuery = connection.parseQuery( query );
+    RolapResult result = (RolapResult) connection.execute( mdxQuery );
+    List<Position> positions = result.getAxes()[1].getPositions();
+
+    /*
+     * check whether there is data for the next page, and remove excess elements resulting from querying for extra
+     * results
+     */
+    boolean nextPage = positions.size() == pageSize + 1;
+
+    JSONArray membersArray = new JSONArray();
+    int i = 0;
+    for ( Position position : positions ) {
+      if ( i++ == pageSize ) {
+        break;
+      }
+      Member member = position.get( 0 );
+
+      JSONObject jsonMeasure = new JSONObject();
+      jsonMeasure.put( "type", "member" );
+      jsonMeasure.put( "name", member.getName() );
+      jsonMeasure.put( "caption", member.getCaption() != null ? member.getCaption() : member.getName() );
+      jsonMeasure
+        .put( "qualifiedName", member.getQualifiedName().substring( 8, member.getQualifiedName().length() - 1 ) );
+      jsonMeasure.put( "memberType", member.getMemberType().toString() );
+
+      membersArray.add( jsonMeasure );
+
+    }
+
+    JSONObject output = new JSONObject();
+    output.put( "members", membersArray );
+    output.put( "more", nextPage );
+    return output;
+
+  }
+
   private void makeTest() {
 
 
