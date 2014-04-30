@@ -32,7 +32,7 @@
         <echo level="info">###############################</echo>
         <ant dir="@{proj}" antfile="build.xml" target="${target}" inheritAll="false"/>
         <echo level="info">###############################</echo>
-        <echo level="info">FINISHED</echo>        
+        <echo level="info">FINISHED</echo>
         <echo level="info">###############################</echo>
       </sequential>
     </for>
@@ -77,7 +77,7 @@
     <antcall target="call">
       <param name="target" value="publish"/>
       <param name="projects" value="${all.projects}"/>
-    </antcall>  
+    </antcall>
   </target>
 
 
@@ -85,17 +85,32 @@
     <antcall target="call">
       <param name="target" value="test"/>
       <param name="projects" value="${all.projects}"/>
-    </antcall>  
+    </antcall>
   </target>
 
 
-  <target name="dist" depends="publish-local-core, resolve-projects"> 
+<target name="dist-source">
+  <antcall target="call">
+    <param name="target" value="dist-source"/>
+    <param name="projects" value="${projects.list}"/>
+  </antcall>
+</target>
+
+
+<target name="dist-javadoc">
+  <antcall target="call">
+    <param name="target" value="dist-javadoc"/>
+    <param name="projects" value="${projects.list}"/>
+  </antcall>
+</target>
+
+  <target name="dist" depends="publish-local-core, resolve-projects">
     <antcall target="call">
       <param name="target" value="dist"/>
       <param name="projects" value="${projects.list}"/>
     </antcall>
   </target>
-  
+
   <target name="build-core" >
       <ant dir="${core.project}" antfile="build.xml" target="dist" inheritAll="false"/>
   </target>
