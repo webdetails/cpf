@@ -15,7 +15,9 @@ package pt.webdetails.cpf.http;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 public interface ICommonParameterProvider {
 	
@@ -33,6 +35,8 @@ public interface ICommonParameterProvider {
 
 	public String[] getStringArrayParameter(String name,
 			String[] defaultValue);
+	
+	public Map<String,Object> getParameters();
 
 	public Iterator<String> getParameterNames();
 

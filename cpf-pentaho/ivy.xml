@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ivy-module version="2.0" xmlns:m="http://ant.apache.org/ivy/maven">
 
-  <info organisation="pt.webdetails" module="${ivy.artifact.id}" revision="${project.revision}"/>
+  <info organisation="pentaho" module="${ivy.artifact.id}" revision="${project.revision}"/>
 
   <configurations>
     <conf name="default"/>
@@ -19,50 +19,67 @@
 
   <dependencies defaultconf="default->default">
 
-    <!--  common dependencies -->    
-    <dependency org="pt.webdetails" name="cpf-core"
-		        rev="${project.revision}" transitive="false" changing="true" conf='default->default'/>    
-    <dependency org="org.json" name="json" rev="3.1"/>
-    <dependency org="commons-io" name="commons-io" rev="2.4"/>       
-    <dependency org="org.codehaus.jackson" name="jackson-mapper-asl" rev="1.8.2" conf='default->default'/>                
-    <dependency org="org.mozilla" name="rhino" rev="1.7R4"/>                       
-    <dependency org="eigenbase" name="eigenbase-xom" rev="1.3.1" />
-    <dependency org="commons-lang" name="commons-lang" rev="2.6" />
-    
-    <dependency org="com.fasterxml.jackson.core" name="jackson-core" rev="2.2.2" conf='default->default'/>
-    <dependency org="com.fasterxml.jackson.core" name="jackson-annotations" rev="2.2.2" conf='default->default'/>
-    <dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.2.2" conf='default->default'/>
-    
-    <!--  pentaho dependencies -->
+    <!--  CORE -->    
+    <dependency org="pentaho" name="cpf-core"
+      rev="REFACTOR-SNAPSHOT" transitive="true" changing="true" conf="default->default"/>
+    <dependency org="commons-io" name="commons-io" rev="1.4"/>
+  <dependency org="commons-lang" name="commons-lang" rev="2.6"/>    
+    <dependency org="javax.servlet" name="servlet-api" rev="2.4"/>
+        <dependency org="org.springframework" name="spring-core" rev="2.5.6"/>
+                <dependency org="org.springframework" name="spring-context" rev="2.0.8"/>        
+            <dependency org="org.springframework" name="spring-beans" rev="3.0.3.RELEASE"/>
+                <dependency org="org.springframework.security" name="spring-security-core" rev="2.0.5.RELEASE"/>
+     <dependency org="org.codehaus.jackson" name="jackson-mapper-asl" rev="1.8.2" conf='default->default'/>
+    <dependency org="org.codehaus.jackson" name="jackson-core-asl" rev="1.8.2" conf='default->default'/>
+    <dependency org="dom4j" name="dom4j" rev="1.6.1"/>
+                  
+
+    <!--  PENTAHO DEPENDENCIES -->
+
+    <dependency org="pentaho" name="pentaho-bi-platform-api"
+                rev="${dependency.bi-platform-48x.revision}" changing="true" transitive="false" />
+
+    <dependency org="pentaho" name="pentaho-bi-platform-util"
+                rev="${dependency.bi-platform-48x.revision}" changing="true" transitive="false" />
+
     <dependency org="pentaho" name="pentaho-bi-platform-plugin-services"
-                rev="${dependency.bi-platform.revision}" changing="true" transitive="false" />
-
+                rev="${dependency.bi-platform-48x.revision}" changing="true" transitive="false" />
     <dependency org="pentaho" name="pentaho-bi-platform-plugin-actions"
-      rev="${dependency.bi-platform.revision}" changing="true" transitive="true" >
-      <exclude module="nekohtml" name="*" type="*" ext="*" conf="" matcher="exact"></exclude>
-    </dependency>
+      rev="${dependency.bi-platform-48x.revision}" changing="true" transitive="false" />
 
-    <dependency org="pentaho" name="pentaho-bi-platform-web-servlet"
-                rev="${dependency.bi-platform.revision}" transitive="false"  changing="true"/>
+    <dependency org="pentaho" name="pentaho-bi-platform-engine-core"
+                rev="${dependency.bi-platform-48x.revision}" transitive="false"  changing="true"/>
+    <dependency org="pentaho" name="pentaho-bi-platform-engine-services"
+                rev="${dependency.bi-platform-48x.revision}" transitive="false"  changing="true"/>
     <dependency org="pentaho" name="pentaho-bi-platform-engine-security"
-                rev="${dependency.bi-platform.revision}" transitive="false"  changing="true"/>                
-    <dependency org="pentaho" name="pentaho-bi-platform-web"
-                rev="${dependency.bi-platform.revision}" transitive="false"  changing="true"/>
-    <dependency org="pentaho" name="mondrian"
-                rev="3.5.4" transitive="false"  changing="true"/>                
-    <dependency org="pentaho-library" name="libbase"
-                rev="TRUNK-SNAPSHOT" transitive="false"  changing="true"/>
-                
-                
-    <!-- orient db (persistence) -->
-  <dependency org="com.orientechnologies" name="orient-commons" conf="runtime->default" rev="1.5.0"/>
-  <dependency org="com.orientechnologies" name="orientdb-core" conf="runtime->default" rev="1.5.0"/>
-  <dependency org="com.orientechnologies" name="orientdb-server" conf="runtime->default" rev="1.5.0"/>
+                rev="${dependency.bi-platform-48x.revision}" transitive="false"  changing="true"/>
 
-  <dependency org="junit" name="junit" conf="test->default" rev='4.10'/>
-  <dependency org="com.orientechnologies" name="orient-commons" conf="test->default" rev="1.5.0"/>
-  <dependency org="com.orientechnologies" name="orientdb-core" conf="test->default" rev="1.5.0"/>
-  <dependency org="com.orientechnologies" name="orientdb-server" conf="test->default" rev="1.5.0"/>
+    <dependency org="pentaho" name="pentaho-bi-platform-web"
+                rev="${dependency.bi-platform-48x.revision}" transitive="false"  changing="true"/>
+    <dependency org="pentaho" name="pentaho-bi-platform-web-servlet"
+                rev="${dependency.bi-platform-48x.revision}" transitive="false"  changing="true"/>
+
+    <dependency org="pentaho" name="pentaho-bi-platform-repository"
+                rev="${dependency.bi-platform-48x.revision}" transitive="false" changing="true"/>
+
+    <!-- MONDRIAN -->
+    <dependency org="pentaho" name="mondrian"
+                rev="${dependency.mondrian.rev}" transitive="false"  changing="true"/>
+    <dependency org="eigenbase" name="eigenbase-xom" rev="1.3.1" />
+
+    <!-- ORIENT DB (persistence) TODO: transitive removal has not been tested at runtime!-->
+    <dependency org="com.orientechnologies" name="orient-commons" conf="runtime->default"
+      rev="${dependency.orientdb.rev}" transitive="false"/>
+    <dependency org="com.orientechnologies" name="orientdb-core" conf="runtime->default"
+      rev="${dependency.orientdb.rev}" transitive="false"/>
+    <dependency org="com.orientechnologies" name="orientdb-server" conf="runtime->default"
+      rev="${dependency.orientdb.rev}" transitive="false"/>
+
+    <!-- TESTS -->
+    <dependency org="junit"         name="junit"                rev='4.10'  conf="test->default" />
+    <dependency org="jaxen"         name="jaxen"                rev="1.1.1" conf="test->default"/>
+    <dependency org="org.mockito"   name="mockito-all"          rev="1.8.4" conf="test->default"/>
+    <dependency org="pentaho"       name="pentaho-connections"  rev="2.2.3" conf="test->default"/>
 
   </dependencies>
 

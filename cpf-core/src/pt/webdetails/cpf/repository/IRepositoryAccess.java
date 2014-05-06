@@ -21,10 +21,14 @@ import java.io.UnsupportedEncodingException;
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 
-import pt.webdetails.cpf.plugin.CorePlugin;
-import pt.webdetails.cpf.session.IUserSession;
+import pt.webdetails.cpf.repository.api.IContentAccessFactory;
+
+//import pt.webdetails.cpf.plugin.CorePlugin;
 
 //TODO: breathe and decide what this should do
+/**
+ * @deprecated use {@link IContentAccessFactory}
+ */
 public interface IRepositoryAccess {
 
     // warning: enums will only leave here if there is an interface left behind
@@ -53,19 +57,22 @@ public interface IRepositoryAccess {
         FAIL
     }
 
+    @Deprecated
     public String getEncoding();
 
-    public SaveFileStatus publishFile(String fileAndPath,
-            String contents, boolean overwrite)
+    //TODO: coherent throwing
+    public SaveFileStatus publishFile(String fileAndPath, String contents, boolean overwrite)
             throws UnsupportedEncodingException;
 
-    public SaveFileStatus publishFile(String fileAndPath, byte[] data,
-            boolean overwrite);
+    public SaveFileStatus publishFile(String fileAndPath, byte[] data, boolean overwrite);
 
+    /**
+     * @deprecated use {@link #publishFile(String, byte[], boolean)}
+     */
     public SaveFileStatus publishFile(String solutionPath,
             String fileName, byte[] data, boolean overwrite);
 
-    // TODO: do we really need that one as well? i think we have enough?
+    // TODO: do we really need that one as well?
     @Deprecated
     public SaveFileStatus publishFile(String baseUrl, String path,
             String fileName, byte[] data, boolean overwrite);
@@ -109,9 +116,14 @@ public interface IRepositoryAccess {
 
     public String getResourceAsString(String solutionPath, FileAccess fileAccess) throws IOException;
 
+    //TODO: UserContentAccess, usages? -> copyFile
+    // used in cde, cdv, cdb
     public SaveFileStatus copySolutionFile(String fromFilePath,
             String toFilePath) throws IOException;
 
+    //TODO: UserContentAccess, usages --> getFullPath?
+    //known uses: cdf(still from pho), cdv:GlobalScope#loadTests
+    @Deprecated
     public String getSolutionPath(String path);
 
     /*
@@ -125,21 +137,39 @@ public interface IRepositoryAccess {
       //XXX review - and how would we set a user session for file access in a single user environment
 //    public void setUserSession(IUserSession userSession);
 
-    //TODO: is there another way?
-    public void setPlugin(CorePlugin plugin);
+//    //TODO: is there another way?
+//    public void setPlugin(CorePlugin plugin);
     public IRepositoryFile getSettingsFile(String path, FileAccess fileAccess);
     public String getSettingsResourceAsString(String settingsPath)
             throws IOException;
 
-    /*
-     * TODO: This should really be getSettingsFiles ? make those two methods consistent
-     * ^ no, it doesn't make sense as well but it isn't getSettingFiles
-     */
-    @Deprecated
-    public IRepositoryFile[] getPluginFiles(String baseDir, FileAccess accessMode);
+//    /**
+//     * TODO: MERGE WITH getSettingsFileTree/listRepositoryFiles
+//     * known uses:
+//     * cda:SolutionRepositoryUtils#getCdaList
+//     *  - IRepositoryFile[] cdaTree = repository.getPluginFiles("/", FileAccess.READ);
+//     *  after that only uses filename, fullPath
+//     */
+//    @Deprecated
+//    public IRepositoryFile[] getPluginFiles(String baseDir, FileAccess accessMode);
 
+    /**
+     * TODO: used anywhere?
+     * no-perm
+     * @param filter
+     * @return
+     */
     public IRepositoryFile[] listRepositoryFiles(IRepositoryFileFilter filter);
 
+    /**
+     * known usages: cda:DefaultCdaEnvironment#getComponentsFiles
+     * repo.getSettingsFileTree("resources/components/connections", "xml", FileAccess.READ)
+     * after that only contents are used
+     * @param dir
+     * @param fileExtensions
+     * @param access
+     * @return
+     */
     public IRepositoryFile[] getSettingsFileTree(final String dir, final String fileExtensions, FileAccess access);
 
 

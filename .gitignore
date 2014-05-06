@@ -19,3 +19,5 @@ test-lib/
 /.idea
 *.iml
 out/
+.metadata
+*~

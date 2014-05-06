@@ -56,13 +56,20 @@ public class CommonParameterProvider implements ICommonParameterProvider {
 	}
 
 	public Object[] getArrayParameter(String name, Object[] defaultValue) {
-		// TODO Auto-generated method stub
-		return null;
+		if (params.containsKey( name ) && params.get(name) != null) {
+			return (Object []) params.get(name);
+		} else {
+			return defaultValue;
+		}
 	}
 
 	public String[] getStringArrayParameter(String name, String[] defaultValue) {
-		// TODO Auto-generated method stub
-		return null;
+		if (params.containsKey( name ) && params.get(name) != null) {
+			return (String []) params.get(name);
+		} else {
+			return defaultValue;
+		}
+		
 	}
 
 	public Iterator<String> getParameterNames() {
@@ -77,4 +84,8 @@ public class CommonParameterProvider implements ICommonParameterProvider {
 		return params.containsKey(name);
 	}
 
+	@Override
+	public Map<String, Object> getParameters() {
+		return params;
+	}
 }

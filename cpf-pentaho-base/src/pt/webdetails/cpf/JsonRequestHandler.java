@@ -45,7 +45,7 @@ public abstract class JsonRequestHandler implements RequestHandler {
         try {
           IOUtils.write(msg, out, CharsetHelper.getEncoding());
         } catch (IOException e1) {
-          
+
         }
         LogFactory.getLog(this.getClass()).error(msg, e);
       }

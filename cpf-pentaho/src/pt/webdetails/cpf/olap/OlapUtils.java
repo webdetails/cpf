@@ -24,8 +24,9 @@ import mondrian.olap.Level;
 import mondrian.olap.Member;
 import mondrian.olap.Position;
 import mondrian.olap.Query;
-import org.json.JSONArray;
-import org.json.JSONObject;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -71,45 +72,7 @@ public class OlapUtils {
 
   }
 
-  public Object process(IParameterProvider pathParams) {
-    try {
-      String operation = pathParams.getStringParameter("operation", "-");
-
-      if (operation.equals("GetOlapCubes")) {
-
-        return getOlapCubes();
-
-      } else if (operation.equals("GetCubeStructure")) {
-
-        String catalog = pathParams.getStringParameter("catalog", null);
-        String cube = pathParams.getStringParameter("cube", null);
-        String jndi = pathParams.getStringParameter("jndi", null);
-
-        return getCubeStructure(catalog, cube, jndi);
-
-      } else if (operation.equals("GetLevelMembersStructure")) {
-
-        String catalog = pathParams.getStringParameter("catalog", null);
-        String cube = pathParams.getStringParameter("cube", null);
-        String member = pathParams.getStringParameter("member", null);
-        String direction = pathParams.getStringParameter("direction", null);
-
-        return getLevelMembersStructure(catalog, cube, member, direction);
-
-      } else if (operation.equals("test")) {
-
-        // Test method
-        makeTest();
-      }
-
-      return "ok";
-    } catch (Exception e) {
-      logger.error(e);
-    }
-    return null;
-  }
-
-  private JSONObject getOlapCubes() throws JSONException {
+  public JSONObject getOlapCubes() throws JSONException {
 
     logger.debug("Returning Olap cubes");
 
@@ -122,8 +85,8 @@ public class OlapUtils {
       catalogJson.put("name", catalog.getName());
       catalogJson.put("schema", catalog.getDefinition());
       catalogJson.put("jndi", catalog.getEffectiveDataSource().getJndi());
-      catalogJson.put("cubes", new JSONArray(catalog.getSchema().getCubes()));
-      catalogsArray.put(catalogJson);
+      catalogJson.put("cubes", JSONArray.fromObject(catalog.getSchema().getCubes()));
+      catalogsArray.add(catalogJson);
     }
 
     logger.debug("Cubes found: " + catalogsArray.toString(2));
@@ -133,7 +96,7 @@ public class OlapUtils {
 
   }
 
-  private JSONObject getCubeStructure(String catalog, String cube, String jndi) throws JSONException {
+  public JSONObject getCubeStructure(String catalog, String cube, String jndi) throws JSONException {
 
     logger.debug("Returning Olap structure for cube " + cube);
     JSONObject result = new JSONObject();
@@ -172,6 +135,7 @@ public class OlapUtils {
 
       JSONObject jsonDimension = new JSONObject();
       jsonDimension.put("name", dimension.getName());
+      jsonDimension.put("caption", dimension.getCaption().isEmpty() ? dimension.getName() : dimension.getCaption());
       jsonDimension.put("type", dimension.getDimensionType().name());
 
       // Hierarchies
@@ -181,10 +145,11 @@ public class OlapUtils {
         JSONObject jsonHierarchy = new JSONObject();
         jsonHierarchy.put("type", "hierarchy");
         jsonHierarchy.put("name", hierarchy.getName());
+        jsonHierarchy.put("caption", hierarchy.getCaption().isEmpty() ? hierarchy.getName() : hierarchy.getCaption());
         jsonHierarchy.put("qualifiedName", hierarchy.getQualifiedName().substring(11, hierarchy.getQualifiedName().length() - 1));
         jsonHierarchy.put("defaultMember", hierarchy.getAllMember().getName());
         jsonHierarchy.put("defaultMemberQualifiedName", hierarchy.getAllMember().getQualifiedName().substring(8, hierarchy.getAllMember().getQualifiedName().length() - 1));
-        ;
+
         // Levels
         JSONArray levelsArray = new JSONArray();
         Level[] levels = hierarchy.getLevels();
@@ -194,17 +159,18 @@ public class OlapUtils {
             jsonLevel.put("type", "level");
             jsonLevel.put("depth", level.getDepth());
             jsonLevel.put("name", level.getName());
+            jsonLevel.put("caption", level.getCaption().isEmpty() ? level.getName() : level.getCaption());
             jsonLevel.put("qualifiedName", level.getQualifiedName().substring(7, level.getQualifiedName().length() - 1));
-            levelsArray.put(jsonLevel);
+            levelsArray.add(jsonLevel);
           }
         }
         jsonHierarchy.put("levels", levelsArray);
 
-        hierarchiesArray.put(jsonHierarchy);
+        hierarchiesArray.add(jsonHierarchy);
       }
       jsonDimension.put("hierarchies", hierarchiesArray);
 
-      dimensionsArray.put(jsonDimension);
+      dimensionsArray.add(jsonDimension);
     }
 
     return dimensionsArray;
@@ -225,10 +191,11 @@ public class OlapUtils {
       JSONObject jsonMeasure = new JSONObject();
       jsonMeasure.put("type", "measure");
       jsonMeasure.put("name", ((RolapMemberBase) measure).getName());
+      jsonMeasure.put("caption", ((RolapMemberBase) measure).getCaption().isEmpty() ? ((RolapMemberBase) measure).getName() : ((RolapMemberBase) measure).getCaption());
       jsonMeasure.put("qualifiedName", measure.getQualifiedName().substring(8, measure.getQualifiedName().length() - 1));
       jsonMeasure.put("memberType", measure.getMemberType().toString());
 
-      measuresArray.put(jsonMeasure);
+      measuresArray.add(jsonMeasure);
 
     }
 
@@ -313,7 +280,7 @@ public class OlapUtils {
     return catalogs;
   }
 
-  private JSONObject getLevelMembersStructure(String catalog, String cube, String memberString, String direction) throws JSONException {
+  public JSONObject getLevelMembersStructure(String catalog, String cube, String memberString, String direction) throws JSONException {
 
     Connection connection = getMdxConnection(catalog);
 
@@ -337,10 +304,11 @@ public class OlapUtils {
       JSONObject jsonMeasure = new JSONObject();
       jsonMeasure.put("type", "member");
       jsonMeasure.put("name", member.getName());
+      jsonMeasure.put("caption", member.getCaption().isEmpty() ? member.getName() : member.getCaption());
       jsonMeasure.put("qualifiedName", member.getQualifiedName().substring(8, member.getQualifiedName().length() - 1));
       jsonMeasure.put("memberType", member.getMemberType().toString());
 
-      membersArray.put(jsonMeasure);
+      membersArray.add(jsonMeasure);
 
     }
 
@@ -348,6 +316,71 @@ public class OlapUtils {
     output.put("members", membersArray);
     return output;
 
+
+  }
+
+  public JSONObject getPaginatedLevelMembers( String catalog, String cube, String level, String startMember,
+                                              String context, String searchTerm, long pageSize, long pageStart ) {
+
+    Connection connection = getMdxConnection( catalog );
+
+    boolean hasStartMember = true;
+    boolean hasFilter = !( searchTerm.equals( "" ) );
+
+    if ( startMember == null || startMember.equals( "" ) ) {
+
+      hasStartMember = false;
+      startMember = level + ".Hierarchy.defaultMember";
+
+    }
+
+    String query =
+      "with " + "set descendantsSet as Descendants(" + startMember + " , " + level + ") " + "set membersSet as "
+        + level + ".Members " + "set resultSet as " + ( hasStartMember ? "descendantsSet" : "membersSet" ) + " "
+        + "set filteredSet as filter(resultSet, " + level + ".hierarchy.currentMember.name MATCHES '(?i).*"
+        + searchTerm + ".*' ) " + "select {} ON COLUMNS,  " + "Subset(Order( "
+        + ( hasFilter ? "filteredSet " : "resultSet " )
+            /*
+             * Try to fetch pageSize + 1 results -- the extra element allows us to know whether there are any more
+             * members for the next page
+             */
+        + ", " + level + ".hierarchy.currentMember.Name,BASC), " + pageStart + ", " + ( pageSize + 1 )
+        + ") ON ROWS " + "from [" + cube + "] where {" + context + "}";
+
+    Query mdxQuery = connection.parseQuery( query );
+    RolapResult result = (RolapResult) connection.execute( mdxQuery );
+    List<Position> positions = result.getAxes()[1].getPositions();
+
+    /*
+     * check whether there is data for the next page, and remove excess elements resulting from querying for extra
+     * results
+     */
+    boolean nextPage = positions.size() == pageSize + 1;
+
+    JSONArray membersArray = new JSONArray();
+    int i = 0;
+    for ( Position position : positions ) {
+      if ( i++ == pageSize ) {
+        break;
+      }
+      Member member = position.get( 0 );
+
+      JSONObject jsonMeasure = new JSONObject();
+      jsonMeasure.put( "type", "member" );
+      jsonMeasure.put( "name", member.getName() );
+      jsonMeasure.put( "caption", member.getCaption() != null ? member.getCaption() : member.getName() );
+      jsonMeasure
+        .put( "qualifiedName", member.getQualifiedName().substring( 8, member.getQualifiedName().length() - 1 ) );
+      jsonMeasure.put( "memberType", member.getMemberType().toString() );
+
+      membersArray.add( jsonMeasure );
+
+    }
+
+    JSONObject output = new JSONObject();
+    output.put( "members", membersArray );
+    output.put( "more", nextPage );
+    return output;
 
   }
 

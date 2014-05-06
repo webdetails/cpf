@@ -1,6 +1,6 @@
 /*!
-* Copyright 2002 - 2013 Webdetails, a Pentaho company.  All rights reserved.
-* 
+* Copyright 2002 - 2014 Webdetails, a Pentaho company.  All rights reserved.
+*
 * This software was developed by Webdetails and is provided under the terms
 * of the Mozilla Public License, Version 2.0, or any later version. You may not use
 * this file except in compliance with the license. If you need a copy of the license,
@@ -10,16 +10,15 @@
 * basis, WITHOUT WARRANTY OF ANY KIND, either express or  implied. Please refer to
 * the license for the specific language governing your rights and limitations.
 */
-
 package pt.webdetails.cpf.utils;
 
 import java.util.EnumMap;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.LogFactory;
+
+import pt.webdetails.cpf.repository.util.RepositoryHelper;
 
 /**
- *
- * @author Luís Paulo Silva
+ * Utilities class for creating MIME content type strings
  */
 public class MimeTypes {
     
@@ -48,13 +47,22 @@ public class MimeTypes {
     public enum FileType {
 
         JPG, JPEG, PNG, GIF, BMP, JS, CSS, HTML, HTM, XML,
-        SVG, PDF, TXT, DOC, DOCX, XLS, XLSX, PPT, PPTX, ZIP,CSV;
+        SVG, PDF, TXT, DOC, DOCX, XLS, XLSX, PPT, PPTX, ZIP, CSV,
+        CDA, CDFDE, WCDF, XCDF;
 
         public static FileType parse(String value) {
-            return valueOf(StringUtils.upperCase(value));
+            return parse(value, null);
         }
-        
-        
+
+        public static FileType parse(String value, FileType defaultType) {
+          try {
+            return valueOf(StringUtils.upperCase(value));
+          }
+          catch (IllegalArgumentException e) {
+            return defaultType;
+          }
+        }
+
     }
     
     protected static final EnumMap<FileType, String> mimeTypes = new EnumMap<FileType, String>(FileType.class);
@@ -80,24 +88,42 @@ public class MimeTypes {
         mimeTypes.put(FileType.CSV, CSV);
         mimeTypes.put(FileType.XML, XML);
         mimeTypes.put(FileType.TXT, PLAIN_TEXT);
+
+        // CTools types
+        mimeTypes.put( FileType.CDA, XML );
+        mimeTypes.put( FileType.CDFDE, JSON );
+        mimeTypes.put( FileType.XCDF, XML );
+        mimeTypes.put( FileType.WCDF, XML );
     }
 
     public static String getMimeType(String fileName) {
-        String[] fileNameSplit = StringUtils.split(fileName, '.');// fileName.split("\\.");
-        try {
-            return getMimeType(FileType.valueOf(fileNameSplit[fileNameSplit.length - 1].toUpperCase()));
-        } catch (Exception e) {
-            LogFactory.getLog(MimeTypes.class).error("Unrecognized extension", e);
-            return "";
-        }
+
+      String extension = RepositoryHelper.getExtension( fileName );
+      return getMimeTypeFromExt( extension );
+
+    }
+
+
+    /**
+     * 
+     * @param extension file extension, lowercase, no dot
+     * @return mimetype, defaults to unknown
+     */
+    public static String getMimeTypeFromExt( String extension) {
+      FileType type = FileType.parse( extension, null );
+      return getMimeType( type );
     }
 
     public static String getMimeType(FileType fileType) {
+      return getMimeType( fileType, "application/unknown");//TODO: default to plain text?
+    }
+
+    public static String getMimeType(FileType fileType, String defaultMimeType) {
         if (fileType == null) {
-            return null;
+            return defaultMimeType;
         }
         String mimeType = mimeTypes.get(fileType);
-        return mimeType == null ? "" : mimeType;
+        return mimeType == null ? defaultMimeType : mimeType;
     }
     
 }

@@ -13,6 +13,7 @@
 
 package pt.webdetails.cpf;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.commons.lang.StringUtils;
@@ -25,9 +26,7 @@ import org.dom4j.io.SAXReader;
 import org.json.JSONException;
 import org.json.JSONObject;
 import pt.webdetails.cpf.messaging.JsonSerializable;
-
-import pt.webdetails.cpf.repository.PentahoRepositoryAccess;
-import pt.webdetails.cpf.repository.IRepositoryAccess.FileAccess;
+import pt.webdetails.cpf.repository.api.IReadAccess;
 
 /**
  * Version checker for a standard marketplace plugin. Checks the local version
@@ -37,6 +36,7 @@ public abstract class VersionChecker {
 
     protected Log logger = LogFactory.getLog(this.getClass());
     protected PluginSettings settings;
+    protected static String VERSION_FILE = "version.xml";
 
     public VersionChecker(PluginSettings pluginSettings) {
         settings = pluginSettings;
@@ -69,13 +69,14 @@ public abstract class VersionChecker {
         return branches;
     }
 
+    /**
+     * Compares currently installed version with the latest from the same branch.
+     * @return {@link CheckVersionResponse}
+     */
     public CheckVersionResponse checkVersion() {
-
-        //get installed version
         Version installed = null;
         try {
-            Document versionXml = PentahoRepositoryAccess.getRepository().getResourceAsDocument("system/" + settings.getPluginSystemDir() + "version.xml", FileAccess.NONE);
-            installed = new Version(versionXml);
+            installed = getInstalledVersion();
         } catch (Exception e) {
             String msg = "Error attempting to read version.xml";
             logger.error(msg, e);
@@ -83,14 +84,12 @@ public abstract class VersionChecker {
         }
 
         String url = getVersionCheckUrl(installed.getBranch());
-
         if (url == null) {
             String msg = "No URL found for this version.";
             logger.info(msg);
-
+            SAXReader reader = new SAXReader();
             Version latest = null;
             try {
-                SAXReader reader = new SAXReader();
                 Document versionXml = reader.read(getVersionCheckUrl(Branch.STABLE));
                 latest = new Version(versionXml);
             } catch (DocumentException e) {
@@ -117,26 +116,38 @@ public abstract class VersionChecker {
         } else {
             return new CheckVersionResponse(CheckVersionResponse.Type.LATEST, null, null);
         }
-
     }
 
     public String getVersion() {
-        Version installed = null;
-        try {
-            Document versionXml = PentahoRepositoryAccess.getRepository().getResourceAsDocument("system/" + settings.getPluginSystemDir() + "version.xml", FileAccess.NONE);
-            installed = new Version(versionXml);
-            return installed.toString(); //getShortVersion();
-        } catch (Exception e) {
-            String msg = "Error attempting to read version.xml";
-            logger.error(msg, e);
-            return "unknown version";
-        }
+      try {
+          Version installed = getInstalledVersion();
+          return installed.toString(); //getShortVersion();
+      } catch (Exception e) {
+          String msg = "Error attempting to read version.xml";
+          logger.error(msg, e);
+          return "unknown version";
+      }
     }
 
     /* public methods *
      ******************/
 
+    private Version getInstalledVersion() throws DocumentException, IOException {
+      Version installed = null;
+      IReadAccess systemDir = PluginEnvironment.repository().getPluginSystemReader(null);
+      SAXReader reader = new SAXReader();
+      Document versionXml = reader.read(systemDir.getFileInputStream(VERSION_FILE));
+      installed = new Version(versionXml);
+      return installed;
+    }
 
+    /**
+     * JSON result, {@code type} indicates what other info is available:<br>
+     * latest: <br>
+     * update: downloadUrl<br>
+     * error: msg<br>
+     * inconclusive: msg, downloadUrl<br>
+     */
     public static class CheckVersionResponse implements JsonSerializable {
 
         public CheckVersionResponse(Type responseType, String message, String downloadUrl) {
@@ -225,8 +236,6 @@ public abstract class VersionChecker {
             if (downloadUrl == null) {
                 downloadUrl = getStringValue(versionNode, "downloadUrl", null);
             }
-
-
             //TODO:check if parse was valid
         }
 
@@ -256,6 +265,8 @@ public abstract class VersionChecker {
                         return this.version.compareTo(other.version) < 0;
                     case TRUNK:
                         return this.buildId.compareTo(other.buildId) < 0;
+                    default:
+                        return false; //was implicit
                 }
             }
             return false;

@@ -15,9 +15,15 @@ package pt.webdetails.cpf.http;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+
 import org.pentaho.platform.api.engine.IParameterProvider;
 
+/**
+ * @deprecated
+ */
 public class PentahoParameterProvider implements ICommonParameterProvider {
   private final IParameterProvider provider;
 
@@ -74,6 +80,27 @@ public class PentahoParameterProvider implements ICommonParameterProvider {
   @Override
   public boolean hasParameter(String string) {
     return provider.hasParameter(string);
+  }
+
+
+  public Map<String, Object> getParameters() {
+	
+	  Map<String,Object> params = new HashMap<String,Object>();
+	  
+	  if(provider == null){
+		  return params;
+	  }
+	  
+	@SuppressWarnings("unchecked")
+	Iterator<String> names = provider.getParameterNames();
+
+	  while (names.hasNext()) {
+	      String name = names.next();
+	      Object value = provider.getParameter(name);
+	      params.put(name, value);
+	  }
+
+    return params;
   }
   
 }
