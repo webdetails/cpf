@@ -6,8 +6,10 @@ package pt.webdetails.cpf;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URLDecoder;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -270,6 +272,36 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
     }
     protected IParameterProvider getPathParameters(){
       return parameterProviders.get("path");
+    }
+
+    protected String getRequestParameterAsString( String parameter, String defaultValue ) throws UnsupportedEncodingException {
+      return getRequestParameterAsString( parameter, defaultValue, CharsetHelper.getEncoding() );
+    }
+
+    protected String getRequestParameterAsString( String parameter, String defaultValue, String encoding )
+      throws UnsupportedEncodingException {
+
+      String enc = StringUtils.isEmpty( encoding ) ? CharsetHelper.getEncoding() : encoding;
+
+      if( getRequestParameters() != null && getRequestParameters().hasParameter( parameter ) ){
+        return URLDecoder.decode( getRequestParameters().getStringParameter( parameter, defaultValue ) );
+      }
+      return defaultValue;
+    }
+
+    protected String getPathParameterAsString( String parameter, String defaultValue ) throws UnsupportedEncodingException {
+      return getPathParameterAsString( parameter, defaultValue, CharsetHelper.getEncoding() );
+    }
+
+    protected String getPathParameterAsString( String parameter, String defaultValue, String encoding )
+      throws UnsupportedEncodingException {
+
+      String enc = StringUtils.isEmpty( encoding ) ? CharsetHelper.getEncoding() : encoding;
+
+      if( getPathParameters() != null && getPathParameters().hasParameter( parameter ) ){
+        return URLDecoder.decode( getPathParameters().getStringParameter( parameter, defaultValue ), enc );
+      }
+      return defaultValue;
     }
     
     protected String getDefaultPath(String path){
