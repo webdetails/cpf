@@ -284,7 +284,7 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
       String enc = StringUtils.isEmpty( encoding ) ? CharsetHelper.getEncoding() : encoding;
 
       if( getRequestParameters() != null && getRequestParameters().hasParameter( parameter ) ){
-        return URLDecoder.decode( getRequestParameters().getStringParameter( parameter, defaultValue ) );
+        return URLDecoder.decode( getRequestParameters().getStringParameter( parameter, defaultValue ), enc );
       }
       return defaultValue;
     }
