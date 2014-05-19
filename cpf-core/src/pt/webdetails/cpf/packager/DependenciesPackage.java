@@ -4,7 +4,9 @@
 
 package pt.webdetails.cpf.packager;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import pt.webdetails.cpf.packager.dependencies.CssMinifiedDependency;
@@ -167,7 +169,72 @@ public class DependenciesPackage {
       return format.filter( packagedDependency.getDependencyInclude() );
     }
   }
+  
+  /**
+   * Get references to the dependencies according to files.
+   * @param isPackaged if to return a single compressed file
+   * @param files the dependency files we want to include
+   * @return script or link tag with file references
+   */
+  public String getDependencies(boolean isPackaged, IDependencyInclusionFilter filter) {
+    return getDependencies( getDefaultStringFilter( type ), isPackaged, filter );
+  }
 
+  /**
+   * Get references to the dependencies that match the values of files with customized output.
+   * @param format receives file path strings
+   * @param isPackaged if to return a single compressed file
+   * @param files the dependency files we want to include
+   * @return script or link tag with file references
+   */
+  public String getDependencies(StringFilter format, boolean isPackaged, IDependencyInclusionFilter filter) {
+    return isPackaged ?
+        getPackagedDependency( format, filter ):
+        getUnpackagedDependencies( format, filter );
+  }
+  
+  public String getUnpackagedDependencies( StringFilter format, IDependencyInclusionFilter filter ) {
+    StringBuilder sb = new StringBuilder();
+    sb.append( "\n" );
+    // build customDependecies according to component types needed
+    for ( FileDependency dep : fileDependencies.values() ) {
+      if (filter.include( dep.getUrlFilePath() ) ) {
+        sb.append( format.filter( dep.getDependencyInclude() ) );
+      }
+    }
+    return sb.toString();
+  }
+
+  protected String getPackagedDependency( StringFilter format, IDependencyInclusionFilter filter ) {
+    Map<String,FileDependency> customDependencies = new LinkedHashMap<String,FileDependency>();
+    // build customDependecies according to component types needed
+    for ( FileDependency dep : fileDependencies.values() ) {
+      if (filter.include( dep.getUrlFilePath() ) ) {
+        customDependencies.put( dep.getDependencyInclude(), dep );
+      }
+    }
+    String packagedPath = name + "." + type.toString().toLowerCase();
+    String baseDir = type.toString().toLowerCase();
+    IRWAccess writer = factory.getPluginSystemWriter( baseDir );
+    PathOrigin origin = new StaticSystemOrigin( baseDir );
+    switch ( type ) {
+      case CSS:
+        return format.filter( new CssMinifiedDependency( origin, packagedPath, writer, customDependencies.values(), urlProvider ).getDependencyInclude() );
+      case JS:
+        return format.filter( new JsMinifiedDependency( origin, packagedPath, writer, customDependencies.values(), urlProvider ).getDependencyInclude() );
+      default:
+        throw new IllegalStateException( getClass().getSimpleName() + " does not have a recognized type: " + type );
+    }
+  }
+  
+  public PackageType getType(){
+    return type;
+  }
+  
+  public interface IDependencyInclusionFilter{
+    public boolean include( String dependency );
+  }
+  
   public StringFilter getDefaultFilter() {
     return getDefaultStringFilter( this.type );
   }
