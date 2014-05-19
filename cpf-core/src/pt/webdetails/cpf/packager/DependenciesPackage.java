@@ -4,9 +4,7 @@
 
 package pt.webdetails.cpf.packager;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import pt.webdetails.cpf.packager.dependencies.CssMinifiedDependency;
