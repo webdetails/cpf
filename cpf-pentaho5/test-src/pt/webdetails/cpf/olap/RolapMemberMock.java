@@ -13,28 +13,40 @@
 
 package pt.webdetails.cpf.olap;
 
-import javax.sql.DataSource;
+import mondrian.rolap.RolapMemberBase;
 
-import org.pentaho.platform.api.data.IDBDatasourceService;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
+public class RolapMemberMock extends RolapMemberBase {
 
 
-/**
- * @author pedro
- */
-public class OlapUtils extends AbstractOlapUtils {
+  private String name, qualifiedName, caption;
+  private MemberType memberType;
+
+  public RolapMemberMock( String name, String qualifiedName, String caption, MemberType memberType ) {
+    this.name = name;
+    this.qualifiedName = qualifiedName;
+    this.caption = caption;
+    this.memberType = memberType;
+  }
 
 
   @Override
-  protected String getJndiFromCatalog( MondrianCatalog catalog ) {
-    return catalog.getJndi();
+  public String getName() {
+    return this.name;
   }
 
   @Override
-  protected DataSource getDatasourceImpl( String dataSourceName ) throws Exception {
-    IDBDatasourceService datasourceService = PentahoSystem.getObjectFactory().get( IDBDatasourceService.class, null );
-    return datasourceService.getDataSource( dataSourceName );
+  public String getQualifiedName() {
+    return this.qualifiedName;
+  }
+
+  @Override
+  public String getCaption() {
+    return this.caption;
+  }
+
+  @Override
+  public MemberType getMemberType() {
+    return this.memberType;
   }
 
 }
