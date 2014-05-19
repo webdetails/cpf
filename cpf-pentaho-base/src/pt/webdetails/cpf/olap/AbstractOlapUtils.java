@@ -49,7 +49,7 @@ import javax.sql.DataSource;
 
 public abstract class AbstractOlapUtils {
 
-  protected static Log logger = LogFactory.getLog(AbstractOlapUtils.class);
+  protected static Log logger = LogFactory.getLog( AbstractOlapUtils.class );
   protected IPentahoSession userSession;
   ICacheManager cacheManager;
   boolean cachingAvailable;
@@ -71,24 +71,24 @@ public abstract class AbstractOlapUtils {
 
   public JSONObject getOlapCubes() throws JSONException {
 
-    logger.debug("Returning Olap cubes");
+    logger.debug( "Returning Olap cubes" );
 
     JSONObject result = new JSONObject();
     JSONArray catalogsArray = new JSONArray();
 
     List<MondrianCatalog> catalogList = getMondrianCatalogs();
-    for (MondrianCatalog catalog : catalogList) {
+    for ( MondrianCatalog catalog : catalogList ) {
       JSONObject catalogJson = new JSONObject();
-      catalogJson.put("name", catalog.getName());
-      catalogJson.put("schema", catalog.getDefinition());
-      catalogJson.put("jndi", getJndiFromCatalog( catalog ));
-      catalogJson.put("cubes", createJsonArrayFromCollection( catalog.getSchema().getCubes() ));
+      catalogJson.put( "name", catalog.getName() );
+      catalogJson.put( "schema", catalog.getDefinition() );
+      catalogJson.put( "jndi", getJndiFromCatalog( catalog ) );
+      catalogJson.put( "cubes", createJsonArrayFromCollection( catalog.getSchema().getCubes() ) );
       catalogsArray.put( catalogJson );
     }
 
-    logger.debug("Cubes found: " + catalogsArray.toString(2));
+    logger.debug( "Cubes found: " + catalogsArray.toString( 2 ) );
 
-    result.put("catalogs", catalogsArray);
+    result.put( "catalogs", catalogsArray );
     return result;
 
   }
@@ -96,84 +96,87 @@ public abstract class AbstractOlapUtils {
   private JSONArray createJsonArrayFromCollection( List objects ) throws JSONException {
     JSONArray jsonArray = new JSONArray();
     for ( Object obj : objects ) {
-      jsonArray.put( new JSONObject(obj) );
+      jsonArray.put( new JSONObject( obj ) );
     }
     return jsonArray;
   }
 
-  public JSONObject getCubeStructure(String catalog, String cube, String jndi) throws JSONException {
+  public JSONObject getCubeStructure( String catalog, String cube, String jndi ) throws JSONException {
 
-    logger.debug("Returning Olap structure for cube " + cube);
+    logger.debug( "Returning Olap structure for cube " + cube );
     JSONObject result = new JSONObject();
 
-    Connection connection = jndi != null ? getMdxConnection(catalog, jndi) : getMdxConnection(catalog);
+    Connection connection = jndi != null ? getMdxConnection( catalog, jndi ) : getMdxConnection( catalog );
 
-    if (connection == null) {
-      logger.error("Failed to get valid connection");
+    if ( connection == null ) {
+      logger.error( "Failed to get valid connection" );
       return null;
     }
 
-    JSONArray dimensionsArray = getDimensions(connection, cube);
-    System.out.println(dimensionsArray.toString(2));
-    result.put("dimensions", dimensionsArray);
+    JSONArray dimensionsArray = getDimensions( connection, cube );
+    System.out.println( dimensionsArray.toString( 2 ) );
+    result.put( "dimensions", dimensionsArray );
 
-    JSONArray measuresArray = getMeasures(connection, cube);
-    System.out.println(measuresArray.toString(2));
-    result.put("measures", measuresArray);
+    JSONArray measuresArray = getMeasures( connection, cube );
+    System.out.println( measuresArray.toString( 2 ) );
+    result.put( "measures", measuresArray );
 
     return result;
   }
 
-  private JSONArray getDimensions(Connection connection, String cube) throws JSONException {
+  private JSONArray getDimensions( Connection connection, String cube ) throws JSONException {
 
     String query = "select {} ON Rows,  {} ON Columns from [" + cube + "]";
-    Query mdxQuery = connection.parseQuery(query);
+    Query mdxQuery = connection.parseQuery( query );
 
     Dimension[] dimensions = mdxQuery.getCube().getDimensions();
 
     JSONArray dimensionsArray = new JSONArray();
 
-    for (Dimension dimension : dimensions) {
-      if (dimension.isMeasures()) {
+    for ( Dimension dimension : dimensions ) {
+      if ( dimension.isMeasures() ) {
         continue;
       }
 
       JSONObject jsonDimension = new JSONObject();
-      jsonDimension.put("name", dimension.getName());
-      jsonDimension.put("caption", dimension.getCaption().isEmpty() ? dimension.getName() : dimension.getCaption());
-      jsonDimension.put("type", dimension.getDimensionType().name());
+      jsonDimension.put( "name", dimension.getName() );
+      jsonDimension.put( "caption", dimension.getCaption().isEmpty() ? dimension.getName() : dimension.getCaption() );
+      jsonDimension.put( "type", dimension.getDimensionType().name() );
 
       // Hierarchies
       JSONArray hierarchiesArray = new JSONArray();
       Hierarchy[] hierarchies = dimension.getHierarchies();
-      for (Hierarchy hierarchy : hierarchies) {
+      for ( Hierarchy hierarchy : hierarchies ) {
         JSONObject jsonHierarchy = new JSONObject();
-        jsonHierarchy.put("type", "hierarchy");
-        jsonHierarchy.put("name", hierarchy.getName());
-        jsonHierarchy.put("caption", hierarchy.getCaption().isEmpty() ? hierarchy.getName() : hierarchy.getCaption());
-        jsonHierarchy.put("qualifiedName", hierarchy.getQualifiedName().substring(11, hierarchy.getQualifiedName().length() - 1));
-        jsonHierarchy.put("defaultMember", hierarchy.getAllMember().getName());
-        jsonHierarchy.put("defaultMemberQualifiedName", hierarchy.getAllMember().getQualifiedName().substring(8, hierarchy.getAllMember().getQualifiedName().length() - 1));
+        jsonHierarchy.put( "type", "hierarchy" );
+        jsonHierarchy.put( "name", hierarchy.getName() );
+        jsonHierarchy.put( "caption", hierarchy.getCaption().isEmpty() ? hierarchy.getName() : hierarchy.getCaption() );
+        jsonHierarchy.put( "qualifiedName",
+            hierarchy.getQualifiedName().substring( 11, hierarchy.getQualifiedName().length() - 1 ) );
+        jsonHierarchy.put( "defaultMember", hierarchy.getAllMember().getName() );
+        jsonHierarchy.put( "defaultMemberQualifiedName", hierarchy.getAllMember().getQualifiedName()
+            .substring( 8, hierarchy.getAllMember().getQualifiedName().length() - 1 ) );
 
         // Levels
         JSONArray levelsArray = new JSONArray();
         Level[] levels = hierarchy.getLevels();
-        for (Level level : levels) {
+        for ( Level level : levels ) {
           JSONObject jsonLevel = new JSONObject();
-          if (!level.isAll()) {
-            jsonLevel.put("type", "level");
-            jsonLevel.put("depth", level.getDepth());
-            jsonLevel.put("name", level.getName());
-            jsonLevel.put("caption", level.getCaption().isEmpty() ? level.getName() : level.getCaption());
-            jsonLevel.put("qualifiedName", level.getQualifiedName().substring(7, level.getQualifiedName().length() - 1));
+          if ( !level.isAll() ) {
+            jsonLevel.put( "type", "level" );
+            jsonLevel.put( "depth", level.getDepth() );
+            jsonLevel.put( "name", level.getName() );
+            jsonLevel.put( "caption", level.getCaption().isEmpty() ? level.getName() : level.getCaption() );
+            jsonLevel
+                .put( "qualifiedName", level.getQualifiedName().substring( 7, level.getQualifiedName().length() - 1 ) );
             levelsArray.put( jsonLevel );
           }
         }
-        jsonHierarchy.put("levels", levelsArray);
+        jsonHierarchy.put( "levels", levelsArray );
 
         hierarchiesArray.put( jsonHierarchy );
       }
-      jsonDimension.put("hierarchies", hierarchiesArray);
+      jsonDimension.put( "hierarchies", hierarchiesArray );
 
       dimensionsArray.put( jsonDimension );
     }
@@ -182,24 +185,27 @@ public abstract class AbstractOlapUtils {
 
   }
 
-  public JSONArray getMeasures(Connection connection, String cube) throws JSONException {
+  public JSONArray getMeasures( Connection connection, String cube ) throws JSONException {
 
     String query = "select {Measures.Children} ON Rows,  {} ON Columns from [" + cube + "]";
-    Query mdxQuery = connection.parseQuery(query);
-    RolapResult result = (RolapResult) connection.execute(mdxQuery);
+    Query mdxQuery = connection.parseQuery( query );
+    RolapResult result = (RolapResult) connection.execute( mdxQuery );
     //adding this to be able to make tests
     List<RolapMember> rolapMembers = getMeasuresMembersFromResult( result );
 
     JSONArray measuresArray = new JSONArray();
 
-    for (RolapMember measure : rolapMembers) {
+    for ( RolapMember measure : rolapMembers ) {
 
       JSONObject jsonMeasure = new JSONObject();
-      jsonMeasure.put("type", "measure");
-      jsonMeasure.put("name", ((RolapMemberBase) measure).getName());
-      jsonMeasure.put("caption", ((RolapMemberBase) measure).getCaption().isEmpty() ? ((RolapMemberBase) measure).getName() : ((RolapMemberBase) measure).getCaption());
-      jsonMeasure.put("qualifiedName", measure.getQualifiedName().substring(8, measure.getQualifiedName().length() - 1));
-      jsonMeasure.put("memberType", measure.getMemberType().toString());
+      jsonMeasure.put( "type", "measure" );
+      jsonMeasure.put( "name", ( (RolapMemberBase) measure ).getName() );
+      jsonMeasure.put( "caption",
+          ( (RolapMemberBase) measure ).getCaption().isEmpty() ? ( (RolapMemberBase) measure ).getName() :
+              ( (RolapMemberBase) measure ).getCaption() );
+      jsonMeasure
+          .put( "qualifiedName", measure.getQualifiedName().substring( 8, measure.getQualifiedName().length() - 1 ) );
+      jsonMeasure.put( "memberType", measure.getMemberType().toString() );
 
       measuresArray.put( jsonMeasure );
 
@@ -210,40 +216,40 @@ public abstract class AbstractOlapUtils {
   }
 
 
-  protected Connection getMdxConnection(String catalog) {
+  protected Connection getMdxConnection( String catalog ) {
 
-    if (catalog != null && catalog.startsWith("/")) {
-      catalog = StringUtils.substring(catalog, 1);
+    if ( catalog != null && catalog.startsWith( "/" ) ) {
+      catalog = StringUtils.substring( catalog, 1 );
     }
 
-    MondrianCatalog selectedCatalog = mondrianCatalogService.getCatalog(catalog, userSession);
-    if (selectedCatalog == null) {
-      logger.error("Received catalog '" + catalog + "' doesn't appear to be valid");
+    MondrianCatalog selectedCatalog = mondrianCatalogService.getCatalog( catalog, userSession );
+    if ( selectedCatalog == null ) {
+      logger.error( "Received catalog '" + catalog + "' doesn't appear to be valid" );
       return null;
     }
     selectedCatalog.getDataSourceInfo();
-    logger.info("Found catalog " + selectedCatalog.toString());
+    logger.info( "Found catalog " + selectedCatalog.toString() );
 
     String connectStr = "provider=mondrian;dataSource=" + getJndiFromCatalog( selectedCatalog )
         + "; Catalog=" + selectedCatalog.getDefinition();
 
-    return getMdxConnectionFromConnectionString(connectStr);
+    return getMdxConnectionFromConnectionString( connectStr );
   }
 
-  private Connection getMdxConnection(String catalog, String jndi) {
+  private Connection getMdxConnection( String catalog, String jndi ) {
 
     String connectStr = "provider=mondrian;dataSource=" + jndi + "; Catalog=" + catalog;
 
-    return getMdxConnectionFromConnectionString(connectStr);
+    return getMdxConnectionFromConnectionString( connectStr );
   }
 
-  protected Connection getMdxConnectionFromConnectionString(String connectStr) {
+  protected Connection getMdxConnectionFromConnectionString( String connectStr ) {
 
-    Util.PropertyList properties = Util.parseConnectString(connectStr);
+    Util.PropertyList properties = Util.parseConnectString( connectStr );
     try {
-      String dataSourceName = properties.get(RolapConnectionProperties.DataSource.name());
+      String dataSourceName = properties.get( RolapConnectionProperties.DataSource.name() );
 
-      if (dataSourceName != null) {
+      if ( dataSourceName != null ) {
         DataSource dataSourceImpl = getDatasourceImpl( dataSourceName );
         if ( dataSourceImpl != null ) {
           properties.remove( RolapConnectionProperties.DataSource.name() );
@@ -252,17 +258,15 @@ public abstract class AbstractOlapUtils {
           nativeConnection = DriverManager.getConnection( properties, null );
         }
       } else {
-        nativeConnection = DriverManager.getConnection(properties, null);
+        nativeConnection = DriverManager.getConnection( properties, null );
       }
 
-      if (nativeConnection == null) {
-        logger.error("Invalid connection: " + connectStr);
+      if ( nativeConnection == null ) {
+        logger.error( "Invalid connection: " + connectStr );
       }
-    } catch (Throwable t) {
-      logger.error("Invalid connection: " + connectStr + " - " + t.toString());
+    } catch ( Throwable t ) {
+      logger.error( "Invalid connection: " + connectStr + " - " + t.toString() );
     }
-
-
 
     return nativeConnection;
   }
@@ -272,55 +276,57 @@ public abstract class AbstractOlapUtils {
 
     List<MondrianCatalog> catalogs = null;
 
-    if (cachingAvailable
-        && (catalogs = (List<MondrianCatalog>) cacheManager.getFromSessionCache(
-        userSession, MONDRIAN_CATALOGS)) != null) {
-      logger.debug("Datasource document found in cache");
+    if ( cachingAvailable
+        && ( catalogs = (List<MondrianCatalog>) cacheManager.getFromSessionCache(
+        userSession, MONDRIAN_CATALOGS ) ) != null ) {
+      logger.debug( "Datasource document found in cache" );
       return catalogs;
     } else {
 
-      catalogs = mondrianCatalogService.listCatalogs(userSession, true);
-      cacheManager.putInSessionCache(userSession, MONDRIAN_CATALOGS, catalogs);
+      catalogs = mondrianCatalogService.listCatalogs( userSession, true );
+      cacheManager.putInSessionCache( userSession, MONDRIAN_CATALOGS, catalogs );
 
     }
 
     return catalogs;
   }
 
-  public JSONObject getLevelMembersStructure(String catalog, String cube, String memberString, String direction) throws JSONException {
+  public JSONObject getLevelMembersStructure( String catalog, String cube, String memberString, String direction )
+      throws JSONException {
 
-    Connection connection = getMdxConnection(catalog);
+    Connection connection = getMdxConnection( catalog );
 
     String query = "";
-    if (direction.equals(DIRECTION_DOWN)) {
+    if ( direction.equals( DIRECTION_DOWN ) ) {
       query = "select " + memberString + ".children on Rows, {} ON Columns from [" + cube + "]";
     } else {
       query = "select " + memberString + ".parent.parent.children on Rows, {} ON Columns from [" + cube + "]";
     }
 
-    Query mdxQuery = connection.parseQuery(query);
-    RolapResult result = (RolapResult) connection.execute(mdxQuery);
+    Query mdxQuery = connection.parseQuery( query );
+    RolapResult result = (RolapResult) connection.execute( mdxQuery );
     List<Position> positions = result.getAxes()[1].getPositions();
 
     JSONArray membersArray = new JSONArray();
 
-    for (Position position : positions) {
+    for ( Position position : positions ) {
 
-      Member member = position.get(0);
+      Member member = position.get( 0 );
 
       JSONObject jsonMeasure = new JSONObject();
-      jsonMeasure.put("type", "member");
-      jsonMeasure.put("name", member.getName());
-      jsonMeasure.put("caption", member.getCaption().isEmpty() ? member.getName() : member.getCaption());
-      jsonMeasure.put("qualifiedName", member.getQualifiedName().substring(8, member.getQualifiedName().length() - 1));
-      jsonMeasure.put("memberType", member.getMemberType().toString());
+      jsonMeasure.put( "type", "member" );
+      jsonMeasure.put( "name", member.getName() );
+      jsonMeasure.put( "caption", member.getCaption().isEmpty() ? member.getName() : member.getCaption() );
+      jsonMeasure
+          .put( "qualifiedName", member.getQualifiedName().substring( 8, member.getQualifiedName().length() - 1 ) );
+      jsonMeasure.put( "memberType", member.getMemberType().toString() );
 
       membersArray.put( jsonMeasure );
 
     }
 
     JSONObject output = new JSONObject();
-    output.put("members", membersArray);
+    output.put( "members", membersArray );
     return output;
 
 
@@ -393,21 +399,20 @@ public abstract class AbstractOlapUtils {
 
   private void makeTest() {
 
-
     String catalog = "SteelWheels";
     String cube = "SteelWheelsSales";
-    Connection connection = getMdxConnection(catalog);
+    Connection connection = getMdxConnection( catalog );
 
-    String query = "select NON EMPTY {[Measures].[Quantity]} ON COLUMNS,  NON EMPTY  [Product].Children ON ROWS from [SteelWheelsSales] where [Markets].[All Markets].[EMEA]";
-    Query mdxQuery = connection.parseQuery(query);
+    String query =
+        "select NON EMPTY {[Measures].[Quantity]} ON COLUMNS,  NON EMPTY  [Product].Children ON ROWS from " +
+            "[SteelWheelsSales] where [Markets].[All Markets].[EMEA]";
+    Query mdxQuery = connection.parseQuery( query );
     MemberExpr member = (MemberExpr) mdxQuery.getSlicerAxis().getChildren()[0];
     member.getMember();
 
-
-
-    RolapResult result = (RolapResult) connection.execute(mdxQuery);
+    RolapResult result = (RolapResult) connection.execute( mdxQuery );
     List<RolapMember> rolapMembers = result.getCube().getMeasuresMembers();
-    System.out.println("Hello World");
+    System.out.println( "Hello World" );
 
 
   }
@@ -417,14 +422,14 @@ public abstract class AbstractOlapUtils {
   }
 
   protected ICacheManager getCacheManager() {
-    return PentahoSystem.getCacheManager(userSession);
+    return PentahoSystem.getCacheManager( userSession );
   }
 
   protected List<RolapMember> getMeasuresMembersFromResult( RolapResult result ) {
     return result.getCube().getMeasuresMembers();
   }
 
-  protected abstract String getJndiFromCatalog(MondrianCatalog catalog);
+  protected abstract String getJndiFromCatalog( MondrianCatalog catalog );
 
   protected abstract DataSource getDatasourceImpl( String dataSourceName ) throws Exception;
 
