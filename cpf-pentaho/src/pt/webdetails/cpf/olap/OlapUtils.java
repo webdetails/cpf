@@ -14,6 +14,7 @@
 package pt.webdetails.cpf.olap;
 
 import javax.sql.DataSource;
+
 import org.pentaho.platform.api.data.IDatasourceService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
@@ -29,7 +30,8 @@ public class OlapUtils extends AbstractOlapUtils {
     return catalog.getEffectiveDataSource().getJndi();
   }
 
-  @Override protected DataSource getDatasourceImpl( String dataSourceName ) throws Exception {
+  @Override
+  protected DataSource getDatasourceImpl( String dataSourceName ) throws Exception {
     IDatasourceService datasourceService = PentahoSystem.getObjectFactory().get( IDatasourceService.class, null );
     return datasourceService.getDataSource( dataSourceName );
   }
