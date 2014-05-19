@@ -171,7 +171,7 @@ public class DependenciesPackage {
   /**
    * Get references to the dependencies according to files.
    * @param isPackaged if to return a single compressed file
-   * @param files the dependency files we want to include
+   * @param filter used for validating the dependency files to be include
    * @return script or link tag with file references
    */
   public String getDependencies(boolean isPackaged, IDependencyInclusionFilter filter) {
@@ -182,7 +182,7 @@ public class DependenciesPackage {
    * Get references to the dependencies that match the values of files with customized output.
    * @param format receives file path strings
    * @param isPackaged if to return a single compressed file
-   * @param files the dependency files we want to include
+   * @param filter used for validating the dependency files to be include
    * @return script or link tag with file references
    */
   public String getDependencies(StringFilter format, boolean isPackaged, IDependencyInclusionFilter filter) {
