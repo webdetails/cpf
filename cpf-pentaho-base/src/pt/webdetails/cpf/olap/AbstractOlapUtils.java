@@ -54,7 +54,9 @@ public abstract class AbstractOlapUtils {
   ICacheManager cacheManager;
   boolean cachingAvailable;
   private static final String MONDRIAN_CATALOGS = "CDFDD_DATASOURCES_REPOSITORY_DOCUMENT";
-  private final IMondrianCatalogService mondrianCatalogService = MondrianCatalogHelper.getInstance();
+  protected final IMondrianCatalogService mondrianCatalogService = getMondrianCatalogService();
+
+
   Connection nativeConnection = null;
   String lastQuery = null;
 
@@ -62,9 +64,10 @@ public abstract class AbstractOlapUtils {
 
   public AbstractOlapUtils() {
     this.userSession = PentahoSessionHolder.getSession();
-    cacheManager = PentahoSystem.getCacheManager(userSession);
+    cacheManager = getCacheManager();
     cachingAvailable = cacheManager != null && cacheManager.cacheEnabled();
   }
+
 
   public JSONObject getOlapCubes() throws JSONException {
 
@@ -184,7 +187,8 @@ public abstract class AbstractOlapUtils {
     String query = "select {Measures.Children} ON Rows,  {} ON Columns from [" + cube + "]";
     Query mdxQuery = connection.parseQuery(query);
     RolapResult result = (RolapResult) connection.execute(mdxQuery);
-    List<RolapMember> rolapMembers = result.getCube().getMeasuresMembers();
+    //adding this to be able to make tests
+    List<RolapMember> rolapMembers = getMeasuresMembersFromResult( result );
 
     JSONArray measuresArray = new JSONArray();
 
@@ -205,7 +209,8 @@ public abstract class AbstractOlapUtils {
 
   }
 
-  private Connection getMdxConnection(String catalog) {
+
+  protected Connection getMdxConnection(String catalog) {
 
     if (catalog != null && catalog.startsWith("/")) {
       catalog = StringUtils.substring(catalog, 1);
@@ -232,7 +237,7 @@ public abstract class AbstractOlapUtils {
     return getMdxConnectionFromConnectionString(connectStr);
   }
 
-  private Connection getMdxConnectionFromConnectionString(String connectStr) {
+  protected Connection getMdxConnectionFromConnectionString(String connectStr) {
 
     Util.PropertyList properties = Util.parseConnectString(connectStr);
     try {
@@ -405,6 +410,18 @@ public abstract class AbstractOlapUtils {
     System.out.println("Hello World");
 
 
+  }
+
+  protected IMondrianCatalogService getMondrianCatalogService() {
+    return MondrianCatalogHelper.getInstance();
+  }
+
+  protected ICacheManager getCacheManager() {
+    return PentahoSystem.getCacheManager(userSession);
+  }
+
+  protected List<RolapMember> getMeasuresMembersFromResult( RolapResult result ) {
+    return result.getCube().getMeasuresMembers();
   }
 
   protected abstract String getJndiFromCatalog(MondrianCatalog catalog);
