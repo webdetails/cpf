@@ -108,8 +108,8 @@ public class DependenciesPackage {
    */
   public String getDependencies(StringFilter format, boolean isPackaged) {
     return isPackaged ?
-        getPackagedDependency( format ):
-        getUnpackagedDependencies( format );
+        getPackagedDependency( format, null ):
+        getUnpackagedDependencies( format, null );
   }
 
   public String getRawDependencies(boolean isPackaged) {
@@ -132,40 +132,6 @@ public class DependenciesPackage {
 
   public String getName() {
     return name;
-  }
-
-  public String getUnpackagedDependencies( StringFilter format ) {
-    StringBuilder sb = new StringBuilder();
-    sb.append( "\n" );
-    // sb.append( "\t<!-- " + getName() + "-->\n" );
-    for ( Dependency dep : fileDependencies.values() ) {
-      sb.append( format.filter( dep.getDependencyInclude() ) );
-    }
-    return sb.toString();
-  }
-
-  protected String getPackagedDependency( StringFilter format ) {
-    synchronized ( packagingLock ) {
-      if ( packagedDependency == null ) {
-        String packagedPath = name + "." + type.toString().toLowerCase();
-        String baseDir = type.toString().toLowerCase();
-        IRWAccess writer = factory.getPluginSystemWriter( baseDir );
-        PathOrigin origin = new StaticSystemOrigin( baseDir );
-        switch ( type ) {
-          case CSS:
-            packagedDependency =
-                new CssMinifiedDependency( origin, packagedPath, writer, fileDependencies.values(), urlProvider );
-            break;
-          case JS:
-            packagedDependency =
-                new JsMinifiedDependency( origin, packagedPath, writer, fileDependencies.values(), urlProvider );
-            break;
-          default:
-            throw new IllegalStateException( getClass().getSimpleName() + " does not have a recognized type: " + type );
-        }
-      }
-      return format.filter( packagedDependency.getDependencyInclude() );
-    }
   }
   
   /**
@@ -194,9 +160,16 @@ public class DependenciesPackage {
   public String getUnpackagedDependencies( StringFilter format, IDependencyInclusionFilter filter ) {
     StringBuilder sb = new StringBuilder();
     sb.append( "\n" );
-    // build customDependecies according to component types needed
-    for ( FileDependency dep : fileDependencies.values() ) {
-      if (filter.include( dep.getUrlFilePath() ) ) {
+    if ( filter != null ){
+      // return dashboard component dependencies
+      for ( FileDependency dep : fileDependencies.values() ) {
+        if (filter.include( dep ) ) {
+          sb.append( format.filter( dep.getDependencyInclude() ) );
+        }
+      }
+    } else {
+      // return all dependencies
+      for ( Dependency dep : fileDependencies.values() ) {
         sb.append( format.filter( dep.getDependencyInclude() ) );
       }
     }
@@ -204,24 +177,49 @@ public class DependenciesPackage {
   }
 
   protected String getPackagedDependency( StringFilter format, IDependencyInclusionFilter filter ) {
-    Map<String,FileDependency> customDependencies = new LinkedHashMap<String,FileDependency>();
-    // build customDependecies according to component types needed
-    for ( FileDependency dep : fileDependencies.values() ) {
-      if (filter.include( dep.getUrlFilePath() ) ) {
-        customDependencies.put( dep.getDependencyInclude(), dep );
+    if ( filter != null ) {
+      // return minified dashboard component dependencies
+      Map<String,FileDependency> customDependencies = new LinkedHashMap<String,FileDependency>();
+      for ( FileDependency dep : fileDependencies.values() ) {
+        if (filter.include( dep ) ) {
+          customDependencies.put( dep.getDependencyInclude(), dep );
+        }
       }
-    }
-    String packagedPath = name + "." + type.toString().toLowerCase();
-    String baseDir = type.toString().toLowerCase();
-    IRWAccess writer = factory.getPluginSystemWriter( baseDir );
-    PathOrigin origin = new StaticSystemOrigin( baseDir );
-    switch ( type ) {
-      case CSS:
-        return format.filter( new CssMinifiedDependency( origin, packagedPath, writer, customDependencies.values(), urlProvider ).getDependencyInclude() );
-      case JS:
-        return format.filter( new JsMinifiedDependency( origin, packagedPath, writer, customDependencies.values(), urlProvider ).getDependencyInclude() );
-      default:
-        throw new IllegalStateException( getClass().getSimpleName() + " does not have a recognized type: " + type );
+      String packagedPath = name + "." + type.toString().toLowerCase();
+      String baseDir = type.toString().toLowerCase();
+      IRWAccess writer = factory.getPluginSystemWriter( baseDir );
+      PathOrigin origin = new StaticSystemOrigin( baseDir );
+      switch ( type ) {
+        case CSS:
+          return format.filter( new CssMinifiedDependency( origin, packagedPath, writer, customDependencies.values(), urlProvider ).getDependencyInclude() );
+        case JS:
+          return format.filter( new JsMinifiedDependency( origin, packagedPath, writer, customDependencies.values(), urlProvider ).getDependencyInclude() );
+        default:
+          throw new IllegalStateException( getClass().getSimpleName() + " does not have a recognized type: " + type );
+      }
+    } else {
+      // set packagedDependency if null and/or return all dependencies minified
+      synchronized ( packagingLock ) {
+        if ( packagedDependency == null ) {
+          String packagedPath = name + "." + type.toString().toLowerCase();
+          String baseDir = type.toString().toLowerCase();
+          IRWAccess writer = factory.getPluginSystemWriter( baseDir );
+          PathOrigin origin = new StaticSystemOrigin( baseDir );
+          switch ( type ) {
+            case CSS:
+              packagedDependency =
+                  new CssMinifiedDependency( origin, packagedPath, writer, fileDependencies.values(), urlProvider );
+              break;
+            case JS:
+              packagedDependency =
+                  new JsMinifiedDependency( origin, packagedPath, writer, fileDependencies.values(), urlProvider );
+              break;
+            default:
+              throw new IllegalStateException( getClass().getSimpleName() + " does not have a recognized type: " + type );
+          }
+        }
+        return format.filter( packagedDependency.getDependencyInclude() );
+      }
     }
   }
   
@@ -230,7 +228,7 @@ public class DependenciesPackage {
   }
   
   public interface IDependencyInclusionFilter{
-    public boolean include( String dependency );
+    public boolean include( Dependency dependency );
   }
   
   public StringFilter getDefaultFilter() {
