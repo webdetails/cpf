@@ -5,10 +5,11 @@
 package pt.webdetails.cpf.packager;
 
 /**
- *
  * @author pdpi
  */
 public interface StringFilter {
 
-   String filter(String input);
+  String filter( String input );
+
+  String filter( String input, String absRoot );
 }
