@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
@@ -21,7 +22,7 @@ import pt.webdetails.cpf.repository.util.RepositoryHelper;
 public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment implements IContentAccessFactory {
 
   private static final PentahoPluginEnvironment instance = new PentahoPluginEnvironment();
-  
+
   static {
     PluginEnvironment.init( instance );
   }
@@ -30,23 +31,21 @@ public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment imple
     return instance;
   }
 
-
   @Override
-  public IUserContentAccess getUserContentAccess(String basePath) {
-    return new PentahoLegacyUserContentAccess(basePath, PentahoSessionHolder.getSession());
+  public IUserContentAccess getUserContentAccess( String basePath ) {
+    return new PentahoLegacyUserContentAccess( basePath, PentahoSessionHolder.getSession() );
   }
 
   @Override
-  public IReadAccess getPluginRepositoryReader(String basePath) {
-    basePath = RepositoryHelper.appendPath(getPluginRepositoryDir(), basePath);
-    return new PluginLegacySolutionResourceAccess(basePath);
+  public IReadAccess getPluginRepositoryReader( String basePath ) {
+    basePath = RepositoryHelper.appendPath( getPluginRepositoryDir(), basePath );
+    return new PluginLegacySolutionResourceAccess( basePath );
   }
 
-
   @Override
-  public IRWAccess getPluginRepositoryWriter(String basePath) {
-    basePath = RepositoryHelper.appendPath(getPluginRepositoryDir(), basePath);
-    return new PluginLegacySolutionResourceAccess(basePath);
+  public IRWAccess getPluginRepositoryWriter( String basePath ) {
+    basePath = RepositoryHelper.appendPath( getPluginRepositoryDir(), basePath );
+    return new PluginLegacySolutionResourceAccess( basePath );
   }
 
 
@@ -58,22 +57,22 @@ public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment imple
 
       @Override
       public String getPluginStaticBaseUrl() {
-        return getPluginStaticBaseUrl(getPluginId());
+        return getPluginStaticBaseUrl( getPluginId() );
       }
-      
+
       @Override
       public String getPluginStaticBaseUrl( String pluginId ) {
-        return Util.joinPath(getApplicationBaseUrl(), CONTENT, pluginId) + "/";
+        return Util.joinPath( getApplicationBaseUrl(), CONTENT, pluginId ) + "/";
       }
-      
+
       @Override
       public String getPluginBaseUrl() {
-        return getPluginBaseUrl(getPluginId());
+        return getPluginBaseUrl( getPluginId() );
       }
-      
+
       @Override
       public String getPluginBaseUrl( String pluginId ) {
-        return Util.joinPath(getApplicationBaseUrl(), CONTENT, pluginId) + "/";
+        return Util.joinPath( getApplicationBaseUrl(), CONTENT, pluginId ) + "/";
       }
 
       @SuppressWarnings( "deprecation" )
@@ -83,50 +82,65 @@ public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment imple
 
       @Override
       public String getRepositoryUrl( String fullPath ) {
-        return Util.joinPath( getApplicationBaseUrl(), CONTENT, getPluginId(), "res", fullPath );// TODO:repo!
+        return Util.joinPath( getApplicationBaseUrl(), CONTENT, getPluginId(), "res", fullPath );
+      }
+
+      @Override
+      public String getWebappContextPath() {
+        return PentahoRequestContextHolder.getRequestContext().getContextPath();
+      }
+
+      @Override
+      public String getWebappContextRoot() {
+        String url = PentahoSystem.getApplicationContext().getFullyQualifiedServerURL(),
+          webappName = getWebappContextPath();
+
+        return url.substring( 0, url.length() - webappName.length() + 1 );
       }
     };
   }
 
 
-   //FIXME
-    public IPluginCall getPluginCall( String pluginId, String servicePath, String method ) {
-      final PentahoInterPluginCall theRealCall = new PentahoInterPluginCall( new CorePlugin( pluginId ), method );
-      return new IPluginCall() {
+  //FIXME
+  public IPluginCall getPluginCall( String pluginId, String servicePath, String method ) {
+    final PentahoInterPluginCall theRealCall = new PentahoInterPluginCall( new CorePlugin( pluginId ), method );
+    return new IPluginCall() {
 
-        public void run( Map<String, String[]> params ) throws Exception {
-          theRealCall.setRequestParameters( convertParams( params ) );
-          theRealCall.run();
-        }
+      public void run( Map<String, String[]> params ) throws Exception {
+        theRealCall.setRequestParameters( convertParams( params ) );
+        theRealCall.run();
+      }
 
-        public InputStream getResult() {
-          return null;
-        }
+      public InputStream getResult() {
+        return null;
+      }
 
-        public boolean exists() {
-          return false;
-        }
-        
-        @Override
-        public String call( Map<String, String[]> params ) throws Exception {
-          theRealCall.setRequestParameters( convertParams( params ) );
-          return theRealCall.call();
-        }
-        
-        private Map<String, Object> convertParams(Map<String, String[]> params) {
-          HashMap<String, Object> map = new HashMap<String, Object>();
-          for (String key : params.keySet() ) {
-            String[] value = params.get( key );
-            if (value != null) {
-              if (value.length == 1) { map.put( key, value[0] ); }
-              else { map.put( key, value ); }
+      public boolean exists() {
+        return false;
+      }
+
+      @Override
+      public String call( Map<String, String[]> params ) throws Exception {
+        theRealCall.setRequestParameters( convertParams( params ) );
+        return theRealCall.call();
+      }
+
+      private Map<String, Object> convertParams( Map<String, String[]> params ) {
+        HashMap<String, Object> map = new HashMap<String, Object>();
+        for ( String key : params.keySet() ) {
+          String[] value = params.get( key );
+          if ( value != null ) {
+            if ( value.length == 1 ) {
+              map.put( key, value[ 0 ] );
+            } else {
+              map.put( key, value );
             }
           }
-          return map;
         }
-      };
-    }
-
+        return map;
+      }
+    };
+  }
 
 
 }
