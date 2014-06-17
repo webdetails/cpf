@@ -46,4 +46,15 @@ public interface IUrlProvider {
    */
   String getRepositoryUrl(String fullPath);//TODO: have others receive path as well?
 
+  /**
+   * @return the webapp name
+   */
+  String getWebappContextPath();
+
+  /**
+   * The server root. It removes the webapp name
+   * @return the webapp root
+   */
+  String getWebappContextRoot();
+
 }
