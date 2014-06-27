@@ -395,7 +395,8 @@ public abstract class UnifiedRepositoryAccess {
 
     if ( file.isFolder() ) {
       // TODO "FILES" doesn't seem to work here
-      for ( RepositoryFile actualFile : getRepository().getChildren( file.getId() ) ) {
+      for ( RepositoryFileTree actualFileTree : tree.getChildren() ) {
+        RepositoryFile actualFile = actualFileTree.getFile();
         if ( includeDirs || !actualFile.isFolder() ) {
           if ( !showHidden && actualFile.isHidden() ) {
             continue;
@@ -404,12 +405,10 @@ public abstract class UnifiedRepositoryAccess {
           if ( filter.accept( bFile ) && !hideSystemFile( actualFile ) ) {
             list.add( bFile );
           }
+          if ( actualFileTree.getChildren() != null ) {
+            populateList( list, actualFileTree, filter, includeDirs, showHidden );
+          }
         }
-      }
-    }
-    if ( tree.getChildren() != null ) {
-      for ( RepositoryFileTree branch : tree.getChildren() ) {
-        populateList( list, branch, filter, includeDirs, showHidden );
       }
     }
   }
