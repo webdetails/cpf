@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -97,7 +98,7 @@ public class PersistenceEngine implements IPersistenceEngine {
 
   private String getOrientPath() {
     return ( this.getClass().getClassLoader() instanceof PluginClassLoader )
-      ? PentahoSystem.getApplicationContext().getSolutionPath( "/system/.orient" ) : ".";
+      ? FilenameUtils.normalize( PentahoSystem.getApplicationContext().getSolutionPath( "/system/.orient" ), true ) : ".";
   }
 
   private void initialize() throws Exception {
