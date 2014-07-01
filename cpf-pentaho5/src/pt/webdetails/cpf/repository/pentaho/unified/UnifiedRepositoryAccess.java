@@ -405,9 +405,9 @@ public abstract class UnifiedRepositoryAccess {
           if ( filter.accept( bFile ) && !hideSystemFile( actualFile ) ) {
             list.add( bFile );
           }
-          if ( actualFileTree.getChildren() != null ) {
-            populateList( list, actualFileTree, filter, includeDirs, showHidden );
-          }
+        }
+        if ( actualFileTree.getChildren() != null ) {
+          populateList( list, actualFileTree, filter, includeDirs, showHidden );
         }
       }
     }
