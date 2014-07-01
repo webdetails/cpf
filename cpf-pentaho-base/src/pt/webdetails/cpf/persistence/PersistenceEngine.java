@@ -98,7 +98,7 @@ public class PersistenceEngine implements IPersistenceEngine {
 
   private String getOrientPath() {
     return ( this.getClass().getClassLoader() instanceof PluginClassLoader )
-      ? FilenameUtils.normalize( PentahoSystem.getApplicationContext().getSolutionPath( "/system/.orient" ), true ) : ".";
+      ? FilenameUtils.normalize( FilenameUtils.separatorsToUnix( PentahoSystem.getApplicationContext().getSolutionPath( "/system/.orient" ) ) ) : ".";
   }
 
   private void initialize() throws Exception {
