@@ -22,7 +22,7 @@
     <!--  CORE -->
     <dependency org="pentaho" name="cpf-core"
       rev="${project.revision}" transitive="true" changing="true" conf="default->default"/>
-    <dependency org="commons-io" name="commons-io" rev="2.1"/>
+    <dependency org="commons-io" name="commons-io" rev="1.4"/>
     <dependency org="commons-lang" name="commons-lang" rev="2.6"/>
     <dependency org="javax.servlet" name="servlet-api" rev="2.4"/>
     <dependency org="org.springframework" name="spring-core" rev="2.5.6"/>
