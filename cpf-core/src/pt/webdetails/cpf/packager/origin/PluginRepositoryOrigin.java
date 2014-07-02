@@ -13,19 +13,19 @@ public class PluginRepositoryOrigin extends PathOrigin {
 
   private String pluginBasePath;
 
-  public PluginRepositoryOrigin(String pluginBasePath, String basePath) {
-    super(basePath);
+  public PluginRepositoryOrigin( String pluginBasePath, String basePath ) {
+    super( basePath );
     this.pluginBasePath = pluginBasePath;
   }
 
   @Override
-  public IReadAccess getReader(IContentAccessFactory factory) {
-    return factory.getPluginRepositoryReader(basePath);
+  public IReadAccess getReader( IContentAccessFactory factory ) {
+    return factory.getPluginRepositoryReader( basePath );
   }
 
   @Override
-  public String getUrl(String localPath, IUrlProvider urlProvider) {
+  public String getUrl( String localPath, IUrlProvider urlProvider ) {
     String relPath = RepositoryHelper.joinPaths(pluginBasePath, basePath, localPath );
-    return urlProvider.getRepositoryUrl( relPath );
+    return RepositoryHelper.joinPaths( urlProvider.getResourcesBasePath(), relPath );
   }
 }
