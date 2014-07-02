@@ -57,4 +57,10 @@ public interface IUrlProvider {
    */
   String getWebappContextRoot();
 
+  /**
+   * The endpoint provided by the plugin to get resources
+   * @return endpoint url to get resources
+   */
+  String getResourcesBasePath();
+
 }

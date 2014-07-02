@@ -20,6 +20,7 @@ import pt.webdetails.cpf.repository.util.RepositoryHelper;
 public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment implements IContentAccessFactoryExtended {
 
   private static PentahoPluginEnvironment instance = new PentahoPluginEnvironment();
+  private IUrlProvider pentahoUrlProvider;
 
   static {
     PluginEnvironment.init( instance );
@@ -61,49 +62,10 @@ public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment imple
 
   @Override
   public IUrlProvider getUrlProvider() {
-    return new IUrlProvider() {
-
-      private static final String REPOS = "api/repos/";
-
-      @Override
-      public String getPluginBaseUrl( String pluginId ) {
-        return Util.joinPath( getWebappContextPath(), "plugin", pluginId, "api" ) + "/";
-      }
-
-      @Override
-      public String getPluginBaseUrl() {
-        return getPluginBaseUrl( getPluginId() );
-      }
-
-      @Override
-      public String getPluginStaticBaseUrl( String pluginId ) {
-        return Util.joinPath( getWebappContextPath(), REPOS, pluginId ) + "/";
-      }
-
-      @Override
-      public String getPluginStaticBaseUrl() {
-        return getPluginStaticBaseUrl( getPluginId() );
-      }
-
-      @Override
-      public String getRepositoryUrl( String fullPath ) {
-        String colonPath = fullPath.replaceAll( "/", ":" );
-        return Util.joinPath( getWebappContextPath(), REPOS, colonPath, "/content" );
-      }
-
-      @Override
-      public String getWebappContextPath() {
-        return PentahoRequestContextHolder.getRequestContext().getContextPath();
-      }
-
-      @Override
-      public String getWebappContextRoot() {
-        String url = PentahoSystem.getApplicationContext().getFullyQualifiedServerURL(),
-          webappName = getWebappContextPath();
-
-        return url.substring( 0, url.length() - webappName.length() + 1 );
-      }
-    };
+    if( pentahoUrlProvider == null ) {
+      pentahoUrlProvider = new PentahoUrlProvider( getPluginId() );
+    }
+    return pentahoUrlProvider;
   }
 
   public IPluginCall getPluginCall( String pluginId, String servicePath, String method ) {
