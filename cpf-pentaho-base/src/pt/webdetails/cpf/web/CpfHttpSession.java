@@ -30,7 +30,7 @@ public class CpfHttpSession implements HttpSession {
 
     private final String id = Integer.toString(nextId++);
     private final long creationTime = System.currentTimeMillis();
-    private int maxInactiveInterval;
+    private int maxInactiveInterval = 120 * 60;
 
     private long lastAccessedTime = System.currentTimeMillis();
     private final ServletContext servletContext;
