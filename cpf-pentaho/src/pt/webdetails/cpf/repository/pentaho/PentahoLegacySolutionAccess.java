@@ -25,9 +25,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IAclSolutionFile;
+import org.pentaho.platform.api.engine.IContentGeneratorInfo;
 import org.pentaho.platform.api.engine.IFileFilter;
 import org.pentaho.platform.api.engine.IPentahoAclEntry;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.ISolutionFile;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.repository.ISolutionRepository;
@@ -40,7 +42,6 @@ import pt.webdetails.cpf.repository.api.IBasicFile;
 import pt.webdetails.cpf.repository.api.IBasicFileFilter;
 import pt.webdetails.cpf.repository.api.IUserContentAccess;
 import pt.webdetails.cpf.repository.util.RepositoryHelper;
-import pt.webdetails.cpf.session.PentahoSession;
 
 @SuppressWarnings( "deprecation" )
 public class PentahoLegacySolutionAccess implements IUserContentAccess {
@@ -48,6 +49,7 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
   private static Log logger = LogFactory.getLog( PentahoLegacySolutionAccess.class );
 
   private static String DEFAULT_PATH = "/";
+  private static final String CPK_CONTENT_GENERATOR_CLASS_NAME = "pt.webdetails.cpk.CpkContentGenerator";
 
   protected ISolutionRepository repository;
   protected ISolutionRepositoryService repositoryService;
@@ -299,6 +301,10 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
         }
       }
       logger.warn( "hasAccess: Unable to check access control for " + filePath + " using default access settings." );
+      if ( StringUtils.startsWith( FilenameUtils.separatorsToUnix( file.getSolutionPath() ), "system/" ) &&
+          !isSparklPluginFile( filePath, userSession )) {
+        return SecurityHelper.isPentahoAdministrator( userSession );
+      }
       switch ( access ) {
         case EXECUTE:
         case READ:
@@ -307,6 +313,30 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
           return SecurityHelper.isPentahoAdministrator( userSession );
       }
     }
+  }
+
+  private boolean isSparklPluginFile( String filePath, IPentahoSession session ) {
+    List<String> sparklPluginIds = this.getSparklPluginIds( session );
+    for ( String sparklPluginId : sparklPluginIds ) {
+      if ( StringUtils.startsWith( filePath, "/system/" + sparklPluginId ) ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private List<String> getSparklPluginIds( IPentahoSession session ) {
+    IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class );
+    List<String> pluginIds = pluginManager.getRegisteredPlugins();
+    List<String> sparklPluginIds = new ArrayList<String>();
+    for ( String pluginId : pluginIds ) {
+      IContentGeneratorInfo info = pluginManager.getContentGeneratorInfo( pluginId, session );
+      if ( info != null && info.getClassname().equals( CPK_CONTENT_GENERATOR_CLASS_NAME ) ) {
+        sparklPluginIds.add( pluginId );
+      }
+    }
+
+    return sparklPluginIds;
   }
 
   private static int toResourceAction( FileAccess access ) {
