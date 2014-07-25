@@ -299,9 +299,6 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
         }
       }
       logger.warn( "hasAccess: Unable to check access control for " + filePath + " using default access settings." );
-      if ( StringUtils.startsWith( FilenameUtils.separatorsToUnix( file.getSolutionPath() ), "system/" ) ) {
-        return SecurityHelper.isPentahoAdministrator( userSession );
-      }
       switch ( access ) {
         case EXECUTE:
         case READ:
