@@ -326,18 +326,21 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
   }
 
   private List<String> getSparklPluginIds( IPentahoSession session ) {
-    IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class );
-    List<String> pluginIds = pluginManager.getRegisteredPlugins();
-    List<String> sparklPluginIds = new ArrayList<String>();
-    for ( String pluginId : pluginIds ) {
-      IContentGeneratorInfo info = pluginManager.getContentGeneratorInfo( pluginId, session );
-      if ( info != null && info.getClassname().equals( CPK_CONTENT_GENERATOR_CLASS_NAME ) ) {
-        sparklPluginIds.add( pluginId );
+    if ( PentahoLegacySolutionAccess.sparklPluginIds == null ) {
+      IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class );
+      List<String> pluginIds = pluginManager.getRegisteredPlugins();
+      PentahoLegacySolutionAccess.sparklPluginIds = new ArrayList<String>();
+      for ( String pluginId : pluginIds ) {
+        IContentGeneratorInfo info = pluginManager.getContentGeneratorInfo( pluginId, session );
+        if ( info != null && info.getClassname().equals( CPK_CONTENT_GENERATOR_CLASS_NAME ) ) {
+          PentahoLegacySolutionAccess.sparklPluginIds.add( pluginId );
+        }
       }
     }
 
-    return sparklPluginIds;
+    return PentahoLegacySolutionAccess.sparklPluginIds;
   }
+  private static List<String> sparklPluginIds = null;
 
   private static int toResourceAction( FileAccess access ) {
     switch ( access ) {
