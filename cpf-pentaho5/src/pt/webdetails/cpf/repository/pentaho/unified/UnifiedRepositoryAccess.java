@@ -1,8 +1,11 @@
 package pt.webdetails.cpf.repository.pentaho.unified;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,11 +18,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
+import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
@@ -69,8 +74,47 @@ public abstract class UnifiedRepositoryAccess {
       return null;
     }
 
-    SimpleRepositoryFileData data = getRepository().getDataForRead( file.getId(), SimpleRepositoryFileData.class );
-    return data.getInputStream();
+    try {
+      SimpleRepositoryFileData data = getRepository().getDataForRead( file.getId(), SimpleRepositoryFileData.class );
+      return data.getInputStream();
+    } catch ( UnifiedRepositoryException ure ) {
+      // CDA-93: Since 5.1, ktrs are stored as NodeRepositoryFileData instead of SimpleRepositoryFileData on EE
+      // We need to check:
+      // 1. if we're on EE
+      // 2. whether the resource is a ktr or a kjb to load the approriate Converter. Otherwise we'll return the
+      // serialization of the node
+      NodeRepositoryFileData data = getRepository().getDataForRead(file.getId(), NodeRepositoryFileData.class );
+      IPluginManager pManager = PentahoSystem.get( IPluginManager.class );
+      ClassLoader classLoader = pManager.getClassLoader( "pdi-platform-plugin" );
+      if ( classLoader != null ) {
+        //It's an EE server - get the converter class name given the file type
+        String converterClassName = path.endsWith( ".ktr" )
+                ? "com.pentaho.repository.importexport.StreamToTransNodeConverter"
+                : path.endsWith( ".kjb" ) ? "com.pentaho.repository.importexport.StreamToJobNodeConverter" : null;
+
+        if ( converterClassName != null ) {
+          try {
+            Class converterClass = classLoader.loadClass( converterClassName );
+            Object converterInstance = converterClass.getConstructors()[0].newInstance( getRepository() );
+            Method m = converterClass.getMethod( "convert", new Class[]{ Serializable.class } );
+            return (InputStream) m.invoke( converterInstance, file.getId() );
+          } catch ( ClassNotFoundException e ) {
+            logger.error( "Did not find expected converter class for resource: " + converterClassName
+                    + ". Returning default conversion", e );
+          } catch ( InvocationTargetException e ) {
+            logger.error( "Error invoking constructor for converter class. Returning default conversion", e );
+          } catch ( InstantiationException e ) {
+            logger.error( "Error invoking constructor for converter class. Returning default conversion", e );
+          } catch ( IllegalAccessException e ) {
+            logger.error( "Error invoking constructor for converter class. Returning default conversion", e );
+          } catch ( NoSuchMethodException e ) {
+            logger.error( "convert method not found in converter class. ", e );
+          }
+        }
+      }
+
+      return new ByteArrayInputStream( data.getNode().toString().getBytes( "UTF8" ) );
+    }
   }
 
   public long getLastModified( String path ) {
