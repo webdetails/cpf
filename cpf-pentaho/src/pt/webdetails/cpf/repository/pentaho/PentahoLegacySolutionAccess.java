@@ -302,7 +302,7 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
       }
       logger.warn( "hasAccess: Unable to check access control for " + filePath + " using default access settings." );
       if ( StringUtils.startsWith( FilenameUtils.separatorsToUnix( file.getSolutionPath() ), "system/" ) &&
-          !isSparklPluginFile( filePath, userSession )) {
+          !isAcceptedPluginFile( filePath, userSession )) {
         return SecurityHelper.isPentahoAdministrator( userSession );
       }
       switch ( access ) {
@@ -315,10 +315,12 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
     }
   }
 
-  private boolean isSparklPluginFile( String filePath, IPentahoSession session ) {
-    List<String> sparklPluginIds = this.getSparklPluginIds( session );
-    for ( String sparklPluginId : sparklPluginIds ) {
-      if ( StringUtils.startsWith( filePath, "/system/" + sparklPluginId ) ) {
+  private boolean isAcceptedPluginFile( String filePath, IPentahoSession session ) {
+    List<String> acceptedPluginIds = this.getSparklPluginIds( session );
+    acceptedPluginIds.add( "cdb" );
+    acceptedPluginIds.add( "cdv" );
+    for ( String acceptedPluginId : acceptedPluginIds ) {
+      if ( StringUtils.startsWith( filePath, "/system/" + acceptedPluginId ) ) {
         return true;
       }
     }
