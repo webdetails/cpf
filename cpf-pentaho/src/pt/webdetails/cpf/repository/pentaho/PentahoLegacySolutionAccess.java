@@ -43,7 +43,7 @@ import pt.webdetails.cpf.repository.api.IBasicFileFilter;
 import pt.webdetails.cpf.repository.api.IUserContentAccess;
 import pt.webdetails.cpf.repository.util.RepositoryHelper;
 
-@SuppressWarnings( "deprecation" )
+@SuppressWarnings("deprecation")
 public class PentahoLegacySolutionAccess implements IUserContentAccess {
 
   private static Log logger = LogFactory.getLog( PentahoLegacySolutionAccess.class );
@@ -77,10 +77,10 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
     try {
       path = getPath( path );
       int status =
-          getRepository().publish(
-              FilenameUtils.separatorsToUnix( PentahoSystem.getApplicationContext().getSolutionPath( "" ) ),
-              FilenameUtils.getFullPath( path ), FilenameUtils.getName( path ), IOUtils.toByteArray( contents ), true );
-      switch ( status ) {
+        getRepository().publish(
+          FilenameUtils.separatorsToUnix( PentahoSystem.getApplicationContext().getSolutionPath( "" ) ),
+          FilenameUtils.getFullPath( path ), FilenameUtils.getName( path ), IOUtils.toByteArray( contents ), true );
+      switch( status ) {
         case ISolutionRepository.FILE_ADD_SUCCESSFUL:
           return true;
         case ISolutionRepository.FILE_ADD_FAILED:
@@ -185,7 +185,7 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
   }
 
   public List<IBasicFile> listFiles( String path, final IBasicFileFilter filter, int maxDepth, boolean includeDirs,
-      boolean showHiddenFilesAndFolders ) {
+                                     boolean showHiddenFilesAndFolders ) {
 
     path = getPath( path );
     IFileFilter fileFilter = null;
@@ -211,11 +211,11 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
 
     ISolutionFile baseDir = getRepository().getSolutionFile( path, toResourceAction( FileAccess.READ ) );
     return listFiles(
-        new ArrayList<IBasicFile>(), baseDir, fileFilter, includeDirs, showHiddenFilesAndFolders, maxDepth, 0 );
+      new ArrayList<IBasicFile>(), baseDir, fileFilter, includeDirs, showHiddenFilesAndFolders, maxDepth, 0 );
   }
 
   private List<IBasicFile> listFiles( List<IBasicFile> list, ISolutionFile root, IFileFilter filter,
-      boolean includeDirs, boolean showHiddenFilesAndFolders, int depth, int level ) {
+                                      boolean includeDirs, boolean showHiddenFilesAndFolders, int depth, int level ) {
     if ( root.isDirectory() ) {
       if ( includeDirs && level > 0 && filter.accept( root ) ) {
         list.add( asBasicFile( root ) );
@@ -258,8 +258,8 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
 
       public String getPath() {
         return RepositoryHelper.relativizePath( basePath,
-                RepositoryHelper.appendPath( getSolutionPath( file ), file.getFileName() ),
-                true );
+          RepositoryHelper.appendPath( getSolutionPath( file ), file.getFileName() ),
+          true );
       }
 
       public boolean isDirectory() {
@@ -287,7 +287,7 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
     if ( file == null ) {
       return false;
     } else if ( SecurityHelper.canHaveACLS( file )
-        && ( file.retrieveParent() != null && !StringUtils.startsWith( file.getSolutionPath(), "system" ) ) ) {
+      && ( file.retrieveParent() != null && !StringUtils.startsWith( file.getSolutionPath(), "system" ) ) ) {
       // has been checked
       return true;
     } else {
@@ -302,10 +302,10 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
       }
       logger.warn( "hasAccess: Unable to check access control for " + filePath + " using default access settings." );
       if ( StringUtils.startsWith( FilenameUtils.separatorsToUnix( file.getSolutionPath() ), "system/" ) &&
-          !isAcceptedPluginFile( filePath, userSession )) {
+        !isAcceptedPluginFile( filePath, userSession ) ) {
         return SecurityHelper.isPentahoAdministrator( userSession );
       }
-      switch ( access ) {
+      switch( access ) {
         case EXECUTE:
         case READ:
           return true;
@@ -317,8 +317,15 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
 
   private boolean isAcceptedPluginFile( String filePath, IPentahoSession session ) {
     List<String> acceptedPluginIds = this.getSparklPluginIds( session );
-    acceptedPluginIds.add( "cdb" );
-    acceptedPluginIds.add( "cdv" );
+    if ( !acceptedPluginIds.contains( "cdb" ) ) {
+      acceptedPluginIds.add( "cdb" );
+    }
+    if ( !acceptedPluginIds.contains( "cdv" ) ) {
+      acceptedPluginIds.add( "cdv" );
+    }
+    if ( !acceptedPluginIds.contains( "cfr" ) ) {
+      acceptedPluginIds.add( "cfr" );
+    }
     for ( String acceptedPluginId : acceptedPluginIds ) {
       if ( StringUtils.startsWith( filePath, "/system/" + acceptedPluginId ) ) {
         return true;
@@ -342,10 +349,11 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
 
     return PentahoLegacySolutionAccess.sparklPluginIds;
   }
+
   private static List<String> sparklPluginIds = null;
 
   private static int toResourceAction( FileAccess access ) {
-    switch ( access ) {
+    switch( access ) {
       case DELETE:
         return IPentahoAclEntry.PERM_DELETE;
       case WRITE:
