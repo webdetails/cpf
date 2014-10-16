@@ -317,8 +317,15 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
 
   private boolean isAcceptedPluginFile( String filePath, IPentahoSession session ) {
     List<String> acceptedPluginIds = this.getSparklPluginIds( session );
-    acceptedPluginIds.add( "cdb" );
-    acceptedPluginIds.add( "cdv" );
+    if (!acceptedPluginIds.contains( "cdb" )){
+      acceptedPluginIds.add( "cdb" );
+    }
+    if (!acceptedPluginIds.contains( "cdv" )){
+      acceptedPluginIds.add( "cdv" );
+    }
+    if (!acceptedPluginIds.contains( "cfr" )){
+      acceptedPluginIds.add( "cfr" );
+    }
     for ( String acceptedPluginId : acceptedPluginIds ) {
       if ( StringUtils.startsWith( filePath, "/system/" + acceptedPluginId ) ) {
         return true;
