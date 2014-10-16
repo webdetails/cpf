@@ -98,7 +98,7 @@ public class PersistenceEngine implements IPersistenceEngine {
 
   private String getOrientPath() {
     return ( this.getClass().getClassLoader() instanceof PluginClassLoader )
-      ? FilenameUtils.normalize( FilenameUtils.separatorsToUnix( PentahoSystem.getApplicationContext().getSolutionPath( "/system/.orient" ) ) ) : ".";
+      ? FilenameUtils.normalize( FilenameUtils.separatorsToUnix( PentahoSystem.getApplicationContext().getSolutionPath( "system/.orient/" ) ) ) : ".";
   }
 
   private void initialize() throws Exception {
@@ -579,7 +579,7 @@ public class PersistenceEngine implements IPersistenceEngine {
       final String enc = CharsetHelper.getEncoding();
       //Change the default database location to orientPath
       String confAsString = IOUtils.toString( conf, enc );
-      confAsString = confAsString.replaceAll( Matcher.quoteReplacement( "$PATH$" ), getOrientPath() + "/" );
+      confAsString = confAsString.replaceAll( Matcher.quoteReplacement( "$PATH$" ), Matcher.quoteReplacement( getOrientPath() ) );
       conf.close();
       conf = new ByteArrayInputStream( confAsString.getBytes( enc ) );
 
