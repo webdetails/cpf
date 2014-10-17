@@ -98,7 +98,9 @@ public class PersistenceEngine implements IPersistenceEngine {
 
   private String getOrientPath() {
     return ( this.getClass().getClassLoader() instanceof PluginClassLoader )
-      ? FilenameUtils.normalize( FilenameUtils.separatorsToUnix( PentahoSystem.getApplicationContext().getSolutionPath( "system/.orient/" ) ) ) : ".";
+      ? FilenameUtils.normalize(
+      FilenameUtils.separatorsToUnix( PentahoSystem.getApplicationContext().getSolutionPath( "system/.orient/" ) ) ) :
+      ".";
   }
 
   private void initialize() throws Exception {
@@ -115,14 +117,13 @@ public class PersistenceEngine implements IPersistenceEngine {
   }
 
 
-
   public String process( IParameterProvider requestParams, IPentahoSession userSession )
     throws InvalidOperationException {
     String methodString = requestParams.getStringParameter( "method", "none" );
     JSONObject reply = null;
     try {
       Method mthd = Method.valueOf( methodString.toUpperCase() );
-      switch ( mthd ) {
+      switch( mthd ) {
         case DELETE:
           reply = deleteRecord( requestParams );
           break;
@@ -537,7 +538,7 @@ public class PersistenceEngine implements IPersistenceEngine {
    * generic json to document
    */
   private ODocument createDocument( String className, JSONObject data,
-                                     ODatabaseDocumentTx db ) throws JSONException {
+                                    ODatabaseDocumentTx db ) throws JSONException {
 
     ODocument doc = new ODocument( db, className );
     fillDocument( doc, data );
@@ -583,7 +584,8 @@ public class PersistenceEngine implements IPersistenceEngine {
       final String enc = CharsetHelper.getEncoding();
       //Change the default database location to orientPath
       String confAsString = IOUtils.toString( conf, enc );
-      confAsString = confAsString.replaceAll( Matcher.quoteReplacement( "$PATH$" ), Matcher.quoteReplacement( getOrientPath() ) );
+      confAsString =
+        confAsString.replaceAll( Matcher.quoteReplacement( "$PATH$" ), Matcher.quoteReplacement( getOrientPath() ) );
       conf.close();
       conf = new ByteArrayInputStream( confAsString.getBytes( enc ) );
 
