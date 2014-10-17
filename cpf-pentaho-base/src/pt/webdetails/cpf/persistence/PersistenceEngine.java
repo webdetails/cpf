@@ -550,6 +550,10 @@ public class PersistenceEngine implements IPersistenceEngine {
 
   private void fillDocument( ODocument doc, JSONObject data ) throws JSONException {
     doc.fromJSON( data.toString( JSON_INDENT ) );
+    if ( this.getClass().getClassLoader() instanceof PluginClassLoader ) {
+      String user = PentahoSessionHolder.getSession().getName();
+      doc.field( "userid", user );
+    }
   }
 
   public JSONObject store( String id, String className, String inputData ) throws JSONException {
