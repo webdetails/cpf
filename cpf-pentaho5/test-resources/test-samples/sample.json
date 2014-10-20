@@ -1,0 +1,16 @@
+{
+    "name": "test",
+    "shallowQuotes": "\"",
+    "nested": {
+        "key": "value",
+        "anotherKey": 123
+    },
+    "deep": {
+        "deeper": {
+            "k": "v",
+            "quotes": "\"\",\"oops\":\"123\"",   
+            "likeJson": "[1,2,3]",
+            "spaces":  "value with spaces"
+        }
+    }
+}

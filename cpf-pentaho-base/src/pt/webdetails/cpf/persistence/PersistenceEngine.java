@@ -64,7 +64,7 @@ public class PersistenceEngine implements IPersistenceEngine {
   private static PersistenceEngine _instance;
   private OServer server;
 
-  private PersistenceEngine() {
+  protected PersistenceEngine() {
     try {
       logger.info( "Creating PersistenceEngine instance" );
       initialize();
@@ -96,9 +96,9 @@ public class PersistenceEngine implements IPersistenceEngine {
   }
 
 
-  private String getOrientPath() {
-    return ( this.getClass().getClassLoader() instanceof PluginClassLoader )
-      ? FilenameUtils.normalize( FilenameUtils.separatorsToUnix( PentahoSystem.getApplicationContext().getSolutionPath( "system/.orient/" ) ) ) : ".";
+  protected String getOrientPath() {
+    return FilenameUtils.normalize(
+      FilenameUtils.separatorsToUnix( PentahoSystem.getApplicationContext().getSolutionPath( "system/.orient/" ) ) );
   }
 
   private void initialize() throws Exception {
@@ -115,14 +115,13 @@ public class PersistenceEngine implements IPersistenceEngine {
   }
 
 
-
   public String process( IParameterProvider requestParams, IPentahoSession userSession )
     throws InvalidOperationException {
     String methodString = requestParams.getStringParameter( "method", "none" );
     JSONObject reply = null;
     try {
       Method mthd = Method.valueOf( methodString.toUpperCase() );
-      switch ( mthd ) {
+      switch( mthd ) {
         case DELETE:
           reply = deleteRecord( requestParams );
           break;
@@ -479,13 +478,11 @@ public class PersistenceEngine implements IPersistenceEngine {
           List<ODocument> result = executeQuery( "select * from " + className + " where @rid = :id", params );
           if ( result.size() == 1 ) {
             doc = result.get( 0 );
-            if ( this.getClass().getClassLoader() instanceof PluginClassLoader ) {
-              String user = PentahoSessionHolder.getSession().getName();
-              if ( doc.field( "userid" ) != null && !doc.field( "userid" ).toString().equals( user ) ) {
-                json.put( "result", Boolean.FALSE );
-                json.put( "errorMessage", "Object id " + id + " belongs to another user" );
-                return json;
-              }
+            String user = getUserName();
+            if ( doc.field( "userid" ) != null && !doc.field( "userid" ).toString().equals( user ) ) {
+              json.put( "result", Boolean.FALSE );
+              json.put( "errorMessage", "Object id " + id + " belongs to another user" );
+              return json;
             }
 
             fillDocument( doc, data );
@@ -537,19 +534,16 @@ public class PersistenceEngine implements IPersistenceEngine {
    * generic json to document
    */
   private ODocument createDocument( String className, JSONObject data,
-                                     ODatabaseDocumentTx db ) throws JSONException {
+                                    ODatabaseDocumentTx db ) throws JSONException {
 
     ODocument doc = new ODocument( db, className );
     fillDocument( doc, data );
-    if ( this.getClass().getClassLoader() instanceof PluginClassLoader ) {
-      String user = PentahoSessionHolder.getSession().getName();
-      doc.field( "userid", user );
-    }
     return doc;
   }
 
   private void fillDocument( ODocument doc, JSONObject data ) throws JSONException {
     doc.fromJSON( data.toString( JSON_INDENT ) );
+    doc.field( "userid", getUserName() );
   }
 
   public JSONObject store( String id, String className, String inputData ) throws JSONException {
@@ -579,7 +573,8 @@ public class PersistenceEngine implements IPersistenceEngine {
       final String enc = CharsetHelper.getEncoding();
       //Change the default database location to orientPath
       String confAsString = IOUtils.toString( conf, enc );
-      confAsString = confAsString.replaceAll( Matcher.quoteReplacement( "$PATH$" ), Matcher.quoteReplacement( getOrientPath() ) );
+      confAsString =
+        confAsString.replaceAll( Matcher.quoteReplacement( "$PATH$" ), Matcher.quoteReplacement( getOrientPath() ) );
       conf.close();
       conf = new ByteArrayInputStream( confAsString.getBytes( enc ) );
 
@@ -599,4 +594,9 @@ public class PersistenceEngine implements IPersistenceEngine {
 
     HEAD, DELETE, GET, STORE, QUERY
   }
+
+  protected String getUserName() {
+    return PentahoSessionHolder.getSession().getName();
+  }
+
 }
