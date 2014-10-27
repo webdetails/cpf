@@ -18,6 +18,9 @@
 package pt.webdetails.cpf.audit;
 
 import java.util.Iterator;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IParameterProvider;
 
 
@@ -29,61 +32,75 @@ import org.pentaho.platform.engine.core.audit.AuditHelper;
 import org.pentaho.platform.engine.core.audit.MessageTypes;
 
 public class CpfAuditHelper {
-	
-	/**
-	 * 
-	 * Start Audit Event
-	 *  
-   * @param processId Id for the audit process (usually the plugin name)
-   * @param actionName  Name of the action
-	 * @param objectName Object of the action
-	 * @param userSession Pentaho User Session 
-	 * @param logger Logger object
+
+
+  private static final Log log = LogFactory.getLog( CpfAuditHelper.class );
+
+  /**
+   * Start Audit Event
+   *
+   * @param processId     Id for the audit process (usually the plugin name)
+   * @param actionName    Name of the action
+   * @param objectName    Object of the action
+   * @param userSession   Pentaho User Session
+   * @param logger        Logger object
    * @param requestParams parameters associated to the request
-	 * @return  UUID of start event
-	 */
-    static public UUID startAudit(
-        String processId,
-        String actionName,
-        String objectName,
-        IPentahoSession userSession,
-        ILogger logger,
-        IParameterProvider requestParams)
-    {
-      UUID uuid = UUID.randomUUID();
-  
-      StringBuilder sb = new StringBuilder();
-      if (requestParams != null) {
-        @SuppressWarnings("unchecked")
-        Iterator<String> iter = requestParams.getParameterNames();
-        while (iter.hasNext()) {
-          String paramName = iter.next().toString();
-          sb.append(paramName).append("=").append(requestParams.getStringParameter(paramName, "novalue")).append(";");
-        }
+   * @return UUID of start event
+   */
+  public static UUID startAudit(
+          String processId,
+          String actionName,
+          String objectName,
+          IPentahoSession userSession,
+          ILogger logger,
+          IParameterProvider requestParams ) {
+    UUID uuid = UUID.randomUUID();
+
+    StringBuilder sb = new StringBuilder();
+    if ( requestParams != null ) {
+      @SuppressWarnings( "unchecked" )
+      Iterator<String> iter = requestParams.getParameterNames();
+      while ( iter.hasNext() ) {
+        String paramName = iter.next();
+        sb.append( paramName ).append( "=" ).
+                append(requestParams.getStringParameter( paramName, "novalue" ) ).append( ";" );
       }
-
-      AuditHelper.audit(userSession.getId(), userSession.getName(), actionName, objectName, processId, MessageTypes.INSTANCE_START, uuid.toString(), sb.toString(), 0, logger);
-  
-      return uuid;
     }
-	
-	/**
-	 * 
-	 * End Audit Event
-	 * 
-   * @param processId Id for the audit process (usually the plugin name)
-	 * @param actionName Name of the action
-	 * @param objectName Object of the action
-	 * @param userSession Pentaho User Session 
-	 * @param logger Logger object
-	 * @param start Start time in Millis Seconds 
-	 * @param uuid  UUID of start event
-	 * @param end End time in Millis Seconds
-	 */
-    static public void endAudit(String processId, String actionName, String objectName, IPentahoSession userSession, ILogger logger, long start, UUID uuid, long end) {
 
-      AuditHelper.audit(userSession.getId(), userSession.getName(), actionName, objectName, processId, MessageTypes.INSTANCE_END, uuid.toString(), "", ((float) (end - start) / 1000), logger);
+    try {
+      AuditHelper.audit( userSession.getId(), userSession.getName(), actionName, objectName,
+              processId, MessageTypes.INSTANCE_START, uuid.toString(), sb.toString(), 0, logger );
+    } catch ( Exception e ) {
+      log.warn( "Exception while writing to audit log. Returning null as audit event ID but"
+              + " will continue execution ", e );
+      return null;
     }
+
+    return uuid;
+  }
+
+  /**
+   * End Audit Event
+   *
+   * @param processId   Id for the audit process (usually the plugin name)
+   * @param actionName  Name of the action
+   * @param objectName  Object of the action
+   * @param userSession Pentaho User Session
+   * @param logger      Logger object
+   * @param start       Start time in Millis Seconds
+   * @param uuid        UUID of start event
+   * @param end         End time in Millis Seconds
+   */
+  public static void endAudit( String processId, String actionName, String objectName, IPentahoSession userSession,
+                               ILogger logger, long start, UUID uuid, long end ) {
+    try {
+      AuditHelper.audit(userSession.getId(), userSession.getName(), actionName, objectName, processId,
+              MessageTypes.INSTANCE_END, uuid.toString(), "", ( (float) ( end - start ) / 1000 ), logger );
+    } catch ( Exception e ) {
+      log.warn( "Exception while writing to audit log. Returning null as audit event ID but"
+              + " will continue execution ", e );
+    }
+  }
 
 }
 
