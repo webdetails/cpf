@@ -33,10 +33,13 @@ import java.util.List;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import pt.webdetails.cpf.repository.api.IContentAccessFactory;
 import pt.webdetails.cpf.repository.api.IRWAccess;
+import pt.webdetails.cpf.repository.api.IReadAccess;
 import pt.webdetails.cpf.repository.util.RepositoryHelper;
 import pt.webdetails.cpf.utils.CharsetHelper;
 
@@ -52,6 +55,8 @@ public abstract class Util {
 
   //
   public static final DecimalFormat DEFAULT_DURATION_FORMAT_SEC = new DecimalFormat("0.00s");
+
+  public static final String SEPARATOR = String.valueOf( RepositoryHelper.SEPARATOR );
 
   /**
    * {@link IOUtils#toString(InputStream)} with null tolerance and ensure the stream is closed.<br>
@@ -240,5 +245,67 @@ public abstract class Util {
     public static String getElapsedSeconds( long startTime ) {
       return DEFAULT_DURATION_FORMAT_SEC.format( (System.currentTimeMillis() - startTime) / 1000.0 );
     }
+
+  /**
+   * Helper method that given a path of a resource, allows us to infer on the appropriate IReadAccess object for it
+   *
+   * @param resourcePath the path to a resource
+   * @param factory the IReadAccess factory
+   * @param pluginId the plugin's id
+   * @param pluginSystemDir the plugin's base system directory
+   * @param pluginRepoDir the plugin's base repository directory
+   * @return appropriate IReadAccess object for the given resource
+   */
+  public static IReadAccess getAppropriateReadAccess( final String resourcePath, final IContentAccessFactory factory,
+                                   final String pluginId, final String pluginSystemDir, final String pluginRepoDir ) {
+
+    if ( StringUtils.isEmpty( resourcePath ) || StringUtils.isEmpty( pluginId )
+      || StringUtils.isEmpty( pluginSystemDir ) || StringUtils.isEmpty( pluginRepoDir ) || factory == null ) {
+      return null;
+    }
+
+    String id = pluginId.endsWith( SEPARATOR ) ? pluginId : pluginId + SEPARATOR;
+    String repoDir = pluginRepoDir.endsWith( SEPARATOR ) ? pluginRepoDir : pluginRepoDir + SEPARATOR;
+    String systemDir = pluginSystemDir.endsWith( SEPARATOR ) ? pluginSystemDir : pluginSystemDir + SEPARATOR;
+
+    // remove leading and trailing SEPARATOR *and* also performs String.trim()
+    String resource = StringUtils.strip( resourcePath, SEPARATOR );
+
+    if ( resource.regionMatches( true, 0, systemDir, 0, systemDir.length() ) ) {
+
+      resource = resource.replaceFirst( systemDir, "" ); // trim the 'system'
+
+      if ( resource.regionMatches( true, 0, id, 0, id.length() ) ) {
+        // system dir - this plugin id
+        return factory.getPluginSystemReader( null );
+
+      } else {
+        // system dir - some other plugin id; lets find out which one
+        String otherPluginId = resource.substring( 0, resource.indexOf( SEPARATOR ) );
+        return factory.getOtherPluginSystemReader( otherPluginId, null );
+      }
+
+    } else if ( resource.regionMatches( true, 0, repoDir, 0, repoDir.length() ) ) {
+
+      // plugin repository dir
+      return factory.getPluginRepositoryReader( null );
+
+    } else {
+
+      // one of two:
+      // A - already trimmed system resource (ex: 'resources/templates/1-empty-structure.cdfde') for the pluginId
+      // B - user solution resource (ex: 'public/plugin-samples/pentaho-cdf-dd/styles/my-style.css')
+
+      if ( factory.getPluginSystemReader( null ).fileExists( resourcePath ) ) {
+        return factory.getPluginSystemReader( null );
+
+      } else if ( factory.getUserContentAccess( null ).fileExists( resourcePath ) ) {
+        // user solution dir
+        return factory.getUserContentAccess( null );
+      }
+    }
+
+    return null; // reaching this point, there's not much more left to be done, and null is returned
+  }
 
 }
