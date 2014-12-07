@@ -187,18 +187,26 @@ public class MessageBundlesHelper {
 
     IBasicFile basePropertiesFile = null;
 
+    String basePropertiesCachePath =
+      Util.joinPath( getBaseTempCacheFolder(), ( BASE_MESSAGES_FILENAME + MESSAGES_EXTENSION ) );
+
     // first let's check if there is a base properties file ( 'messages.properties' )
     if ( getDashboardAccess().fileExists( baseMsgPath ) ) {
 
       basePropertiesFile = getDashboardAccess().fetchFile( baseMsgPath );
 
-      String basePropertiesCachePath =
-        Util.joinPath( getBaseTempCacheFolder(), ( BASE_MESSAGES_FILENAME + MESSAGES_EXTENSION ) );
-
       if ( !getPluginAccess().fileExists( basePropertiesCachePath ) || overrideIfExists ) {
           getPluginAccess().saveFile( basePropertiesCachePath, basePropertiesFile.getContents() );
       }
     }
+
+    // all is done; now, we just need to ensure there is a message.properties file in cache dir; in the off-chance
+    // there isn't ( and to safeguard us from those pesky '404 not found' when the dashboard tries to fetch it ) we'll
+    // go ahead and store it as an empty file;
+    if ( !getPluginAccess().fileExists( basePropertiesCachePath ) ) {
+      getPluginAccess().saveFile( basePropertiesCachePath, new ByteArrayInputStream( new byte[0] ) );
+    }
+
     return true;
   }
 
