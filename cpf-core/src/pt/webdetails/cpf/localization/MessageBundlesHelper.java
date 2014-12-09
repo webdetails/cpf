@@ -229,8 +229,8 @@ public class MessageBundlesHelper {
   }
 
   public String getMessageFilesCacheUrl() {
-    return FilenameUtils.normalize( FilenameUtils.separatorsToUnix(
-      Util.joinPath( getPluginStaticBaseContentUrl(), BASE_CACHE_DIR, getDashboardFolderPath(), "/" ) ) );
+    return FilenameUtils.separatorsToUnix( FilenameUtils.normalize(
+      Util.joinPath( getPluginStaticBaseContentUrl(), BASE_CACHE_DIR, getDashboardFolderPath(), Util.SEPARATOR ) ) );
   }
 
   public String replaceParameters( String text, ArrayList<String> i18nTagsList ) throws IOException {
