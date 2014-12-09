@@ -101,9 +101,9 @@ public class MessageBundlesHelperTest extends TestCase {
     assertTrue( pluginAccess != null && pluginAccess.getStoredFiles() != null );
     assertTrue( pluginAccess.getStoredFiles().size() > 0 );
 
-    // 2 empty files created ( as a fallback ) and regarding the provided LOCALE: 'messages_en.properties'
-    // and 'messages_en-US.properties'
-    assertTrue( pluginAccess.getStoredFiles().size() == 2 );
+    // 3 empty files created ( as a fallback ) and regarding the provided LOCALE: 'messages_en.properties'
+    // and 'messages_en-US.properties' ( and one other which is 'messages.properties' )
+    assertTrue( pluginAccess.getStoredFiles().size() == 3 );
 
     String fallback_file_en = "messages_" + LOCALE.getLanguage() + ".properties";
     String fallback_file_en_messageInCacheDir = Util.joinPath( Util.SEPARATOR, MessageBundlesHelper.BASE_CACHE_DIR,
