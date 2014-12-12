@@ -33,6 +33,13 @@ public class MessageBundlesHelperTest extends TestCase {
   private final String MOCK_TEXT_FOR_PARAM_REPLACEMENT =
     "#{GLOBAL_MESSAGE_SET_NAME};#{GLOBAL_MESSAGE_SET_PATH};#{LANGUAGE_CODE}";
 
+  private final String[] SOME_ACCEPTED_FILES_UNIX_SEPARATOR = new String[] {
+    "messages.properties",
+    "messages_en.properties",
+    "messages_en" + MessageBundlesHelper.LANGUAGE_COUNTRY_SEPARATOR_UNIX + "US.properties",
+    "messages_es" + MessageBundlesHelper.LANGUAGE_COUNTRY_SEPARATOR_UNIX + "ES.properties"
+  };
+
   private final String[] SOME_ACCEPTED_FILES = new String[] {
     "messages.properties",
     "messages_en.properties",
@@ -77,6 +84,34 @@ public class MessageBundlesHelperTest extends TestCase {
     for ( String file : SOME_ACCEPTED_FILES ) {
 
       String messageInCacheDir = Util.joinPath( Util.SEPARATOR, MessageBundlesHelper.BASE_CACHE_DIR, file );
+      assertTrue( pluginAccess.getStoredFiles().contains( new BasicFile( messageInCacheDir ) ) );
+    }
+  }
+
+  @Test
+  public void testAcceptedMessagesUnixSeparator() {
+
+    List<IBasicFile> basicFiles = toBasicFileList( Util.SEPARATOR, SOME_ACCEPTED_FILES_UNIX_SEPARATOR );
+
+    SomeFolderReadAccess someFolderAccess = new SomeFolderReadAccess( basicFiles );
+    PluginWriteAccess pluginAccess = new PluginWriteAccess();
+
+    MessageBundlesHelper mbh = null;
+
+    try {
+      mbh = new MessageBundlesHelper( SOME_FOLDER_PATH, someFolderAccess, pluginAccess, LOCALE, MOCK_PLUGIN_URL );
+    } catch ( Exception e ) {
+      Assert.fail();
+    }
+
+    assertTrue( mbh != null );
+    assertTrue( pluginAccess != null && pluginAccess.getStoredFiles() != null );
+    assertTrue( pluginAccess.getStoredFiles().size() > 0 );
+    assertTrue( pluginAccess.getStoredFiles().size() == SOME_ACCEPTED_FILES_UNIX_SEPARATOR.length );
+
+    for ( String file : SOME_ACCEPTED_FILES_UNIX_SEPARATOR ) {
+
+      String messageInCacheDir = Util.joinPath( Util.SEPARATOR, MessageBundlesHelper.BASE_CACHE_DIR, mbh.sanitize( file ) );
       assertTrue( pluginAccess.getStoredFiles().contains( new BasicFile( messageInCacheDir ) ) );
     }
   }
