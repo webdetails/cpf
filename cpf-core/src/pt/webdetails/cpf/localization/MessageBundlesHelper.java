@@ -40,17 +40,31 @@ public class MessageBundlesHelper {
   // new message files will be written when user clears the cache dir folder
   public static final boolean OVERRIDE_PROPERTIES_IN_CACHE_DIR_IF_EXIST = false; //$NON-NLS-1$
 
+  /**
+   * @link http://www.w3.org/International/articles/language-tags
+   * <p/>
+   * @link http://www.rfc-editor.org/rfc/rfc5646.txt  ( search for 'HYPHEN-MINUS' )
+   * <p/>
+   * @link http://www.oracle.com/technetwork/java/javase/javase7locales-334809.html
+   */
 
   // the char that separates the language information from the country information:
   // messages_<language>LOCALE_COUNTRY_SEPARATOR_CHAR<country>.properties  ( ex: messages_en-US.properties )
   // FYI: jQuery.i18n.browserLang() returns 'en-US', 'pt-PT', .., therefore the separator char it uses is a hyphen
   public static final String LANGUAGE_COUNTRY_SEPARATOR = "-"; //$NON-NLS-1$
 
+  // we also suppport underscore as separator ( ex: 'en_US', 'pt_PT', ... ), used internally in unix
+  // check your /usr/share/locale or /usr/share/i18n/locales
+  public static final String LANGUAGE_COUNTRY_SEPARATOR_UNIX = "_"; //$NON-NLS-1$
 
   // matches: messages_en.properties, messages_en-US.properties;
   // does not match: messages.properties, messages_EN.properties, messages_en_us.properties
   public final String REGEXP =
     BASE_MESSAGES_FILENAME + "_[a-z][a-z](" + LANGUAGE_COUNTRY_SEPARATOR + "[A-Z][A-Z]){0,1}" + MESSAGES_EXTENSION;
+
+  // matches: messages_en.properties, messages_en_US.properties;
+  public final String REGEXP_ALT =
+    BASE_MESSAGES_FILENAME + "_[a-z][a-z](" + LANGUAGE_COUNTRY_SEPARATOR_UNIX + "[A-Z][A-Z]){0,1}" + MESSAGES_EXTENSION;
 
 
   private static final Log logger = LogFactory.getLog( MessageBundlesHelper.class );
@@ -148,7 +162,7 @@ public class MessageBundlesHelper {
 
       for ( IBasicFile localizedPropertyFile : localizedPropertiesFiles ) {
 
-        String fileInCacheDirPath = Util.joinPath( getBaseTempCacheFolder(), localizedPropertyFile.getName() );
+        String fileInCacheDirPath = Util.joinPath( getBaseTempCacheFolder(), sanitize( localizedPropertyFile.getName() ) );
 
         try {
 
@@ -218,7 +232,7 @@ public class MessageBundlesHelper {
 
       for ( IBasicFile message : localizedMessages ) {
 
-        if ( !getPluginAccess().fileExists( Util.joinPath( getBaseTempCacheFolder(), message.getName() ) ) ) {
+        if ( !getPluginAccess().fileExists( Util.joinPath( getBaseTempCacheFolder(), sanitize( message.getName() ) ) ) ) {
 
           filteredLocalizedMessages.add( message );
         }
@@ -295,6 +309,29 @@ public class MessageBundlesHelper {
     return Util.joinPath( BASE_CACHE_DIR, getDashboardFolderPath() );
   }
 
+  /**
+   * If the name uses a unix format, sanitize when storing it in BASE_CACHE_DIR, using ISO 3361 / RFC5646 norm
+   * <p/>
+   * @link http://www.rfc-editor.org/rfc/rfc5646.txt  ( search for 'HYPHEN-MINUS' )
+   */
+  public String sanitize( String name ){
+
+    final String REGEX_SEPARATOR_UNIX =
+      BASE_MESSAGES_FILENAME + "_[a-z][a-z](" + LANGUAGE_COUNTRY_SEPARATOR_UNIX + "[A-Z][A-Z])" + MESSAGES_EXTENSION;
+
+    if( !StringUtils.isEmpty( name ) && name.matches( REGEX_SEPARATOR_UNIX ) ){
+
+      int idx = name.lastIndexOf( LANGUAGE_COUNTRY_SEPARATOR_UNIX );
+
+      StringBuffer sb = new StringBuffer( name.substring( 0 , idx ) );
+      sb.append( MessageBundlesHelper.LANGUAGE_COUNTRY_SEPARATOR );
+      sb.append( name.substring( idx + MessageBundlesHelper.LANGUAGE_COUNTRY_SEPARATOR_UNIX.length() ) );
+
+      return sb.toString();
+    }
+    return name;
+  }
+
   private String buildMessageSetCode( ArrayList<String> tagsList ) {
     StringBuffer messageCodeSet = new StringBuffer();
     for ( String tag : tagsList ) {
@@ -315,7 +352,8 @@ public class MessageBundlesHelper {
 
     @Override
     public boolean accept( IBasicFile file ) {
-      return file != null && !StringUtils.isEmpty( file.getName() ) && file.getName().matches( REGEXP );
+      return file != null && !StringUtils.isEmpty( file.getName() )
+        && ( file.getName().matches( REGEXP ) || file.getName().matches( REGEXP_ALT ) );
     }
   }
 }
