@@ -45,6 +45,10 @@ public class PluginWriteAccess implements IRWAccess {
     return true;
   }
 
+  @Override public boolean createFolder( String path, boolean isHidden ) {
+    return true;
+  }
+
   @Override public InputStream getFileInputStream( String path ) throws IOException {
     return fileExists( path ) ? fetchFile( path ).getContents() : null;
   }

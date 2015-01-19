@@ -1,3 +1,16 @@
+/*!
+* Copyright 2002 - 2015 Webdetails, a Pentaho company. All rights reserved.
+*
+* This software was developed by Webdetails and is provided under the terms
+* of the Mozilla Public License, Version 2.0, or any later version. You may not use
+* this file except in compliance with the license. If you need a copy of the license,
+* please go to http://mozilla.org/MPL/2.0/. The Initial Developer is Webdetails.
+*
+* Software distributed under the Mozilla Public License is distributed on an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. Please refer to
+* the license for the specific language governing your rights and limitations.
+*/
+
 package pt.webdetails.cpf.repository.pentaho.unified;
 
 import java.io.ByteArrayInputStream;
@@ -202,7 +215,11 @@ public abstract class UnifiedRepositoryAccess {
     return savedFile != null && savedFile.getId() != null;
   }
 
+
   private RepositoryFile getOrCreateFolder( IUnifiedRepository repo, String path ) {
+    return getOrCreateFolder( repo, path, false );
+  }
+  private RepositoryFile getOrCreateFolder( IUnifiedRepository repo, String path, boolean isHidden ) {
     // full path, no slash at end
     String fullPath = StringUtils.chomp( getFullPath( path ), "/" );
     // backtrack path to get list of folders to create
@@ -235,14 +252,18 @@ public abstract class UnifiedRepositoryAccess {
       for ( int i = foldersToCreate.size() - 1; i >= 0; i-- ) {
         String folder = foldersToCreate.get( i );
         baseFolder =
-            repo.createFolder( baseFolder.getId(), new RepositoryFile.Builder( folder ).folder( true ).build(), null );
+            repo.createFolder( baseFolder.getId(), new RepositoryFile.Builder( folder ).folder( true ).hidden( isHidden ).build(), null );
       }
     }
     return baseFolder;
   }
 
   public boolean createFolder( String path ) {
-    RepositoryFile folder = getOrCreateFolder( getRepository(), path );
+    return createFolder( path, false );
+  }
+
+  public boolean createFolder( String path, boolean isHidden ) {
+    RepositoryFile folder = getOrCreateFolder( getRepository(), path, isHidden );
     if ( folder == null ) {
       return false;
     } else {
