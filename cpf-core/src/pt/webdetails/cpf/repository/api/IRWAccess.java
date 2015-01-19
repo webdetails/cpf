@@ -37,4 +37,12 @@ public interface IRWAccess extends IReadAccess {
    */
   boolean createFolder(String path);
 
+  /**
+   * Creates a folder. Will recursively create intermediate folders that don't exist.
+   * @param path directory path
+   * @param isHidden if folder is hidden
+   * @return if was created ok
+   */
+  boolean createFolder(String path, boolean isHidden);
+
 }
