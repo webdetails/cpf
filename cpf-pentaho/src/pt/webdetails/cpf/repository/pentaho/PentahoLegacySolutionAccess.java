@@ -59,7 +59,7 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
   private IPentahoSession userSession;
 
   public PentahoLegacySolutionAccess( String basePath, IPentahoSession session ) {
-    this(basePath, session, true);
+    this( basePath, session, true );
   }
 
   public PentahoLegacySolutionAccess( String basePath, IPentahoSession session, boolean baseDirHidden ) {
