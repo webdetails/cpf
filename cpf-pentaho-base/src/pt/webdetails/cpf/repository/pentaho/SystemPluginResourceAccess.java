@@ -1,3 +1,15 @@
+/*!
+* Copyright 2002 - 2015 Webdetails, a Pentaho company. All rights reserved.
+*
+* This software was developed by Webdetails and is provided under the terms
+* of the Mozilla Public License, Version 2.0, or any later version. You may not use
+* this file except in compliance with the license. If you need a copy of the license,
+* please go to http://mozilla.org/MPL/2.0/. The Initial Developer is Webdetails.
+*
+* Software distributed under the Mozilla Public License is distributed on an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. Please refer to
+* the license for the specific language governing your rights and limitations.
+*/
 package pt.webdetails.cpf.repository.pentaho;
 
 import java.io.File;
@@ -57,21 +69,19 @@ public class SystemPluginResourceAccess extends FileBasedResourceAccess implemen
 
   @Override
   protected File getFile( String path ) {
-    if(path != null && path.startsWith( "/system/" ))  {           //XXX - review ...
+    if ( path != null && path.startsWith( "/system/" ) ) {           //XXX - review ...
       String[] sections = path.split( "/" );
-      String sysPluginDir = sections[1] + "/" + sections[2];
-      String baseString = FilenameUtils.separatorsToUnix(  basePath.toString() );
-     if(baseString.indexOf( sysPluginDir) != -1 &&
-       (baseString.lastIndexOf( sysPluginDir ) + sysPluginDir.length() == baseString.length())) {
-       path = path.replaceFirst( "/.*?/.*?/","/" );
-     }
-     else if (baseString.indexOf( sysPluginDir ) == -1)
-     {
-       String systemPath = StringUtils.substringBeforeLast(basePath.getAbsolutePath(), "system" );
-       systemPath = systemPath + sysPluginDir;
-       path = path.replaceFirst( "/.*?/.*?/","/" );
-       return new File(systemPath, path);
-     }
+      String sysPluginDir = sections[ 1 ] + "/" + sections[ 2 ];
+      String baseString = FilenameUtils.separatorsToUnix( basePath.toString() );
+      if ( baseString.indexOf( sysPluginDir ) != -1 &&
+        ( baseString.lastIndexOf( sysPluginDir ) + sysPluginDir.length() == baseString.length() ) ) {
+        path = path.replaceFirst( "/.*?/.*?/", "/" );
+      } else if ( baseString.indexOf( sysPluginDir ) == -1 ) {
+        String systemPath = StringUtils.substringBeforeLast( basePath.getAbsolutePath(), "system" );
+        systemPath = systemPath + sysPluginDir;
+        path = path.replaceFirst( "/.*?/.*?/", "/" );
+        return new File( systemPath, path );
+      }
     }
     return StringUtils.isEmpty( path ) ? basePath : new File( basePath, path );
   }

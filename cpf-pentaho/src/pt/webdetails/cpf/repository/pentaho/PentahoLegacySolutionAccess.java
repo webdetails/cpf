@@ -1,5 +1,5 @@
 /*!
-* Copyright 2002 - 2014 Webdetails, a Pentaho company. All rights reserved.
+* Copyright 2002 - 2015 Webdetails, a Pentaho company. All rights reserved.
 *
 * This software was developed by Webdetails and is provided under the terms
 * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IAclSolutionFile;
+import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IContentGeneratorInfo;
 import org.pentaho.platform.api.engine.IFileFilter;
 import org.pentaho.platform.api.engine.IPentahoAclEntry;
@@ -43,7 +44,8 @@ import pt.webdetails.cpf.repository.api.IBasicFileFilter;
 import pt.webdetails.cpf.repository.api.IUserContentAccess;
 import pt.webdetails.cpf.repository.util.RepositoryHelper;
 
-@SuppressWarnings("deprecation")
+
+@SuppressWarnings( "deprecation" )
 public class PentahoLegacySolutionAccess implements IUserContentAccess {
 
   private static Log logger = LogFactory.getLog( PentahoLegacySolutionAccess.class );
@@ -57,12 +59,17 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
   private IPentahoSession userSession;
 
   public PentahoLegacySolutionAccess( String basePath, IPentahoSession session ) {
+    this( basePath, session, true );
+  }
+
+  public PentahoLegacySolutionAccess( String basePath, IPentahoSession session, boolean baseDirHidden ) {
     this.basePath = StringUtils.isEmpty( basePath ) ? DEFAULT_PATH : basePath;
     this.repository = initSolutionRepository( session );
     this.repositoryService = initRepositoryService( session );
     this.userSession = session;
-    ensureBasePathExists();
+    ensureBasePathExists( baseDirHidden );
   }
+
 
   protected ISolutionRepository initSolutionRepository( IPentahoSession session ) {
     return PentahoSystem.get( ISolutionRepository.class, session );
@@ -136,22 +143,41 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
   }
 
   @Override
-  public boolean createFolder( String path ) { // TODO: shouldn't this be recursive?
+  public boolean createFolder( String path ) {
+    return createFolder( path, false );
+  }
+
+  @Override
+  public boolean createFolder( String path, boolean isHidden ) { // TODO: shouldn't this be recursive?
     path = StringUtils.chomp( path, "/" ); // strip trailing / if there
     String folderName = FilenameUtils.getBaseName( getPath( path ) );
     String folderPath = getPath( path ).substring( 0, StringUtils.lastIndexOf( getPath( path ), folderName ) );
 
     try {
-      return getRepositoryService().createFolder( userSession, "", folderPath, folderName, "" );
+      if ( getRepositoryService().createFolder( userSession, "", folderPath, folderName, "" ) ) {
+        if ( isHidden ) {
+          String indexContent = "<index><name>" + folderName + "</name><description></description>"
+            + "<icon>reporting.png</icon><visible>false</visible><display-type>list</display-type></index>";
+
+          String repositoryBaseURL = PentahoSystem.getApplicationContext().getSolutionPath( "" );
+          getRepository().addSolutionFile( repositoryBaseURL, folderName, ISolutionRepository.INDEX_FILENAME,
+            indexContent.getBytes(), true );
+        }
+        return true;
+      } else {
+        return false;
+      }
+
+
     } catch ( IOException ex ) {
       logger.error( ex );
       return false;
     }
   }
 
-  protected void ensureBasePathExists() {
+  protected void ensureBasePathExists( boolean baseDirHidden ) {
     if ( !fileExists( null ) ) {
-      createFolder( "" );
+      createFolder( "", baseDirHidden );
     }
   }
 
