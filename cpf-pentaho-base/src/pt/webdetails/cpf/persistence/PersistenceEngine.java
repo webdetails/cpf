@@ -505,6 +505,8 @@ public class PersistenceEngine implements IPersistenceEngine {
         if ( id == null || id.length() == 0 ) {
           ORID newId = doc.getIdentity();
           json.put( "id", newId.toString() );
+        } else {
+          json.put( "id", id );
         }
 
         return json;
