@@ -30,7 +30,7 @@ public abstract class PentahoBasePluginEnvironment extends PluginEnvironment imp
 
   @Override
   public IRWAccess getPluginSystemWriter(String basePath) {
-    return new SystemPluginResourceAccess(this.getClass().getClassLoader(), basePath);
+    return systemWriteAuthorized() ? new SystemPluginResourceAccess(this.getClass().getClassLoader(), basePath) : null;
   }
 
   //TODO: this is temporary
@@ -45,7 +45,7 @@ public abstract class PentahoBasePluginEnvironment extends PluginEnvironment imp
 
   @Override
   public IRWAccess getOtherPluginSystemWriter(String pluginId, String basePath) {
-    return new SystemPluginResourceAccess(pluginId, basePath);
+    return systemWriteAuthorized() ? new SystemPluginResourceAccess(pluginId, basePath) : null;
   }
   /**
    * @return Plugin's directory in repository, relative to root; defaults to plugin id if not overridden
@@ -73,6 +73,10 @@ public abstract class PentahoBasePluginEnvironment extends PluginEnvironment imp
       }
     }
     return pluginId;
+  }
+
+  protected boolean systemWriteAuthorized(){
+    return true;
   }
 
 

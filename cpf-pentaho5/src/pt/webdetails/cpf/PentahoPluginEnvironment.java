@@ -72,4 +72,8 @@ public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment imple
     return new InterPluginCall( new InterPluginCall.Plugin( pluginId ), servicePath, method );
   }
 
+  @Override
+  protected boolean systemWriteAuthorized() {
+    return super.systemWriteAuthorized();
+  }
 }
