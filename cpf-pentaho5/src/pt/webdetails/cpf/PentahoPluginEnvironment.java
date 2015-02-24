@@ -2,9 +2,7 @@ package pt.webdetails.cpf;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 
 import pt.webdetails.cpf.api.IContentAccessFactoryExtended;
 import pt.webdetails.cpf.api.IUserContentAccessExtended;
@@ -72,8 +70,4 @@ public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment imple
     return new InterPluginCall( new InterPluginCall.Plugin( pluginId ), servicePath, method );
   }
 
-  @Override
-  protected boolean systemWriteAuthorized() {
-    return super.systemWriteAuthorized();
-  }
 }
