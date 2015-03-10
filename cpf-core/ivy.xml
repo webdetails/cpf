@@ -42,9 +42,9 @@
     <dependency org="org.json" name="json" rev="3.1"/>
     <dependency org="org.mozilla" name="rhino" rev="1.7R4"/>
     <!--TODO: some sanity in spring versions? -->
-    <dependency org="org.springframework" name="spring-beans" rev="3.0.3.RELEASE"/>
-    <dependency org="org.springframework" name="spring-core" rev="2.5.6"/>
-    <dependency org="org.springframework.security" name="spring-security-core" rev="2.0.5.RELEASE"/>
+    <dependency org="org.springframework" name="spring-beans" rev="4.1.5.RELEASE"/>
+    <dependency org="org.springframework" name="spring-core" rev="4.1.5.RELEASE"/>
+    <dependency org="org.springframework.security" name="spring-security-core" rev="3.2.5.RELEASE"/>
 
     <dependency org="org.mozilla" name="rhino" rev="1.7R4" conf="runtime->default"/>
 
