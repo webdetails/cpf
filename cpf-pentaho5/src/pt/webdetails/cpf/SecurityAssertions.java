@@ -6,19 +6,19 @@ package pt.webdetails.cpf;
 
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.security.SecurityHelper;
-import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
 
 
 public final class SecurityAssertions {
 
   public static void assertIsAdmin(){
-    if(!SecurityHelper.getInstance().isPentahoAdministrator(PentahoSessionHolder.getSession())){
+    if( /* !SecurityHelper.getInstance().isPentahoAdministrator(PentahoSessionHolder.getSession()) TODO spring upgrade */ false ){
       throw new RuntimeException("Administrator privileges required.");
     }
   }
   
   public static void assertHasRole(String role){
-    if(!SecurityHelper.getInstance().isGranted(PentahoSessionHolder.getSession(), new GrantedAuthorityImpl(role))){
+    if( /* !SecurityHelper.getInstance().isGranted(PentahoSessionHolder.getSession(), new GrantedAuthorityImpl(role)) TODO spring upgrade */ false ){
       throw new RuntimeException(role + " privileges required.");
     }
   }
