@@ -1,6 +1,15 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this file,
- * You can obtain one at http://mozilla.org/MPL/2.0/. */
+/*!
+ * Copyright 2002 - 2015 Webdetails, a Pentaho company.  All rights reserved.
+ *
+ * This software was developed by Webdetails and is provided under the terms
+ * of the Mozilla Public License, Version 2.0, or any later version. You may not use
+ * this file except in compliance with the license. If you need a copy of the license,
+ * please go to  http://mozilla.org/MPL/2.0/. The Initial Developer is Webdetails.
+ *
+ * Software distributed under the Mozilla Public License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or  implied. Please refer to
+ * the license for the specific language governing your rights and limitations.
+ */
 
 package pt.webdetails.cpf.packager;
 
@@ -11,6 +20,7 @@ import pt.webdetails.cpf.packager.dependencies.CssMinifiedDependency;
 import pt.webdetails.cpf.packager.dependencies.Dependency;
 import pt.webdetails.cpf.packager.dependencies.FileDependency;
 import pt.webdetails.cpf.packager.dependencies.JsMinifiedDependency;
+import pt.webdetails.cpf.packager.dependencies.MapDependency;
 import pt.webdetails.cpf.packager.dependencies.PackagedFileDependency;
 import pt.webdetails.cpf.packager.dependencies.SnippetDependency;
 import pt.webdetails.cpf.context.api.IUrlProvider;
@@ -33,7 +43,7 @@ public class DependenciesPackage {
   }
 
   public enum PackageType {
-    CSS, JS
+    CSS, JS, MAP
   }
 
   private String name;
@@ -74,7 +84,7 @@ public class DependenciesPackage {
    */
   public boolean registerFileDependency( String name, String version, PathOrigin origin, String path ) {
     FileDependency newDep = new FileDependency( version, origin, path, urlProvider );
-    synchronized( packagingLock ) {
+    synchronized ( packagingLock ) {
       if ( registerDependency( name, newDep, fileDependencies ) ) {
         //invalidate packaged if there
         packagedDependency = null;
@@ -106,9 +116,7 @@ public class DependenciesPackage {
    * @return script or link tag with file references
    */
   public String getDependencies( StringFilter format, boolean isPackaged ) {
-    return isPackaged ?
-      getPackagedDependency( format, null ) :
-      getUnpackagedDependencies( format, null );
+    return isPackaged ? getPackagedDependency( format, null ) : getUnpackagedDependencies( format, null );
   }
 
   public String getRawDependencies( boolean isPackaged ) {
@@ -154,9 +162,7 @@ public class DependenciesPackage {
    * @return script or link tag with file references
    */
   public String getDependencies( StringFilter format, boolean isPackaged, IDependencyInclusionFilter filter ) {
-    return isPackaged ?
-      getPackagedDependency( format, filter ) :
-      getUnpackagedDependencies( format, filter );
+    return isPackaged ? getPackagedDependency( format, filter ) : getUnpackagedDependencies( format, filter );
   }
 
   public String getUnpackagedDependencies( StringFilter format, IDependencyInclusionFilter filter ) {
@@ -179,6 +185,7 @@ public class DependenciesPackage {
   }
 
   protected String getPackagedDependency( StringFilter format, IDependencyInclusionFilter filter ) {
+    boolean isMap = type.equals( PackageType.MAP );
     if ( filter != null ) {
       // return minified dashboard component dependencies
       Map<String, FileDependency> customDependencies = new LinkedHashMap<String, FileDependency>();
@@ -187,11 +194,11 @@ public class DependenciesPackage {
           customDependencies.put( dep.getDependencyInclude(), dep );
         }
       }
-      String packagedPath = name + "." + type.toString().toLowerCase();
+      String packagedPath = isMap ? name : name + "." + type.toString().toLowerCase();
       String baseDir = type.toString().toLowerCase();
       IRWAccess writer = factory.getPluginSystemWriter( baseDir );
       PathOrigin origin = new StaticSystemOrigin( baseDir );
-      switch( type ) {
+      switch ( type ) {
         case CSS:
           return format.filter(
             new CssMinifiedDependency( origin, packagedPath, writer, customDependencies.values(), urlProvider )
@@ -200,18 +207,21 @@ public class DependenciesPackage {
           return format.filter(
             new JsMinifiedDependency( origin, packagedPath, writer, customDependencies.values(), urlProvider )
               .getDependencyInclude() );
+        case MAP:
+          return format.filter( new MapDependency( origin, packagedPath, writer, customDependencies.values(),
+            urlProvider ).getDependencyInclude() );
         default:
           throw new IllegalStateException( getClass().getSimpleName() + " does not have a recognized type: " + type );
       }
     } else {
       // set packagedDependency if null and/or return all dependencies minified
-      synchronized( packagingLock ) {
+      synchronized ( packagingLock ) {
         if ( packagedDependency == null ) {
-          String packagedPath = name + "." + type.toString().toLowerCase();
-          String baseDir = type.toString().toLowerCase();
+          String packagedPath = isMap ? name : name + "." + type.toString().toLowerCase();
+          String baseDir = isMap ? "css" : type.toString().toLowerCase();
           IRWAccess writer = factory.getPluginSystemWriter( baseDir );
           PathOrigin origin = new StaticSystemOrigin( baseDir );
-          switch( type ) {
+          switch ( type ) {
             case CSS:
               packagedDependency =
                 new CssMinifiedDependency( origin, packagedPath, writer, fileDependencies.values(), urlProvider );
@@ -219,6 +229,10 @@ public class DependenciesPackage {
             case JS:
               packagedDependency =
                 new JsMinifiedDependency( origin, packagedPath, writer, fileDependencies.values(), urlProvider );
+              break;
+            case MAP:
+              packagedDependency =
+                new MapDependency( origin, name, writer, fileDependencies.values() , urlProvider );
               break;
             default:
               throw new IllegalStateException(
@@ -243,7 +257,7 @@ public class DependenciesPackage {
   }
 
   private static StringFilter getDefaultStringFilter( PackageType type ) {
-    switch( type ) {
+    switch ( type ) {
       case CSS:
         return new StringFilter() {
           public String filter( String input ) {
@@ -266,6 +280,18 @@ public class DependenciesPackage {
             return String.format(
               "\t\t<script language=\"javascript\" type=\"text/javascript\" src=\"%s%s\"></script>\n",
               baseUrl, baseUrl.endsWith( "/" ) && input.startsWith( "/" ) ? input.replaceFirst( "/", "" ) : input );
+          }
+        };
+      case MAP:
+        return new StringFilter() {
+          @Override
+          public String filter( String input ) {
+            return "";
+          }
+
+          @Override
+          public String filter( String input, String absRoot ) {
+            return "";
           }
         };
       default:

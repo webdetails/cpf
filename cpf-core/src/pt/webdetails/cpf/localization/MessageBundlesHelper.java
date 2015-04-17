@@ -1,5 +1,5 @@
 /*!
- * Copyright 2002 - 2014 Webdetails, a Pentaho company.  All rights reserved.
+ * Copyright 2002 - 2015 Webdetails, a Pentaho company.  All rights reserved.
  * 
  * This software was developed by Webdetails and is provided under the terms
  * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -76,7 +76,8 @@ public class MessageBundlesHelper {
   String pluginStaticBaseContentUrl;
 
   public MessageBundlesHelper( String dashboardFolderPath, IReadAccess dashboardAccess, IRWAccess pluginAccess,
-                      Locale locale, String pluginStaticBaseContentUrl ) throws IllegalArgumentException, IOException {
+                               Locale locale, String pluginStaticBaseContentUrl )
+    throws IllegalArgumentException, IOException {
 
     if ( dashboardAccess == null ) {
       throw new IllegalArgumentException( "dashboardAccess is null" );
@@ -116,7 +117,7 @@ public class MessageBundlesHelper {
 
       logger.info( "Attempting to create base base cache dir at " + getBaseTempCacheFolder() );
 
-      if ( getPluginAccess().createFolder( getBaseTempCacheFolder() ) ) {
+      if ( getPluginAccess().createFolder( getBaseTempCacheFolder(), false ) ) {
         logger.info( "Base cache dir created successfully" );
 
       } else {
@@ -162,7 +163,8 @@ public class MessageBundlesHelper {
 
       for ( IBasicFile localizedPropertyFile : localizedPropertiesFiles ) {
 
-        String fileInCacheDirPath = Util.joinPath( getBaseTempCacheFolder(), sanitize( localizedPropertyFile.getName() ) );
+        String fileInCacheDirPath =
+          Util.joinPath( getBaseTempCacheFolder(), sanitize( localizedPropertyFile.getName() ) );
 
         try {
 
@@ -210,7 +212,7 @@ public class MessageBundlesHelper {
       basePropertiesFile = getDashboardAccess().fetchFile( baseMsgPath );
 
       if ( !getPluginAccess().fileExists( basePropertiesCachePath ) || overrideIfExists ) {
-          getPluginAccess().saveFile( basePropertiesCachePath, basePropertiesFile.getContents() );
+        getPluginAccess().saveFile( basePropertiesCachePath, basePropertiesFile.getContents() );
       }
     }
 
@@ -218,7 +220,7 @@ public class MessageBundlesHelper {
     // there isn't ( and to safeguard us from those pesky '404 not found' when the dashboard tries to fetch it ) we'll
     // go ahead and store it as an empty file;
     if ( !getPluginAccess().fileExists( basePropertiesCachePath ) ) {
-      getPluginAccess().saveFile( basePropertiesCachePath, new ByteArrayInputStream( new byte[0] ) );
+      getPluginAccess().saveFile( basePropertiesCachePath, new ByteArrayInputStream( new byte[ 0 ] ) );
     }
 
     return true;
@@ -232,7 +234,8 @@ public class MessageBundlesHelper {
 
       for ( IBasicFile message : localizedMessages ) {
 
-        if ( !getPluginAccess().fileExists( Util.joinPath( getBaseTempCacheFolder(), sanitize( message.getName() ) ) ) ) {
+        if ( !getPluginAccess()
+          .fileExists( Util.joinPath( getBaseTempCacheFolder(), sanitize( message.getName() ) ) ) ) {
 
           filteredLocalizedMessages.add( message );
         }
@@ -312,18 +315,19 @@ public class MessageBundlesHelper {
   /**
    * If the name uses a unix format, sanitize when storing it in BASE_CACHE_DIR, using ISO 3361 / RFC5646 norm
    * <p/>
+   *
    * @link http://www.rfc-editor.org/rfc/rfc5646.txt  ( search for 'HYPHEN-MINUS' )
    */
-  public String sanitize( String name ){
+  public String sanitize( String name ) {
 
     final String REGEX_SEPARATOR_UNIX =
       BASE_MESSAGES_FILENAME + "_[a-z][a-z](" + LANGUAGE_COUNTRY_SEPARATOR_UNIX + "[A-Z][A-Z])" + MESSAGES_EXTENSION;
 
-    if( !StringUtils.isEmpty( name ) && name.matches( REGEX_SEPARATOR_UNIX ) ){
+    if ( !StringUtils.isEmpty( name ) && name.matches( REGEX_SEPARATOR_UNIX ) ) {
 
       int idx = name.lastIndexOf( LANGUAGE_COUNTRY_SEPARATOR_UNIX );
 
-      StringBuffer sb = new StringBuffer( name.substring( 0 , idx ) );
+      StringBuffer sb = new StringBuffer( name.substring( 0, idx ) );
       sb.append( MessageBundlesHelper.LANGUAGE_COUNTRY_SEPARATOR );
       sb.append( name.substring( idx + MessageBundlesHelper.LANGUAGE_COUNTRY_SEPARATOR_UNIX.length() ) );
 

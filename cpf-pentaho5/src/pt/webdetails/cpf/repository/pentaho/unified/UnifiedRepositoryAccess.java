@@ -1,3 +1,16 @@
+/*!
+* Copyright 2002 - 2015 Webdetails, a Pentaho company. All rights reserved.
+*
+* This software was developed by Webdetails and is provided under the terms
+* of the Mozilla Public License, Version 2.0, or any later version. You may not use
+* this file except in compliance with the license. If you need a copy of the license,
+* please go to http://mozilla.org/MPL/2.0/. The Initial Developer is Webdetails.
+*
+* Software distributed under the Mozilla Public License is distributed on an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. Please refer to
+* the license for the specific language governing your rights and limitations.
+*/
+
 package pt.webdetails.cpf.repository.pentaho.unified;
 
 import java.io.ByteArrayInputStream;
@@ -83,24 +96,24 @@ public abstract class UnifiedRepositoryAccess {
       // 1. if we're on EE
       // 2. whether the resource is a ktr or a kjb to load the approriate Converter. Otherwise we'll return the
       // serialization of the node
-      NodeRepositoryFileData data = getRepository().getDataForRead(file.getId(), NodeRepositoryFileData.class );
+      NodeRepositoryFileData data = getRepository().getDataForRead( file.getId(), NodeRepositoryFileData.class );
       IPluginManager pManager = PentahoSystem.get( IPluginManager.class );
       ClassLoader classLoader = pManager.getClassLoader( "pdi-platform-plugin" );
       if ( classLoader != null ) {
         //It's an EE server - get the converter class name given the file type
         String converterClassName = path.endsWith( ".ktr" )
-                ? "com.pentaho.repository.importexport.StreamToTransNodeConverter"
-                : path.endsWith( ".kjb" ) ? "com.pentaho.repository.importexport.StreamToJobNodeConverter" : null;
+          ? "com.pentaho.repository.importexport.StreamToTransNodeConverter"
+          : path.endsWith( ".kjb" ) ? "com.pentaho.repository.importexport.StreamToJobNodeConverter" : null;
 
         if ( converterClassName != null ) {
           try {
             Class converterClass = classLoader.loadClass( converterClassName );
-            Object converterInstance = converterClass.getConstructors()[0].newInstance( getRepository() );
-            Method m = converterClass.getMethod( "convert", new Class[]{ Serializable.class } );
+            Object converterInstance = converterClass.getConstructors()[ 0 ].newInstance( getRepository() );
+            Method m = converterClass.getMethod( "convert", new Class[] { Serializable.class } );
             return (InputStream) m.invoke( converterInstance, file.getId() );
           } catch ( ClassNotFoundException e ) {
             logger.error( "Did not find expected converter class for resource: " + converterClassName
-                    + ". Returning default conversion", e );
+              + ". Returning default conversion", e );
           } catch ( InvocationTargetException e ) {
             logger.error( "Error invoking constructor for converter class. Returning default conversion", e );
           } catch ( InstantiationException e ) {
@@ -202,7 +215,12 @@ public abstract class UnifiedRepositoryAccess {
     return savedFile != null && savedFile.getId() != null;
   }
 
+
   private RepositoryFile getOrCreateFolder( IUnifiedRepository repo, String path ) {
+    return getOrCreateFolder( repo, path, false );
+  }
+
+  private RepositoryFile getOrCreateFolder( IUnifiedRepository repo, String path, boolean isHidden ) {
     // full path, no slash at end
     String fullPath = StringUtils.chomp( getFullPath( path ), "/" );
     // backtrack path to get list of folders to create
@@ -235,14 +253,19 @@ public abstract class UnifiedRepositoryAccess {
       for ( int i = foldersToCreate.size() - 1; i >= 0; i-- ) {
         String folder = foldersToCreate.get( i );
         baseFolder =
-            repo.createFolder( baseFolder.getId(), new RepositoryFile.Builder( folder ).folder( true ).build(), null );
+          repo.createFolder( baseFolder.getId(),
+            new RepositoryFile.Builder( folder ).folder( true ).hidden( isHidden ).build(), null );
       }
     }
     return baseFolder;
   }
 
   public boolean createFolder( String path ) {
-    RepositoryFile folder = getOrCreateFolder( getRepository(), path );
+    return createFolder( path, false );
+  }
+
+  public boolean createFolder( String path, boolean isHidden ) {
+    RepositoryFile folder = getOrCreateFolder( getRepository(), path, isHidden );
     if ( folder == null ) {
       return false;
     } else {
@@ -289,7 +312,8 @@ public abstract class UnifiedRepositoryAccess {
 
   /**
    * list all files under a given base path
-   * @param path the base/root path
+   *
+   * @param path   the base/root path
    * @param filter (optional) allows for filtering of the returned list of files
    * @return list of files under a given base path
    * @see pt.webdetails.cpf.repository.api.IBasicFileFilter
@@ -300,10 +324,11 @@ public abstract class UnifiedRepositoryAccess {
 
   /**
    * list all files/folders under a given base path
-   * @param path the base/root path
-   * @param filter (optional) allows for filtering of the returned list of files
-   * @param maxDepth the search and listing depth; -1 for full depth, zero for no depth
-   * (i.e only the base path's direct children)
+   *
+   * @param path        the base/root path
+   * @param filter      (optional) allows for filtering of the returned list of files
+   * @param maxDepth    the search and listing depth; -1 for full depth, zero for no depth (i.e only the base path's
+   *                    direct children)
    * @param includeDirs true if list of IBasicFile returned should also include folders, false otherwise
    * @return list of files/folders under a given base path
    * @see pt.webdetails.cpf.repository.api.IBasicFileFilter
@@ -314,20 +339,21 @@ public abstract class UnifiedRepositoryAccess {
 
   /**
    * list all files/folders under a given base path
-   * @param path the base/root path
-   * @param filter (optional) allows for filtering of the returned list of files
-   * @param maxDepth the search and listing depth; -1 for full depth, zero for no depth
-   * (i.e only the base path's direct children)
-   * @param includeDirs true if list of IBasicFile returned should also include folders, false otherwise 
-   * @param showHiddenFilesAndFolders true if list of IBasicFile returned should also include files/folders
-   * marked as hidden, false otherwise 
+   *
+   * @param path                      the base/root path
+   * @param filter                    (optional) allows for filtering of the returned list of files
+   * @param maxDepth                  the search and listing depth; -1 for full depth, zero for no depth (i.e only the
+   *                                  base path's direct children)
+   * @param includeDirs               true if list of IBasicFile returned should also include folders, false otherwise
+   * @param showHiddenFilesAndFolders true if list of IBasicFile returned should also include files/folders marked as
+   *                                  hidden, false otherwise
    * @return list of files/folders under a given base path
    * @see pt.webdetails.cpf.repository.api.IBasicFileFilter
    */
   public List<IBasicFile> listFiles( String path, IBasicFileFilter filter, int maxDepth, boolean includeDirs,
-      boolean showHiddenFilesAndFolders ) {
+                                     boolean showHiddenFilesAndFolders ) {
     return listFiles( getFullPath( path ), maxDepth, includeDirs, filter, showHiddenFilesAndFolders,
-        new ArrayList<IBasicFile>() );
+      new ArrayList<IBasicFile>() );
   }
 
   public List<IBasicFile> listFiles( String path, IBasicFileFilter filter, int maxDepth ) {
@@ -370,7 +396,8 @@ public abstract class UnifiedRepositoryAccess {
   }
 
   /**
-   * DFS files matching filter. 
+   * DFS files matching filter.
+   *
    * @param path
    * @param includeDirs
    * @param filter
@@ -379,12 +406,12 @@ public abstract class UnifiedRepositoryAccess {
    * @return List of files by the order they're found.
    */
   protected List<IBasicFile> listFiles(
-      String path,
-      int depth,
-      boolean includeDirs,
-      IBasicFileFilter filter,
-      boolean showHiddenFiles,
-      final List<IBasicFile> listOut ) {
+    String path,
+    int depth,
+    boolean includeDirs,
+    IBasicFileFilter filter,
+    boolean showHiddenFiles,
+    final List<IBasicFile> listOut ) {
     // TODO: check for depth coherence with other types, better impl
     RepositoryFileTree tree = getRepository().getTree( path, depth, null, showHiddenFiles );
     // TODO: in case there are no files / folder is hidden the tree could be null?
@@ -400,9 +427,9 @@ public abstract class UnifiedRepositoryAccess {
     boolean isAdmin = policy.isAllowed( AdministerSecurityAction.NAME );
     Map<String, Serializable> fileMeta = getRepository().getFileMetadata( file.getId() );
     boolean isSystemFolder =
-        fileMeta.containsKey( IUnifiedRepository.SYSTEM_FOLDER )
-          ? (Boolean) fileMeta.get( IUnifiedRepository.SYSTEM_FOLDER )
-          : false;
+      fileMeta.containsKey( IUnifiedRepository.SYSTEM_FOLDER )
+        ? (Boolean) fileMeta.get( IUnifiedRepository.SYSTEM_FOLDER )
+        : false;
 
     if ( !isAdmin && isSystemFolder ) {
       return true;
@@ -412,11 +439,11 @@ public abstract class UnifiedRepositoryAccess {
 
   // painful thing to do, but it's a unifying interface
   protected void populateList(
-      List<IBasicFile> list,
-      RepositoryFileTree tree,
-      IBasicFileFilter filter,
-      final boolean includeDirs,
-      final boolean showHidden ) {
+    List<IBasicFile> list,
+    RepositoryFileTree tree,
+    IBasicFileFilter filter,
+    final boolean includeDirs,
+    final boolean showHidden ) {
     RepositoryFile file = tree.getFile();
 
     if ( !showHidden && file.isHidden() ) {
