@@ -94,6 +94,9 @@ public class MimeTypes {
         mimeTypes.put( FileType.CDFDE, JSON );
         mimeTypes.put( FileType.XCDF, XML );
         mimeTypes.put( FileType.WCDF, XML );
+
+        // Other types
+        mimeTypes.put( FileType.PDF, PDF );
     }
 
     public static String getMimeType(String fileName) {
