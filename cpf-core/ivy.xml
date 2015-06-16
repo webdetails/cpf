@@ -50,7 +50,7 @@
 
     <dependency org="junit" name="junit" conf="test->default" rev='4.10'/>
     <dependency org="commons-httpclient" name="commons-httpclient" conf="test->default" rev='3.1'/>
-    <dependency org="hsqldb" name="hsqldb" conf="test->default" rev='1.8.0.10'/>
+    <dependency org="org.hsqldb" name="hsqldb" conf="test->default" rev='2.3.2'/>
     <dependency org="org.mockito" name="mockito-core" rev="1.9.5" conf="test->default"/>
 
   </dependencies>
