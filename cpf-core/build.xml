@@ -85,9 +85,6 @@
   <echo>distribution.version = ${distribution.version}</echo>
 
 
-    <target name="publish" depends="dist, dist-source, cobertura, publish-nojar">
-    </target>
-
   <property name="plugin.artifact.id" value="${plugin.name}"/>
   <property name="plugin.zipfile" value="${plugin.artifact.id}-${distribution.version}.zip"/>
   <property name="plugin.samples.zipfile" value="${plugin.artifact.id}-samples-${distribution.version}.zip"/>
@@ -96,9 +93,9 @@
 
 
  <!-- Add the target -->
- 
+
  <target name="check-sonar-props">
-      <available file="/home/tomcat/sonar.properties" property="sonar.props"/>    
+      <available file="/home/tomcat/sonar.properties" property="sonar.props"/>
       <echo>${sonar.props}</echo>
  </target>
 
@@ -107,14 +104,14 @@
 <echo>Prop file exists</echo>
 <loadproperties srcFile="/home/tomcat/sonar.properties"/>
 </target>
- 
-  <target name="sonar" depends='read-sonar-props'>
+
+  <target name="ctools-sonar" depends='read-sonar-props'>
     <!-- list of mandatories Sonar properties -->
     <property name="sonar.sources" value="${src.dir}" />
- 
+
     <!-- list of optional Sonar properties -->
     <property name="sonar.binaries" value="${classes.dir}" />
-    
+
     <sonar:sonar key="pt.webdetails:CPF" version="${distribution.version}" xmlns:sonar="antlib:org.sonar.ant"/>
   </target>
 
@@ -131,7 +128,7 @@
   </target>
 
 
-  <!-- ================ 
+  <!-- ================
         Legacy Compat
        ================ -->
   <target name="resolve-legacy" depends="resolve-init">
@@ -139,7 +136,7 @@
     <ivy:retrieve conf="legacy" pattern="${lib.dir}/[module]-[revision](-[classifier]).[ext]" />
   </target>
   <target name="dist-legacy" depends="clean,resolve-legacy,jar"/>
-  <!-- ================= --> 
+  <!-- ================= -->
 
   <!--=======================================================================
           publish-local-nojar (override)
