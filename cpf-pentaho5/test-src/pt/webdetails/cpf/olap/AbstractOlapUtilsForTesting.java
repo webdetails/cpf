@@ -4,7 +4,6 @@ import mondrian.olap.Connection;
 import mondrian.olap.Member;
 import mondrian.rolap.RolapMember;
 import mondrian.rolap.RolapResult;
-import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 
@@ -21,10 +20,6 @@ public class AbstractOlapUtilsForTesting extends AbstractOlapUtils {
     this.mockedConnection = connection;
   }
 
-  public Connection getConnection() {
-    return this.mockedConnection;
-  }
-
   @Override
   protected String getJndiFromCatalog( MondrianCatalog catalog ) {
     return "testJndi";
@@ -37,10 +32,6 @@ public class AbstractOlapUtilsForTesting extends AbstractOlapUtils {
 
   protected IMondrianCatalogService getMondrianCatalogService() {
     return new MondrianCatalogServiceMock();
-  }
-
-  protected ICacheManager getCacheManager() {
-    return null;
   }
 
   @Override
