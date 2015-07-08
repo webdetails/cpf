@@ -36,10 +36,8 @@ import mondrian.rolap.RolapResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelper;
@@ -51,23 +49,15 @@ public abstract class AbstractOlapUtils {
 
   protected static Log logger = LogFactory.getLog( AbstractOlapUtils.class );
   protected IPentahoSession userSession;
-  ICacheManager cacheManager;
-  boolean cachingAvailable;
-  private static final String MONDRIAN_CATALOGS = "CDFDD_DATASOURCES_REPOSITORY_DOCUMENT";
   protected final IMondrianCatalogService mondrianCatalogService = getMondrianCatalogService();
 
-
   Connection nativeConnection = null;
-  String lastQuery = null;
 
   private static final String DIRECTION_DOWN = "down";
 
   public AbstractOlapUtils() {
     this.userSession = PentahoSessionHolder.getSession();
-    cacheManager = getCacheManager();
-    cachingAvailable = cacheManager != null && cacheManager.cacheEnabled();
   }
-
 
   public JSONObject getOlapCubes() throws JSONException {
 
@@ -273,22 +263,7 @@ public abstract class AbstractOlapUtils {
 
 
   public List<MondrianCatalog> getMondrianCatalogs() {
-
-    List<MondrianCatalog> catalogs = null;
-
-    if ( cachingAvailable
-        && ( catalogs = (List<MondrianCatalog>) cacheManager.getFromSessionCache(
-        userSession, MONDRIAN_CATALOGS ) ) != null ) {
-      logger.debug( "Datasource document found in cache" );
-      return catalogs;
-    } else {
-
-      catalogs = mondrianCatalogService.listCatalogs( userSession, true );
-      cacheManager.putInSessionCache( userSession, MONDRIAN_CATALOGS, catalogs );
-
-    }
-
-    return catalogs;
+    return mondrianCatalogService.listCatalogs( userSession, true );
   }
 
   public JSONObject getLevelMembersStructure( String catalog, String cube, String memberString, String direction )
@@ -419,10 +394,6 @@ public abstract class AbstractOlapUtils {
 
   protected IMondrianCatalogService getMondrianCatalogService() {
     return MondrianCatalogHelper.getInstance();
-  }
-
-  protected ICacheManager getCacheManager() {
-    return PentahoSystem.getCacheManager( userSession );
   }
 
   protected List<RolapMember> getMeasuresMembersFromResult( RolapResult result ) {
