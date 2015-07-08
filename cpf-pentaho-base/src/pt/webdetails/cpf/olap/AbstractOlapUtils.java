@@ -1,21 +1,20 @@
 /*!
-* Copyright 2002 - 2014 Webdetails, a Pentaho company.  All rights reserved.
-*
-* This software was developed by Webdetails and is provided under the terms
-* of the Mozilla Public License, Version 2.0, or any later version. You may not use
-* this file except in compliance with the license. If you need a copy of the license,
-* please go to  http://mozilla.org/MPL/2.0/. The Initial Developer is Webdetails.
-*
-* Software distributed under the Mozilla Public License is distributed on an "AS IS"
-* basis, WITHOUT WARRANTY OF ANY KIND, either express or  implied. Please refer to
-* the license for the specific language governing your rights and limitations.
-*/
+ * Copyright 2002 - 2015 Webdetails, a Pentaho company. All rights reserved.
+ *
+ * This software was developed by Webdetails and is provided under the terms
+ * of the Mozilla Public License, Version 2.0, or any later version. You may not use
+ * this file except in compliance with the license. If you need a copy of the license,
+ * please go to http://mozilla.org/MPL/2.0/. The Initial Developer is Webdetails.
+ *
+ * Software distributed under the Mozilla Public License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. Please refer to
+ * the license for the specific language governing your rights and limitations.
+ */
 
 package pt.webdetails.cpf.olap;
 
 import java.util.List;
 
-import mondrian.mdx.MemberExpr;
 import mondrian.olap.Connection;
 import mondrian.olap.Dimension;
 import mondrian.olap.DriverManager;
@@ -36,10 +35,8 @@ import mondrian.rolap.RolapResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelper;
@@ -51,23 +48,15 @@ public abstract class AbstractOlapUtils {
 
   protected static Log logger = LogFactory.getLog( AbstractOlapUtils.class );
   protected IPentahoSession userSession;
-  ICacheManager cacheManager;
-  boolean cachingAvailable;
-  private static final String MONDRIAN_CATALOGS = "CDFDD_DATASOURCES_REPOSITORY_DOCUMENT";
   protected final IMondrianCatalogService mondrianCatalogService = getMondrianCatalogService();
 
-
   Connection nativeConnection = null;
-  String lastQuery = null;
 
   private static final String DIRECTION_DOWN = "down";
 
   public AbstractOlapUtils() {
     this.userSession = PentahoSessionHolder.getSession();
-    cacheManager = getCacheManager();
-    cachingAvailable = cacheManager != null && cacheManager.cacheEnabled();
   }
-
 
   public JSONObject getOlapCubes() throws JSONException {
 
@@ -201,8 +190,8 @@ public abstract class AbstractOlapUtils {
       jsonMeasure.put( "type", "measure" );
       jsonMeasure.put( "name", ( (RolapMemberBase) measure ).getName() );
       jsonMeasure.put( "caption",
-          ( (RolapMemberBase) measure ).getCaption().isEmpty() ? ( (RolapMemberBase) measure ).getName() :
-              ( (RolapMemberBase) measure ).getCaption() );
+          ( (RolapMemberBase) measure ).getCaption().isEmpty() ? ( (RolapMemberBase) measure ).getName()
+            : ( (RolapMemberBase) measure ).getCaption() );
       jsonMeasure
           .put( "qualifiedName", measure.getQualifiedName().substring( 8, measure.getQualifiedName().length() - 1 ) );
       jsonMeasure.put( "memberType", measure.getMemberType().toString() );
@@ -273,22 +262,7 @@ public abstract class AbstractOlapUtils {
 
 
   public List<MondrianCatalog> getMondrianCatalogs() {
-
-    List<MondrianCatalog> catalogs = null;
-
-    if ( cachingAvailable
-        && ( catalogs = (List<MondrianCatalog>) cacheManager.getFromSessionCache(
-        userSession, MONDRIAN_CATALOGS ) ) != null ) {
-      logger.debug( "Datasource document found in cache" );
-      return catalogs;
-    } else {
-
-      catalogs = mondrianCatalogService.listCatalogs( userSession, true );
-      cacheManager.putInSessionCache( userSession, MONDRIAN_CATALOGS, catalogs );
-
-    }
-
-    return catalogs;
+    return mondrianCatalogService.listCatalogs( userSession, true );
   }
 
   public JSONObject getLevelMembersStructure( String catalog, String cube, String memberString, String direction )
@@ -328,7 +302,6 @@ public abstract class AbstractOlapUtils {
     JSONObject output = new JSONObject();
     output.put( "members", membersArray );
     return output;
-
 
   }
 
@@ -397,32 +370,8 @@ public abstract class AbstractOlapUtils {
 
   }
 
-  private void makeTest() {
-
-    String catalog = "SteelWheels";
-    String cube = "SteelWheelsSales";
-    Connection connection = getMdxConnection( catalog );
-
-    String query =
-        "select NON EMPTY {[Measures].[Quantity]} ON COLUMNS,  NON EMPTY  [Product].Children ON ROWS from " +
-            "[SteelWheelsSales] where [Markets].[All Markets].[EMEA]";
-    Query mdxQuery = connection.parseQuery( query );
-    MemberExpr member = (MemberExpr) mdxQuery.getSlicerAxis().getChildren()[0];
-    member.getMember();
-
-    RolapResult result = (RolapResult) connection.execute( mdxQuery );
-    List<RolapMember> rolapMembers = result.getCube().getMeasuresMembers();
-    System.out.println( "Hello World" );
-
-
-  }
-
   protected IMondrianCatalogService getMondrianCatalogService() {
     return MondrianCatalogHelper.getInstance();
-  }
-
-  protected ICacheManager getCacheManager() {
-    return PentahoSystem.getCacheManager( userSession );
   }
 
   protected List<RolapMember> getMeasuresMembersFromResult( RolapResult result ) {
