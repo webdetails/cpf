@@ -1,21 +1,20 @@
 /*!
-* Copyright 2002 - 2014 Webdetails, a Pentaho company.  All rights reserved.
-*
-* This software was developed by Webdetails and is provided under the terms
-* of the Mozilla Public License, Version 2.0, or any later version. You may not use
-* this file except in compliance with the license. If you need a copy of the license,
-* please go to  http://mozilla.org/MPL/2.0/. The Initial Developer is Webdetails.
-*
-* Software distributed under the Mozilla Public License is distributed on an "AS IS"
-* basis, WITHOUT WARRANTY OF ANY KIND, either express or  implied. Please refer to
-* the license for the specific language governing your rights and limitations.
-*/
+ * Copyright 2002 - 2015 Webdetails, a Pentaho company. All rights reserved.
+ *
+ * This software was developed by Webdetails and is provided under the terms
+ * of the Mozilla Public License, Version 2.0, or any later version. You may not use
+ * this file except in compliance with the license. If you need a copy of the license,
+ * please go to http://mozilla.org/MPL/2.0/. The Initial Developer is Webdetails.
+ *
+ * Software distributed under the Mozilla Public License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. Please refer to
+ * the license for the specific language governing your rights and limitations.
+ */
 
 package pt.webdetails.cpf.olap;
 
 import java.util.List;
 
-import mondrian.mdx.MemberExpr;
 import mondrian.olap.Connection;
 import mondrian.olap.Dimension;
 import mondrian.olap.DriverManager;
@@ -191,8 +190,8 @@ public abstract class AbstractOlapUtils {
       jsonMeasure.put( "type", "measure" );
       jsonMeasure.put( "name", ( (RolapMemberBase) measure ).getName() );
       jsonMeasure.put( "caption",
-          ( (RolapMemberBase) measure ).getCaption().isEmpty() ? ( (RolapMemberBase) measure ).getName() :
-              ( (RolapMemberBase) measure ).getCaption() );
+          ( (RolapMemberBase) measure ).getCaption().isEmpty() ? ( (RolapMemberBase) measure ).getName()
+            : ( (RolapMemberBase) measure ).getCaption() );
       jsonMeasure
           .put( "qualifiedName", measure.getQualifiedName().substring( 8, measure.getQualifiedName().length() - 1 ) );
       jsonMeasure.put( "memberType", measure.getMemberType().toString() );
@@ -304,7 +303,6 @@ public abstract class AbstractOlapUtils {
     output.put( "members", membersArray );
     return output;
 
-
   }
 
   public JSONObject getPaginatedLevelMembers( String catalog, String cube, String level, String startMember,
@@ -369,26 +367,6 @@ public abstract class AbstractOlapUtils {
     output.put( "members", membersArray );
     output.put( "more", nextPage );
     return output;
-
-  }
-
-  private void makeTest() {
-
-    String catalog = "SteelWheels";
-    String cube = "SteelWheelsSales";
-    Connection connection = getMdxConnection( catalog );
-
-    String query =
-        "select NON EMPTY {[Measures].[Quantity]} ON COLUMNS,  NON EMPTY  [Product].Children ON ROWS from " +
-            "[SteelWheelsSales] where [Markets].[All Markets].[EMEA]";
-    Query mdxQuery = connection.parseQuery( query );
-    MemberExpr member = (MemberExpr) mdxQuery.getSlicerAxis().getChildren()[0];
-    member.getMember();
-
-    RolapResult result = (RolapResult) connection.execute( mdxQuery );
-    List<RolapMember> rolapMembers = result.getCube().getMeasuresMembers();
-    System.out.println( "Hello World" );
-
 
   }
 
