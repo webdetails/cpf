@@ -1,22 +1,21 @@
 /*!
-* Copyright 2002 - 2014 Webdetails, a Pentaho company. All rights reserved.
-*
-* This software was developed by Webdetails and is provided under the terms
-* of the Mozilla Public License, Version 2.0, or any later version. You may not use
-* this file except in compliance with the license. If you need a copy of the license,
-* please go to http://mozilla.org/MPL/2.0/. The Initial Developer is Webdetails.
-*
-* Software distributed under the Mozilla Public License is distributed on an "AS IS"
-* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. Please refer to
-* the license for the specific language governing your rights and limitations.
-*/
+ * Copyright 2002 - 2015 Webdetails, a Pentaho company. All rights reserved.
+ *
+ * This software was developed by Webdetails and is provided under the terms
+ * of the Mozilla Public License, Version 2.0, or any later version. You may not use
+ * this file except in compliance with the license. If you need a copy of the license,
+ * please go to http://mozilla.org/MPL/2.0/. The Initial Developer is Webdetails.
+ *
+ * Software distributed under the Mozilla Public License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. Please refer to
+ * the license for the specific language governing your rights and limitations.
+ */
 
 package pt.webdetails.cpf.repository.pentaho.repository;
 
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
-import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.pentaho.platform.api.engine.IPentahoAclEntry;
@@ -37,10 +36,10 @@ public class PentahoLegacySolutionAccessTest extends TestCase {
     IPentahoSession session = Mockito.mock( IPentahoSession.class );
     mockRepositoryService = Mockito.mock( ISolutionRepositoryService.class );
     mockRepository = Mockito.mock( ISolutionRepository.class );
-    Mockito.when ( mockRepository.resourceExists( "basePath", IPentahoAclEntry.PERM_EXECUTE ) ).thenReturn( false ); //Folder does not exist, return false
+    Mockito.when( mockRepository.resourceExists( "basePath", IPentahoAclEntry.PERM_EXECUTE ) ).thenReturn( false ); //Folder does not exist, return false
     Mockito.when( mockRepositoryService.createFolder( session, "", "", "basePath", "" ) ).thenReturn( true ); //Create base first
     Mockito.when( mockRepositoryService.createFolder( session, "", "basePath/", "folderToCreate", "" ) ).thenReturn(
-      true );
+        true );
     PentahoLegacySolutionAccessForTests access = new PentahoLegacySolutionAccessForTests( "basePath", session, false,
             mockRepository, mockRepositoryService );
 
@@ -53,7 +52,7 @@ public class PentahoLegacySolutionAccessTest extends TestCase {
     IPentahoSession session = Mockito.mock( IPentahoSession.class );
     mockRepositoryService = Mockito.mock( ISolutionRepositoryService.class );
     mockRepository = Mockito.mock( ISolutionRepository.class );
-    Mockito.when ( mockRepository.resourceExists( "basePath", IPentahoAclEntry.PERM_EXECUTE  ) ).thenReturn( true ); //Folder exists
+    Mockito.when( mockRepository.resourceExists( "basePath", IPentahoAclEntry.PERM_EXECUTE ) ).thenReturn( true ); //Folder exists
     Mockito.when( mockRepositoryService.createFolder( session, "", "basePath/", "folderToCreate", "" ) ).thenReturn( true );
     PentahoLegacySolutionAccessForTests access = new PentahoLegacySolutionAccessForTests( "basePath", session, false,
             mockRepository, mockRepositoryService );
@@ -61,12 +60,12 @@ public class PentahoLegacySolutionAccessTest extends TestCase {
     Assert.assertTrue( access.createFolder( "folderToCreate", false ) );
   }
 
-
+  @Test
   public void testCreateFolderFails() throws IOException {
     IPentahoSession session = Mockito.mock( IPentahoSession.class );
     mockRepositoryService = Mockito.mock( ISolutionRepositoryService.class );
     mockRepository = Mockito.mock( ISolutionRepository.class );
-    Mockito.when ( mockRepository.resourceExists( "basePath", IPentahoAclEntry.PERM_EXECUTE  ) ).thenReturn( true ); //Folder exists
+    Mockito.when( mockRepository.resourceExists( "basePath", IPentahoAclEntry.PERM_EXECUTE  ) ).thenReturn( true ); //Folder exists
     Mockito.when( mockRepositoryService.createFolder( session, "", "basePath/", "folderToCreate", "" ) ).thenReturn( false );
     PentahoLegacySolutionAccessForTests access = new PentahoLegacySolutionAccessForTests( "basePath", session, false,
             mockRepository, mockRepositoryService );
@@ -74,12 +73,12 @@ public class PentahoLegacySolutionAccessTest extends TestCase {
     Assert.assertFalse( access.createFolder( "folderToCreate", false ) );
   }
 
-
+  @Test
   public void testCreateFolderException() throws IOException {
     IPentahoSession session = Mockito.mock( IPentahoSession.class );
     mockRepositoryService = Mockito.mock( ISolutionRepositoryService.class );
     mockRepository = Mockito.mock( ISolutionRepository.class );
-    Mockito.when ( mockRepository.resourceExists( "basePath", IPentahoAclEntry.PERM_EXECUTE  ) ).thenReturn( true ); //Folder exists
+    Mockito.when( mockRepository.resourceExists( "basePath", IPentahoAclEntry.PERM_EXECUTE  ) ).thenReturn( true ); //Folder exists
     Mockito.when( mockRepositoryService.createFolder( session, "", "basePath/", "folderToCreate", "" ) ).
             thenThrow( new IOException() );
     PentahoLegacySolutionAccessForTests access = new PentahoLegacySolutionAccessForTests( "basePath", session, false,
@@ -87,7 +86,28 @@ public class PentahoLegacySolutionAccessTest extends TestCase {
 
     Assert.assertFalse( access.createFolder( "folderToCreate", false ) );
   }
-  
+
+  @Test
+  public void testIsSystemPath() {
+    IPentahoSession session = Mockito.mock( IPentahoSession.class );
+    mockRepositoryService = Mockito.mock( ISolutionRepositoryService.class );
+    mockRepository = Mockito.mock( ISolutionRepository.class );
+    PentahoLegacySolutionAccessForTests access = new PentahoLegacySolutionAccessForTests( "basePath", session, false,
+        mockRepository, mockRepositoryService );
+
+    String systemPath = "system/path/file.cdfde";
+    String systemPath2 = "system/tmptest/path/file.cdfde";
+    String systemBacktrackPath = "system/path/../file.cdfde";
+    String systemBacktrackPath2 = "system/tmp/../file.cdfde";
+    String notSystemPath = "system/tmp/path/file.cdfde";
+
+    Assert.assertTrue( access.isSystemPath( systemPath ) );
+    Assert.assertTrue( access.isSystemPath( systemPath2 ) );
+    Assert.assertTrue( access.isSystemPath( systemBacktrackPath ) );
+    Assert.assertTrue( access.isSystemPath( systemBacktrackPath2 ) );
+    Assert.assertFalse( access.isSystemPath( notSystemPath ) );
+
+  }
 
 
   class PentahoLegacySolutionAccessForTests extends PentahoLegacySolutionAccess {

@@ -1,15 +1,15 @@
 /*!
-* Copyright 2002 - 2015 Webdetails, a Pentaho company. All rights reserved.
-*
-* This software was developed by Webdetails and is provided under the terms
-* of the Mozilla Public License, Version 2.0, or any later version. You may not use
-* this file except in compliance with the license. If you need a copy of the license,
-* please go to http://mozilla.org/MPL/2.0/. The Initial Developer is Webdetails.
-*
-* Software distributed under the Mozilla Public License is distributed on an "AS IS"
-* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. Please refer to
-* the license for the specific language governing your rights and limitations.
-*/
+ * Copyright 2002 - 2015 Webdetails, a Pentaho company. All rights reserved.
+ *
+ * This software was developed by Webdetails and is provided under the terms
+ * of the Mozilla Public License, Version 2.0, or any later version. You may not use
+ * this file except in compliance with the license. If you need a copy of the license,
+ * please go to http://mozilla.org/MPL/2.0/. The Initial Developer is Webdetails.
+ *
+ * Software distributed under the Mozilla Public License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. Please refer to
+ * the license for the specific language governing your rights and limitations.
+ */
 
 package pt.webdetails.cpf.repository.pentaho;
 
@@ -25,7 +25,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IAclSolutionFile;
-import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IContentGeneratorInfo;
 import org.pentaho.platform.api.engine.IFileFilter;
 import org.pentaho.platform.api.engine.IPentahoAclEntry;
@@ -84,10 +83,10 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
     try {
       path = getPath( path );
       int status =
-        getRepository().publish(
+          getRepository().publish(
           FilenameUtils.separatorsToUnix( PentahoSystem.getApplicationContext().getSolutionPath( "" ) ),
           FilenameUtils.getFullPath( path ), FilenameUtils.getName( path ), IOUtils.toByteArray( contents ), true );
-      switch( status ) {
+      switch ( status ) {
         case ISolutionRepository.FILE_ADD_SUCCESSFUL:
           return true;
         case ISolutionRepository.FILE_ADD_FAILED:
@@ -157,11 +156,11 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
       if ( getRepositoryService().createFolder( userSession, "", folderPath, folderName, "" ) ) {
         if ( isHidden ) {
           String indexContent = "<index><name>" + folderName + "</name><description></description>"
-            + "<icon>reporting.png</icon><visible>false</visible><display-type>list</display-type></index>";
+              + "<icon>reporting.png</icon><visible>false</visible><display-type>list</display-type></index>";
 
           String repositoryBaseURL = PentahoSystem.getApplicationContext().getSolutionPath( "" );
           getRepository().addSolutionFile( repositoryBaseURL, folderName, ISolutionRepository.INDEX_FILENAME,
-            indexContent.getBytes(), true );
+              indexContent.getBytes(), true );
         }
         return true;
       } else {
@@ -313,7 +312,7 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
     if ( file == null ) {
       return false;
     } else if ( SecurityHelper.canHaveACLS( file )
-      && ( file.retrieveParent() != null && !StringUtils.startsWith( file.getSolutionPath(), "system" ) ) ) {
+        && ( file.retrieveParent() != null && !StringUtils.startsWith( file.getSolutionPath(), "system" ) ) ) {
       // has been checked
       return true;
     } else {
@@ -327,11 +326,11 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
         }
       }
       logger.warn( "hasAccess: Unable to check access control for " + filePath + " using default access settings." );
-      if ( StringUtils.startsWith( FilenameUtils.separatorsToUnix( file.getSolutionPath() ), "system/" ) &&
-        !isAcceptedPluginFile( filePath, userSession ) ) {
+      if ( isSystemPath( FilenameUtils.separatorsToUnix( file.getSolutionPath() ) )
+          && !isAcceptedPluginFile( filePath, userSession ) ) {
         return SecurityHelper.isPentahoAdministrator( userSession );
       }
-      switch( access ) {
+      switch ( access ) {
         case EXECUTE:
         case READ:
           return true;
@@ -339,6 +338,15 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
           return SecurityHelper.isPentahoAdministrator( userSession );
       }
     }
+  }
+
+  public boolean isSystemPath( String path ) {
+    if ( path.startsWith( "system/" ) ) {
+      // not considering system/tmp/ as a system folder for user access purposes
+      // will not allow backtrack though
+      return !path.startsWith( "system/tmp/" ) || path.contains( "/../" );
+    }
+    return false;
   }
 
   private boolean isAcceptedPluginFile( String filePath, IPentahoSession session ) {
@@ -379,7 +387,7 @@ public class PentahoLegacySolutionAccess implements IUserContentAccess {
   private static List<String> sparklPluginIds = null;
 
   private static int toResourceAction( FileAccess access ) {
-    switch( access ) {
+    switch ( access ) {
       case DELETE:
         return IPentahoAclEntry.PERM_DELETE;
       case WRITE:
