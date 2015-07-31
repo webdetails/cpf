@@ -25,29 +25,17 @@ import org.apache.commons.logging.LogFactory;
 import pt.webdetails.cpf.repository.api.IContentAccessFactory;
 import pt.webdetails.cpf.repository.api.IReadAccess;
 
-/**
- *
- * @author pdpi
- */
-public class CpfProperties extends Properties {
+public abstract class AbstractCpfProperties extends Properties {
 
-  private static final long serialVersionUID = 1L;
-  private static CpfProperties instance;
-  private static final Log logger = LogFactory.getLog( CpfProperties.class );
-  private static String PROPERTIES_FILE = "config.properties";
+  protected static final long serialVersionUID = 1L;
+  protected static final Log logger = LogFactory.getLog( CpfProperties.class );
+  protected static String PROPERTIES_FILE = "config.properties";
 
-  private CpfProperties( IContentAccessFactory accessor ) {
+  protected AbstractCpfProperties( IContentAccessFactory accessor ) {
     loadSettings( accessor );
   }
 
-  public static CpfProperties getInstance() {
-    if ( instance == null ) {
-      instance = new CpfProperties( PluginEnvironment.repository() );
-    }
-    return instance;
-  }
-
-  private boolean loadProperties( IReadAccess location, String fileName ) throws IOException {
+  protected boolean loadProperties( IReadAccess location, String fileName ) throws IOException {
     if ( location.fileExists( fileName ) ) {
       loadAndClose( location.getFileInputStream( fileName ) );
       return true;
@@ -55,7 +43,7 @@ public class CpfProperties extends Properties {
     return false;
   }
 
-  private void loadSettings( IContentAccessFactory accessor ) {
+  protected void loadSettings( IContentAccessFactory accessor ) {
     try {
 
       // 1) a config.properties inside the jar
@@ -67,7 +55,7 @@ public class CpfProperties extends Properties {
       // 2) a config.properties in repository:cpf/config.properties
       // factory not so good for this one
       IReadAccess inRepositoryCpf = accessor.getPluginRepositoryReader( "../cpf" );
-      if ( !loadProperties( inRepositoryCpf, PROPERTIES_FILE ) && logger.isDebugEnabled() ) {
+      if ( !loadAsSystem( inRepositoryCpf ) && logger.isDebugEnabled() ) {
         logger.debug( "No global CPF settings." );
       }
 
@@ -82,7 +70,7 @@ public class CpfProperties extends Properties {
     }
   }
 
-  private boolean loadClassProperties( String fileName ) throws IOException {
+  protected boolean loadClassProperties( String fileName ) throws IOException {
     InputStream file = getClass().getResourceAsStream( fileName );
     if ( file != null ) {
       loadAndClose( file );
@@ -124,12 +112,14 @@ public class CpfProperties extends Properties {
     return defaultValue;
   }
 
-  private void loadAndClose( InputStream input ) throws IOException {
+  protected void loadAndClose( InputStream input ) throws IOException {
     try {
       load( input );
     } finally {
       IOUtils.closeQuietly( input );
     }
   }
+
+  protected abstract boolean loadAsSystem( final IReadAccess inRepositoryCpf );
 
 }
