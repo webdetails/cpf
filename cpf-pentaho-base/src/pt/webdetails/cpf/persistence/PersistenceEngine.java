@@ -1,15 +1,15 @@
 /*!
-* Copyright 2002 - 2014 Webdetails, a Pentaho company. All rights reserved.
-*
-* This software was developed by Webdetails and is provided under the terms
-* of the Mozilla Public License, Version 2.0, or any later version. You may not use
-* this file except in compliance with the license. If you need a copy of the license,
-* please go to http://mozilla.org/MPL/2.0/. The Initial Developer is Webdetails.
-*
-* Software distributed under the Mozilla Public License is distributed on an "AS IS"
-* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. Please refer to
-* the license for the specific language governing your rights and limitations.
-*/
+ * Copyright 2002 - 2015 Webdetails, a Pentaho company. All rights reserved.
+ *
+ * This software was developed by Webdetails and is provided under the terms
+ * of the Mozilla Public License, Version 2.0, or any later version. You may not use
+ * this file except in compliance with the license. If you need a copy of the license,
+ * please go to http://mozilla.org/MPL/2.0/. The Initial Developer is Webdetails.
+ *
+ * Software distributed under the Mozilla Public License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. Please refer to
+ * the license for the specific language governing your rights and limitations.
+ */
 
 package pt.webdetails.cpf.persistence;
 
@@ -54,7 +54,6 @@ import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.OServerMain;
-import org.pentaho.platform.plugin.services.pluginmgr.PluginClassLoader;
 
 public class PersistenceEngine implements IPersistenceEngine {
 
@@ -103,15 +102,17 @@ public class PersistenceEngine implements IPersistenceEngine {
 
   private void initialize() throws Exception {
 
-    //Ensure .orient folder exists on system
-    String orientPath = getOrientPath();
-    File dirPath = new File( orientPath );
-    if ( !dirPath.exists() ) {
-      if ( !dirPath.mkdir() ) {
-        logger.warn( "Unable to create orient support folder. Does system/.orient exist in the server filesystem?" );
+    if ( SETTINGS.getBooleanProperty( "LOCAL_INSTANCE", true ) ) {
+      //Ensure .orient folder exists on system
+      String orientPath = getOrientPath();
+      File dirPath = new File( orientPath );
+      if ( !dirPath.exists() ) {
+        if ( !dirPath.mkdir() ) {
+          logger.warn( "Unable to create orient support folder. Does system/.orient exist in the server filesystem?" );
+        }
       }
+      startOrient();
     }
-    startOrient();
   }
 
 
@@ -121,13 +122,13 @@ public class PersistenceEngine implements IPersistenceEngine {
     JSONObject reply = null;
     try {
       Method mthd = Method.valueOf( methodString.toUpperCase() );
-      switch( mthd ) {
+      switch ( mthd ) {
         case DELETE:
           reply = deleteRecord( requestParams );
           break;
         case GET:
           logger.error( "get requests to PersistenceEngine are no longer supported. "
-            + "please use the SimplePersistence API." );
+              + "please use the SimplePersistence API." );
           return "{'result': false}";
         case STORE:
           reply = store( requestParams );
