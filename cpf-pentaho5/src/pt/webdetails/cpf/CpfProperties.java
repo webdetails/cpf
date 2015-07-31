@@ -49,7 +49,7 @@ public class CpfProperties extends AbstractCpfProperties {
         }
       } );
     } catch ( Exception e ) {
-      logger.error( "Couldn't load '" + PROPERTIES_FILE + "' as system", e );
+      logger.warn( "Couldn't load '" + PROPERTIES_FILE + "' as system", e );
       return false;
     }
   }
