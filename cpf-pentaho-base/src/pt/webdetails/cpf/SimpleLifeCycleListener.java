@@ -15,11 +15,12 @@ package pt.webdetails.cpf;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.engine.IPlatformReadyListener;
 import org.pentaho.platform.api.engine.IPluginLifecycleListener;
 import org.pentaho.platform.api.engine.PluginLifecycleException;
 import pt.webdetails.cpf.persistence.PersistenceEngine;
 
-public abstract class SimpleLifeCycleListener implements IPluginLifecycleListener {
+public abstract class SimpleLifeCycleListener implements IPluginLifecycleListener, IPlatformReadyListener {
 
 
   static Log logger = LogFactory.getLog( SimpleLifeCycleListener.class );
@@ -27,9 +28,6 @@ public abstract class SimpleLifeCycleListener implements IPluginLifecycleListene
   @Override
   public void init() throws PluginLifecycleException {
     PluginEnvironment.init( getEnvironment() );
-    if ( CpfProperties.getInstance().getBooleanProperty( "USE_PERSISTENCE", false ) ) {
-      PersistenceEngine.getInstance();
-    }
   }
 
   @Override
@@ -40,6 +38,13 @@ public abstract class SimpleLifeCycleListener implements IPluginLifecycleListene
   public void unLoaded() throws PluginLifecycleException {
     logger.debug( "Shutting down and shutting down Orient DB " );
     PersistenceEngine.shutdown();
+  }
+
+  @Override
+  public void ready() throws PluginLifecycleException {
+    if ( CpfProperties.getInstance().getBooleanProperty( "USE_PERSISTENCE", false ) ) {
+      PersistenceEngine.getInstance();
+    }
   }
 
   public abstract PluginEnvironment getEnvironment();
