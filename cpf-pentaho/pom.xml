@@ -9,7 +9,7 @@
 	<properties>
 		<bi-platform.revision>4.8.0-stable</bi-platform.revision>
 		<json.revision>3.1</json.revision>
-		<pentaho.libs.version>TRUNK-SNAPSHOT</pentaho.libs.version>
+                <dependency.reporting-library.revision>TRUNK-SNAPSHOT</dependency.reporting-library.revision>
 	</properties>
 
 	<repositories>
@@ -87,7 +87,7 @@
 		<dependency>
 			<groupId>pentaho-library</groupId>
 			<artifactId>libbase</artifactId>
-			<version>${pentaho.libs.version}</version>
+			<version>${dependency.reporting-library.revision}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.orientechnologies</groupId>
