@@ -47,15 +47,16 @@ public class PluginSystemAccessTest extends TestCase {
       assertTrue("dir fileExists", bogusReader.fileExists("resources/stuff"));
   
       InputStream baahStream = bogusReader.getFileInputStream("resources/stuff/stuffedBogus.txt");
-      String baah = IOUtils.toString(bogusReader.getFileInputStream("resources/stuff/stuffedBogus.txt"), CharsetHelper.getEncoding());
+      String baah = IOUtils.toString( bogusReader.getFileInputStream( "resources/stuff/stuffedBogus.txt" ),
+        CharsetHelper.getEncoding() );
       baahStream.close();
-      assertEquals("File contents read.", "Baah!", baah);
+      assertEquals( "File contents read.", "Baah!", baah );
   
-      InputStream notThereStream = bogusReader.getFileInputStream("resources/notThere/bogus.txt");
+      InputStream notThereStream = bogusReader.getFileInputStream( "resources/notThere/bogus.txt" );
       assertNull("Stream to inexistent file", notThereStream);
   
       bogusReader = createPluginSystemAccess("");
-      assertTrue("empty basePath", bogusReader.fileExists("plugin.xml"));
+      assertTrue( "empty basePath", bogusReader.fileExists( "plugin.xml" ) );
     }
   
   @Test
@@ -67,9 +68,17 @@ public class PluginSystemAccessTest extends TestCase {
       assertTrue("fileExists trail slash", readerSlash.fileExists("stuffedBogus.txt"));
 
       IReadAccess readerBackTrack = createPluginSystemAccess("resources/stuff/");
-      assertTrue("backtrack", readerBackTrack.fileExists("../bogus.txt"));
+      assertTrue("backtrack", readerBackTrack.fileExists("../stuff/stuffedBogus.txt"));
 
       assertFalse("too much backtrack", readerBackTrack.fileExists("../../../../../../../../../justDontThrowUp"));
+  }
+
+  @Test
+  public void testBacktrackSecurityEnsured() {
+    IReadAccess readerBackTrack = createPluginSystemAccess( "resources/stuff/" );
+    // NOTE: ../bogus.txt actually exists, however, it would be unsafe to allow traversing behind the basePath
+    // if this assertion fails, we may have a security issue
+    assertFalse( "backtrack", readerBackTrack.fileExists( "../bogus.txt" ) );
   }
 
   @Test
@@ -142,8 +151,8 @@ public class PluginSystemAccessTest extends TestCase {
         }
       };
       List<IBasicFile> txtFiles = reader.listFiles("", txtFilter, -1, false);
-      assertEquals("listFiles result", 4, txtFiles.size());
-      boolean bogusFound = false, stuffFound = false, moreFound = false;
+      assertEquals( "listFiles result", 4, txtFiles.size() );
+    boolean bogusFound = false, stuffFound = false, moreFound = false;
       // no contract on order
       for (IBasicFile txtFile : txtFiles) {
         if (txtFile.getName().equals("stuffedBogus.txt")) {
