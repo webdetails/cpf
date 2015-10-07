@@ -17,10 +17,12 @@ import java.net.URL;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginClassLoader;
 
+import pt.webdetails.cpf.repository.api.IBasicFile;
 import pt.webdetails.cpf.repository.api.IRWAccess;
 import pt.webdetails.cpf.repository.impl.FileBasedResourceAccess;
 import pt.webdetails.cpf.repository.util.RepositoryHelper;
@@ -52,7 +54,7 @@ public class SystemPluginResourceAccess extends FileBasedResourceAccess implemen
     }
     if ( classLoader instanceof PluginClassLoader ) {
       this.basePath = ( (PluginClassLoader) classLoader ).getPluginDir();
-    } else {//shouldn't get here, but..
+    } else { //shouldn't get here, but..
       URL rootFileUrl = RepositoryHelper.getClosestResource( classLoader, "plugin.xml" );
       if ( rootFileUrl != null ) {
         this.basePath = new File( rootFileUrl.getPath() ).getParentFile();
@@ -73,8 +75,8 @@ public class SystemPluginResourceAccess extends FileBasedResourceAccess implemen
       String[] sections = path.split( "/" );
       String sysPluginDir = sections[ 1 ] + "/" + sections[ 2 ];
       String baseString = FilenameUtils.separatorsToUnix( basePath.toString() );
-      if ( baseString.indexOf( sysPluginDir ) != -1 &&
-        ( baseString.lastIndexOf( sysPluginDir ) + sysPluginDir.length() == baseString.length() ) ) {
+      if ( baseString.indexOf( sysPluginDir ) != -1
+          && ( baseString.lastIndexOf( sysPluginDir ) + sysPluginDir.length() == baseString.length() ) ) {
         path = path.replaceFirst( "/.*?/.*?/", "/" );
       } else if ( baseString.indexOf( sysPluginDir ) == -1 ) {
         String systemPath = StringUtils.substringBeforeLast( basePath.getAbsolutePath(), "system" );
@@ -84,6 +86,23 @@ public class SystemPluginResourceAccess extends FileBasedResourceAccess implemen
       }
     }
     return StringUtils.isEmpty( path ) ? basePath : new File( basePath, path );
+  }
+
+  @Override
+  public boolean fileExists( String path ) {
+    if ( super.fileExists( path ) ) {
+      String normPath = FilenameUtils.normalize( this.getFile( path ).getAbsolutePath() );
+      return normPath != null && normPath.startsWith( FilenameUtils.normalize( basePath.getAbsolutePath() ) );
+    }
+    return false;
+  }
+
+  @Override
+  public IBasicFile fetchFile( String path ) {
+    if ( this.fileExists( path ) ) {
+      return super.fetchFile( path );
+    }
+    return null;
   }
 
   @Override
