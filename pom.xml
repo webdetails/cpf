@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>cda-plugin</artifactId>
+    <groupId>pentaho</groupId>
+    <version>6.1-SNAPSHOT</version>
+    <relativePath>../cda/pom.xml</relativePath>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>cpf-plugin</artifactId>
+  <packaging>pom</packaging>
+  <modules>
+    <module>core</module>
+    <module>pentaho</module>
+  </modules>
+
+  <properties>
+    <dependency.commons-io.revision>2.1</dependency.commons-io.revision>
+    <dependency.commons-logging.revision>1.1.1</dependency.commons-logging.revision>
+    <dependency.commons-lang.revision>2.6</dependency.commons-lang.revision>
+    <dependency.dom4j.revision>1.6.1</dependency.dom4j.revision>
+    <dependency.springframework.revision>3.2.14.RELEASE</dependency.springframework.revision>
+    <dependency.springsecurity.revision>2.0.8.RELEASE</dependency.springsecurity.revision>
+    <dependency.servlet-api.revision>2.4</dependency.servlet-api.revision>
+    <dependency.json.revision>3.1</dependency.json.revision>
+
+    <dependency.junit.revision>4.10</dependency.junit.revision>
+    <dependency.mockito-core.revision>1.9.5</dependency.mockito-core.revision>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>${dependency.commons-io.revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <version>${dependency.commons-logging.revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <version>${dependency.commons-lang.revision}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>dom4j</groupId>
+        <artifactId>dom4j</artifactId>
+        <version>${dependency.dom4j.revision}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-beans</artifactId>
+        <version>${dependency.springframework.revision}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context</artifactId>
+        <version>${dependency.springframework.revision}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-core</artifactId>
+        <version>${dependency.springframework.revision}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-core</artifactId>
+        <version>${dependency.springsecurity.revision}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>servlet-api</artifactId>
+        <version>${dependency.servlet-api.revision}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.json</groupId>
+        <artifactId>json</artifactId>
+        <version>${dependency.json.revision}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${dependency.junit.revision}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>${dependency.mockito-core.revision}</version>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+</project>
