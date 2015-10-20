@@ -24,6 +24,8 @@ import mondrian.olap.Query;
 import mondrian.rolap.RolapMember;
 import mondrian.rolap.RolapMemberBase;
 import mondrian.rolap.RolapResult;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -70,7 +72,7 @@ public class AbstractOlapUtilsTest {
   }
 
   @Test
-  public void testGetOlapCubes() {
+  public void testGetOlapCubes() throws Exception {
     JSONObject result = new JSONObject();
     String expectedResult = "{\"catalogs\":[{\"schema\":\"catalog1Definition\",\"name\":\"catalog1Name\"," +
         "\"cubes\":[{\"id\":\"identifier0\",\"name\":\"name0\"},{\"id\":\"identifier1\",\"name\":\"name1\"}]," +
@@ -82,11 +84,11 @@ public class AbstractOlapUtilsTest {
     } catch ( JSONException e ) {
       Assert.fail( e.getMessage() );
     }
-    Assert.assertEquals( expectedResult, result.toString() );
+    Assert.assertTrue( jsonEquals( expectedResult, result.toString() ) );
   }
 
   @Test
-  public void testGetCubeStructure() {
+  public void testGetCubeStructure() throws Exception {
     JSONObject result = new JSONObject();
     String expectedResult = "{\"dimensions\":[{\"hierarchies\":[],\"name\":\"standardDim\"," +
         "\"caption\":\"standardCaption\",\"type\":\"StandardDimension\"},{\"hierarchies\":[],\"name\":\"timeDim\"," +
@@ -107,12 +109,12 @@ public class AbstractOlapUtilsTest {
     } catch ( JSONException e ) {
       Assert.fail( e.getMessage() );
     }
-    Assert.assertEquals( expectedResult, result.toString() );
+    Assert.assertTrue( jsonEquals( expectedResult, result.toString() ) );
   }
 
 
   @Test
-  public void testGetMeasures() {
+  public void testGetMeasures() throws Exception {
     JSONArray result = new JSONArray();
     String expectedResult = "[{\"qualifiedName\":\"[All]\",\"name\":\"all\",\"memberType\":\"ALL\"," +
         "\"caption\":\"member with type all\",\"type\":\"measure\"},{\"qualifiedName\":\"[Formula]\"," +
@@ -129,11 +131,11 @@ public class AbstractOlapUtilsTest {
     } catch ( JSONException e ) {
       Assert.fail( e.getMessage() );
     }
-    Assert.assertEquals( expectedResult, result.toString() );
+    Assert.assertTrue( jsonEquals( expectedResult, result.toString() ) );
   }
 
   @Test
-  public void testGetLevelMembersStructure() {
+  public void testGetLevelMembersStructure() throws Exception {
     JSONObject result = new JSONObject();
     String expectedResult = "{\"members\":[{\"qualifiedName\":\"[All]\",\"name\":\"all\",\"memberType\":\"ALL\"," +
         "\"caption\":\"member with type all\",\"type\":\"member\"},{\"qualifiedName\":\"[Formula]\"," +
@@ -150,11 +152,11 @@ public class AbstractOlapUtilsTest {
     } catch ( JSONException e ) {
       Assert.fail( e.getMessage() );
     }
-    Assert.assertEquals( expectedResult, result.toString() );
+    Assert.assertTrue( jsonEquals( expectedResult, result.toString() ) );
   }
 
   @Test
-  public void getPaginatedLevelMembersTest() {
+  public void getPaginatedLevelMembersTest() throws Exception {
     JSONObject result = new JSONObject();
     String expectedResult = "{\"more\":false,\"members\":[{\"qualifiedName\":\"[All]\",\"name\":\"all\"," +
         "\"memberType\":\"ALL\",\"caption\":\"member with type all\",\"type\":\"member\"}," +
@@ -169,7 +171,7 @@ public class AbstractOlapUtilsTest {
     } catch ( JSONException e ) {
       Assert.fail( e.getMessage() );
     }
-    Assert.assertEquals( expectedResult, result.toString() );
+    Assert.assertTrue( jsonEquals( expectedResult, result.toString() ) );
   }
 
 
@@ -198,5 +200,11 @@ public class AbstractOlapUtilsTest {
     return positions;
   }
 
+  protected boolean jsonEquals( String json1, String json2 ) throws Exception {
+    ObjectMapper om = new ObjectMapper();
+    JsonNode parsedJson1 = om.readTree( json1 );
+    JsonNode parsedJson2 = om.readTree( json2 );
+    return parsedJson1.equals( parsedJson2 );
+  }
 
 }

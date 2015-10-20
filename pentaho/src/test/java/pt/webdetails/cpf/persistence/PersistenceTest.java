@@ -14,21 +14,20 @@
 package pt.webdetails.cpf.persistence;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import junit.framework.TestCase;
+import org.apache.commons.io.IOUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.junit.Assert;
+import org.junit.Test;
+import pt.webdetails.cpf.PluginEnvironment;
+import pt.webdetails.cpf.PluginEnvironmentForTests;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-
-import junit.framework.TestCase;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.apache.commons.io.IOUtils;
-import org.junit.Test;
-import org.junit.Assert;
-import pt.webdetails.cpf.PluginEnvironment;
-import pt.webdetails.cpf.PluginEnvironmentForTests;
 
 public class PersistenceTest extends TestCase {
 
@@ -112,7 +111,7 @@ public class PersistenceTest extends TestCase {
   @Test
   public void testJSONMarshalling() throws Exception {
     String userdir = System.getProperty( "user.dir" );
-    File sample = new File( userdir + "/test-resources/test-samples/sample.json" );
+    File sample = new File( userdir + "/src/test/resources/test-samples/sample.json" );
     InputStream jsonStream = new FileInputStream( sample );
     String json = IOUtils.toString( jsonStream, "utf-8" );
     PersistenceEngineForTests pe = PersistenceEngineForTests.getInstance();

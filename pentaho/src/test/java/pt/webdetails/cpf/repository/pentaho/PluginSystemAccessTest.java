@@ -13,18 +13,11 @@
 
 package pt.webdetails.cpf.repository.pentaho;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-
 import junit.framework.TestCase;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginClassLoader;
-
 import pt.webdetails.cpf.PluginSettings;
 import pt.webdetails.cpf.repository.api.IBasicFile;
 import pt.webdetails.cpf.repository.api.IBasicFileFilter;
@@ -32,6 +25,11 @@ import pt.webdetails.cpf.repository.api.IRWAccess;
 import pt.webdetails.cpf.repository.api.IReadAccess;
 import pt.webdetails.cpf.repository.util.RepositoryHelper;
 import pt.webdetails.cpf.utils.CharsetHelper;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 
 public class PluginSystemAccessTest extends TestCase {
   private final String userDir = System.getProperty( "user.dir" );
@@ -124,7 +122,7 @@ public class PluginSystemAccessTest extends TestCase {
     RepositoryHelper.appendPath( builder, file.getPath() );
     final String fullPath = builder.toString();
     assertEquals( fullPath, file.getFullPath() );
-    assertEquals( userDir + "/test-resources/repo/system/bogusPlugin/resources/stuff/stuffedBogus.txt", fullPath );
+    assertEquals( userDir + "/src/test/resources/repo/system/bogusPlugin/resources/stuff/stuffedBogus.txt", fullPath );
   }
 
   @Test
@@ -208,7 +206,7 @@ public class PluginSystemAccessTest extends TestCase {
   }
 
   private String getFullPluginDir( String pluginDir ) {
-    return userDir + "/test-resources/repo/system/" + pluginDir;
+    return userDir + "/src/test/resources/repo/system/" + pluginDir;
   }
 
   private PluginClassLoader getPluginClassLoader( String pluginDir ) {

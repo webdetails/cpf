@@ -27,7 +27,7 @@ public class PluginUtilsTest {
   private static PluginUtils pluginUtils;
   private static final String USER_DIR = System.getProperty( "user.dir" );
   private static final String PLUGIN_NAME = "bogusPlugin";
-  private static final String PLUGIN_DIR = USER_DIR + "/test-resources/repo/system/bogusPlugin";
+  private static final String PLUGIN_DIR = USER_DIR + "/src/test/resources/repo/system/bogusPlugin";
 
 
   @BeforeClass

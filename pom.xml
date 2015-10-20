@@ -3,15 +3,18 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
-    <artifactId>cda-plugin</artifactId>
-    <groupId>pentaho</groupId>
-    <version>6.1-SNAPSHOT</version>
-    <relativePath>../cda/pom.xml</relativePath>
+    <groupId>org.pentaho</groupId>
+    <artifactId>pentaho-ce-jar-parent-pom</artifactId>
+    <version>1.0.16</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
+  <groupId>pentaho</groupId>
   <artifactId>cpf-plugin</artifactId>
+  <version>6.1-SNAPSHOT</version>
+
   <packaging>pom</packaging>
+
   <modules>
     <module>core</module>
     <module>pentaho</module>
