@@ -7,7 +7,7 @@
 
   See common_build.xml for more details
 ============================================================================-->
-<project name="Community VFS Browser" basedir="" default="jar"
+<project name="Community VFS Browser" basedir="." default="jar"
          xmlns:ivy="antlib:org.apache.ivy.ant">
 
   <description>

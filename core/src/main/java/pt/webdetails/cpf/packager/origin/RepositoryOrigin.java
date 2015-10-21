@@ -20,7 +20,7 @@ public class RepositoryOrigin extends PathOrigin {
 
   @Override
   public IReadAccess getReader(IContentAccessFactory factory) {
-    return factory.getPluginRepositoryReader(RepositoryHelper.appendPath( "src/main", basePath));
+    return factory.getPluginRepositoryReader(RepositoryHelper.appendPath("..", basePath));
   }
 
   @Override

@@ -131,7 +131,7 @@ public class VfsRepositoryFile implements IRepositoryFile {
 	@Override
 	public IRepositoryFile retrieveParent() {
 		try {
-			if (file.getParent().equals(repo) || getSolutionPath().startsWith( "src/main" )) {
+			if (file.getParent().equals(repo) || getSolutionPath().startsWith("..")) {
 				return null;
 			}
 			return new VfsRepositoryFile(repo, file.getParent());

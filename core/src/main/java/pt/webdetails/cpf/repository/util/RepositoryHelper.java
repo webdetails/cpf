@@ -185,7 +185,7 @@ public class RepositoryHelper {
           int numDirsUp = base.length - commonIndex;
 
           for (int i = 0; i < numDirsUp; i++) {
-              relative.append( "src/main" + SEPARATOR);
+              relative.append(".." + SEPARATOR);
           }
       }
       if (common.length() < normalizedTargetPath.length()) {

@@ -20,11 +20,11 @@ import java.util.concurrent.Callable;
  */
 public class ClassLoaderAwareCaller {
   private ClassLoader classLoader;
-  
+
   public ClassLoaderAwareCaller(ClassLoader classLoader){
-   this.classLoader = classLoader; 
+   this.classLoader = classLoader;
   }
-  
+
   public <T> T callInClassLoader(Callable<T> callable) throws Exception{
     ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
     try
@@ -33,15 +33,15 @@ public class ClassLoaderAwareCaller {
       {
         Thread.currentThread().setContextClassLoader(this.classLoader);
       }
-      
+
       return callable.call();
-      
+
     }
     finally{
       Thread.currentThread().setContextClassLoader(contextClassLoader);
     }
   }
-      
+
   public void runInClassLoader(Runnable runnable)
   {
     ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
@@ -51,14 +51,14 @@ public class ClassLoaderAwareCaller {
       {
         Thread.currentThread().setContextClassLoader(this.classLoader);
       }
-      
+
       runnable.run();
-      
+
     }
     finally{
       Thread.currentThread().setContextClassLoader(contextClassLoader);
     }
   }
-  
-  
+
+
 }

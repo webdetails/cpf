@@ -67,7 +67,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ============================================================================-->
 
 
-<project name="subfloor" basedir="" default="default" xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="subfloor" basedir="." default="default" xmlns:ivy="antlib:org.apache.ivy.ant">
   <description>
     -------------------------------------------------------------------------------
     subfloor.xml provides tasks needed to perform a project build.
