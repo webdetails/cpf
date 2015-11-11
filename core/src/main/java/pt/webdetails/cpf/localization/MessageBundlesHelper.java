@@ -60,11 +60,11 @@ public class MessageBundlesHelper {
   // matches: messages_en.properties, messages_en-US.properties;
   // does not match: messages.properties, messages_EN.properties, messages_en_us.properties
   public final String REGEXP =
-    BASE_MESSAGES_FILENAME + "_[a-z][a-z](" + LANGUAGE_COUNTRY_SEPARATOR + "[A-Z][A-Z]){0,1}" + MESSAGES_EXTENSION;
+      BASE_MESSAGES_FILENAME + "_[a-z][a-z](" + LANGUAGE_COUNTRY_SEPARATOR + "[A-Z][A-Z]){0,1}" + MESSAGES_EXTENSION;
 
   // matches: messages_en.properties, messages_en_US.properties;
   public final String REGEXP_ALT =
-    BASE_MESSAGES_FILENAME + "_[a-z][a-z](" + LANGUAGE_COUNTRY_SEPARATOR_UNIX + "[A-Z][A-Z]){0,1}" + MESSAGES_EXTENSION;
+      BASE_MESSAGES_FILENAME + "_[a-z][a-z](" + LANGUAGE_COUNTRY_SEPARATOR_UNIX + "[A-Z][A-Z]){0,1}" + MESSAGES_EXTENSION;
 
 
   private static final Log logger = LogFactory.getLog( MessageBundlesHelper.class );
@@ -149,7 +149,7 @@ public class MessageBundlesHelper {
     // search for messages_<language>.properties and messages_<language>_<country>.properties
     // a dashboard may have multiple localized properties files ( messages_en.properties, messages_pt.properties, ... )
     List<IBasicFile> localizedPropertiesFiles =
-      getDashboardAccess().listFiles( getDashboardFolderPath(), new LocalizedMessageFilter(), 1, false, true );
+        getDashboardAccess().listFiles( getDashboardFolderPath(), new LocalizedMessageFilter(), 1, false, true );
 
 
     // standard procedure is to *not* save message files to cache dir *if* they already exist there;
@@ -164,7 +164,7 @@ public class MessageBundlesHelper {
       for ( IBasicFile localizedPropertyFile : localizedPropertiesFiles ) {
 
         String fileInCacheDirPath =
-          Util.joinPath( getBaseTempCacheFolder(), sanitize( localizedPropertyFile.getName() ) );
+            Util.joinPath( getBaseTempCacheFolder(), sanitize( localizedPropertyFile.getName() ) );
 
         try {
 
@@ -183,11 +183,11 @@ public class MessageBundlesHelper {
     // in the FOR cycle above; but in the off-chance they haven't been stored in the cache dir, we'll go ahead
     // and store them as empty files;
     String localizedMsgPath = Util.joinPath( getBaseTempCacheFolder(),
-      ( BASE_MESSAGES_FILENAME + "_" + getLocale().getLanguage() + MESSAGES_EXTENSION ) );
+        ( BASE_MESSAGES_FILENAME + "_" + getLocale().getLanguage() + MESSAGES_EXTENSION ) );
 
     String localizedCountryMsgPath = Util.joinPath( getBaseTempCacheFolder(),
-      ( BASE_MESSAGES_FILENAME + "_" + getLocale().getLanguage() + LANGUAGE_COUNTRY_SEPARATOR +
-        getLocale().getCountry() + MESSAGES_EXTENSION ) );
+        ( BASE_MESSAGES_FILENAME + "_" + getLocale().getLanguage() + LANGUAGE_COUNTRY_SEPARATOR
+          + getLocale().getCountry() + MESSAGES_EXTENSION ) );
 
     if ( !getPluginAccess().fileExists( localizedMsgPath ) ) {
       getPluginAccess().saveFile( localizedMsgPath, new ByteArrayInputStream( new String().getBytes() ) );
@@ -204,7 +204,7 @@ public class MessageBundlesHelper {
     IBasicFile basePropertiesFile = null;
 
     String basePropertiesCachePath =
-      Util.joinPath( getBaseTempCacheFolder(), ( BASE_MESSAGES_FILENAME + MESSAGES_EXTENSION ) );
+        Util.joinPath( getBaseTempCacheFolder(), ( BASE_MESSAGES_FILENAME + MESSAGES_EXTENSION ) );
 
     // first let's check if there is a base properties file ( 'messages.properties' )
     if ( getDashboardAccess().fileExists( baseMsgPath ) ) {
@@ -235,7 +235,7 @@ public class MessageBundlesHelper {
       for ( IBasicFile message : localizedMessages ) {
 
         if ( !getPluginAccess()
-          .fileExists( Util.joinPath( getBaseTempCacheFolder(), sanitize( message.getName() ) ) ) ) {
+            .fileExists( Util.joinPath( getBaseTempCacheFolder(), sanitize( message.getName() ) ) ) ) {
 
           filteredLocalizedMessages.add( message );
         }
@@ -321,7 +321,7 @@ public class MessageBundlesHelper {
   public String sanitize( String name ) {
 
     final String REGEX_SEPARATOR_UNIX =
-      BASE_MESSAGES_FILENAME + "_[a-z][a-z](" + LANGUAGE_COUNTRY_SEPARATOR_UNIX + "[A-Z][A-Z])" + MESSAGES_EXTENSION;
+        BASE_MESSAGES_FILENAME + "_[a-z][a-z](" + LANGUAGE_COUNTRY_SEPARATOR_UNIX + "[A-Z][A-Z])" + MESSAGES_EXTENSION;
 
     if ( !StringUtils.isEmpty( name ) && name.matches( REGEX_SEPARATOR_UNIX ) ) {
 

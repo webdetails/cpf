@@ -1,9 +1,9 @@
 package pt.webdetails.cpf.messaging;
 
-import java.io.IOException;
-
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonGenerator;
+
+import java.io.IOException;
 
 public class JsonResult implements JsonGeneratorSerializable {
 
@@ -23,9 +23,9 @@ public class JsonResult implements JsonGeneratorSerializable {
 
   public JsonResult( boolean success, final String contents ) {
     this.status = success;
-    this.payload = new JsonGeneratorSerializable () {
+    this.payload = new JsonGeneratorSerializable() {
       public void writeToGenerator( JsonGenerator jsonGenerator ) throws JsonGenerationException, IOException {
-        jsonGenerator.writeString(contents);
+        jsonGenerator.writeString( contents );
       }
     };
   }

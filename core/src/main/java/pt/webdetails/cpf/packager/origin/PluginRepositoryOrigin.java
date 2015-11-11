@@ -25,7 +25,7 @@ public class PluginRepositoryOrigin extends PathOrigin {
 
   @Override
   public String getUrl( String localPath, IUrlProvider urlProvider ) {
-    String relPath = RepositoryHelper.joinPaths(pluginBasePath, basePath, localPath );
+    String relPath = RepositoryHelper.joinPaths( pluginBasePath, basePath, localPath );
     return RepositoryHelper.joinPaths( urlProvider.getResourcesBasePath(), relPath );
   }
 }

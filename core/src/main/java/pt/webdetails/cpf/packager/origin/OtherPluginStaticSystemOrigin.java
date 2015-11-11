@@ -15,8 +15,8 @@ public class OtherPluginStaticSystemOrigin extends PathOrigin {
 
   private String pluginId;
 
-  public OtherPluginStaticSystemOrigin(String pluginId, String basePath) {
-    super(basePath);
+  public OtherPluginStaticSystemOrigin( String pluginId, String basePath ) {
+    super( basePath );
     assert pluginId != null;
     this.pluginId = pluginId;
   }
@@ -26,7 +26,7 @@ public class OtherPluginStaticSystemOrigin extends PathOrigin {
   }
 
   @Override
-  public String getUrl(String localPath, IUrlProvider urlProvider) {
+  public String getUrl( String localPath, IUrlProvider urlProvider ) {
     // ex.: 
     // pluginId=cdc
     // basePath=static, localPath=css/some.css
@@ -35,27 +35,26 @@ public class OtherPluginStaticSystemOrigin extends PathOrigin {
   }
 
   @Override
-  public IReadAccess getReader(IContentAccessFactory factory) {
-    return factory.getOtherPluginSystemReader(pluginId, basePath);
+  public IReadAccess getReader( IContentAccessFactory factory ) {
+    return factory.getOtherPluginSystemReader( pluginId, basePath );
   }
 
-    @Override
-    public boolean equals( Object other ) {
-      return 
-          super.equals( other ) &&
-          other instanceof OtherPluginStaticSystemOrigin &&
-          StringUtils.equals( pluginId, ((OtherPluginStaticSystemOrigin) other).pluginId);
-    }
-  
-    @Override
-    public int hashCode() {
-      int hash = super.hashCode();
-      hash *= 73;
-      hash += pluginId.hashCode();
-      return hash;
-    }
+  @Override
+  public boolean equals( Object other ) {
+    return
+      super.equals( other ) && other instanceof OtherPluginStaticSystemOrigin
+          && StringUtils.equals( pluginId, ( (OtherPluginStaticSystemOrigin) other ).pluginId );
+  }
 
-    public String toString() {
-      return getClass().getSimpleName() + ":" + pluginId + ":" + basePath;
-    }
+  @Override
+  public int hashCode() {
+    int hash = super.hashCode();
+    hash *= 73;
+    hash += pluginId.hashCode();
+    return hash;
+  }
+
+  public String toString() {
+    return getClass().getSimpleName() + ":" + pluginId + ":" + basePath;
+  }
 }

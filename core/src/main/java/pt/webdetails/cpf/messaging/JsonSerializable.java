@@ -19,5 +19,5 @@ import org.json.JSONObject;
 public interface JsonSerializable {
 
   public JSONObject toJSON() throws JSONException;
-  
+
 }

@@ -19,53 +19,54 @@ import pt.webdetails.cpf.session.IUserSession;
 //TODO: do we actually need this anywhere? CDA's usage of this as a dummy doesn't count
 public class SimpleSessionUtils implements ISessionUtils {
 
-	
-	private String[] principals;
 
-	private String[] authorities;
-	private IUserSession session;
+  private String[] principals;
 
-	public SimpleSessionUtils() {};
-	
-	public SimpleSessionUtils(IUserSession session, String[] principals, String[] authorities) {
-		this.session = session;
-		this.principals = principals;
-		this.authorities = authorities;
-	}
-	
-	@Override
-	public IUserSession getCurrentSession() {
-		return this.session;
-	}
+  private String[] authorities;
+  private IUserSession session;
 
-	@Override
-	public String[] getSystemPrincipals() {
-		return this.principals;
-	}
+  public SimpleSessionUtils() {
+  }
 
-	@Override
-	public String[] getSystemAuthorities() {
-		return this.authorities;
-	}
+  public SimpleSessionUtils( IUserSession session, String[] principals, String[] authorities ) {
+    this.session = session;
+    this.principals = principals;
+    this.authorities = authorities;
+  }
 
-	/**
-	 * @param principals the principals to set
-	 */
-	public void setSystemPrincipals(String[] principals) {
-		this.principals = principals;
-	}
+  @Override
+  public IUserSession getCurrentSession() {
+    return this.session;
+  }
 
-	/**
-	 * @param authorities the authorities to set
-	 */
-	public void setSystemAuthorities(String[] authorities) {
-		this.authorities = authorities;
-	}
+  @Override
+  public String[] getSystemPrincipals() {
+    return this.principals;
+  }
 
-	/**
-	 * @param session the session to set
-	 */
-	public void setSession(IUserSession session) {
-		this.session = session;
-	}
+  @Override
+  public String[] getSystemAuthorities() {
+    return this.authorities;
+  }
+
+  /**
+   * @param principals the principals to set
+   */
+  public void setSystemPrincipals( String[] principals ) {
+    this.principals = principals;
+  }
+
+  /**
+   * @param authorities the authorities to set
+   */
+  public void setSystemAuthorities( String[] authorities ) {
+    this.authorities = authorities;
+  }
+
+  /**
+   * @param session the session to set
+   */
+  public void setSession( IUserSession session ) {
+    this.session = session;
+  }
 }

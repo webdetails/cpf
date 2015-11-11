@@ -5,11 +5,13 @@ package pt.webdetails.cpf.utils;
  */
 public class Pair<T, U> {
 
-  public Pair(T first, U second) {
+  public Pair( T first, U second ) {
     this.first = first;
     this.second = second;
   }
-  public Pair() {}
+
+  public Pair() {
+  }
 
   public T first;
   public U second;

@@ -12,9 +12,7 @@
  */
 package pt.webdetails.cpf.bean;
 
-import java.io.Serializable;
-
 public interface IDummyBean {
-	
+
   boolean isBeanOK();
 }

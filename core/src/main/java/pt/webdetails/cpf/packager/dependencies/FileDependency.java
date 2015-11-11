@@ -4,26 +4,25 @@
 
 package pt.webdetails.cpf.packager.dependencies;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import pt.webdetails.cpf.PluginEnvironment;
 import pt.webdetails.cpf.Util;
 import pt.webdetails.cpf.context.api.IUrlProvider;
 import pt.webdetails.cpf.packager.origin.PathOrigin;
 import pt.webdetails.cpf.repository.api.IContentAccessFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 /**
  * Basic file-based dependency with md5 checksums.
  */
 public class FileDependency extends Dependency {
-  
-  private static Log logger = LogFactory.getLog(FileDependency.class);
-  
+
+  private static Log logger = LogFactory.getLog( FileDependency.class );
+
   protected String filePath;
   protected PathOrigin origin;
   protected IUrlProvider urlProvider;
@@ -32,7 +31,7 @@ public class FileDependency extends Dependency {
   // use checksums for versions, otherwise use timestamps
   protected boolean useChecksumVersion = true;
 
-  public FileDependency(String version, PathOrigin origin, String path, IUrlProvider urlProvider) {
+  public FileDependency( String version, PathOrigin origin, String path, IUrlProvider urlProvider ) {
     super();
     this.filePath = path;
     this.hash = null;
@@ -41,13 +40,13 @@ public class FileDependency extends Dependency {
   }
 
   protected String getCheckSum() {
-    if (hash == null) {
+    if ( hash == null ) {
       InputStream in = null;
       try {
         in = getFileInputStream();
         hash = Util.getMd5Digest( in );
       } catch ( Exception e ) {
-        logger.error( "Could not compute md5 checksum.", e);
+        logger.error( "Could not compute md5 checksum.", e );
       } finally {
         IOUtils.closeQuietly( in );
       }
@@ -73,8 +72,8 @@ public class FileDependency extends Dependency {
   public String getDependencyInclude() {
     // the ?v=<version> is used to bypass browser cache when needed
     String version = getVersion();
-    String urlAppend = ((version == null) ? "" : "?v=" + version);
-    return origin.getUrl(filePath, urlProvider) + urlAppend;
+    String urlAppend = ( ( version == null ) ? "" : "?v=" + version );
+    return origin.getUrl( filePath, urlProvider ) + urlAppend;
   }
 
   @Override
@@ -83,7 +82,7 @@ public class FileDependency extends Dependency {
   }
 
   public String getUrlFilePath() {
-    return origin.getUrl(filePath, urlProvider);
+    return origin.getUrl( filePath, urlProvider );
   }
 
   protected IContentAccessFactory getContentFactory() {

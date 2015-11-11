@@ -15,33 +15,32 @@ package pt.webdetails.cpf.http;
 
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 public interface ICommonParameterProvider {
-	
-	public void put(String name, Object value);
 
-	public String getStringParameter(String name, String defaultValue);
+  public void put( String name, Object value );
 
-	public long getLongParameter(String name, long defaultValue);
+  public String getStringParameter( String name, String defaultValue );
 
-	public Date getDateParameter(String name, Date defaultValue);
+  public long getLongParameter( String name, long defaultValue );
 
-	public BigDecimal getDecimalParameter(String name, BigDecimal defaultValue);
+  public Date getDateParameter( String name, Date defaultValue );
 
-	public Object[] getArrayParameter(String name, Object[] defaultValue);
+  public BigDecimal getDecimalParameter( String name, BigDecimal defaultValue );
 
-	public String[] getStringArrayParameter(String name,
-			String[] defaultValue);
-	
-	public Map<String,Object> getParameters();
+  public Object[] getArrayParameter( String name, Object[] defaultValue );
 
-	public Iterator<String> getParameterNames();
+  public String[] getStringArrayParameter( String name,
+                                           String[] defaultValue );
 
-	public Object getParameter(String name);
+  public Map<String, Object> getParameters();
 
-	public boolean hasParameter(String name);
+  public Iterator<String> getParameterNames();
+
+  public Object getParameter( String name );
+
+  public boolean hasParameter( String name );
 
 }
