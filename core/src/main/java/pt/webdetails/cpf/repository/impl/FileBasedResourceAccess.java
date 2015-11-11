@@ -12,6 +12,13 @@
 */
 package pt.webdetails.cpf.repository.impl;
 
+import org.apache.commons.io.IOUtils;
+import pt.webdetails.cpf.repository.api.IBasicFile;
+import pt.webdetails.cpf.repository.api.IBasicFileFilter;
+import pt.webdetails.cpf.repository.api.IRWAccess;
+import pt.webdetails.cpf.repository.util.RepositoryHelper;
+import pt.webdetails.cpf.utils.CharsetHelper;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -20,14 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.io.IOUtils;
-
-import pt.webdetails.cpf.repository.api.IBasicFile;
-import pt.webdetails.cpf.repository.api.IBasicFileFilter;
-import pt.webdetails.cpf.repository.api.IRWAccess;
-import pt.webdetails.cpf.repository.util.RepositoryHelper;
-import pt.webdetails.cpf.utils.CharsetHelper;
 
 /**
  * This one is based on files. How they are fetched is anyone's guess
@@ -159,7 +158,7 @@ public abstract class FileBasedResourceAccess implements IRWAccess {
       }
 
       public String getFullPath() {
-        return file.getAbsolutePath();//TODO: . ..
+        return file.getAbsolutePath(); //TODO: . ..
       }
 
       public String getPath() {

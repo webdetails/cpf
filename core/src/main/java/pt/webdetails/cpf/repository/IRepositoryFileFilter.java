@@ -13,12 +13,10 @@
 
 package pt.webdetails.cpf.repository;
 
-import pt.webdetails.cpf.repository.api.IBasicFileFilter;
-
 /**
- * @deprecated replaced by {@link IBasicFileFilter}
  * @author dfscm
+ * @deprecated replaced by {@link pt.webdetails.cpf.repository.api.IBasicFileFilter}
  */
 public interface IRepositoryFileFilter {
-    public boolean accept(IRepositoryFile isf);
+  public boolean accept( IRepositoryFile isf );
 }

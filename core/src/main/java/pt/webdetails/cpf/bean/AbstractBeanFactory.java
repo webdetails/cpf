@@ -12,16 +12,12 @@
 */
 package pt.webdetails.cpf.bean;
 
-import java.net.URL;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-import pt.webdetails.cpf.bean.IBeanFactory;
 
 import java.net.URL;
 
@@ -33,23 +29,20 @@ public abstract class AbstractBeanFactory implements IBeanFactory {
 
   public abstract String getSpringXMLFilename();
 
-  @Override
-  public Object getBean( String id ) {
+  @Override public Object getBean( String id ) {
     return ( getCtx() != null && getCtx().containsBean( id ) ) ? getCtx().getBean( id ) : null;
   }
 
-  @Override
-  public boolean containsBean( String id ) {
+  @Override public boolean containsBean( String id ) {
     return getCtx() != null ? getCtx().containsBean( id ) : false;
   }
 
-  @Override
-  public String[] getBeanNamesForType( Class<?> clazz ) {
+  @Override public String[] getBeanNamesForType( Class<?> clazz ) {
     return getCtx().getBeanNamesForType( clazz );
   }
 
-  protected ConfigurableApplicationContext getCtx(){
-    if( ctx == null ){
+  protected ConfigurableApplicationContext getCtx() {
+    if ( ctx == null ) {
       ctx = getSpringBeanFactory( getSpringXMLFilename() );
     }
 
@@ -69,38 +62,35 @@ public abstract class AbstractBeanFactory implements IBeanFactory {
 
         ConfigurableApplicationContext context = new ClassPathXmlApplicationContext( config ) {
 
-          @Override
-          protected void initBeanDefinitionReader( XmlBeanDefinitionReader beanDefinitionReader) {
-            beanDefinitionReader.setBeanClassLoader(cl);
+          @Override protected void initBeanDefinitionReader( XmlBeanDefinitionReader beanDefinitionReader ) {
+            beanDefinitionReader.setBeanClassLoader( cl );
           }
 
-          @Override
-          protected void prepareBeanFactory( ConfigurableListableBeanFactory clBeanFactory ) {
-            super.prepareBeanFactory(clBeanFactory);
-            clBeanFactory.setBeanClassLoader(cl);
+          @Override protected void prepareBeanFactory( ConfigurableListableBeanFactory clBeanFactory ) {
+            super.prepareBeanFactory( clBeanFactory );
+            clBeanFactory.setBeanClassLoader( cl );
           }
 
           /**
            * Critically important to override this and return the desired classloader
            **/
-          @Override
-          public ClassLoader getClassLoader() {
+          @Override public ClassLoader getClassLoader() {
             return cl;
           }
         };
         getLogger().debug( "bean factory context" );
         return context;
       }
-    } catch (Exception e) {
+    } catch ( Exception e ) {
       getLogger().fatal( "Error loading " + config, e );
     }
-    getLogger().fatal( "Spring definition file does not exist. "
-        + "There should be a " + config + " file on the classpath ");
+    getLogger().fatal( "Spring definition file does not exist. " + "There should be a " + config
+        + " file on the classpath " );
     return null;
 
   }
 
-  protected Log getLogger(){
+  protected Log getLogger() {
     return logger;
   }
 }

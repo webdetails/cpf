@@ -25,11 +25,11 @@ public class SomeFolderReadAccess implements IReadAccess {
 
   private List<IBasicFile> files = new ArrayList<IBasicFile>();
 
-  public SomeFolderReadAccess( List<IBasicFile> files ){
+  public SomeFolderReadAccess( List<IBasicFile> files ) {
     this.files = files;
   }
 
-  public List<IBasicFile> getFiles(){
+  public List<IBasicFile> getFiles() {
     return files;
   }
 

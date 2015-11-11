@@ -13,23 +13,23 @@
 
 package pt.webdetails.cpf;
 
-import java.util.Map;
-
 import pt.webdetails.cpf.plugin.CorePlugin;
+
+import java.util.Map;
 
 /**
  * @deprecated gonna break this one too
  */
 public interface IPluginCall {
 
-	public final static String DEFAULT_ENCODING = "UTF-8";
-	  
-	public void init(CorePlugin plugin, String method, Map<String, Object> params);
+  public static final String DEFAULT_ENCODING = "UTF-8";
 
-	public String getMethod();
+  public void init( CorePlugin plugin, String method, Map<String, Object> params );
 
-	public void setMethod(String method);
+  public String getMethod();
 
-	public String call();
+  public void setMethod( String method );
+
+  public String call();
 
 }

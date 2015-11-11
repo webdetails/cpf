@@ -16,11 +16,11 @@ public class DummyBean implements IDummyBean {
 
   private boolean beanOK = false;
 
-  public DummyBean(){
+  public DummyBean() {
     beanOK = true;
   }
 
-  public boolean isBeanOK(){
+  public boolean isBeanOK() {
     return beanOK;
   }
 }

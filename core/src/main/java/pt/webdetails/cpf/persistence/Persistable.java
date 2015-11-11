@@ -19,12 +19,13 @@ import org.json.JSONObject;
 import pt.webdetails.cpf.messaging.JsonSerializable;
 
 /**
- *
  * @author pdpi
  */
-public interface Persistable extends JsonSerializable{
+public interface Persistable extends JsonSerializable {
 
-    public void setKey(String  key);
-    public String getKey();
-    public void fromJSON(JSONObject json) throws JSONException;
+  public void setKey( String key );
+
+  public String getKey();
+
+  public void fromJSON( JSONObject json ) throws JSONException;
 }

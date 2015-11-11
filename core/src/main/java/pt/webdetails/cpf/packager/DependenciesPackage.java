@@ -13,9 +13,7 @@
 
 package pt.webdetails.cpf.packager;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
+import pt.webdetails.cpf.context.api.IUrlProvider;
 import pt.webdetails.cpf.packager.dependencies.CssMinifiedDependency;
 import pt.webdetails.cpf.packager.dependencies.Dependency;
 import pt.webdetails.cpf.packager.dependencies.FileDependency;
@@ -23,11 +21,13 @@ import pt.webdetails.cpf.packager.dependencies.JsMinifiedDependency;
 import pt.webdetails.cpf.packager.dependencies.MapDependency;
 import pt.webdetails.cpf.packager.dependencies.PackagedFileDependency;
 import pt.webdetails.cpf.packager.dependencies.SnippetDependency;
-import pt.webdetails.cpf.context.api.IUrlProvider;
 import pt.webdetails.cpf.packager.origin.PathOrigin;
 import pt.webdetails.cpf.packager.origin.StaticSystemOrigin;
 import pt.webdetails.cpf.repository.api.IContentAccessFactory;
 import pt.webdetails.cpf.repository.api.IRWAccess;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 
 /**
@@ -232,7 +232,7 @@ public class DependenciesPackage {
               break;
             case MAP:
               packagedDependency =
-                new MapDependency( origin, name, writer, fileDependencies.values() , urlProvider );
+                new MapDependency( origin, name, writer, fileDependencies.values(), urlProvider );
               break;
             default:
               throw new IllegalStateException(

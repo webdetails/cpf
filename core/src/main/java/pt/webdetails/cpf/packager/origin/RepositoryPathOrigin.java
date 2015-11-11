@@ -7,12 +7,12 @@ import pt.webdetails.cpf.repository.util.RepositoryHelper;
 
 public class RepositoryPathOrigin extends PathOrigin {
 
-  public RepositoryPathOrigin(String basePath) {
-    super(basePath);
+  public RepositoryPathOrigin( String basePath ) {
+    super( basePath );
   }
 
   @Override
-  public IReadAccess getReader(IContentAccessFactory factory) {
+  public IReadAccess getReader( IContentAccessFactory factory ) {
     return factory.getUserContentAccess( basePath );
   }
 

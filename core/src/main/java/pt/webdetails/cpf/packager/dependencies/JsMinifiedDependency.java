@@ -4,6 +4,14 @@
 
 package pt.webdetails.cpf.packager.dependencies;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import pt.webdetails.cpf.Util;
+import pt.webdetails.cpf.context.api.IUrlProvider;
+import pt.webdetails.cpf.packager.origin.PathOrigin;
+import pt.webdetails.cpf.repository.api.IRWAccess;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -13,44 +21,36 @@ import java.text.ParseException;
 import java.util.Enumeration;
 import java.util.Iterator;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import pt.webdetails.cpf.Util;
-import pt.webdetails.cpf.context.api.IUrlProvider;
-import pt.webdetails.cpf.packager.origin.PathOrigin;
-import pt.webdetails.cpf.repository.api.IRWAccess;
-
 /**
  * Minifies javascript files using {@link JSMin}.
  */
 public class JsMinifiedDependency extends PackagedFileDependency {
 
-  private static Log logger = LogFactory.getLog(JsMinifiedDependency.class);
+  private static Log logger = LogFactory.getLog( JsMinifiedDependency.class );
 
-  public JsMinifiedDependency( PathOrigin origin, String path, IRWAccess writer, Iterable<FileDependency> inputFiles, IUrlProvider urlProvider ) {
+  public JsMinifiedDependency( PathOrigin origin, String path, IRWAccess writer, Iterable<FileDependency> inputFiles,
+                               IUrlProvider urlProvider ) {
     super( origin, path, writer, inputFiles, urlProvider );
   }
 
   @Override
-  protected InputStream minifyPackage(Iterable<FileDependency> inputFiles) {
-    return new SequenceInputStream( new JsMinificationEnumeration( inputFiles.iterator()) );
+  protected InputStream minifyPackage( Iterable<FileDependency> inputFiles ) {
+    return new SequenceInputStream( new JsMinificationEnumeration( inputFiles.iterator() ) );
   }
-  
+
   public static class JsMinificationEnumeration implements Enumeration<InputStream> {
-  
+
     private Iterator<FileDependency> deps;
-  
-    public JsMinificationEnumeration(Iterator<FileDependency> deps) {
+
+    public JsMinificationEnumeration( Iterator<FileDependency> deps ) {
       this.deps = deps;
     }
-  
+
     @Override
     public boolean hasMoreElements() {
       return deps.hasNext();
     }
-  
+
     @Override
     public InputStream nextElement() {
       FileDependency dep = deps.next();
@@ -62,13 +62,14 @@ public class JsMinifiedDependency extends PackagedFileDependency {
         jsMin.jsmin();
         return new ByteArrayInputStream( bytesOut.toByteArray() );
       } catch ( ParseException e ) {
-        logger.error( "Error parsing javascript dependency " + dep + " at offset " + e.getErrorOffset() + ". Skipping..", e );
+        logger
+            .error( "Error parsing javascript dependency " + dep + " at offset " + e.getErrorOffset() + ". Skipping..",
+              e );
       } catch ( IOException e ) {
         logger.error( "Error getting input stream for dependency " + dep + ". Skipping..", e );
       } catch ( Exception e ) {
         logger.error( String.format( "Error while processing dependency %s. Skipping..", dep ) );
-      }
-      finally {
+      } finally {
         IOUtils.closeQuietly( input );
       }
       return Util.toInputStream( "" );

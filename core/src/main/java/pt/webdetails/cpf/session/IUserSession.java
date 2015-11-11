@@ -14,17 +14,20 @@
 package pt.webdetails.cpf.session;
 
 /**
- *
  * @author dfscm
  */
 public interface IUserSession {
-    
-    
-    public String getUserName();
-    public boolean isAdministrator();
-    public String[] getAuthorities();
-    
-    public Object getParameter(String key);
-    public String getStringParameter(String key);
-    public void setParameter(String key, Object value);
+
+
+  public String getUserName();
+
+  public boolean isAdministrator();
+
+  public String[] getAuthorities();
+
+  public Object getParameter( String key );
+
+  public String getStringParameter( String key );
+
+  public void setParameter( String key, Object value );
 }

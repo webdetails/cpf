@@ -13,40 +13,37 @@
 
 package pt.webdetails.cpf.repository;
 
-import pt.webdetails.cpf.repository.api.IBasicFile;
-
 /**
- *
  * @author dfscm
- *  @deprecated use {@link IBasicFile}
+ * @deprecated use {@link pt.webdetails.cpf.repository.api.IBasicFile}
  */
 public interface IRepositoryFile {
 
-    public boolean isDirectory();
+  public boolean isDirectory();
 
-    public String getFileName();
+  public String getFileName();
 
-    public String getSolutionPath();
+  public String getSolutionPath();
 
-    @Deprecated
-    public String getSolution();
+  @Deprecated
+  public String getSolution();
 
-    public String getFullPath();
+  public String getFullPath();
 
-    public IRepositoryFile[] listFiles();
+  public IRepositoryFile[] listFiles();
 
-    public IRepositoryFile[] listFiles(IRepositoryFileFilter iff);
+  public IRepositoryFile[] listFiles( IRepositoryFileFilter iff );
 
-    //TODO: root of what?
-    public boolean isRoot();
+  //TODO: root of what?
+  public boolean isRoot();
 
-    public IRepositoryFile retrieveParent();
+  public IRepositoryFile retrieveParent();
 
-    public byte[] getData();
+  public byte[] getData();
 
-    public boolean exists();
+  public boolean exists();
 
-    public long getLastModified();
+  public long getLastModified();
 
-    public String getExtension();
+  public String getExtension();
 }
