@@ -4,22 +4,21 @@
 
 package pt.webdetails.cpf.packager.dependencies;
 
+import pt.webdetails.cpf.repository.util.RepositoryHelper;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
-import pt.webdetails.cpf.repository.util.RepositoryHelper;
-
 public class CssUrlReplacer {
 
-  private static final Pattern thyOldeIEUrl = 
-      Pattern.compile("(progid:DXImageTransform.Microsoft.AlphaImageLoader\\(src=')");
+  private static final Pattern thyOldeIEUrl =
+      Pattern.compile( "(progid:DXImageTransform.Microsoft.AlphaImageLoader\\(src=')" );
   /**
-   * 
+   *
    */
-  private static final Pattern CSS_URL = Pattern.compile("([^\\w]url\\s*\\(['\"]?)([^\\)\"']*)");
-  private static final Pattern URL_PROTOCOL = Pattern.compile("^\\w*\\:");
-  
+  private static final Pattern CSS_URL = Pattern.compile( "([^\\w]url\\s*\\(['\"]?)([^\\)\"']*)" );
+  private static final Pattern URL_PROTOCOL = Pattern.compile( "^\\w*\\:" );
+
   public CssUrlReplacer() {
   }
 
@@ -30,10 +29,9 @@ public class CssUrlReplacer {
     while ( urlMatch.find() ) {
       String url = urlMatch.group( 2 );
       // ignore protocol and abs paths
-      if ( URL_PROTOCOL.matcher(url).find() || url.startsWith( "/" ) ) {
-        urlMatch.appendReplacement(sb, urlMatch.group());
-      }
-      else {
+      if ( URL_PROTOCOL.matcher( url ).find() || url.startsWith( "/" ) ) {
+        urlMatch.appendReplacement( sb, urlMatch.group() );
+      } else {
         String firstPart = urlMatch.group( 1 );
         urlMatch.appendReplacement( sb, firstPart );
         sb.append( newLocation );
@@ -60,8 +58,8 @@ public class CssUrlReplacer {
     return replacedContents;
   }
 
-  public String processContents(final String fileContents, String location) {
-    return replaceUrls(fileContents, location);
+  public String processContents( final String fileContents, String location ) {
+    return replaceUrls( fileContents, location );
   }
 
 }

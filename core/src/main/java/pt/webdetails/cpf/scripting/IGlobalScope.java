@@ -25,41 +25,40 @@ import org.mozilla.javascript.Scriptable;
 import pt.webdetails.cpf.session.IUserSession;
 
 /**
- *
  * @author joao
  */
-public interface IGlobalScope extends Scriptable{
-    
+public interface IGlobalScope extends Scriptable {
 
 
-    public IGlobalScope getInstance() ;
-    
-    public IGlobalScope reset() ;
+  public IGlobalScope getInstance();
 
-    public void init() ;
+  public IGlobalScope reset();
 
-    public  ContextFactory getContextFactory();
-    public Object registerHandler(Context cx, Scriptable thisObj,Object[] args, Function funObj);
-    
-    public Object loadTests(Context cx, Scriptable thisObj, Object[] args, Function funObj);
-    
-    public void executeScript(String path);
-    
-    public  void executeScript(Context cx, String path, Scriptable scope);
+  public void init();
 
-    public Object print(Context cx, Scriptable thisObj, Object[] args, Function funObj);
+  public ContextFactory getContextFactory();
 
-    public Object load(Context cx, Scriptable thisObj,  Object[] args, Function funObj);
-    
-    public Object lib(Context cx, Scriptable thisObj,Object[] args, Function funObj);
+  public Object registerHandler( Context cx, Scriptable thisObj, Object[] args, Function funObj );
 
-    public Object callWithDefaultSession(final Context cx, final Scriptable thisObj, Object[] args, Function funObj);
-    
-    public Object getPluginSetting(Context cx, Scriptable thisObj,Object[] args, Function funObj);
+  public Object loadTests( Context cx, Scriptable thisObj, Object[] args, Function funObj );
 
-    public IUserSession getSession();
+  public void executeScript( String path );
 
-    public IUserSession getAdminSession();
-    
-    
+  public void executeScript( Context cx, String path, Scriptable scope );
+
+  public Object print( Context cx, Scriptable thisObj, Object[] args, Function funObj );
+
+  public Object load( Context cx, Scriptable thisObj, Object[] args, Function funObj );
+
+  public Object lib( Context cx, Scriptable thisObj, Object[] args, Function funObj );
+
+  public Object callWithDefaultSession( final Context cx, final Scriptable thisObj, Object[] args, Function funObj );
+
+  public Object getPluginSetting( Context cx, Scriptable thisObj, Object[] args, Function funObj );
+
+  public IUserSession getSession();
+
+  public IUserSession getAdminSession();
+
+
 }

@@ -10,17 +10,17 @@ import pt.webdetails.cpf.repository.api.IReadAccess;
 import pt.webdetails.cpf.repository.util.RepositoryHelper;
 
 /**
- * Location in the repository, basePath from repository root 
+ * Location in the repository, basePath from repository root
  */
 public class RepositoryOrigin extends PathOrigin {
 
-  public RepositoryOrigin(String basePath) {
-    super(basePath);
+  public RepositoryOrigin( String basePath ) {
+    super( basePath );
   }
 
   @Override
-  public IReadAccess getReader(IContentAccessFactory factory) {
-    return factory.getPluginRepositoryReader(RepositoryHelper.appendPath("..", basePath));
+  public IReadAccess getReader( IContentAccessFactory factory ) {
+    return factory.getPluginRepositoryReader( RepositoryHelper.appendPath( "..", basePath ) );
   }
 
   @Override

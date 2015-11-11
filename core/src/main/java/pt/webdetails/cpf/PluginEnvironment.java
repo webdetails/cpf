@@ -5,8 +5,8 @@ import pt.webdetails.cpf.plugincall.api.IPluginCall;
 import pt.webdetails.cpf.repository.api.IContentAccessFactory;
 
 /**
- * Intended as an all-purpose factory singleton for plugin interaction with its environment (repository, session, config..)<br>
- * Should be extended by plugins.
+ * Intended as an all-purpose factory singleton for plugin interaction with its environment (repository, session,
+ * config..)<br> Should be extended by plugins.
  */
 public abstract class PluginEnvironment {
 
@@ -14,9 +14,10 @@ public abstract class PluginEnvironment {
 
   /**
    * Use with care
+   *
    * @param defaultEnvironment what will be the environment in use for the static methods.
    */
-  public static synchronized void init(PluginEnvironment defaultEnvironment) {
+  public static synchronized void init( PluginEnvironment defaultEnvironment ) {
     //TODO: yeah, on the ugly side, but not ready to be springified yet.
     // could be an env = (PluginEnvironment) beanFactory.getBean(PluginEnvironment) or something
     env = defaultEnvironment;
@@ -25,6 +26,7 @@ public abstract class PluginEnvironment {
   public static PluginEnvironment env() {
     return env;
   }
+
   public static IContentAccessFactory repository() {
     return env().getContentAccessFactory();
   }
@@ -36,12 +38,13 @@ public abstract class PluginEnvironment {
 
 
   /**
-   * For getting base context-specific URLs 
+   * For getting base context-specific URLs
    */
   public abstract IUrlProvider getUrlProvider();
 
   /**
    * Should be overridden per plugin TODO: something else here
+   *
    * @return
    */
   public abstract PluginSettings getPluginSettings();
@@ -51,10 +54,11 @@ public abstract class PluginEnvironment {
 
   /**
    * Get an inter-plugin call
+   *
    * @param pluginId plugin to be invoked
-   * @param service service path to plugin, not used in legacy calls
-   * @param method method being invoked
-   * @return 
+   * @param service  service path to plugin, not used in legacy calls
+   * @param method   method being invoked
+   * @return
    */
-  public abstract IPluginCall getPluginCall(String pluginId, String service, String method);
+  public abstract IPluginCall getPluginCall( String pluginId, String service, String method );
 }

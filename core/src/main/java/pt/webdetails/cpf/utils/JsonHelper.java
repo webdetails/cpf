@@ -1,17 +1,17 @@
 package pt.webdetails.cpf.utils;
 
+import org.codehaus.jackson.JsonEncoding;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.JsonGenerator;
+import pt.webdetails.cpf.messaging.JsonGeneratorSerializable;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.codehaus.jackson.JsonEncoding;
 //import org.apache.commons.logging.Log;
 //import org.apache.commons.logging.LogFactory;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.JsonGenerator;
-
-import pt.webdetails.cpf.messaging.JsonGeneratorSerializable;
 
 public class JsonHelper {
 
@@ -26,7 +26,7 @@ public class JsonHelper {
     return output.toString( CharsetHelper.getEncoding() );
   }
 
-  public static void writeJson ( JsonGeneratorSerializable jsonSerializable, OutputStream out ) throws IOException {
+  public static void writeJson( JsonGeneratorSerializable jsonSerializable, OutputStream out ) throws IOException {
     JsonGenerator jGen = getJsonFactory().createJsonGenerator( out, JsonEncoding.UTF8 );
     jsonSerializable.writeToGenerator( jGen );
     jGen.flush();
@@ -39,6 +39,7 @@ public class JsonHelper {
       }
     };
   }
+
   public static JsonGeneratorSerializable toJson( final long number ) {
     return new JsonGeneratorSerializable() {
       public void writeToGenerator( JsonGenerator jsonGenerator ) throws JsonGenerationException, IOException {
@@ -46,6 +47,7 @@ public class JsonHelper {
       }
     };
   }
+
   public static JsonGeneratorSerializable toJson( final double number ) {
     return new JsonGeneratorSerializable() {
       public void writeToGenerator( JsonGenerator jsonGenerator ) throws JsonGenerationException, IOException {

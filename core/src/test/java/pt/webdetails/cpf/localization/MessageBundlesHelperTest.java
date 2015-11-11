@@ -31,29 +31,29 @@ public class MessageBundlesHelperTest extends TestCase {
   private final Locale LOCALE = new Locale( "en", "US" );
 
   private final String MOCK_TEXT_FOR_PARAM_REPLACEMENT =
-    "#{GLOBAL_MESSAGE_SET_NAME};#{GLOBAL_MESSAGE_SET_PATH};#{LANGUAGE_CODE}";
+      "#{GLOBAL_MESSAGE_SET_NAME};#{GLOBAL_MESSAGE_SET_PATH};#{LANGUAGE_CODE}";
 
   private final String[] SOME_ACCEPTED_FILES_UNIX_SEPARATOR = new String[] {
-    "messages.properties",
-    "messages_en.properties",
-    "messages_en" + MessageBundlesHelper.LANGUAGE_COUNTRY_SEPARATOR_UNIX + "US.properties",
-    "messages_es" + MessageBundlesHelper.LANGUAGE_COUNTRY_SEPARATOR_UNIX + "ES.properties"
+      "messages.properties",
+      "messages_en.properties",
+      "messages_en" + MessageBundlesHelper.LANGUAGE_COUNTRY_SEPARATOR_UNIX + "US.properties",
+      "messages_es" + MessageBundlesHelper.LANGUAGE_COUNTRY_SEPARATOR_UNIX + "ES.properties"
   };
 
   private final String[] SOME_ACCEPTED_FILES = new String[] {
-    "messages.properties",
-    "messages_en.properties",
-    "messages_pt.properties",
-    "messages_en" + MessageBundlesHelper.LANGUAGE_COUNTRY_SEPARATOR + "US.properties",
-    "messages_pt" + MessageBundlesHelper.LANGUAGE_COUNTRY_SEPARATOR + "PT.properties"
+      "messages.properties",
+      "messages_en.properties",
+      "messages_pt.properties",
+      "messages_en" + MessageBundlesHelper.LANGUAGE_COUNTRY_SEPARATOR + "US.properties",
+      "messages_pt" + MessageBundlesHelper.LANGUAGE_COUNTRY_SEPARATOR + "PT.properties"
   };
 
   private final String[] SOME_NON_ACCEPTED_FILES = new String[] {
-    "some-dashboard.wcdf",
-    "some-dashboard.cdfde",
-    "some-dashboard.cda",
-    "messages_with_non_matchable_regex.properties",
-    "mEssAGeS_PT_br",
+      "some-dashboard.wcdf",
+      "some-dashboard.cdfde",
+      "some-dashboard.cda",
+      "messages_with_non_matchable_regex.properties",
+      "mEssAGeS_PT_br",
   };
 
   private final String SOME_FOLDER_PATH = Util.SEPARATOR;
@@ -111,7 +111,8 @@ public class MessageBundlesHelperTest extends TestCase {
 
     for ( String file : SOME_ACCEPTED_FILES_UNIX_SEPARATOR ) {
 
-      String messageInCacheDir = Util.joinPath( Util.SEPARATOR, MessageBundlesHelper.BASE_CACHE_DIR, mbh.sanitize( file ) );
+      String messageInCacheDir =
+          Util.joinPath( Util.SEPARATOR, MessageBundlesHelper.BASE_CACHE_DIR, mbh.sanitize( file ) );
       assertTrue( pluginAccess.getStoredFiles().contains( new BasicFile( messageInCacheDir ) ) );
     }
   }
@@ -142,14 +143,14 @@ public class MessageBundlesHelperTest extends TestCase {
 
     String fallback_file_en = "messages_" + LOCALE.getLanguage() + ".properties";
     String fallback_file_en_messageInCacheDir = Util.joinPath( Util.SEPARATOR, MessageBundlesHelper.BASE_CACHE_DIR,
-      fallback_file_en );
+        fallback_file_en );
 
     String fallback_file_en_US =
-      "messages_" + LOCALE.getLanguage() + MessageBundlesHelper.LANGUAGE_COUNTRY_SEPARATOR + LOCALE.getCountry()
-        + ".properties";
+        "messages_" + LOCALE.getLanguage() + MessageBundlesHelper.LANGUAGE_COUNTRY_SEPARATOR + LOCALE.getCountry()
+          + ".properties";
 
     String fallback_file_en_US_messageInCacheDir = Util.joinPath( Util.SEPARATOR, MessageBundlesHelper.BASE_CACHE_DIR,
-      fallback_file_en_US );
+        fallback_file_en_US );
 
     assertTrue( pluginAccess.getStoredFiles().contains( new BasicFile( fallback_file_en_messageInCacheDir ) ) );
     assertTrue( pluginAccess.getStoredFiles().contains( new BasicFile( fallback_file_en_US_messageInCacheDir ) ) );
@@ -196,9 +197,9 @@ public class MessageBundlesHelperTest extends TestCase {
     assertTrue( replacedText.length == 3 );
     assertTrue( replacedText[ 0 ].equals( MessageBundlesHelper.BASE_MESSAGES_FILENAME ) );
     assertTrue( replacedText[ 1 ]
-      .equals( Util.joinPath( MOCK_PLUGIN_URL, MessageBundlesHelper.BASE_CACHE_DIR, SOME_FOLDER_PATH ) ) );
+        .equals( Util.joinPath( MOCK_PLUGIN_URL, MessageBundlesHelper.BASE_CACHE_DIR, SOME_FOLDER_PATH ) ) );
     assertTrue( replacedText[ 2 ]
-      .equals( LOCALE.getLanguage() + MessageBundlesHelper.LANGUAGE_COUNTRY_SEPARATOR + LOCALE.getCountry() ) );
+        .equals( LOCALE.getLanguage() + MessageBundlesHelper.LANGUAGE_COUNTRY_SEPARATOR + LOCALE.getCountry() ) );
   }
 
   private List<IBasicFile> toBasicFileList( String path, String[] filesNames ) {

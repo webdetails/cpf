@@ -11,6 +11,7 @@ import pt.webdetails.cpf.repository.util.RepositoryHelper;
 
 /**
  * For keeping track of paths from static plugin system folders.
+ *
  * @see PathOrigin
  */
 public class StaticSystemOrigin extends PathOrigin {
@@ -20,7 +21,7 @@ public class StaticSystemOrigin extends PathOrigin {
   }
 
   public String getUrl( String path, IUrlProvider urlProvider ) {
-    return RepositoryHelper.joinPaths(urlProvider.getPluginStaticBaseUrl(), basePath, path );
+    return RepositoryHelper.joinPaths( urlProvider.getPluginStaticBaseUrl(), basePath, path );
   }
 
   public IReadAccess getReader( IContentAccessFactory factory ) {

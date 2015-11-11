@@ -39,42 +39,35 @@ public class BeanFactoryTest extends TestCase {
   public void setUp() {
 
     factory = new AbstractBeanFactory() {
-      @Override public String getSpringXMLFilename() { return SPRING_XML_FILE; }
+      @Override public String getSpringXMLFilename() {
+        return SPRING_XML_FILE;
+      }
     };
   }
 
   @Test
   public void testSpringXmlFileFound() {
-
     assertNotNull( factory );
-
     assertFalse( factory.containsBean( "IBogusBean" ) );
-
     assertTrue( factory.containsBean( IDummyBean.class.getSimpleName() ) );
-
   }
 
   @Test
   public void testBeanLoadingOK() {
 
     assertNotNull( factory );
-
     try {
-
-      dummyBean = ( IDummyBean ) factory.getBean( IDummyBean.class.getSimpleName() );
-
-    } catch( Throwable t ) {
+      dummyBean = (IDummyBean) factory.getBean( IDummyBean.class.getSimpleName() );
+    } catch ( Throwable t ) {
       Assert.fail();
     }
 
     assertNotNull( dummyBean );
-
     assertTrue( dummyBean.isBeanOK() );
   }
 
   @After
-  public void tearDown(){
-
+  public void tearDown() {
     factory = null;
     dummyBean = null;
   }

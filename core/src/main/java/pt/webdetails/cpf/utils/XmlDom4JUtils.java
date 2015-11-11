@@ -1,17 +1,16 @@
 package pt.webdetails.cpf.utils;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
-
 import pt.webdetails.cpf.repository.api.IBasicFile;
 import pt.webdetails.cpf.repository.api.IReadAccess;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public class XmlDom4JUtils {
 
@@ -43,17 +42,17 @@ public class XmlDom4JUtils {
     }
     return null;
   }
-  
-  public static String getNodeText(final String xpath, final Node node) {
-    return getNodeText(xpath, node, null);
+
+  public static String getNodeText( final String xpath, final Node node ) {
+    return getNodeText( xpath, node, null );
   }
-  
-  public static String getNodeText(final String xpath, final Node node, final String defaultValue) {
-    if (node == null) {
+
+  public static String getNodeText( final String xpath, final Node node, final String defaultValue ) {
+    if ( node == null ) {
       return defaultValue;
     }
-    Node n = node.selectSingleNode(xpath);
-    if (n == null) {
+    Node n = node.selectSingleNode( xpath );
+    if ( n == null ) {
       return defaultValue;
     }
     return n.getText();

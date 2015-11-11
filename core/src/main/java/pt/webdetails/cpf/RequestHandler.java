@@ -13,13 +13,13 @@
 
 package pt.webdetails.cpf;
 
-import java.io.OutputStream;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
 
+import java.io.OutputStream;
+
 /**
- *
  * @author pdpi
  */
 public interface RequestHandler {
-    public void call(OutputStream out, ICommonParameterProvider pathParams, ICommonParameterProvider requestParams);
+  public void call( OutputStream out, ICommonParameterProvider pathParams, ICommonParameterProvider requestParams );
 }

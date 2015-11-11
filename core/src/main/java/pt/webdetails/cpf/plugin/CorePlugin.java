@@ -18,32 +18,32 @@ import org.codehaus.jackson.annotate.JsonProperty;
 //TODO: best just use id, tbd
 public class CorePlugin {
 
-    public final static CorePlugin CDA = new CorePlugin("cda");
-    public final static CorePlugin CDB = new CorePlugin("cdb");
-    public final static CorePlugin CDC = new CorePlugin("cdc");
-    public final static CorePlugin CDE = new CorePlugin("pentaho-cdf-dd");
-    public final static CorePlugin CDF = new CorePlugin("pentaho-cdf");
-    public final static CorePlugin CDV = new CorePlugin("cdv");
-    protected String name;
-    protected String id;//title
+  public static final CorePlugin CDA = new CorePlugin( "cda" );
+  public static final CorePlugin CDB = new CorePlugin( "cdb" );
+  public static final CorePlugin CDC = new CorePlugin( "cdc" );
+  public static final CorePlugin CDE = new CorePlugin( "pentaho-cdf-dd" );
+  public static final CorePlugin CDF = new CorePlugin( "pentaho-cdf" );
+  public static final CorePlugin CDV = new CorePlugin( "cdv" );
+  protected String name;
+  protected String id; //title
 
-    @JsonProperty("name")
-    public String getName() {
-        return name;
-    }
+  @JsonProperty( "name" )
+  public String getName() {
+    return name;
+  }
 
-    public CorePlugin(String id) {
-        this.name = id;
-        this.id = id;
-    }
+  public CorePlugin( String id ) {
+    this.name = id;
+    this.id = id;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName( String name ) {
+    this.name = name;
+  }
 
-    @JsonProperty("id")
-    public String getId() {
-        return id;
-    }
+  @JsonProperty( "id" )
+  public String getId() {
+    return id;
+  }
 
 }
