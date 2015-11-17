@@ -83,7 +83,7 @@
   <dependency org="junit"               name="junit"               rev='4.10'  conf="test->default"/>
   <dependency org="jaxen"               name="jaxen"               rev="1.1.1" conf="test->default"/>
 
-  <dependency org="commons-collections"    name="commons-collections" rev="3.2"   conf="test->default" transitive="false"/>
+  <dependency org="commons-collections"    name="commons-collections" rev="3.2.2"   conf="test->default" transitive="false"/>
   <dependency org="com.google.collections" name="google-collections"  rev="1.0"   conf="test->default" transitive="false"/>
   <dependency org="org.slf4j"              name="slf4j-api"           rev="1.7.3" conf="test->default" transitive="false"/>
   <dependency org="org.osgi"               name="org.osgi.core"       rev="5.0.0" conf="test->default" transitive="false"/>
