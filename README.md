@@ -14,33 +14,48 @@ Additionally, **CPF** build environment requires some configuration on your mave
 The file is located under your .m2 directory on your home folder. Please make sure the following configuration is added:
 ```
 <!-- profiles -->
-<profile>
-  <id>pentaho</id>
-  <activation>
-    <activeByDefault>true</activeByDefault>
-  </activation>
-  <repositories>
-    <repository>
-      <id>pentaho-nexus</id>
-      <name>Nexus Internal</name>
-      <url>http://nexus.pentaho.org/content/groups/omni</url>
-    </repository>
-  </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>pentaho-nexus</id>
-      <name>Nexus Internal</name>
-      <url>http://nexus.pentaho.org/content/groups/omni</url>
-    </pluginRepository>
-  </pluginRepositories>
-</profile>
+<profiles>
+
+  <!-- ... Existing profiles ... -->
+
+  <!-- Add this profile -->
+  <profile>
+    <id>pentaho</id>
+    <activation>
+      <activeByDefault>true</activeByDefault>
+    </activation>
+    <repositories>
+      <repository>
+        <id>pentaho-nexus</id>
+        <name>Nexus Internal</name>
+        <url>http://nexus.pentaho.org/content/groups/omni</url>
+      </repository>
+    </repositories>
+    <pluginRepositories>
+      <pluginRepository>
+        <id>pentaho-nexus</id>
+        <name>Nexus Internal</name>
+        <url>http://nexus.pentaho.org/content/groups/omni</url>
+      </pluginRepository>
+    </pluginRepositories>
+  </profile>
+
+</profiles>
+
 
 <!-- mirrors -->
-<mirror>
-  <id>pentaho-internal-repository</id>
-  <url>http://nexus.pentaho.org/content/groups/omni</url>
-  <mirrorOf>*</mirrorOf>
-</mirror>
+<mirrors>
+
+  <!-- ... Existing mirrors ... -->
+
+  <!-- Add this mirror -->
+  <mirror>
+    <id>pentaho-internal-repository</id>
+    <url>http://nexus.pentaho.org/content/groups/omni</url>
+    <mirrorOf>*</mirrorOf>
+  </mirror>
+
+</mirrors>
 ```
 
 For issue tracking and bug report please use http://jira.pentaho.com/browse/CDF. Its master branch is built upon commit merges in Jenkins Continuous Integration located in http://ci.pentaho.com/job/cpf-plugin/
