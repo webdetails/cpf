@@ -9,7 +9,7 @@
   </parent>
   <groupId>pentaho</groupId>
   <artifactId>cpf-plugin</artifactId>
-  <version>6.0-16.01.22</version>
+  <version>6.1-16.08.18</version>
   <packaging>pom</packaging>
   <modules>
     <module>core</module>
@@ -30,7 +30,7 @@
   <properties>
     <dependency.springframework.revision>3.2.14.RELEASE</dependency.springframework.revision>
     <dependency.commons-logging.revision>1.1.1</dependency.commons-logging.revision>
-    <dependency.json.revision>7.0-SNAPSHOT</dependency.json.revision>
+    <dependency.json.revision>6.1.0.1-196</dependency.json.revision>
     <dependency.commons-io.revision>2.1</dependency.commons-io.revision>
     <dependency.dom4j.revision>1.6.1</dependency.dom4j.revision>
     <dependency.servlet-api.revision>2.4</dependency.servlet-api.revision>
