@@ -15,7 +15,7 @@
     <dependency.jaxen.revision>1.1.1</dependency.jaxen.revision>
     <dependency.bi-platform.revision>6.1.0.1-196</dependency.bi-platform.revision>
     <dependency.olap4j.revision>1.2.0</dependency.olap4j.revision>
-    <dependency.mondrian.revision>3.13-SNAPSHOT</dependency.mondrian.revision>
+    <dependency.mondrian.revision>3.12.0.1-196</dependency.mondrian.revision>
     <dependency.jta.revision>1.1</dependency.jta.revision>
     <dependency.mail.revision>1.4.1</dependency.mail.revision>
     <dependency.slf4j-api.revision>1.7.3</dependency.slf4j-api.revision>
