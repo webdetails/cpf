@@ -1,3 +1,15 @@
+/*!
+* Copyright 2002 - 2016 Webdetails, a Pentaho company.  All rights reserved.
+*
+* This software was developed by Webdetails and is provided under the terms
+* of the Mozilla Public License, Version 2.0, or any later version. You may not use
+* this file except in compliance with the license. If you need a copy of the license,
+* please go to  http://mozilla.org/MPL/2.0/. The Initial Developer is Webdetails.
+*
+* Software distributed under the Mozilla Public License is distributed on an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or  implied. Please refer to
+* the license for the specific language governing your rights and limitations.
+*/
 package pt.webdetails.cpf.utils;
 
 import org.apache.commons.io.IOUtils;
@@ -5,7 +17,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Node;
-import org.dom4j.io.SAXReader;
 import pt.webdetails.cpf.repository.api.IBasicFile;
 import pt.webdetails.cpf.repository.api.IReadAccess;
 
@@ -23,7 +34,7 @@ public class XmlDom4JUtils {
     }
 
     try {
-      return new SAXReader().read( is );
+      return XmlParserFactoryProducer.getSAXReader( null ).read( is );
     } catch ( Exception ex ) {
       logger.error( ex );
     } finally {

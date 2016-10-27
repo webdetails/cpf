@@ -1,5 +1,5 @@
 /*!
-* Copyright 2002 - 2013 Webdetails, a Pentaho company.  All rights reserved.
+* Copyright 2002 - 2016 Webdetails, a Pentaho company.  All rights reserved.
 * 
 * This software was developed by Webdetails and is provided under the terms
 * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -23,6 +23,7 @@ import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import pt.webdetails.cpf.repository.api.IRWAccess;
 import pt.webdetails.cpf.utils.CharsetHelper;
+import pt.webdetails.cpf.utils.XmlParserFactoryProducer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -58,7 +59,7 @@ public class PluginSettings {
     try {
       input = writeAccess.getFileInputStream( SETTINGS_FILE );
       lastRead = writeAccess.getLastModified( SETTINGS_FILE );
-      SAXReader reader = new SAXReader();
+      SAXReader reader = XmlParserFactoryProducer.getSAXReader( null );
       settings = reader.read( input );
       return true;
     } catch ( IOException ex ) {
