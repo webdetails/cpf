@@ -1,5 +1,5 @@
 /*!
-* Copyright 2002 - 2013 Webdetails, a Pentaho company.  All rights reserved.
+* Copyright 2002 - 2016 Webdetails, a Pentaho company.  All rights reserved.
 * 
 * This software was developed by Webdetails and is provided under the terms
 * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -27,6 +27,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import pt.webdetails.cpf.messaging.JsonSerializable;
 import pt.webdetails.cpf.repository.api.IReadAccess;
+import pt.webdetails.cpf.utils.XmlParserFactoryProducer;
 
 /**
  * Version checker for a standard marketplace plugin. Checks the local version
@@ -87,7 +88,7 @@ public abstract class VersionChecker {
         if (url == null) {
             String msg = "No URL found for this version.";
             logger.info(msg);
-            SAXReader reader = new SAXReader();
+            SAXReader reader = XmlParserFactoryProducer.getSAXReader( null );
             Version latest = null;
             try {
                 Document versionXml = reader.read(getVersionCheckUrl(Branch.STABLE));
@@ -102,7 +103,7 @@ public abstract class VersionChecker {
 
         Version latest = null;
         try {
-            SAXReader reader = new SAXReader();
+            SAXReader reader = XmlParserFactoryProducer.getSAXReader( null );
             Document versionXml = reader.read(url);
             latest = new Version(versionXml);
         } catch (DocumentException e) {
@@ -135,7 +136,7 @@ public abstract class VersionChecker {
     private Version getInstalledVersion() throws DocumentException, IOException {
       Version installed = null;
       IReadAccess systemDir = PluginEnvironment.repository().getPluginSystemReader(null);
-      SAXReader reader = new SAXReader();
+      SAXReader reader = XmlParserFactoryProducer.getSAXReader( null );
       Document versionXml = reader.read(systemDir.getFileInputStream(VERSION_FILE));
       installed = new Version(versionXml);
       return installed;
