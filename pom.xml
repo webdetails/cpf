@@ -1,31 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.pentaho</groupId>
     <artifactId>pentaho-ce-jar-parent-pom</artifactId>
     <version>1.1.7</version>
   </parent>
-  <modelVersion>4.0.0</modelVersion>
-
   <groupId>pentaho</groupId>
   <artifactId>cpf-plugin</artifactId>
-  <version>6.1-SNAPSHOT</version>
-
+  <version>6.1.0.9-307</version>
   <packaging>pom</packaging>
-
   <modules>
     <module>core</module>
     <module>pentaho</module>
   </modules>
-  
   <scm>
     <connection>scm:git:git@github.com:webdetails/${project.artifactId}.git</connection>
     <developerConnection>scm:git:git@github.com:webdetails/${project.artifactId}.git</developerConnection>
     <url>scm:git:git@github.com:webdetails/${project.artifactId}.git</url>
   </scm>
-  
   <distributionManagement>
     <site>
       <id>pentaho.public.snapshot.repo</id>
@@ -33,21 +27,18 @@
       <url>dav:${site.publish.url}/${project.groupId}/cpf-plugin-${project.version}</url>
     </site>
   </distributionManagement>
-
   <properties>
-    <dependency.commons-io.revision>2.1</dependency.commons-io.revision>
-    <dependency.commons-logging.revision>1.1.1</dependency.commons-logging.revision>
-    <dependency.commons-lang.revision>2.6</dependency.commons-lang.revision>
-    <dependency.dom4j.revision>1.6.1</dependency.dom4j.revision>
     <dependency.springframework.revision>3.2.14.RELEASE</dependency.springframework.revision>
-    <dependency.springsecurity.revision>2.0.8.RELEASE</dependency.springsecurity.revision>
+    <dependency.commons-logging.revision>1.1.1</dependency.commons-logging.revision>
+    <dependency.json.revision>6.1.0.9-307</dependency.json.revision>
+    <dependency.commons-io.revision>2.1</dependency.commons-io.revision>
+    <dependency.dom4j.revision>1.6.1</dependency.dom4j.revision>
     <dependency.servlet-api.revision>2.4</dependency.servlet-api.revision>
-    <dependency.json.revision>3.1</dependency.json.revision>
-
+    <dependency.springsecurity.revision>2.0.8.RELEASE</dependency.springsecurity.revision>
     <dependency.junit.revision>4.10</dependency.junit.revision>
+    <dependency.commons-lang.revision>2.6</dependency.commons-lang.revision>
     <dependency.mockito-core.revision>1.9.5</dependency.mockito-core.revision>
   </properties>
-
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -65,13 +56,11 @@
         <artifactId>commons-lang</artifactId>
         <version>${dependency.commons-lang.revision}</version>
       </dependency>
-
       <dependency>
         <groupId>dom4j</groupId>
         <artifactId>dom4j</artifactId>
         <version>${dependency.dom4j.revision}</version>
       </dependency>
-
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-beans</artifactId>
@@ -96,19 +85,16 @@
         <version>${dependency.springsecurity.revision}</version>
         <scope>provided</scope>
       </dependency>
-
       <dependency>
         <groupId>javax.servlet</groupId>
         <artifactId>servlet-api</artifactId>
         <version>${dependency.servlet-api.revision}</version>
       </dependency>
-
       <dependency>
         <groupId>org.json</groupId>
         <artifactId>json</artifactId>
         <version>${dependency.json.revision}</version>
       </dependency>
-
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
@@ -123,12 +109,10 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-
   <profiles>
     <profile>
       <id>aggregate-reporting</id>
       <activation>
-        <activeByDefault>false</activeByDefault>
         <property>
           <name>!skipTests</name>
         </property>
@@ -136,59 +120,55 @@
       <reporting>
         <plugins>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-jxr-plugin</artifactId>
-            <configuration>
-              <linkJavadoc>true</linkJavadoc>
-            </configuration>
             <reportSets>
               <reportSet>
                 <id>aggregate-jxr</id>
-                <inherited>false</inherited>
                 <reports>
                   <report>aggregate</report>
                 </reports>
+                <inherited>false</inherited>
               </reportSet>
             </reportSets>
+            <configuration>
+              <linkJavadoc>true</linkJavadoc>
+            </configuration>
           </plugin>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <configuration>
-              <failOnError>false</failOnError>
-            </configuration>
             <reportSets>
               <reportSet>
                 <id>aggregate-javadoc</id>
-                <inherited>false</inherited>
                 <reports>
                   <report>aggregate</report>
                 </reports>
+                <inherited>false</inherited>
               </reportSet>
             </reportSets>
+            <configuration>
+              <failOnError>false</failOnError>
+            </configuration>
           </plugin>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-checkstyle-plugin</artifactId>
+            <reportSets>
+              <reportSet>
+                <id>aggregate-checkstyle</id>
+                <reports>
+                  <report>checkstyle-aggregate</report>
+                </reports>
+                <inherited>false</inherited>
+              </reportSet>
+            </reportSets>
             <configuration>
               <configLocation>${checkstyle-config-url}</configLocation>
               <propertiesLocation>${checkstyle-properties-url}</propertiesLocation>
               <linkXRef>true</linkXRef>
               <cacheFile />
             </configuration>
-            <reportSets>
-              <reportSet>
-                <id>aggregate-checkstyle</id>
-                <inherited>false</inherited>
-                <reports>
-                  <report>checkstyle-aggregate</report>
-                </reports>
-              </reportSet>
-            </reportSets>
           </plugin>
         </plugins>
       </reporting>
     </profile>
   </profiles>
-  
 </project>
