@@ -26,6 +26,8 @@
     <dependency.commons-collections.revision>3.2</dependency.commons-collections.revision>
     <dependency.jaxrpc-api.revision>1.1</dependency.jaxrpc-api.revision>
     <dependency.org.osgi.core.revision>5.0.0</dependency.org.osgi.core.revision>
+    <snakeyaml.version>1.7</snakeyaml.version>
+    <javassist.version>3.20.0-GA</javassist.version>
   </properties>
   <dependencies>
     <dependency>
@@ -52,6 +54,12 @@
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-repository</artifactId>
       <version>${dependency.bi-platform.revision}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
@@ -184,6 +192,16 @@
       <groupId>com.sun.jersey</groupId>
       <artifactId>jersey-servlet</artifactId>
       <version>${dependency.jersey.revision}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.yaml</groupId>
+      <artifactId>snakeyaml</artifactId>
+      <version>${snakeyaml.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.javassist</groupId>
+      <artifactId>javassist</artifactId>
+      <version>${javassist.version}</version>
     </dependency>
     <dependency>
       <groupId>org.olap4j</groupId>
