@@ -91,7 +91,7 @@
         <version>${dependency.servlet-api.revision}</version>
       </dependency>
       <dependency>
-        <groupId>org.json</groupId>
+        <groupId>org.pentaho</groupId>
         <artifactId>json</artifactId>
         <version>${dependency.json.revision}</version>
       </dependency>

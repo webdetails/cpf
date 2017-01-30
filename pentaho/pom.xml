@@ -209,7 +209,7 @@
       <version>${dependency.olap4j.revision}</version>
     </dependency>
     <dependency>
-      <groupId>org.json</groupId>
+      <groupId>org.pentaho</groupId>
       <artifactId>json</artifactId>
     </dependency>
     <dependency>
