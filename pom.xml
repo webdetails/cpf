@@ -9,7 +9,7 @@
   </parent>
   <groupId>pentaho</groupId>
   <artifactId>cpf-plugin</artifactId>
-  <version>6.1-16.08.18</version>
+  <version>6.1-16.08.18.1</version>
   <packaging>pom</packaging>
   <modules>
     <module>core</module>
