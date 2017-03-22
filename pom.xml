@@ -2,24 +2,29 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
+  
   <parent>
     <groupId>org.pentaho</groupId>
     <artifactId>pentaho-ce-jar-parent-pom</artifactId>
-    <version>1.2.5</version>
+    <version>7.1-SNAPSHOT</version>
   </parent>
+  
   <groupId>pentaho</groupId>
   <artifactId>cpf-plugin</artifactId>
   <version>7.1-SNAPSHOT</version>
   <packaging>pom</packaging>
+  
   <modules>
     <module>core</module>
     <module>pentaho</module>
   </modules>
+  
   <scm>
     <connection>scm:git:git@github.com:webdetails/${project.artifactId}.git</connection>
     <developerConnection>scm:git:git@github.com:webdetails/${project.artifactId}.git</developerConnection>
     <url>scm:git:git@github.com:webdetails/${project.artifactId}.git</url>
   </scm>
+  
   <distributionManagement>
     <site>
       <id>pentaho.public.snapshot.repo</id>
@@ -27,6 +32,7 @@
       <url>dav:${site.publish.url}/${project.groupId}/cpf-plugin-${project.version}</url>
     </site>
   </distributionManagement>
+  
   <properties>
     <dependency.springframework.revision>4.3.2.RELEASE</dependency.springframework.revision>
     <dependency.commons-logging.revision>1.1.1</dependency.commons-logging.revision>
@@ -39,6 +45,7 @@
     <dependency.commons-lang.revision>2.6</dependency.commons-lang.revision>
     <dependency.mockito-core.revision>1.9.5</dependency.mockito-core.revision>
   </properties>
+  
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -109,6 +116,7 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+  
   <profiles>
     <profile>
       <id>aggregate-reporting</id>
@@ -171,4 +179,5 @@
       </reporting>
     </profile>
   </profiles>
+  
 </project>

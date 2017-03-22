@@ -9,11 +9,13 @@ override.properties
 target/
 test-lib/
 .ant*
+.webdetails.db
+bogus.txt
 
 #Eclipse Project files
 .classpath
 .project
-.settings
+.settings/
 
 #Intellij IDEA Project Files
 /.idea
