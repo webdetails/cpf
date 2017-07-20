@@ -1,48 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <parent>
-    <artifactId>cpf-plugin</artifactId>
-    <groupId>pentaho</groupId>
-    <version>6.1-SNAPSHOT</version>
-  </parent>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
-
+  <parent>
+    <groupId>pentaho</groupId>
+    <artifactId>cpf-plugin</artifactId>
+    <version>6.1.0.16-368</version>
+  </parent>
   <artifactId>cpf-pentaho</artifactId>
-
+  <version>6.1.0.16-368</version>
   <properties>
-    <dependency.eigenbase-xom.revision>1.3.1</dependency.eigenbase-xom.revision>
-    <dependency.bi-platform.revision>${project.version}</dependency.bi-platform.revision>
-    <dependency.mondrian.revision>3.12-SNAPSHOT</dependency.mondrian.revision>
-    <dependency.jcr.revision>2.0</dependency.jcr.revision>
-    <dependency.jta.revision>1.1</dependency.jta.revision>
-    <dependency.jaxrpc-api.revision>1.1</dependency.jaxrpc-api.revision>
-    <dependency.mail.revision>1.4.1</dependency.mail.revision>
-    <dependency.jsr311-api.revision>1.1.1</dependency.jsr311-api.revision>
-    <dependency.jersey.revision>1.16</dependency.jersey.revision>
-    <dependency.olap4j.revision>1.2.0</dependency.olap4j.revision>
-    <dependency.jaxen.revision>1.1.1</dependency.jaxen.revision>
-    <dependency.commons-collections.revision>3.2</dependency.commons-collections.revision>
-    <dependency.google-collections.revision>1.0</dependency.google-collections.revision>
-    <dependency.slf4j-api.revision>1.7.3</dependency.slf4j-api.revision>
-    <dependency.org.osgi.core.revision>5.0.0</dependency.org.osgi.core.revision>
     <dependency.orientdb.revision>1.5.0</dependency.orientdb.revision>
+    <dependency.jaxen.revision>1.1.1</dependency.jaxen.revision>
+    <dependency.bi-platform.revision>6.1.0.16-368</dependency.bi-platform.revision>
+    <dependency.olap4j.revision>1.2.0</dependency.olap4j.revision>
+    <dependency.mondrian.revision>3.12.0.16-368</dependency.mondrian.revision>
+    <dependency.jta.revision>1.1</dependency.jta.revision>
+    <dependency.mail.revision>1.4.1</dependency.mail.revision>
+    <dependency.slf4j-api.revision>1.7.3</dependency.slf4j-api.revision>
+    <dependency.google-collections.revision>1.0</dependency.google-collections.revision>
+    <dependency.eigenbase-xom.revision>1.3.1</dependency.eigenbase-xom.revision>
+    <dependency.jcr.revision>2.0</dependency.jcr.revision>
+    <dependency.jersey.revision>1.16</dependency.jersey.revision>
+    <dependency.commons-collections.revision>3.2</dependency.commons-collections.revision>
+    <dependency.jsr311-api.revision>1.1.1</dependency.jsr311-api.revision>
+    <dependency.org.osgi.core.revision>5.0.0</dependency.org.osgi.core.revision>
+    <dependency.jaxrpc-api.revision>1.1</dependency.jaxrpc-api.revision>
   </properties>
-
   <dependencies>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>cpf-core</artifactId>
       <version>${project.version}</version>
     </dependency>
-
     <dependency>
       <groupId>eigenbase</groupId>
       <artifactId>eigenbase-xom</artifactId>
       <version>${dependency.eigenbase-xom.revision}</version>
     </dependency>
-
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-api</artifactId>
@@ -69,24 +64,21 @@
       <version>${dependency.bi-platform.revision}</version>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
-
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>mondrian</artifactId>
       <version>${dependency.mondrian.revision}</version>
     </dependency>
-
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-connections</artifactId>
       <version>${dependency.bi-platform.revision}</version>
     </dependency>
-
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
@@ -99,12 +91,10 @@
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
     </dependency>
-
     <dependency>
       <groupId>dom4j</groupId>
       <artifactId>dom4j</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-beans</artifactId>
@@ -136,7 +126,6 @@
       <artifactId>spring-webmvc</artifactId>
       <version>${dependency.springframework.revision}</version>
     </dependency>
-
     <dependency>
       <groupId>javax.jcr</groupId>
       <artifactId>jcr</artifactId>
@@ -161,19 +150,16 @@
       <artifactId>mail</artifactId>
       <version>${dependency.mail.revision}</version>
     </dependency>
-
     <dependency>
       <groupId>javax.ws.rs</groupId>
       <artifactId>jsr311-api</artifactId>
       <version>${dependency.jsr311-api.revision}</version>
     </dependency>
-
     <dependency>
       <groupId>com.sun.jersey.contribs</groupId>
       <artifactId>jersey-spring</artifactId>
       <version>${dependency.jersey.revision}</version>
     </dependency>
-
     <dependency>
       <groupId>com.sun.jersey</groupId>
       <artifactId>jersey-core</artifactId>
@@ -208,7 +194,6 @@
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
     </dependency>
-
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -219,7 +204,6 @@
       <version>${dependency.jaxen.revision}</version>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
@@ -244,7 +228,6 @@
       <version>${dependency.org.osgi.core.revision}</version>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>com.orientechnologies</groupId>
       <artifactId>orient-commons</artifactId>
@@ -275,7 +258,6 @@
       <version>${dependency.orientdb.revision}</version>
       <scope>provided</scope>
     </dependency>
-
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
