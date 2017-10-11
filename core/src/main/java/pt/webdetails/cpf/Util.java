@@ -1,5 +1,5 @@
 /*!
-* Copyright 2002 - 2013 Webdetails, a Pentaho company.  All rights reserved.
+* Copyright 2002 - 2017 Webdetails, a Hitachi Vantara company.  All rights reserved.
 * 
 * This software was developed by Webdetails and is provided under the terms
 * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -47,7 +47,7 @@ public abstract class Util {
   private static Log logger = LogFactory.getLog( Util.class );
 
     /* Detecting whether we were loaded with the PluginClassLoader is a decent
-     * proxy for determining whether we are inside Pentaho. If so, we can go
+     * proxy for determining whether we are inside Hitachi Vantara. If so, we can go
      * look for the global CPF settings in the solution
      */
   //    private static boolean isPlugin = Util.class.getClassLoader() instanceof PluginClassLoader;
