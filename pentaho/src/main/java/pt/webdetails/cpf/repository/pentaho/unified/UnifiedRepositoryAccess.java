@@ -17,13 +17,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Collections;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -36,6 +35,7 @@ import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import org.pentaho.platform.api.repository2.unified.Converter;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
@@ -101,27 +101,17 @@ public abstract class UnifiedRepositoryAccess {
       ClassLoader classLoader = pManager.getClassLoader( "pdi-platform-plugin" );
       if ( classLoader != null ) {
         //It's an EE server - get the converter class name given the file type
-        String converterClassName = path.endsWith( ".ktr" )
-          ? "com.pentaho.repository.importexport.StreamToTransNodeConverter"
-          : path.endsWith( ".kjb" ) ? "com.pentaho.repository.importexport.StreamToJobNodeConverter" : null;
+        String converterName = path.endsWith( ".ktr" )
+          ? "PDITransformationStreamConverter"
+          : path.endsWith( ".kjb" ) ? "PDIJobStreamConverter" : null;
 
-        if ( converterClassName != null ) {
-          try {
-            Class converterClass = classLoader.loadClass( converterClassName );
-            Object converterInstance = converterClass.getConstructors()[ 0 ].newInstance( getRepository() );
-            Method m = converterClass.getMethod( "convert", new Class[] { Serializable.class } );
-            return (InputStream) m.invoke( converterInstance, file.getId() );
-          } catch ( ClassNotFoundException e ) {
-            logger.error( "Did not find expected converter class for resource: " + converterClassName
-              + ". Returning default conversion", e );
-          } catch ( InvocationTargetException e ) {
-            logger.error( "Error invoking constructor for converter class. Returning default conversion", e );
-          } catch ( InstantiationException e ) {
-            logger.error( "Error invoking constructor for converter class. Returning default conversion", e );
-          } catch ( IllegalAccessException e ) {
-            logger.error( "Error invoking constructor for converter class. Returning default conversion", e );
-          } catch ( NoSuchMethodException e ) {
-            logger.error( "convert method not found in converter class. ", e );
+        if ( converterName != null ) {
+          Converter converter = PentahoSystem.get( Converter.class, null, Collections.singletonMap( "name", converterName ) );
+          if ( converter != null ) {
+            return converter.convert( file.getId() );
+          } else {
+            logger.error( "Did not find expected converter class for resource: " + converterName
+                      + ". Returning default conversion" );
           }
         }
       }
