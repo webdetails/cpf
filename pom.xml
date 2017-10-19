@@ -5,11 +5,11 @@
   <parent>
     <groupId>org.pentaho</groupId>
     <artifactId>pentaho-ce-jar-parent-pom</artifactId>
-    <version>8.0-SNAPSHOT</version>
+    <version>8.1-SNAPSHOT</version>
   </parent>
   <groupId>pentaho</groupId>
   <artifactId>cpf-plugin</artifactId>
-  <version>8.0-SNAPSHOT</version>
+  <version>8.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <modules>
     <module>core</module>
@@ -30,7 +30,7 @@
   <properties>
     <dependency.springframework.revision>4.3.2.RELEASE</dependency.springframework.revision>
     <dependency.commons-logging.revision>1.1.1</dependency.commons-logging.revision>
-    <dependency.json.revision>8.0-SNAPSHOT</dependency.json.revision>
+    <dependency.json.revision>8.1-SNAPSHOT</dependency.json.revision>
     <dependency.commons-io.revision>2.1</dependency.commons-io.revision>
     <dependency.dom4j.revision>1.6.1</dependency.dom4j.revision>
     <dependency.servlet-api.revision>2.4</dependency.servlet-api.revision>
