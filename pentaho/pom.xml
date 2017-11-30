@@ -24,9 +24,9 @@
     <dependency.jta.revision>1.1</dependency.jta.revision>
     <dependency.google-collections.revision>1.0</dependency.google-collections.revision>
     <dependency.jersey.revision>1.19.1</dependency.jersey.revision>
-    <dependency.mondrian.revision>8.1-SNAPSHOT</dependency.mondrian.revision>
+    <mondrian.version>8.1-SNAPSHOT</mondrian.version>
     <dependency.jcr.revision>2.0</dependency.jcr.revision>
-    <dependency.bi-platform.revision>8.1-SNAPSHOT</dependency.bi-platform.revision>
+    <platform.version>8.1-SNAPSHOT</platform.version>
     <dependency.jaxen.revision>1.1.1</dependency.jaxen.revision>
   </properties>
   <dependencies>
@@ -49,17 +49,17 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-api</artifactId>
-      <version>${dependency.bi-platform.revision}</version>
+      <version>${platform.version}</version>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-core</artifactId>
-      <version>${dependency.bi-platform.revision}</version>
+      <version>${platform.version}</version>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-repository</artifactId>
-      <version>${dependency.bi-platform.revision}</version>
+      <version>${platform.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -70,12 +70,12 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-scheduler</artifactId>
-      <version>${dependency.bi-platform.revision}</version>
+      <version>${platform.version}</version>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-platform-extensions</artifactId>
-      <version>${dependency.bi-platform.revision}</version>
+      <version>${platform.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -86,12 +86,12 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>mondrian</artifactId>
-      <version>${dependency.mondrian.revision}</version>
+      <version>${mondrian.version}</version>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-connections</artifactId>
-      <version>${dependency.bi-platform.revision}</version>
+      <version>${platform.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>
