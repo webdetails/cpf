@@ -5,10 +5,10 @@
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>cpf-plugin</artifactId>
-    <version>8.1.0-SNAPSHOT</version>
+    <version>8.1.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>cpf-core</artifactId>
-  <version>8.1.0-SNAPSHOT</version>
+  <version>8.1.0.0-SNAPSHOT</version>
   <properties>
     <dependency.jackson-core-asl.revision>1.8.2</dependency.jackson-core-asl.revision>
     <dependency.log4j.revision>1.2.14</dependency.log4j.revision>
