@@ -14,24 +14,11 @@
 package pt.webdetails.cpf.olap;
 
 import java.util.List;
-
-import mondrian.olap.Connection;
-import mondrian.olap.Dimension;
-import mondrian.olap.DriverManager;
-import mondrian.olap.Hierarchy;
-import mondrian.olap.Level;
-import mondrian.olap.Member;
-import mondrian.olap.Position;
-import mondrian.olap.Query;
+import javax.sql.DataSource;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import mondrian.olap.Util;
-import mondrian.rolap.RolapConnectionProperties;
-import mondrian.rolap.RolapMember;
-import mondrian.rolap.RolapMemberBase;
-import mondrian.rolap.RolapResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,7 +28,19 @@ import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogServi
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelper;
 
-import javax.sql.DataSource;
+import mondrian.olap.Connection;
+import mondrian.olap.Dimension;
+import mondrian.olap.DriverManager;
+import mondrian.olap.Hierarchy;
+import mondrian.olap.Level;
+import mondrian.olap.Member;
+import mondrian.olap.Position;
+import mondrian.olap.Query;
+import mondrian.olap.Util;
+import mondrian.rolap.RolapConnectionProperties;
+import mondrian.rolap.RolapMember;
+import mondrian.rolap.RolapMemberBase;
+import mondrian.rolap.RolapResult;
 
 
 public abstract class AbstractOlapUtils {
@@ -323,9 +322,10 @@ public abstract class AbstractOlapUtils {
     String query =
         "with " + "set descendantsSet as Descendants(" + startMember + " , " + level + ") " + "set membersSet as "
             + level + ".Members " + "set resultSet as " + ( hasStartMember ? "descendantsSet" : "membersSet" ) + " "
-            + "set filteredSet as filter(resultSet, " + level + ".hierarchy.currentMember.name MATCHES '(?i).*"
-            + searchTerm + ".*' ) " + "select {} ON COLUMNS,  " + "Subset(Order( "
-            + ( hasFilter ? "filteredSet " : "resultSet " )
+            + "set filteredSet as filter(resultSet, InStr(LCase(" + level + ".hierarchy.currentMember.name),"
+            + "LCase(\"" + searchTerm + "\"))>0 ) "
+            + "select {} ON COLUMNS,  " + "Subset(Order( " + ( hasFilter ? "filteredSet " : "resultSet " )
+            //  set filteredSet as 'filter([resultSet], InStr(LCase([fps].[macroregion].Hierarchy.CurrentMember.Name),LCase("ь"))>0)'
             /*
              * Try to fetch pageSize + 1 results -- the extra element allows us to know whether there are any more
              * members for the next page
