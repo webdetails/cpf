@@ -323,9 +323,9 @@ public abstract class AbstractOlapUtils {
         "with " + "set descendantsSet as Descendants(" + startMember + " , " + level + ") " + "set membersSet as "
             + level + ".Members " + "set resultSet as " + ( hasStartMember ? "descendantsSet" : "membersSet" ) + " "
             + "set filteredSet as filter(resultSet, InStr(LCase(" + level + ".hierarchy.currentMember.name),"
-	        + "LCase(\"" + searchTerm + "\"))>0 ) "
-	        + "select {} ON COLUMNS,  " + "Subset(Order( " + ( hasFilter ? "filteredSet " : "resultSet " )
-	        //  set filteredSet as 'filter([resultSet], InStr(LCase([fps].[macroregion].Hierarchy.CurrentMember.Name),LCase("ь"))>0)'
+            + "LCase(\"" + searchTerm + "\"))>0 ) "
+            + "select {} ON COLUMNS,  " + "Subset(Order( " + ( hasFilter ? "filteredSet " : "resultSet " )
+            //  set filteredSet as 'filter([resultSet], InStr(LCase([fps].[macroregion].Hierarchy.CurrentMember.Name),LCase("ь"))>0)'
             /*
              * Try to fetch pageSize + 1 results -- the extra element allows us to know whether there are any more
              * members for the next page
