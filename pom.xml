@@ -12,8 +12,10 @@
   <version>8.1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <modules>
+    <module>assemblies</module>
     <module>core</module>
     <module>pentaho</module>
+    <module>osgi</module>
   </modules>
   <scm>
     <connection>scm:git:git@github.com:webdetails/${project.artifactId}.git</connection>
@@ -28,67 +30,126 @@
     </site>
   </distributionManagement>
   <properties>
-    <dependency.springframework.revision>4.3.2.RELEASE</dependency.springframework.revision>
-    <dependency.commons-logging.revision>1.1.1</dependency.commons-logging.revision>
-    <pentaho-json.version>8.1.0.0-SNAPSHOT</pentaho-json.version>
-    <dependency.commons-io.revision>2.1</dependency.commons-io.revision>
-    <dependency.dom4j.revision>1.6.1</dependency.dom4j.revision>
-    <dependency.servlet-api.revision>2.4</dependency.servlet-api.revision>
-    <dependency.springsecurity.revision>4.1.3.RELEASE</dependency.springsecurity.revision>
-    <dependency.junit.revision>4.12</dependency.junit.revision>
-    <dependency.commons-lang.revision>2.6</dependency.commons-lang.revision>
-    <dependency.mockito-core.revision>1.9.5</dependency.mockito-core.revision>
+    <springframework.version>4.3.2.RELEASE</springframework.version>
+    <springsecurity.version>4.1.3.RELEASE</springsecurity.version>
+    <pentaho-json.version>${project.version}</pentaho-json.version>
+    <platform.version>${project.version}</platform.version>
+    <mondrian.version>${project.version}</mondrian.version>
+    <jackson-core-asl.version>1.9.3</jackson-core-asl.version>
+    <jackson-mapper-asl.version>1.9.3</jackson-mapper-asl.version>
+    <log4j.version>1.2.16</log4j.version>
+    <rhino.version>1.7R4</rhino.version>
+    <mockito-core.version>1.9.5</mockito-core.version>
+    <commons-vfs.version>1.0</commons-vfs.version>
+    <commons-httpclient.version>3.1</commons-httpclient.version>
+    <commons-logging.version>1.1.1</commons-logging.version>
+    <commons-io.version>2.1</commons-io.version>
+    <commons-collections.version>3.2.2</commons-collections.version>
+    <commons-lang.version>2.6</commons-lang.version>
+    <hsqldb.version>2.3.2</hsqldb.version>
+    <dom4j.version>1.6.1</dom4j.version>
+    <servlet-api.version>3.0.1</servlet-api.version>
+    <junit.version>4.12</junit.version>
+    <osgi.version>4.3.1</osgi.version>
+    <jsr311-api.version>1.1.1</jsr311-api.version>
+    <eigenbase-xom.version>1.3.1</eigenbase-xom.version>
+    <slf4j-api.version>1.7.3</slf4j-api.version>
+    <snakeyaml.version>1.7</snakeyaml.version>
+    <jaxrpc-api.version>1.1</jaxrpc-api.version>
+    <olap4j.version>1.2.0</olap4j.version>
+    <orientdb.version>1.5.0</orientdb.version>
+    <javassist.version>3.20.0-GA</javassist.version>
+    <jta.version>1.1</jta.version>
+    <google-collections.version>1.0</google-collections.version>
+    <jersey.version>1.19.1</jersey.version>
+    <jcr.version>2.0</jcr.version>
+    <jaxen.version>1.1.1</jaxen.version>
+    <karaf-maven-plugin.version>3.0.8</karaf-maven-plugin.version>
+    <karaf-maven-plugin.aggregateFeatures>false</karaf-maven-plugin.aggregateFeatures>
   </properties>
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
-        <version>${dependency.commons-io.revision}</version>
+        <version>${commons-io.version}</version>
       </dependency>
       <dependency>
         <groupId>commons-logging</groupId>
         <artifactId>commons-logging</artifactId>
-        <version>${dependency.commons-logging.revision}</version>
+        <version>${commons-logging.version}</version>
       </dependency>
       <dependency>
         <groupId>commons-lang</groupId>
         <artifactId>commons-lang</artifactId>
-        <version>${dependency.commons-lang.revision}</version>
+        <version>${commons-lang.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-vfs</groupId>
+        <artifactId>commons-vfs</artifactId>
+        <version>${commons-vfs.version}</version>
       </dependency>
       <dependency>
         <groupId>dom4j</groupId>
         <artifactId>dom4j</artifactId>
-        <version>${dependency.dom4j.revision}</version>
+        <version>${dom4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+        <version>${log4j.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.jackson</groupId>
+        <artifactId>jackson-mapper-asl</artifactId>
+        <version>${jackson-mapper-asl.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.jackson</groupId>
+        <artifactId>jackson-core-asl</artifactId>
+        <version>${jackson-core-asl.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mozilla</groupId>
+        <artifactId>rhino</artifactId>
+        <version>${rhino.version}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-beans</artifactId>
-        <version>${dependency.springframework.revision}</version>
+        <version>${springframework.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-context</artifactId>
-        <version>${dependency.springframework.revision}</version>
+        <version>${springframework.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-core</artifactId>
-        <version>${dependency.springframework.revision}</version>
+        <version>${springframework.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-core</artifactId>
-        <version>${dependency.springsecurity.revision}</version>
+        <version>${springsecurity.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-expression</artifactId>
+        <version>${springframework.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
         <groupId>javax.servlet</groupId>
-        <artifactId>servlet-api</artifactId>
-        <version>${dependency.servlet-api.revision}</version>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>${servlet-api.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.pentaho</groupId>
@@ -98,17 +159,234 @@
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
-        <version>${dependency.junit.revision}</version>
+        <version>${junit.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>commons-httpclient</groupId>
+        <artifactId>commons-httpclient</artifactId>
+        <version>${commons-httpclient.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.hsqldb</groupId>
+        <artifactId>hsqldb</artifactId>
+        <version>${hsqldb.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
-        <version>${dependency.mockito-core.revision}</version>
+        <version>${mockito-core.version}</version>
         <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>eigenbase</groupId>
+        <artifactId>eigenbase-xom</artifactId>
+        <version>${eigenbase-xom.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>xerces</groupId>        
+            <artifactId>xercesImpl</artifactId>
+          </exclusion>
+        </exclusions>      
+      </dependency>
+      <dependency>
+        <groupId>pentaho</groupId>
+        <artifactId>pentaho-platform-api</artifactId>
+        <version>${platform.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>pentaho</groupId>
+        <artifactId>pentaho-platform-core</artifactId>
+        <version>${platform.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>pentaho</groupId>
+        <artifactId>pentaho-platform-repository</artifactId>
+        <version>${platform.version}</version>
+        <exclusions>
+          <exclusion>
+            <artifactId>*</artifactId>
+            <groupId>*</groupId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>pentaho</groupId>
+        <artifactId>pentaho-platform-scheduler</artifactId>
+        <version>${platform.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>pentaho</groupId>
+        <artifactId>pentaho-platform-extensions</artifactId>
+        <version>${platform.version}</version>
+        <exclusions>
+          <exclusion>
+            <artifactId>*</artifactId>
+            <groupId>*</groupId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>pentaho</groupId>
+        <artifactId>mondrian</artifactId>
+        <version>${mondrian.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>pentaho</groupId>
+        <artifactId>pentaho-connections</artifactId>
+        <version>${platform.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context-support</artifactId>
+        <version>${springframework.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-web</artifactId>
+        <version>${springframework.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-webmvc</artifactId>
+        <version>${springframework.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.jcr</groupId>
+        <artifactId>jcr</artifactId>
+        <version>${jcr.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.transaction</groupId>
+        <artifactId>jta</artifactId>
+        <version>${jta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.xml</groupId>
+        <artifactId>jaxrpc-api</artifactId>
+        <version>${jaxrpc-api.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.ws.rs</groupId>
+        <artifactId>jsr311-api</artifactId>
+        <version>${jsr311-api.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.jersey.contribs</groupId>
+        <artifactId>jersey-spring</artifactId>
+        <version>${jersey.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.jersey</groupId>
+        <artifactId>jersey-core</artifactId>
+        <version>${jersey.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.jersey</groupId>
+        <artifactId>jersey-json</artifactId>
+        <version>${jersey.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.jersey</groupId>
+        <artifactId>jersey-client</artifactId>
+        <version>${jersey.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.jersey</groupId>
+        <artifactId>jersey-server</artifactId>
+        <version>${jersey.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.jersey</groupId>
+        <artifactId>jersey-servlet</artifactId>
+        <version>${jersey.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.yaml</groupId>
+        <artifactId>snakeyaml</artifactId>
+        <version>${snakeyaml.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.javassist</groupId>
+        <artifactId>javassist</artifactId>
+        <version>${javassist.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.olap4j</groupId>
+        <artifactId>olap4j</artifactId>
+        <version>${olap4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jaxen</groupId>
+        <artifactId>jaxen</artifactId>
+        <version>${jaxen.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>commons-collections</groupId>
+        <artifactId>commons-collections</artifactId>
+        <version>${commons-collections.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.google.collections</groupId>
+        <artifactId>google-collections</artifactId>
+        <version>${google-collections.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${slf4j-api.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.orientechnologies</groupId>
+        <artifactId>orient-commons</artifactId>
+        <version>${orientdb.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.orientechnologies</groupId>
+        <artifactId>orientdb-core</artifactId>
+        <version>${orientdb.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.orientechnologies</groupId>
+        <artifactId>orientdb-server</artifactId>
+        <version>${orientdb.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.orientechnologies</groupId>
+        <artifactId>orientdb-client</artifactId>
+        <version>${orientdb.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.orientechnologies</groupId>
+        <artifactId>orientdb-enterprise</artifactId>
+        <version>${orientdb.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.core</artifactId>
+        <version>${osgi.version}</version>
+        <scope>provided</scope>
+        <exclusions>
+          <exclusion>
+            <artifactId>*</artifactId>
+            <groupId>*</groupId>
+          </exclusion>
+        </exclusions>
       </dependency>
     </dependencies>
   </dependencyManagement>
+
   <profiles>
     <profile>
       <id>aggregate-reporting</id>
@@ -158,8 +436,53 @@
         </plugins>
       </reporting>
     </profile>
+
+    <profile>
+      <!-- This profile generates a feature file to deploy in karaf. -->
+      <id>feature-generation</id>
+      <activation>
+        <file>
+          <exists>${basedir}/src/main/feature</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.karaf.tooling</groupId>
+            <artifactId>karaf-maven-plugin</artifactId>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>maven-bundle-plugin</artifactId>
+          <version>${maven-bundle-plugin.version}</version>
+          <extensions>true</extensions>
+          <configuration>
+            <instructions>
+              <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+              <Bundle-Version>${project.version}</Bundle-Version>
+            </instructions>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.karaf.tooling</groupId>
+          <artifactId>karaf-maven-plugin</artifactId>
+          <version>${karaf-maven-plugin.version}</version>
+          <extensions>true</extensions>
+          <configuration>
+            <aggregateFeatures>${karaf-maven-plugin.aggregateFeatures}</aggregateFeatures>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 
   <repositories>
     <repository>
