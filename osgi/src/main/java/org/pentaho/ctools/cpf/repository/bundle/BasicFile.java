@@ -10,14 +10,22 @@
  * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. Please refer to
  * the license for the specific language governing your rights and limitations.
  */
-package pt.webdetails.cpf.repository.bundle;
+package org.pentaho.ctools.cpf.repository.bundle;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import pt.webdetails.cpf.repository.api.IBasicFile;
 
-public class BasicFile implements IBasicFile {
+/**
+ * Class {@code BasicFile} allows executing file operations on a resource pointed to using an Unified Resource Locator.
+ * CPF depends heavily on {@code File} operations and on the assumption that a filesystem is used to fetch resources.
+ * In OSGi, bundle resources are accessed via an {@code URL} and this class provides the abstraction that allows using
+ * such resources as if they were filesystem resources.
+ *
+ * @see IBasicFile
+ */
+public final class BasicFile implements IBasicFile {
 
   private final URL url;
 

@@ -10,7 +10,7 @@
  * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. Please refer to
  * the license for the specific language governing your rights and limitations.
  */
-package pt.webdetails.cpf.repository.bundle;
+package org.pentaho.ctools.cpf.repository.bundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,7 +24,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-public class UserContentAccess implements IUserContentAccess {
+/**
+ * Allows users to access the content of the available bundle resources in an OSGi environment.
+ * Note: Write operations are currently not supported and there are no permission distinctions between
+ * different users.
+ *
+ * @see IUserContentAccess
+ */
+public final class UserContentAccess implements IUserContentAccess {
   private static final Log logger = LogFactory.getLog( UserContentAccess.class );
   private IReadAccess readAccess;
 

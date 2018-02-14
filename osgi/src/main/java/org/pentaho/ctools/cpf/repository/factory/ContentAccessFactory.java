@@ -10,20 +10,32 @@
  * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. Please refer to
  * the license for the specific language governing your rights and limitations.
  */
-package pt.webdetails.cpf.repository.factory;
+package org.pentaho.ctools.cpf.repository.factory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import pt.webdetails.cpf.repository.bundle.ReadAccessProxy;
-import pt.webdetails.cpf.repository.bundle.UserContentAccess;
+import org.pentaho.ctools.cpf.repository.bundle.ReadAccessProxy;
+import org.pentaho.ctools.cpf.repository.bundle.UserContentAccess;
 import pt.webdetails.cpf.repository.api.IContentAccessFactory;
 import pt.webdetails.cpf.repository.api.IReadAccess;
 import pt.webdetails.cpf.repository.api.IRWAccess;
 import pt.webdetails.cpf.repository.api.IUserContentAccess;
 
+/**
+ * The {@code ContentAccessFactory} class creates repository access providers for basic plugin needs.
+ * These access providers are instances of {@code ReadAccessProxy} that contain a reference to an internal dynamic list
+ * of available {@code IReadAccess} services that allow access to the available resources.
+ *
+ * Note: Write access providers are currently not supported.
+ *
+ * @see IContentAccessFactory
+ * @see IUserContentAccess
+ * @see IReadAccess
+ * @see IRWAccess
+ */
 public class ContentAccessFactory implements IContentAccessFactory {
   private static final Log logger = LogFactory.getLog( ContentAccessFactory.class );
   private List<IReadAccess> readAccesses = new ArrayList<>();

@@ -10,7 +10,7 @@
  * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. Please refer to
  * the license for the specific language governing your rights and limitations.
  */
-package pt.webdetails.cpf.repository.bundle;
+package org.pentaho.ctools.cpf.repository.bundle;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,6 +29,13 @@ import pt.webdetails.cpf.repository.api.IBasicFile;
 import pt.webdetails.cpf.repository.api.IBasicFileFilter;
 import pt.webdetails.cpf.repository.api.IReadAccess;
 
+/**
+ * Allows read-only operations on OSGi bundle resources abstracted as {@code BasicFile}s.
+ * All paths should use '/' as the separator.
+ *
+ * @see IReadAccess
+ * @see IBasicFile
+ */
 public final class ReadAccess implements IReadAccess {
 
   public Bundle getBundle() {
@@ -39,7 +46,7 @@ public final class ReadAccess implements IReadAccess {
   }
   private Bundle bundle;
 
-
+  @Override
   public InputStream getFileInputStream( String path ) throws IOException {
     final URL resourceURL = this.bundle.getEntry( path );
     if ( resourceURL == null ) {
@@ -48,32 +55,44 @@ public final class ReadAccess implements IReadAccess {
     return resourceURL.openStream();
   }
 
+  @Override
   public boolean fileExists( String path ) {
     return this.bundle.getEntry( path ) != null;
   }
 
+  @Override
   public long getLastModified( String path ) {
     return this.bundle.getLastModified();
   }
 
+  @Override
+  public IBasicFile fetchFile( String path ) {
+    URL url = this.bundle.getEntry( path );
+    if ( url == null ) {
+      return null;
+    }
+
+    return new BasicFile( url );
+  }
+
+  @Override
   public List<IBasicFile> listFiles( String path, IBasicFileFilter filter ) {
     return listFiles( path, filter, -1 );
   }
 
+  @Override
   public List<IBasicFile> listFiles( String path, IBasicFileFilter filter, int maxDepth ) {
     return listFiles( path, filter, maxDepth, false );
   }
 
+  @Override
   public List<IBasicFile> listFiles( String path, IBasicFileFilter filter, int maxDepth, boolean includeDirs ) {
     return listFiles( path, filter, maxDepth, includeDirs, false );
   }
 
+  @Override
   public List<IBasicFile> listFiles( String path, IBasicFileFilter filter, int maxDepth, boolean includeDirs, boolean showHiddenFilesAndFolders ) {
-    if ( maxDepth < 0 ) {
-      return listFiles( path, filter, true );
-    } else {
-      return listFiles( path, filter, false );
-    }
+    return listFiles( path, filter, maxDepth < 0 );
   }
 
   private List<IBasicFile> listFiles( String path, IBasicFileFilter filter, boolean recursive ) {
@@ -84,8 +103,8 @@ public final class ReadAccess implements IReadAccess {
     }
 
     return enumerationAsStream( entries )
-      .map( url -> new BasicFile( url ) )
-      .filter( file -> filter.accept( file ) )
+      .map( BasicFile::new )
+      .filter( filter::accept )
       .collect( Collectors.toList() );
   }
 
@@ -103,12 +122,4 @@ public final class ReadAccess implements IReadAccess {
         Spliterator.ORDERED ), false );
   }
 
-  public IBasicFile fetchFile( String path ) {
-    URL url = this.bundle.getEntry( path );
-    if ( url == null ) {
-      return null;
-    }
-
-    return new BasicFile( url );
-  }
 }

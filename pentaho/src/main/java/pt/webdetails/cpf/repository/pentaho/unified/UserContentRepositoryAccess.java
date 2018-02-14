@@ -25,7 +25,7 @@ import pt.webdetails.cpf.api.IUserContentAccessExtended;
 import pt.webdetails.cpf.repository.api.FileAccess;
 
 /**
- * IUserContentAccess implementation for IUnifiedRepository
+ * {@link IUserContentAccessExtended} implementation for {@link IUnifiedRepository}
  */
 public class UserContentRepositoryAccess extends UnifiedRepositoryAccess implements IUserContentAccessExtended {
 

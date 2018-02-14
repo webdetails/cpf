@@ -10,7 +10,7 @@
  * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. Please refer to
  * the license for the specific language governing your rights and limitations.
  */
-package pt.webdetails.cpf.repository.bundle;
+package org.pentaho.ctools.cpf.repository.bundle;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,9 +21,16 @@ import pt.webdetails.cpf.repository.api.IBasicFile;
 import pt.webdetails.cpf.repository.api.IBasicFileFilter;
 import pt.webdetails.cpf.repository.api.IReadAccess;
 
+/**
+ * Class used for forwarding {@code IReadAccess} operations to the appropriate {@code ReadAccess} service instance that
+ * contains the resources being accessed.
+ *
+ * @see IReadAccess
+ */
 public final class ReadAccessProxy implements IReadAccess {
   private List<IReadAccess> readAccesses;
   private final String basePath;
+  private final String DEFAULT_PATH_SEPARATOR = "/";
 
   public ReadAccessProxy( List<IReadAccess> readAccesses, String basePath ) {
     this.readAccesses = readAccesses;
@@ -102,12 +109,12 @@ public final class ReadAccessProxy implements IReadAccess {
 
   private IReadAccess getReadAccess( String path ) {
 
-    // get the first access reader that contains the resource at path
+    // get the first that contains the resource at path
     Optional<IReadAccess> readAccessOpt = this.readAccesses.stream()
       .filter( readA -> readA.fileExists( path ) )
       .findFirst();
 
-    return readAccessOpt.isPresent() ? readAccessOpt.get() : null;
+    return readAccessOpt.orElse( null );
 
   }
 
@@ -117,7 +124,7 @@ public final class ReadAccessProxy implements IReadAccess {
     }
 
     String fullPath = this.basePath;
-    if ( fullPath.endsWith( "/" ) && path.startsWith( "/" ) ) {
+    if ( fullPath.endsWith( DEFAULT_PATH_SEPARATOR ) && path.startsWith( DEFAULT_PATH_SEPARATOR ) ) {
       fullPath += path.substring( 1 );
     } else {
       fullPath += path;

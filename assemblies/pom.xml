@@ -7,10 +7,12 @@
     <artifactId>cpf-plugin</artifactId>
     <version>8.1.0.0-SNAPSHOT</version>
   </parent>
+
+  <groupId>org.pentaho.ctools</groupId>
   <artifactId>cpf-plugin-assemblies</artifactId>
-  <version>8.1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <description>Pentaho Community Plugin Framework assemblies</description>
+
   <modules>
     <module>cpf-plugin-pdi</module>
   </modules>
