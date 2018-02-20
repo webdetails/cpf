@@ -36,7 +36,7 @@ import pt.webdetails.cpf.repository.api.IUserContentAccess;
  * @see IReadAccess
  * @see IRWAccess
  */
-public class ContentAccessFactory implements IContentAccessFactory {
+public final class ContentAccessFactory implements IContentAccessFactory {
   private static final Log logger = LogFactory.getLog( ContentAccessFactory.class );
   private List<IReadAccess> readAccesses = new ArrayList<>();
 
