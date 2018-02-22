@@ -15,5 +15,6 @@
 
   <modules>
     <module>cpf-plugin-pdi</module>
+    <module>cpf-plugin-karaf</module>
   </modules>
 </project>
