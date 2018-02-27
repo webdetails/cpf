@@ -14,7 +14,6 @@
 package pt.webdetails.cpf.utils;
 
 import org.apache.commons.lang.StringUtils;
-import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -83,7 +82,7 @@ public abstract class AbstractCorsUtil {
 
     final Collection<String> domainWhitelist = getDomainWhitelist();
 
-    if ( CollectionUtils.isEmpty( domainWhitelist ) ) {
+    if ( domainWhitelist == null || domainWhitelist.isEmpty() ) {
       return false;
     }
 

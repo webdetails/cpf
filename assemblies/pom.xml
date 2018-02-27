@@ -14,7 +14,7 @@
   <description>Pentaho Community Plugin Framework assemblies</description>
 
   <modules>
-    <module>cpf-plugin-pdi</module>
-    <module>cpf-plugin-karaf</module>
+    <module>cpf</module>
   </modules>
+
 </project>
