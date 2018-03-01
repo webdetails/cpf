@@ -14,6 +14,7 @@
   <description>Pentaho Community Plugin Framework assemblies</description>
 
   <modules>
-    <module>cpf-plugin-pdi</module>
+    <module>cpf</module>
   </modules>
+
 </project>
