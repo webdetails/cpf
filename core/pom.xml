@@ -51,7 +51,7 @@
       <artifactId>rhino</artifactId>
     </dependency>
 
-    <!-- Spring is only being used by 'AbstractBeanFactory.java' and this class is not used in all assemblies -->
+    <!-- Marking Spring as optional because is only being used by 'AbstractBeanFactory.java' and this class is not used in all assemblies -->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-beans</artifactId>

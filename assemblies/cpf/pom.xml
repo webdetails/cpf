@@ -9,7 +9,7 @@
     <version>8.1.0.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>pentaho-cpf-plugin-pdi</artifactId>
+  <artifactId>pentaho-cpf</artifactId>
   <packaging>feature</packaging>
   <description>Pentaho Community Plugin Framework plugin for PDI</description>
 
