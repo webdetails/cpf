@@ -11,7 +11,7 @@
 
   <artifactId>pentaho-cpf</artifactId>
   <packaging>feature</packaging>
-  <description>Pentaho Community Plugin Framework plugin for PDI</description>
+  <description>Pentaho Community Plugin Framework plugin</description>
 
   <dependencies>
     <dependency>
