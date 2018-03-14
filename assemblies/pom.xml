@@ -15,6 +15,7 @@
 
   <modules>
     <module>cpf</module>
+    <module>cpf-pdi</module>
   </modules>
 
 </project>
