@@ -32,6 +32,7 @@ public class MimeTypes {
   public static final String PNG = "image/png";
   public static final String GIF = "image/gif";
   public static final String BMP = "image/bmp";
+  public static final String SVG = "image/svg+xml";
   public static final String JSON = "application/json";
   public static final String PDF = "application/pdf";
   public static final String DOC = "application/msword";
@@ -46,8 +47,8 @@ public class MimeTypes {
 
   public enum FileType {
 
-    JPG, JPEG, PNG, GIF, BMP, JS, CSS, HTML, HTM, XML,
-    SVG, PDF, TXT, DOC, DOCX, XLS, XLSX, PPT, PPTX, ZIP, CSV,
+    JPG, JPEG, PNG, GIF, BMP, SVG, JS, CSS, HTML, HTM, XML,
+    PDF, TXT, DOC, DOCX, XLS, XLSX, PPT, PPTX, ZIP, CSV,
     CDA, CDFDE, WCDF, XCDF;
 
     public static FileType parse( String value ) {
@@ -64,7 +65,7 @@ public class MimeTypes {
 
   }
 
-  protected static final EnumMap<FileType, String> mimeTypes = new EnumMap<FileType, String>( FileType.class );
+  protected static final EnumMap<FileType, String> mimeTypes = new EnumMap<>( FileType.class );
 
   static {
         /*
@@ -75,6 +76,7 @@ public class MimeTypes {
     mimeTypes.put( FileType.PNG, PNG );
     mimeTypes.put( FileType.GIF, GIF );
     mimeTypes.put( FileType.BMP, BMP );
+    mimeTypes.put( FileType.SVG, SVG );
 
         /*
          * HTML (and related) types
