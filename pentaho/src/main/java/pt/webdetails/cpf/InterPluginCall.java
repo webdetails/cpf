@@ -95,7 +95,9 @@ public class InterPluginCall implements Runnable, Callable<String>, IPluginCall 
 
   @Override
   public boolean exists() {
-    return getPluginManager().getClassLoader(plugin.getName()) != null;
+    Object bean = getBeanObject();
+
+    return getBeanMethod( bean ) != null;
   }
 
   public static class Plugin {
@@ -178,23 +180,40 @@ public class InterPluginCall implements Runnable, Callable<String>, IPluginCall 
   }
 
   private Object getBeanObject() {
-    ListableBeanFactory beanFactory = getPluginManager().getBeanFactory(plugin.getName());
+    final String pluginName = plugin.getName();
 
-    if (beanFactory == null) {
-      if (pluginManager.getClassLoader(plugin.getName()) == null) {
-        logger.error("No such plugin: " + plugin.getName());
+    ListableBeanFactory beanFactory = getPluginManager().getBeanFactory( pluginName );
+
+    if ( beanFactory == null ) {
+      if ( pluginManager.getClassLoader( pluginName ) == null ) {
+        logger.error( "No such plugin: " + pluginName );
       } else {
-        logger.error("No bean factory for plugin: " + plugin.getName());
+        logger.error( "No bean factory for plugin: " + pluginName );
       }
+
       return null;
     }
 
-    if (!beanFactory.containsBean(service)) {
-      logger.error("'" + service + "' bean not found in " + plugin.getName());
+    if ( !beanFactory.containsBean( service ) ) {
+      logger.error( "'" + service + "' bean not found in " + pluginName );
+
       return null;
     }
 
-    return beanFactory.getBean(service);
+    return beanFactory.getBean( service );
+  }
+
+  private Method getBeanMethod( Object bean ) {
+    if ( bean != null ) {
+      Method[] methods = bean.getClass().getMethods();
+      for ( Method m : methods ) {
+        if ( m.getName().equals( this.method ) ) {
+          return m;
+        }
+      }
+    }
+
+    return null;
   }
 
   // There are some issues to be resolved in InterPluginCall
@@ -205,22 +224,8 @@ public class InterPluginCall implements Runnable, Callable<String>, IPluginCall 
   // TWO: we are only reading annotated params so if we try to call a method with no annotated params but with params
   // those params are not passed to the invoked method.
   public void run() {
-
-    Class<?> classe = null;
-    Method operation = null;
-    Object o = null;
-    //  try {
-    o = getBeanObject();
-    classe = o.getClass();
-    Method[] methods = classe.getMethods();
-
-
-    for (Method m : methods) {
-      if (m.getName().equals( method )) {
-        operation = m;
-        break;
-      }
-    }
+    Object bean = getBeanObject();
+    Method operation = getBeanMethod( bean );
 
     Annotation[][] params = operation.getParameterAnnotations();
     Class<?>[] paramTypes = operation.getParameterTypes();
