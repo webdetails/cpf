@@ -1,5 +1,5 @@
 /*!
-* Copyright 2002 - 2017 Webdetails, a Hitachi Vantara company. All rights reserved.
+* Copyright 2002 - 2018 Webdetails, a Hitachi Vantara company. All rights reserved.
 *
 * This software was developed by Webdetails and is provided under the terms
 * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -10,22 +10,24 @@
 * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. Please refer to
 * the license for the specific language governing your rights and limitations.
 */
-
 package pt.webdetails.cpf;
 
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import java.lang.reflect.Method;
-import javax.ws.rs.*;
-
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.QueryParam;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,31 +50,28 @@ import pt.webdetails.cpf.web.CpfHttpServletResponse;
  */
 public class InterPluginCall implements Runnable, Callable<String>, IPluginCall {
 
-  public final static Plugin CDA = new Plugin("cda");
-  public final static Plugin CDB = new Plugin("cdb");
-  public final static Plugin CDC = new Plugin("cdc");
-  public final static Plugin CDE = new Plugin("pentaho-cdf-dd");
-  public final static Plugin CDF = new Plugin("pentaho-cdf");
-  public final static Plugin CDV = new Plugin("cdv");
+  public static final Plugin CDA = new Plugin( "cda" );
+  public static final Plugin CDB = new Plugin( "cdb" );
+  public static final Plugin CDC = new Plugin( "cdc" );
+  public static final Plugin CDE = new Plugin( "pentaho-cdf-dd" );
+  public static final Plugin CDF = new Plugin( "pentaho-cdf" );
+  public static final Plugin CDV = new Plugin( "cdv" );
   private Object objectResponse;
 
 
   @Override
-  public String call(Map<String, String[]> params) throws Exception {
-    Iterator<String> it = params.keySet().iterator();
-    while (it.hasNext()) {
-      String key = it.next();
-      requestParameters.put(key, params.get(key));
+  public String call( Map<String, String[]> params ) {
+    for ( String key : params.keySet() ) {
+      requestParameters.put( key, params.get( key ) );
     }
+
     return call();
   }
 
   @Override
-  public void run(Map<String, String[]> params) throws Exception {
-    Iterator<String> it = params.keySet().iterator();
-    while (it.hasNext()) {
-      String key = it.next();
-      requestParameters.put(key, params.get(key));
+  public void run( Map<String, String[]> params ) {
+    for ( String key : params.keySet() ) {
+      requestParameters.put( key, params.get( key ) );
     }
 
     run();
@@ -80,7 +79,7 @@ public class InterPluginCall implements Runnable, Callable<String>, IPluginCall 
 
   @Override
   public InputStream getResult() {
-    return null;  //REVIEW
+    return null; // REVIEW
   }
 
   /**
@@ -93,7 +92,7 @@ public class InterPluginCall implements Runnable, Callable<String>, IPluginCall 
   public boolean pluginExists() {
     return exists();
   }
-  
+
   @Override
   public boolean exists() {
     return getPluginManager().getClassLoader(plugin.getName()) != null;
@@ -112,24 +111,23 @@ public class InterPluginCall implements Runnable, Callable<String>, IPluginCall 
       return title;
     }
 
-    public Plugin(String name, String title) {
+    public Plugin( String name, String title ) {
       this.name = name;
       this.title = title;
     }
 
-    public Plugin(String id) {
+    public Plugin( String id ) {
       this.name = id;
       this.title = id;
     }
 
   }
 
-  private static final Log logger = LogFactory.getLog(InterPluginCall.class);
+  private static final Log logger = LogFactory.getLog( InterPluginCall.class );
 
   private Plugin plugin;
   private String method;
   private String service;
-
 
   private Map<String, Object> requestParameters;
   private HttpServletResponse response;
@@ -139,47 +137,45 @@ public class InterPluginCall implements Runnable, Callable<String>, IPluginCall 
   private IPluginManager pluginManager;
 
 
-  public InterPluginCall(Plugin plugin, String method) {
-    this(plugin, plugin.getName() + ".api", method);
+  public InterPluginCall( Plugin plugin, String method ) {
+    this( plugin, plugin.getName() + ".api", method );
   }
 
-
-  public InterPluginCall(Plugin plugin, String method, Map<String, Object> params) {
-    this(plugin, plugin.getName() + ".api", method, params);
+  public InterPluginCall( Plugin plugin, String method, Map<String, Object> params ) {
+    this( plugin, plugin.getName() + ".api", method, params );
   }
 
-  public InterPluginCall(Plugin plugin, String service, String method) {
+  public InterPluginCall( Plugin plugin, String service, String method ) {
 
-    if (plugin == null) throw new IllegalArgumentException("Plugin must be specified");
+    if ( plugin == null ) {
+      throw new IllegalArgumentException( "Plugin must be specified" );
+    }
 
     this.plugin = plugin;
     this.method = method;
     this.service = service != null ? service : plugin.getName() + ".api";
-    this.requestParameters = new HashMap<String, Object>();
+    this.requestParameters = new HashMap<>();
   }
 
-  public InterPluginCall(Plugin plugin, String service, String method, Map<String, Object> params) {
-    this(plugin, service, method);
+  public InterPluginCall( Plugin plugin, String service, String method, Map<String, Object> params ) {
+    this( plugin, service, method );
 
-
-    this.requestParameters.putAll(params != null ? params : new HashMap<String, Object>());
+    this.requestParameters.putAll( params != null ? params : new HashMap<>() );
   }
-
-
 
   protected HttpServletRequest getRequest() {
-    if (request == null) {
+    if ( request == null ) {
       request = new pt.webdetails.cpf.web.CpfHttpServletRequest();
     }
+
     return request;
   }
 
+  public InterPluginCall putParameter( String name, Object value ) {
+    requestParameters.put( name, value );
 
-  public InterPluginCall putParameter(String name, Object value) {
-    requestParameters.put(name, value);
     return this;
   }
-
 
   private Object getBeanObject() {
     ListableBeanFactory beanFactory = getPluginManager().getBeanFactory(plugin.getName());
@@ -201,11 +197,13 @@ public class InterPluginCall implements Runnable, Callable<String>, IPluginCall 
     return beanFactory.getBean(service);
   }
 
-    //There are some issues to be resolved in InterPluginCall
-    //ONE: that is very bug prone is the reflection analysis to get de method to invoke, if there are two methods
-    //with same name but invocation signatures different the first one is chooses
-    //TWO: we are only reading annotated params so if we try to call a method with no annotated params but with params
-    //those params are not passed to the invoked method.
+  // There are some issues to be resolved in InterPluginCall
+  //
+  // ONE: that is very bug prone is the reflection analysis to get de method to invoke, if there are two methods
+  // with same name but invocation signatures different the first one is chooses
+  //
+  // TWO: we are only reading annotated params so if we try to call a method with no annotated params but with params
+  // those params are not passed to the invoked method.
   public void run() {
 
     Class<?> classe = null;
@@ -227,137 +225,155 @@ public class InterPluginCall implements Runnable, Callable<String>, IPluginCall 
     Annotation[][] params = operation.getParameterAnnotations();
     Class<?>[] paramTypes = operation.getParameterTypes();
 
-    List<Object> parameters = new ArrayList<Object>();
+    List<Object> parameters = new ArrayList<>();
 
-    for (int i = 0; i < params.length; i++) {
+    for ( int i = 0; i < params.length; i++ ) {
       String paramName = "";
       String paramDefaultValue = "";
 
-      for (Annotation annotation : params[i]) {
+      for ( Annotation annotation : params[i] ) {
         String annotationClass = annotation.annotationType().getName();
 
-        if (annotationClass == "javax.ws.rs.QueryParam") {
+        if ( "javax.ws.rs.QueryParam".equals( annotationClass ) ) {
           QueryParam param = (QueryParam) annotation;
           paramName = param.value();
-        } else if (annotationClass == "javax.ws.rs.DefaultValue") {
+        } else if ( "javax.ws.rs.DefaultValue".equals( annotationClass ) ) {
           DefaultValue param = (DefaultValue) annotation;
           paramDefaultValue = param.value();
-        } else if (annotationClass == "javax.ws.rs.core.Context") {
-          if (paramTypes[i] == HttpServletRequest.class) {
+        } else if ( "javax.ws.rs.core.Context".equals( annotationClass ) ) {
+          if ( paramTypes[i] == HttpServletRequest.class ) {
 
             CpfHttpServletRequest cpfRequest = (CpfHttpServletRequest) getRequest();
-            for (Map.Entry<String, Object> entry : requestParameters.entrySet()) {
+            for ( Map.Entry<String, Object> entry : requestParameters.entrySet() ) {
               String key = entry.getKey();
 
               Object paramValue = entry.getValue();
-              if (paramValue instanceof String[]) {
-                String[] lValues = (String[])paramValue;
-                if (lValues.length == 1)
-                  cpfRequest.setParameter(key, lValues[0]);
-                else
-                  cpfRequest.setParameter(key, lValues);
-              } else if (paramValue != null) {
-                cpfRequest.setParameter(key, paramValue.toString());
-              }
+              if ( paramValue instanceof String[] ) {
+                String[] lValues = (String[]) paramValue;
+                if ( lValues.length == 1 ) {
+                  cpfRequest.setParameter( key, lValues[0] );
+                } else {
+                  cpfRequest.setParameter( key, lValues );
+                }
 
+              } else if ( paramValue != null ) {
+                cpfRequest.setParameter( key, paramValue.toString() );
+              }
             }
 
-            parameters.add((HttpServletRequest)cpfRequest);
-          }
-          else if (paramTypes[i] == HttpServletResponse.class) {
-            HttpServletResponse response = (HttpServletResponse) getParameterProviders().get("path").getParameter("httpresponse");
-            if (response == null) {
+            parameters.add( (HttpServletRequest) cpfRequest );
+
+          } else if ( paramTypes[i] == HttpServletResponse.class ) {
+            HttpServletResponse response = (HttpServletResponse) getParameterProviders().get( "path" )
+              .getParameter( "httpresponse" );
+
+            if ( response == null ) {
               response = getResponse();
             }
-            parameters.add(response);
+
+            parameters.add( response );
           }
         }
       }
 
-      if (requestParameters.containsKey(paramName)) {
-        Object paramValue = requestParameters.get(paramName);
-        if (paramTypes[i] == int.class) {
-          if (paramValue instanceof String[]) {
-            String[] lValues = (String[])paramValue;
-            if (lValues.length > 0)
+      if ( requestParameters.containsKey( paramName ) ) {
+        Object paramValue = requestParameters.get( paramName );
+        if ( paramTypes[i] == int.class ) {
+          if ( paramValue instanceof String[] ) {
+            String[] lValues = (String[]) paramValue;
+            if ( lValues.length > 0 ) {
               paramValue = lValues[0];
-            else
+            } else {
               paramValue = null;
-          }
-          int val = Integer.parseInt((String)paramValue);
-          parameters.add(val);
-        } else if (paramTypes[i] == java.lang.Boolean.class || paramTypes[i] == boolean.class) {
-
-          if (paramValue instanceof String[]) {
-            String[] lValues = (String[])paramValue;
-            if (lValues.length > 0)
-              paramValue = lValues[0];
-            else
-              paramValue = null;
+            }
           }
 
-          boolean val = Boolean.parseBoolean((String)paramValue);
-          parameters.add(val);
-        } else if (paramTypes[i] == java.util.List.class) {
-          List<String> list = new ArrayList<String>();
+          int val = Integer.parseInt( (String) paramValue );
+          parameters.add( val );
+
+        } else if ( paramTypes[i] == java.lang.Boolean.class || paramTypes[i] == boolean.class ) {
+
+          if ( paramValue instanceof String[] ) {
+            String[] lValues = (String[]) paramValue;
+            if ( lValues.length > 0 ) {
+              paramValue = lValues[0];
+            } else {
+              paramValue = null;
+            }
+          }
+
+          boolean val = Boolean.parseBoolean( (String) paramValue );
+          parameters.add( val );
+
+        } else if ( paramTypes[i] == java.util.List.class ) {
+          List<String> list = new ArrayList<>();
 
           String[] splittedValues;
-          if (paramValue instanceof String[]) {
-            splittedValues = (String[])paramValue;
+          if ( paramValue instanceof String[] ) {
+            splittedValues = (String[]) paramValue;
           } else {
-            splittedValues = ((String)paramValue).split(",");
+            splittedValues = ( (String) paramValue ).split( "," );
           }
 
 
-          for (String s : splittedValues) {
-            list.add(s);
+          for ( String s : splittedValues ) {
+            list.add( s );
           }
 
-          parameters.add(list);
-        } else if (paramTypes[i] == java.lang.String.class) {
-          if (paramValue instanceof String[]) {
-            String[] lValues = (String[])paramValue;
-            if (lValues.length > 0)
+          parameters.add( list );
+
+        } else if ( paramTypes[i] == java.lang.String.class ) {
+          if ( paramValue instanceof String[] ) {
+            String[] lValues = (String[]) paramValue;
+            if ( lValues.length > 0 ) {
               paramValue = lValues[0];
-            else
+            } else {
               paramValue = null;
+            }
           }
-          parameters.add(paramValue);
+
+          parameters.add( paramValue );
         }
-        requestParameters.remove(paramName);
+
+        requestParameters.remove( paramName );
       } else {
-        if (paramTypes[i] == int.class) {
-          int val = Integer.parseInt(paramDefaultValue);
-          parameters.add(val);
-        } else if (paramTypes[i] == Boolean.class || paramTypes[i] == boolean.class) {
-          boolean val = Boolean.parseBoolean(paramDefaultValue);
-          parameters.add(val);
-        } else if (paramTypes[i] == java.util.List.class) {
-          List<String> list = new ArrayList<String>();
+        if ( paramTypes[i] == int.class ) {
+          int val = Integer.parseInt( paramDefaultValue );
+          parameters.add( val );
+
+        } else if ( paramTypes[i] == Boolean.class || paramTypes[i] == boolean.class ) {
+          boolean val = Boolean.parseBoolean( paramDefaultValue );
+          parameters.add( val );
+
+        } else if ( paramTypes[i] == java.util.List.class ) {
+          List<String> list = new ArrayList<>();
 
           String values = paramDefaultValue;
-          String[] splittedValues = values.split(",");
+          String[] splittedValues = values.split( "," );
 
-          for (String s : splittedValues) {
-            list.add(s);
+          for ( String s : splittedValues ) {
+            list.add( s );
           }
-          parameters.add(list);
-        } else if (paramTypes[i] == java.lang.String.class) {
-          parameters.add(paramDefaultValue);
+
+          parameters.add( list );
+
+        } else if ( paramTypes[i] == java.lang.String.class ) {
+          parameters.add( paramDefaultValue );
         }
       }
     }
 
     try {
-      objectResponse = operation.invoke(o, parameters.toArray());
-    } catch (IllegalAccessException ex) {
-      logger.error("", ex);
-    } catch (IllegalArgumentException ex) {
-      logger.error("", ex);
-    } catch (InvocationTargetException ex) {
-      logger.error("", ex);
-    } catch (Exception ex) {
-      logger.error("", ex);
+      objectResponse = operation.invoke( bean, parameters.toArray() );
+
+    } catch ( IllegalAccessException ex ) {
+      logger.error( "", ex );
+    } catch ( IllegalArgumentException ex ) {
+      logger.error( "", ex );
+    } catch ( InvocationTargetException ex ) {
+      logger.error( "", ex );
+    } catch ( Exception ex ) {
+      logger.error( "", ex );
     }
   }
 
@@ -365,111 +381,116 @@ public class InterPluginCall implements Runnable, Callable<String>, IPluginCall 
     run();
 
     CpfHttpServletResponse cpfResponse = (CpfHttpServletResponse) response;
-    if (response != null) {
+    if ( response != null ) {
       String content = "";
 
       try {
         content = cpfResponse.getContentAsString();
-      } catch (UnsupportedEncodingException ex) {
-        logger.error("Error getting content from CpfHttpServletResponse", ex);
+      } catch ( UnsupportedEncodingException ex ) {
+        logger.error( "Error getting content from CpfHttpServletResponse", ex );
       }
+
       return content;
     }
 
-    if (objectResponse != null)
+    if ( objectResponse != null ) {
       return objectResponse.toString();
+    }
 
     return null;
 
   }
 
   public void runInPluginClassLoader() {
-    getClassLoaderCaller().runInClassLoader(this);
+    getClassLoaderCaller().runInClassLoader( this );
   }
 
   public String callInPluginClassLoader() {
     try {
-      return getClassLoaderCaller().callInClassLoader(this);
-    } catch (Exception e) {
-      logger.error(e);
+      return getClassLoaderCaller().callInClassLoader( this );
+    } catch ( Exception e ) {
+      logger.error( e );
+
       return null;
     }
   }
 
   public HttpServletResponse getResponse() {
-    if (response == null) {
-      logger.debug("No response passed to method " + this.method + ", adding response.");
+    if ( response == null ) {
+      logger.debug( "No response passed to method " + this.method + ", adding response." );
+
       response = new CpfHttpServletResponse();
     }
 
     return response;
   }
 
-  public void setResponse(HttpServletResponse response) {
+  public void setResponse( HttpServletResponse response ) {
     this.response = response;
   }
 
-  public void setSession(IPentahoSession session) {
+  public void setSession( IPentahoSession session ) {
     this.session = session;
   }
 
-  public void setRequestParameters(Map<String, Object> parameters) {
+  public void setRequestParameters( Map<String, Object> parameters ) {
     this.requestParameters = parameters;
   }
 
-
   protected IPentahoSession getSession() {
-    if (session == null) {
+    if ( session == null ) {
       session = PentahoSessionHolder.getSession();
     }
+
     return session;
   }
 
   protected IParameterProvider getRequestParameterProvider() {
-    SimpleParameterProvider provider = null;
-    if (request != null) {
-      provider = new HttpRequestParameterProvider(request);
-      provider.setParameters(requestParameters);
+    SimpleParameterProvider provider;
+
+    if ( request != null ) {
+      provider = new HttpRequestParameterProvider( request );
+      provider.setParameters( requestParameters );
     } else {
-      provider = new SimpleParameterProvider(requestParameters);
+      provider = new SimpleParameterProvider( requestParameters );
     }
+
     return provider;
   }
 
   protected ClassLoaderAwareCaller getClassLoaderCaller() {
-    return new ClassLoaderAwareCaller(getPluginManager().getClassLoader(plugin.getTitle()));
+    return new ClassLoaderAwareCaller( getPluginManager().getClassLoader( plugin.getTitle() ) );
   }
 
   protected IPluginManager getPluginManager() {
-    if (pluginManager == null) {
-      pluginManager = PentahoSystem.get(IPluginManager.class, getSession());
+    if ( pluginManager == null ) {
+      pluginManager = PentahoSystem.get( IPluginManager.class, getSession() );
     }
+
     return pluginManager;
   }
 
   protected IParameterProvider getPathParameterProvider() {
-    Map<String, Object> pathMap = new HashMap<String, Object>();
-    pathMap.put("path", "/" + method);
-//    if (response != null) {
-    pathMap.put("httpresponse", getResponse());
-//    }
-    if (getRequest() != null) {
-      pathMap.put("httprequest", getRequest());
+    Map<String, Object> pathMap = new HashMap<>();
+
+    pathMap.put( "path", "/" + method );
+    pathMap.put( "httpresponse", getResponse() );
+
+    if ( getRequest() != null ) {
+      pathMap.put( "httprequest", getRequest() );
     }
-    IParameterProvider pathParams = new SimpleParameterProvider(pathMap);
-    return pathParams;
+
+    return new SimpleParameterProvider( pathMap );
   }
 
   protected Map<String, IParameterProvider> getParameterProviders() {
     IParameterProvider requestParams = getRequestParameterProvider();
     IParameterProvider pathParams = getPathParameterProvider();
-    Map<String, IParameterProvider> paramProvider = new HashMap<String, IParameterProvider>();
-    paramProvider.put(IParameterProvider.SCOPE_REQUEST, requestParams);
-    paramProvider.put("path", pathParams);
+
+    Map<String, IParameterProvider> paramProvider = new HashMap<>();
+    paramProvider.put( IParameterProvider.SCOPE_REQUEST, requestParams );
+    paramProvider.put( "path", pathParams );
+
     return paramProvider;
   }
-
-
-
-
 }
