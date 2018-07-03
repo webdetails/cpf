@@ -40,7 +40,6 @@
     <pentaho-json.version>${project.version}</pentaho-json.version>
     <platform.version>${project.version}</platform.version>
     <mondrian.version>${project.version}</mondrian.version>
-    <jackson-core-asl.version>1.9.3</jackson-core-asl.version>
     <log4j.version>1.2.16</log4j.version>
     <rhino.version>1.7R4</rhino.version>
     <mockito-core.version>1.9.5</mockito-core.version>
@@ -104,11 +103,6 @@
         <artifactId>log4j</artifactId>
         <version>${log4j.version}</version>
         <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.jackson</groupId>
-        <artifactId>jackson-core-asl</artifactId>
-        <version>${jackson-core-asl.version}</version>
       </dependency>
       <dependency>
         <groupId>org.mozilla</groupId>
