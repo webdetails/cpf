@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.ctools.cpf.repository.bundle.DummyReadWriteAccess;
 import org.pentaho.ctools.cpf.repository.bundle.ReadAccessProxy;
 import org.pentaho.ctools.cpf.repository.bundle.UserContentAccess;
 import pt.webdetails.cpf.repository.api.IContentAccessFactory;
@@ -29,7 +30,14 @@ import pt.webdetails.cpf.repository.api.IUserContentAccess;
  * These access providers are instances of {@code ReadAccessProxy} that contain a reference to an internal dynamic list
  * of available {@code IReadAccess} services that allow access to the available resources.
  *
- * Note: Write access providers are currently not supported.
+ * Additionally, user content {@code IUserContentAccess} can also use a single dynamic instance of a {@code IRWAccess}
+ * service to provide write operations.
+ *
+ * Note: To facilitate operations by CDE Editor, a dummy instance is returned from {@code getPluginSystemWriter} and
+ * {@code getOtherPluginSystemWriter} that fakes write operations and forwards read operations to an instance of
+ * {@code ReadAccessProxy}.
+ *
+ * Note: PluginRepository write access is currently not supported.
  *
  * @see IContentAccessFactory
  * @see IUserContentAccess
@@ -39,6 +47,7 @@ import pt.webdetails.cpf.repository.api.IUserContentAccess;
 public final class ContentAccessFactory implements IContentAccessFactory {
   private static final Log logger = LogFactory.getLog( ContentAccessFactory.class );
   private List<IReadAccess> readAccesses = new ArrayList<>();
+  private IRWAccess readWriteAccess = null;
 
   public void addReadAccess( IReadAccess readAccess ) {
     this.readAccesses.add( readAccess );
@@ -47,10 +56,17 @@ public final class ContentAccessFactory implements IContentAccessFactory {
     this.readAccesses.remove( readAccess );
   }
 
+  public void setReadWriteAccess( IRWAccess readWriteAccess ) {
+    this.readWriteAccess = readWriteAccess;
+  }
+  public void removeReadWriteAccess( IRWAccess readWriteAccess ) {
+    this.readWriteAccess = null;
+  }
+
   @Override
   public IUserContentAccess getUserContentAccess( String path ) {
     IReadAccess readAccess = this.getReadAccessProxy( path );
-    return new UserContentAccess( readAccess );
+    return new UserContentAccess( readAccess, readWriteAccess );
   }
 
   @Override
@@ -71,8 +87,8 @@ public final class ContentAccessFactory implements IContentAccessFactory {
 
   @Override
   public IRWAccess getPluginSystemWriter( String basePath ) {
-    logger.fatal( "Not implemented for the OSGi environment" );
-    return null;
+    logger.info( "Using dummy writer for the OSGi environment" );
+    return new DummyReadWriteAccess( this.getReadAccessProxy( basePath ) );
   }
 
   @Override
@@ -82,8 +98,8 @@ public final class ContentAccessFactory implements IContentAccessFactory {
 
   @Override
   public IRWAccess getOtherPluginSystemWriter( String pluginId, String basePath ) {
-    logger.fatal( "Not implemented for the OSGi environment" );
-    return null;
+    logger.info( "Using dummy writer for the OSGi environment" );
+    return new DummyReadWriteAccess( this.getReadAccessProxy( basePath ) );
   }
 
   private IReadAccess getReadAccessProxy( String path ) {
