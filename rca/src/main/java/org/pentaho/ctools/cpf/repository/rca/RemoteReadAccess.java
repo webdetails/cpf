@@ -122,7 +122,7 @@ public class RemoteReadAccess implements IReadAccess {
       return null;
     }
 
-    return treeFlatten( response, includeDirs, filter );
+    return treeFlatten( response, includeDirs, filter, path );
   }
 
   @Override
@@ -164,21 +164,31 @@ public class RemoteReadAccess implements IReadAccess {
     return reposURL + endpoint + encodePath( path );
   }
 
-  private void treeFlattenRecursive( RepositoryFileTreeDto node, boolean includeDirs, IBasicFileFilter filter, List<IBasicFile> result ) {
+  private boolean pathEquals( String path1, String path2 ) {
+    if ( !path1.endsWith( DEFAULT_PATH_SEPARATOR ) ) {
+      path1 = path1 + DEFAULT_PATH_SEPARATOR;
+    }
+    if ( !path2.endsWith( DEFAULT_PATH_SEPARATOR ) ) {
+      path2 = path2 + DEFAULT_PATH_SEPARATOR;
+    }
+    return path1.equals( path2 );
+  }
+
+  private void treeFlattenRecursive( RepositoryFileTreeDto node, boolean includeDirs, IBasicFileFilter filter, List<IBasicFile> result, String queryPath ) {
     IBasicFile file = new RemoteBasicFile( this, node.getFile() );
 
-    if ( ( includeDirs || !file.isDirectory() ) && ( filter == null || filter.accept( file ) ) ) {
+    if ( ( includeDirs || !file.isDirectory() ) && !pathEquals( file.getFullPath(), queryPath ) && ( filter == null || filter.accept( file ) ) ) {
       result.add( file );
     }
 
     for ( RepositoryFileTreeDto child : node.getChildren() ) {
-      treeFlattenRecursive( child, includeDirs, filter, result );
+      treeFlattenRecursive( child, includeDirs, filter, result, queryPath );
     }
   }
 
-  List<IBasicFile> treeFlatten( RepositoryFileTreeDto tree, boolean includeDirs, IBasicFileFilter filter ) {
+  List<IBasicFile> treeFlatten( RepositoryFileTreeDto tree, boolean includeDirs, IBasicFileFilter filter, String queryPath ) {
     List<IBasicFile> flatList = new ArrayList<>();
-    treeFlattenRecursive( tree, includeDirs, filter, flatList );
+    treeFlattenRecursive( tree, includeDirs, filter, flatList, queryPath );
     return flatList;
   }
 }
