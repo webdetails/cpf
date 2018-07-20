@@ -186,16 +186,16 @@ public class InterPluginCall implements Runnable, Callable<String>, IPluginCall 
 
     if ( beanFactory == null ) {
       if ( pluginManager.getClassLoader( pluginName ) == null ) {
-        logger.error( "No such plugin: " + pluginName );
+        logger.debug( "No such plugin: " + pluginName );
       } else {
-        logger.error( "No bean factory for plugin: " + pluginName );
+        logger.debug( "No bean factory for plugin: " + pluginName );
       }
 
       return null;
     }
 
     if ( !beanFactory.containsBean( service ) ) {
-      logger.error( "'" + service + "' bean not found in " + pluginName );
+      logger.debug( "'" + service + "' bean not found in " + pluginName );
 
       return null;
     }
