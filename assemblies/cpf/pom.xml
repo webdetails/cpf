@@ -24,6 +24,11 @@
       <artifactId>cpf-osgi</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.pentaho.ctools</groupId>
+      <artifactId>cpf-rca</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 
 </project>

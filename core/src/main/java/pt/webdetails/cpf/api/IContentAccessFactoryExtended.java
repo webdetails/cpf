@@ -1,6 +1,7 @@
 package pt.webdetails.cpf.api;
 
 import pt.webdetails.cpf.repository.api.IContentAccessFactory;
+import pt.webdetails.cpf.repository.api.IUserContentAccess;
 
 /**
  * Minimal repository access provider for basic plugin needs 

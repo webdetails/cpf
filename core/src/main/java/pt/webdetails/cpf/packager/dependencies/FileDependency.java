@@ -63,7 +63,12 @@ public class FileDependency extends Dependency {
   }
 
   public InputStream getFileInputStream() throws IOException {
-    return origin.getReader( getContentFactory() ).getFileInputStream( filePath );
+    if ( getContentFactory() != null ) {
+      return origin.getReader(getContentFactory()).getFileInputStream(filePath);
+    } else {
+      logger.fatal( String.format( "Couldn't getFileInputStream() for filePath = '%s'. Unable to get ContentFactory.", filePath ));
+      return null;
+    }
   }
 
   /**
@@ -86,7 +91,11 @@ public class FileDependency extends Dependency {
   }
 
   protected IContentAccessFactory getContentFactory() {
-    return PluginEnvironment.env().getContentAccessFactory();
+    if ( PluginEnvironment.env() != null ) {
+      return PluginEnvironment.env().getContentAccessFactory();
+    } else {
+      return null;
+    }
   }
 
   public String toString() {
