@@ -14,6 +14,6 @@
     <reference-listener ref="contentAccessFactory" bind-method="setReadWriteAccess" unbind-method="removeReadWriteAccess"/>
   </reference>
 
-  <service interface="pt.webdetails.cpf.repository.api.IContentAccessFactory" ref="contentAccessFactory"/>
+  <service interface="pt.webdetails.cpf.api.IContentAccessFactoryExtended" ref="contentAccessFactory"/>
 
 </blueprint>

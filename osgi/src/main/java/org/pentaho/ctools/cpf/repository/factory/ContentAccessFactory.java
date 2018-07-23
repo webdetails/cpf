@@ -20,7 +20,8 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.ctools.cpf.repository.bundle.DummyReadWriteAccess;
 import org.pentaho.ctools.cpf.repository.bundle.ReadAccessProxy;
 import org.pentaho.ctools.cpf.repository.bundle.UserContentAccess;
-import pt.webdetails.cpf.repository.api.IContentAccessFactory;
+import pt.webdetails.cpf.api.IContentAccessFactoryExtended;
+import pt.webdetails.cpf.api.IUserContentAccessExtended;
 import pt.webdetails.cpf.repository.api.IReadAccess;
 import pt.webdetails.cpf.repository.api.IRWAccess;
 import pt.webdetails.cpf.repository.api.IUserContentAccess;
@@ -39,12 +40,12 @@ import pt.webdetails.cpf.repository.api.IUserContentAccess;
  *
  * Note: PluginRepository write access is currently not supported.
  *
- * @see IContentAccessFactory
+ * @see IContentAccessFactoryExtended
  * @see IUserContentAccess
  * @see IReadAccess
  * @see IRWAccess
  */
-public final class ContentAccessFactory implements IContentAccessFactory {
+public final class ContentAccessFactory implements IContentAccessFactoryExtended {
   private static final Log logger = LogFactory.getLog( ContentAccessFactory.class );
   private List<IReadAccess> readAccesses = new ArrayList<>();
   private IRWAccess readWriteAccess = null;
@@ -64,7 +65,7 @@ public final class ContentAccessFactory implements IContentAccessFactory {
   }
 
   @Override
-  public IUserContentAccess getUserContentAccess( String path ) {
+  public IUserContentAccessExtended getUserContentAccess(String path ) {
     IReadAccess readAccess = this.getReadAccessProxy( path );
     return new UserContentAccess( readAccess, readWriteAccess );
   }

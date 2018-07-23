@@ -14,12 +14,13 @@ package org.pentaho.ctools.cpf.repository.bundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import pt.webdetails.cpf.api.IFileContent;
+import pt.webdetails.cpf.api.IUserContentAccessExtended;
 import pt.webdetails.cpf.repository.api.FileAccess;
 import pt.webdetails.cpf.repository.api.IBasicFile;
 import pt.webdetails.cpf.repository.api.IBasicFileFilter;
 import pt.webdetails.cpf.repository.api.IReadAccess;
 import pt.webdetails.cpf.repository.api.IRWAccess;
-import pt.webdetails.cpf.repository.api.IUserContentAccess;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,9 +32,9 @@ import java.util.List;
  *
  * Note: There are no permission distinctions between different users.
  *
- * @see IUserContentAccess
+ * @see IUserContentAccessExtended
  */
-public final class UserContentAccess implements IUserContentAccess {
+public final class UserContentAccess implements IUserContentAccessExtended {
   private static final Log logger = LogFactory.getLog( UserContentAccess.class );
   private IReadAccess readAccess;
   private IRWAccess readWriteAccess;
@@ -131,5 +132,15 @@ public final class UserContentAccess implements IUserContentAccess {
   @Override
   public IBasicFile fetchFile( String path ) {
     return this.readAccess.fetchFile( path );
+  }
+
+  @Override
+  public boolean saveFile( IFileContent file ) {
+    // TODO: propagate title and description
+    try {
+      return saveFile( file.getPath(), file.getContents() );
+    } catch ( IOException ex ) {
+      return false;
+    }
   }
 }
