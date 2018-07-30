@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
+           http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+
+    <!-- Load system property -->
+    <ext:property-placeholder />
+
+    <bean id="remoteUserContentAccess" class="org.pentaho.ctools.cpf.repository.rca.RemoteUserContentAccess">
+        <argument value="${repos.url}"/>
+        <argument value="${repos.user}"/>
+        <argument value="${repos.password}"/>
+    </bean>
+    <service interface="pt.webdetails.cpf.api.IUserContentAccessExtended" ref="remoteUserContentAccess"/>
+
+</blueprint>
