@@ -48,16 +48,33 @@ public final class BasicFile implements IBasicFile {
     if ( index == -1 ) {
       return path;
     }
+    if ( index + 1 == path.length() && path.length() > 1 ) {
+      // folder, return previous component
+      String trimmedPath = path.substring( 0, index );
+      int previousIndex = trimmedPath.lastIndexOf( '/' );
+      if ( previousIndex == -1 ) {
+        return trimmedPath;
+      }
+      return trimmedPath.substring( previousIndex + 1 );
+    }
     return path.substring( index + 1 );
   }
 
   @Override
   public String getFullPath() {
-    return url.getPath();
+    return getCleanPath();
   }
 
   @Override
   public String getPath() {
+    return getCleanPath();
+  }
+
+  private String getCleanPath() {
+    final String path = url.getPath();
+    if ( path.endsWith( "/" ) ) {
+      return path.substring( 0, path.length() - 1 );
+    }
     return url.getPath();
   }
 
@@ -76,6 +93,7 @@ public final class BasicFile implements IBasicFile {
 
   @Override
   public boolean isDirectory() {
-    return false;
+    final String path = url.getPath();
+    return path.endsWith( "/" );
   }
 }
