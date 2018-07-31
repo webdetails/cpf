@@ -100,6 +100,11 @@ public class RemoteReadWriteAccess extends RemoteReadAccess implements IRWAccess
   public boolean deleteFile( String path ) {
     String fileId = remoteFileId( path );
 
+    if ( fileId == null ) {
+      logger.error( "Attempt to delete non-existing file: " + path );
+      return false;
+    }
+
     String requestURL = createRequestURL( "", "delete" ); // TODO: delete or deletepermanent
     Response response = client.target( requestURL )
         .request( MediaType.APPLICATION_XML )
