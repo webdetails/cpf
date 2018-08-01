@@ -67,8 +67,10 @@ public class RemoteReadAccess implements IReadAccess {
 
   @Override
   public InputStream getFileInputStream( String path ) throws IOException {
-    String requestURL = createRequestURL( path, "" );
+    // download method used because it does the correct conversions for ktr/kjb files (see CDA-93)
+    String requestURL = createRequestURL( path, "download" );
     InputStream responseData = client.target( requestURL )
+        .queryParam( "withManifest", "false" )
         .request( MediaType.APPLICATION_OCTET_STREAM_TYPE )
         .get( InputStream.class );
 
