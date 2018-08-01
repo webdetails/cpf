@@ -18,6 +18,7 @@
     <module>core</module>
     <module>pentaho</module>
     <module>osgi</module>
+    <module>rca</module>
   </modules>
 
   <scm>

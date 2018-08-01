@@ -95,6 +95,11 @@ public final class ReadAccess implements IReadAccess {
     return listFiles( path, filter, maxDepth < 0 );
   }
 
+  private boolean filterBundleFolders( URL url ) {
+    final String path = url.getPath();
+    return !( path.endsWith( "/META-INF/" ) || path.endsWith( "/OSGI-INF/" ) );
+  }
+
   private List<IBasicFile> listFiles( String path, IBasicFileFilter filter, boolean recursive ) {
     Enumeration<URL> entries = this.bundle.findEntries( path, null, recursive );
 
@@ -103,6 +108,7 @@ public final class ReadAccess implements IReadAccess {
     }
 
     return enumerationAsStream( entries )
+      .filter( this::filterBundleFolders )
       .map( BasicFile::new )
       .filter( filter::accept )
       .collect( Collectors.toList() );
