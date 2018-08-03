@@ -14,8 +14,8 @@ package org.pentaho.ctools.cpf.repository.rca;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.ctools.cpf.repository.rca.dto.RepositoryFileDto;
-import org.pentaho.ctools.cpf.repository.rca.dto.StringKeyStringValueDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringValueDto;
 import pt.webdetails.cpf.repository.api.IRWAccess;
 
 import javax.ws.rs.client.Entity;
