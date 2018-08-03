@@ -14,8 +14,8 @@ package org.pentaho.ctools.cpf.repository.rca;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.ctools.cpf.repository.rca.dto.RepositoryFileDto;
-import org.pentaho.ctools.cpf.repository.rca.dto.RepositoryFileTreeDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileTreeDto;
 import pt.webdetails.cpf.repository.api.IBasicFile;
 import pt.webdetails.cpf.repository.api.IBasicFileFilter;
 import pt.webdetails.cpf.repository.api.IReadAccess;
@@ -96,7 +96,7 @@ public class RemoteReadAccess implements IReadAccess {
     if ( response == null ) {
       return 0L;
     }
-    return response.getLastModifiedDate().getTime();
+    return Long.parseLong( response.getLastModifiedDate() );
   }
 
   @Override

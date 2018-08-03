@@ -12,7 +12,7 @@
  */
 package org.pentaho.ctools.cpf.repository.rca;
 
-import org.pentaho.ctools.cpf.repository.rca.dto.RepositoryFileDto;
+import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
 import pt.webdetails.cpf.repository.api.IBasicFile;
 import pt.webdetails.cpf.repository.api.IReadAccess;
 
