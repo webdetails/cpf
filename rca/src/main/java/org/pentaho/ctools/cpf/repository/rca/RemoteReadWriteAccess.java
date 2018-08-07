@@ -34,15 +34,20 @@ public class RemoteReadWriteAccess extends RemoteReadAccess implements IRWAccess
     super( reposURL, username, password );
   }
 
+  public RemoteReadWriteAccess( String basePath, String reposURL, String username, String password ) {
+    super( basePath, reposURL, username, password );
+  }
+
   @Override
   public boolean saveFile( String path, InputStream contents ) {
+    String fullPath = buildPath( path );
     // split into folder and filename
-    int splitIndex = path.lastIndexOf( '/' );
-    String folder = splitIndex > 0 ? path.substring( 0, splitIndex ) : "/";
-    String filename = splitIndex > 0 ? path.substring( splitIndex + 1, path.length() ) : null;
+    int splitIndex = fullPath.lastIndexOf( '/' );
+    String folder = splitIndex > 0 ? fullPath.substring( 0, splitIndex ) : "/";
+    String filename = splitIndex > 0 ? fullPath.substring( splitIndex + 1, fullPath.length() ) : null;
 
     if ( filename == null || filename.isEmpty() ) {
-      throw new IllegalArgumentException( "Invalid path: " + path );
+      throw new IllegalArgumentException( "Invalid path: " + fullPath );
     }
 
     // this endpoint requires a different encoding for paths
@@ -65,7 +70,7 @@ public class RemoteReadWriteAccess extends RemoteReadAccess implements IRWAccess
     List<StringKeyStringValueDto> metadata = new ArrayList<>();
     metadata.add( hiddenMeta );
 
-    requestURL = createRequestURL( path, "metadata" );
+    requestURL = createRequestURL( fullPath, "metadata" );
     GenericEntity<List<StringKeyStringValueDto>> entity = new GenericEntity<List<StringKeyStringValueDto>>( metadata )
     {
     };
@@ -77,7 +82,7 @@ public class RemoteReadWriteAccess extends RemoteReadAccess implements IRWAccess
     if ( response.getStatus() == Response.Status.OK.getStatusCode() ) {
       return true;
     }
-    logger.error( "Failed to set _PERM_HIDDEN=false for: " + path );
+    logger.error( "Failed to set _PERM_HIDDEN=false for: " + fullPath );
     return false;
   }
 
@@ -98,10 +103,11 @@ public class RemoteReadWriteAccess extends RemoteReadAccess implements IRWAccess
 
   @Override
   public boolean deleteFile( String path ) {
-    String fileId = remoteFileId( path );
+    String fullPath = buildPath( path );
+    String fileId = remoteFileId( fullPath );
 
     if ( fileId == null ) {
-      logger.error( "Attempt to delete non-existing file: " + path );
+      logger.error( "Attempt to delete non-existing file: " + fullPath );
       return false;
     }
 
@@ -116,10 +122,11 @@ public class RemoteReadWriteAccess extends RemoteReadAccess implements IRWAccess
 
   @Override
   public boolean createFolder( String path ) {
-    String requestURL = createRequestURL( "/api/repo/dirs/", path, null );
+    String fullPath = buildPath( path );
+    String requestURL = createRequestURL( "/api/repo/dirs/", fullPath, null );
     Response response = client.target( requestURL )
         .request( MediaType.APPLICATION_XML )
-        .put( Entity.text( path ) );
+        .put( Entity.text( fullPath ) );
 
     //TODO: handle non-OK status codes? log? exception?
     return response.getStatus() == Response.Status.OK.getStatusCode();
@@ -127,12 +134,13 @@ public class RemoteReadWriteAccess extends RemoteReadAccess implements IRWAccess
 
   @Override
   public boolean createFolder( String path, boolean isHidden ) {
-    if ( createFolder( path ) ) {
+    String fullPath = buildPath( path );
+    if ( createFolder( fullPath ) ) {
       if ( isHidden ) {
         //NOTE: We only set the hidden flag on the last path component, while the "pentaho" implementation will
         //      set the hidden flag on all intermediate folders that were created.
         // TODO: revert directory creation on error???
-        return makeHidden( path );
+        return makeHidden( fullPath );
       }
       return true;
     }
@@ -159,7 +167,7 @@ public class RemoteReadWriteAccess extends RemoteReadAccess implements IRWAccess
     return response.getStatus() == Response.Status.OK.getStatusCode();
   }
 
-  String remoteFileId( String path ) {
+  private String remoteFileId( String path ) {
     String requestURL = createRequestURL( path, "properties" );
     RepositoryFileDto properties = client.target( requestURL )
         .request( MediaType.APPLICATION_XML )

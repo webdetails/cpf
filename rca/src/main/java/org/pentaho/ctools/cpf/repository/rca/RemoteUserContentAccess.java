@@ -35,6 +35,10 @@ public class RemoteUserContentAccess extends RemoteReadWriteAccess implements IU
     super( reposURL, username, password );
   }
 
+  public RemoteUserContentAccess( String basePath, String reposURL, String username, String password ) {
+    super( basePath, reposURL, username, password );
+  }
+
   @Override
   public boolean hasAccess( String filePath, FileAccess access ) {
     //TODO: dummy implementation
@@ -46,7 +50,9 @@ public class RemoteUserContentAccess extends RemoteReadWriteAccess implements IU
     try {
       if ( saveFile( file.getPath(), file.getContents() ) ) {
         if ( file.isHidden() ) {
-          return makeHidden( file.getPath() ) && updateProperties( file );
+          String path = file.getPath();
+          String fullPath = buildPath( path );
+          return makeHidden( fullPath ) && updateProperties( file );
         } else {
           return updateProperties( file );
         }
@@ -66,8 +72,9 @@ public class RemoteUserContentAccess extends RemoteReadWriteAccess implements IU
     GenericEntity<List<StringKeyStringValueDto>> entity = new GenericEntity<List<StringKeyStringValueDto>>( properties )
     {
     };
-
-    String requestURL = createRequestURL( "/api/repo/files/", file.getPath(), "localeProperties" );
+    String path = file.getPath();
+    String fullPath = buildPath( path );
+    String requestURL = createRequestURL( "/api/repo/files/", fullPath, "localeProperties" );
     Response response = client.target( requestURL )
       .queryParam( "locale", defaultLocale )
       .request( MediaType.APPLICATION_XML )

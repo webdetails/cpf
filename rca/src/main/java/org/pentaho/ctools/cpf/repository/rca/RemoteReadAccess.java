@@ -44,6 +44,8 @@ public class RemoteReadAccess implements IReadAccess {
   String reposURL;
   private static final String DEFAULT_PATH_SEPARATOR = "/";
 
+  protected String basePath = "/";
+
   public RemoteReadAccess( String reposURL, String username, String password ) {
     this.reposURL = reposURL;
     client = ClientBuilder.newClient()
@@ -65,10 +67,16 @@ public class RemoteReadAccess implements IReadAccess {
         .register( org.pentaho.ctools.cpf.repository.rca.ImportMessageBodyWriter.class );
   }
 
+  public RemoteReadAccess( String basePath, String reposURL, String username, String password ) {
+    this( reposURL, username, password );
+    this.basePath = ( basePath == null || basePath.isEmpty() ) ? DEFAULT_PATH_SEPARATOR : ( basePath.endsWith( DEFAULT_PATH_SEPARATOR ) ? basePath : basePath + DEFAULT_PATH_SEPARATOR );
+  }
+
   @Override
   public InputStream getFileInputStream( String path ) throws IOException {
     // download method used because it does the correct conversions for ktr/kjb files (see CDA-93)
-    String requestURL = createRequestURL( path, "download" );
+    String fullPath = buildPath( path );
+    String requestURL = createRequestURL( fullPath, "download" );
     InputStream responseData = client.target( requestURL )
         .queryParam( "withManifest", "false" )
         .request( MediaType.APPLICATION_OCTET_STREAM_TYPE )
@@ -79,7 +87,8 @@ public class RemoteReadAccess implements IReadAccess {
 
   @Override
   public boolean fileExists( String path ) {
-    String requestURL = createRequestURL( path, "properties" );
+    String fullPath = buildPath( path );
+    String requestURL = createRequestURL( fullPath, "properties" );
     RepositoryFileDto response = client.target( requestURL )
         .request( MediaType.APPLICATION_XML )
         .get( RepositoryFileDto.class );
@@ -88,7 +97,8 @@ public class RemoteReadAccess implements IReadAccess {
 
   @Override
   public long getLastModified( String path ) {
-    String requestURL = createRequestURL( path, "properties" );
+    String fullPath = buildPath( path );
+    String requestURL = createRequestURL( fullPath, "properties" );
     RepositoryFileDto response = client.target( requestURL )
         .request( MediaType.APPLICATION_XML )
         .get( RepositoryFileDto.class );
@@ -101,7 +111,8 @@ public class RemoteReadAccess implements IReadAccess {
 
   @Override
   public List<IBasicFile> listFiles( String path, IBasicFileFilter filter, int maxDepth, boolean includeDirs, boolean showHiddenFilesAndFolders ) {
-    String requestURL = createRequestURL( path, "tree" );
+    String fullPath = buildPath( path );
+    String requestURL = createRequestURL( fullPath, "tree" );
 
     WebTarget target = client.target( requestURL );
 
@@ -151,7 +162,8 @@ public class RemoteReadAccess implements IReadAccess {
 
   @Override
   public IBasicFile fetchFile( String path ) {
-    String requestURL = createRequestURL( path, "properties" );
+    String fullPath = buildPath( path );
+    String requestURL = createRequestURL( fullPath, "properties" );
     RepositoryFileDto response = client.target( requestURL )
         .request( MediaType.APPLICATION_XML )
         .get( RepositoryFileDto.class );
@@ -199,5 +211,20 @@ public class RemoteReadAccess implements IReadAccess {
     List<IBasicFile> flatList = new ArrayList<>();
     treeFlattenRecursive( tree, includeDirs, filter, flatList, queryPath );
     return flatList;
+  }
+
+  protected String buildPath( String path ) {
+    if ( path == null ) {
+      return this.basePath;
+    }
+
+    String fullPath = this.basePath;
+    if ( path.startsWith( DEFAULT_PATH_SEPARATOR ) ) {
+      fullPath += path.substring( 1 );
+    } else {
+      fullPath += path;
+    }
+
+    return fullPath; //TODO: normalize and guard against accessing above basePath
   }
 }
