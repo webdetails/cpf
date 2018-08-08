@@ -11,7 +11,7 @@
  * the license for the specific language governing your rights and limitations.
  */
 
-package pt.webdetails.cpf;
+package pt.webdetails.cpf.repository.rca;
 
 
 import org.pentaho.ctools.cpf.repository.rca.RemoteReadAccess;
@@ -23,7 +23,7 @@ import pt.webdetails.cpf.repository.api.IReadAccess;
 import pt.webdetails.cpf.repository.api.IRepositoryAccessFactory;
 import pt.webdetails.cpf.repository.util.RepositoryHelper;
 
-public class RemotePentahoPluginEnvironment implements IRepositoryAccessFactory {
+public class RemoteRepositoryAccessFactory implements IRepositoryAccessFactory {
 
   private final String USERNAME = System.getProperty( "repos.user" );
   private final String PASSWORD = System.getProperty( "repos.password" );
