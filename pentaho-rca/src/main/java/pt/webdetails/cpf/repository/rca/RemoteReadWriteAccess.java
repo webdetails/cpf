@@ -10,22 +10,22 @@
  * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. Please refer to
  * the license for the specific language governing your rights and limitations.
  */
-package org.pentaho.ctools.cpf.repository.rca;
 
+package pt.webdetails.cpf.repository.rca;
+
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.multipart.FormDataMultiPart;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringValueDto;
 import pt.webdetails.cpf.repository.api.IRWAccess;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class {@code RemoteReadWriteAccess} provides an implementation of {@code IRWAccess} via REST calls to the Pentaho Server.
@@ -49,7 +49,7 @@ public class RemoteReadWriteAccess extends RemoteReadAccess implements IRWAccess
     // split into folder and filename
     int splitIndex = fullPath.lastIndexOf( '/' );
     String folder = splitIndex > 0 ? fullPath.substring( 0, splitIndex ) : "/";
-    String filename = splitIndex > 0 ? fullPath.substring( splitIndex + 1, fullPath.length() ) : null;
+    String filename = splitIndex > 0 ? fullPath.substring( splitIndex + 1 ) : null;
 
     if ( filename == null || filename.isEmpty() ) {
       throw new IllegalArgumentException( "Invalid path: " + fullPath );
@@ -58,11 +58,17 @@ public class RemoteReadWriteAccess extends RemoteReadAccess implements IRWAccess
     // this endpoint requires a different encoding for paths
     String requestURL = createRequestURL( "/api/repo/files/import", "", null );
 
-    Response response = client.target( requestURL )
-        .request()
-        .post( Entity.entity( new ImportMessage( folder, filename, contents, true ), "multipart/form-data" ) );
+    FormDataMultiPart parts = new FormDataMultiPart();
+    parts.field( "importDir", folder );
+    parts.field( "fileUpload", contents, MediaType.MULTIPART_FORM_DATA_TYPE );
+    parts.field( "overwriteFile", "true" );
+    parts.field( "fileNameOverride", filename );
 
-    if ( response.getStatus() != Response.Status.OK.getStatusCode() ) {
+    ClientResponse response = client.resource( requestURL )
+      .type( MediaType.MULTIPART_FORM_DATA )
+      .post( ClientResponse.class, parts );
+
+    if ( response.getStatus() != ClientResponse.Status.OK.getStatusCode() ) {
       //TODO: handle non-OK status codes? log? exception?
       return false;
     }
@@ -76,15 +82,12 @@ public class RemoteReadWriteAccess extends RemoteReadAccess implements IRWAccess
     metadata.add( hiddenMeta );
 
     requestURL = createRequestURL( fullPath, "metadata" );
-    GenericEntity<List<StringKeyStringValueDto>> entity = new GenericEntity<List<StringKeyStringValueDto>>( metadata )
-    {
-    };
-    response = client.target( requestURL )
-        .request( MediaType.APPLICATION_XML )
-        .put( Entity.xml( entity ) );
+    response = client.resource( requestURL )
+      .type( MediaType.APPLICATION_XML )
+      .put( ClientResponse.class, metadata );
 
     // TODO: handle non-OK status codes? log? exceptions?
-    if ( response.getStatus() == Response.Status.OK.getStatusCode() ) {
+    if ( response.getStatus() == ClientResponse.Status.OK.getStatusCode() ) {
       return true;
     }
     logger.error( "Failed to set _PERM_HIDDEN=false for: " + fullPath );
@@ -117,24 +120,36 @@ public class RemoteReadWriteAccess extends RemoteReadAccess implements IRWAccess
     }
 
     String requestURL = createRequestURL( "", "delete" ); // TODO: delete or deletepermanent
-    Response response = client.target( requestURL )
-        .request( MediaType.APPLICATION_XML )
-        .put( Entity.text( fileId ) );
+    ClientResponse response = client.resource( requestURL )
+      .type( MediaType.APPLICATION_XML )
+      .put( ClientResponse.class, fileId );
 
     //TODO: handle non-OK status codes? log? exception?
-    return response.getStatus() == Response.Status.OK.getStatusCode();
+    return response.getStatus() == ClientResponse.Status.OK.getStatusCode();
+  }
+
+  private String remoteFileId( String path ) {
+    String requestURL = createRequestURL( path, "properties" );
+    RepositoryFileDto properties = client.resource( requestURL )
+      .type( MediaType.APPLICATION_XML )
+      .get( RepositoryFileDto.class );
+
+    if ( properties == null ) {
+      return null;
+    }
+    return properties.getId();
   }
 
   @Override
   public boolean createFolder( String path ) {
     String fullPath = buildPath( path );
     String requestURL = createRequestURL( "/api/repo/dirs/", fullPath, null );
-    Response response = client.target( requestURL )
-        .request( MediaType.APPLICATION_XML )
-        .put( Entity.text( fullPath ) );
+    ClientResponse response = client.resource( requestURL )
+      .type( MediaType.APPLICATION_XML )
+      .put( ClientResponse.class, fullPath );
 
     //TODO: handle non-OK status codes? log? exception?
-    return response.getStatus() == Response.Status.OK.getStatusCode();
+    return response.getStatus() == ClientResponse.Status.OK.getStatusCode();
   }
 
   @Override
@@ -161,26 +176,11 @@ public class RemoteReadWriteAccess extends RemoteReadAccess implements IRWAccess
     metadata.add( hiddenMeta );
 
     String requestURL = createRequestURL( path, "metadata" );
-    GenericEntity<List<StringKeyStringValueDto>> entity = new GenericEntity<List<StringKeyStringValueDto>>( metadata )
-    {
-    };
-    Response response = client.target( requestURL )
-      .request( MediaType.APPLICATION_XML )
-      .put( Entity.xml( entity ) );
+    ClientResponse response = client.resource( requestURL )
+      .type( MediaType.APPLICATION_XML )
+      .put( ClientResponse.class,  metadata );
 
     // TODO: handle non-OK status codes? log? exceptions?
-    return response.getStatus() == Response.Status.OK.getStatusCode();
-  }
-
-  private String remoteFileId( String path ) {
-    String requestURL = createRequestURL( path, "properties" );
-    RepositoryFileDto properties = client.target( requestURL )
-        .request( MediaType.APPLICATION_XML )
-        .get( RepositoryFileDto.class );
-
-    if ( properties == null ) {
-      return null; //TODO: exception? log?
-    }
-    return properties.getId();
+    return response.getStatus() == ClientResponse.Status.OK.getStatusCode();
   }
 }

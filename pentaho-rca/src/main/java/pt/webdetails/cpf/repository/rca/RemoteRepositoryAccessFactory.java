@@ -13,16 +13,20 @@
 
 package pt.webdetails.cpf.repository.rca;
 
-
-import org.pentaho.ctools.cpf.repository.rca.RemoteReadAccess;
-import org.pentaho.ctools.cpf.repository.rca.RemoteReadWriteAccess;
-import org.pentaho.ctools.cpf.repository.rca.RemoteUserContentAccess;
 import pt.webdetails.cpf.api.IUserContentAccessExtended;
 import pt.webdetails.cpf.repository.api.IRWAccess;
 import pt.webdetails.cpf.repository.api.IReadAccess;
 import pt.webdetails.cpf.repository.api.IRepositoryAccessFactory;
 import pt.webdetails.cpf.repository.util.RepositoryHelper;
 
+/**
+ * Class {@code RemoteRepositoryAccessFactory} provides an implementation of {@code IRepositoryAccessFactory} via REST calls to the Pentaho Server.
+ *
+ * @see IRepositoryAccessFactory
+ * @see IUserContentAccessExtended
+ * @see IReadAccess
+ * @see IRWAccess
+ */
 public class RemoteRepositoryAccessFactory implements IRepositoryAccessFactory {
 
   private final String USERNAME = System.getProperty( "repos.user" );
@@ -45,6 +49,4 @@ public class RemoteRepositoryAccessFactory implements IRepositoryAccessFactory {
     basePath = RepositoryHelper.appendPath( pluginRepositoryDir, basePath );
     return new RemoteReadWriteAccess( basePath, URI, USERNAME, PASSWORD );
   }
-
-
 }
