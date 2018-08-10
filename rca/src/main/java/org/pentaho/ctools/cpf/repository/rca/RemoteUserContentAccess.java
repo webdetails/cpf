@@ -14,6 +14,7 @@ package org.pentaho.ctools.cpf.repository.rca;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringValueDto;
 import pt.webdetails.cpf.api.IFileContent;
 import pt.webdetails.cpf.api.IUserContentAccessExtended;
@@ -41,8 +42,42 @@ public class RemoteUserContentAccess extends RemoteReadWriteAccess implements IU
 
   @Override
   public boolean hasAccess( String filePath, FileAccess access ) {
-    //TODO: dummy implementation
-    return fileExists( filePath );
+    String requestURL = createRequestURL( filePath, "canAccess" );
+
+    String response = null;
+    try {
+      response = client
+        .target( requestURL )
+        .queryParam( "permissions", encodeFileAccess( access ) )
+        .request( MediaType.APPLICATION_XML ).get( String.class );
+    } catch ( Exception ex ) {
+      logger.error( ex );
+      return false;
+    }
+
+    return response != null && Boolean.parseBoolean( response );
+  }
+
+  private int encodeFileAccess( FileAccess access ) {
+    int permission = RepositoryFilePermission.ALL.ordinal();
+
+    switch ( access ) {
+      case EXECUTE:
+      case READ: {
+        permission = RepositoryFilePermission.READ.ordinal();
+        break;
+      }
+      case WRITE: {
+        permission = RepositoryFilePermission.WRITE.ordinal();
+        break;
+      }
+      case DELETE: {
+        permission = RepositoryFilePermission.DELETE.ordinal();
+        break;
+      }
+    }
+
+    return permission;
   }
 
   @Override
