@@ -63,7 +63,7 @@ public class RemoteBasicFile implements IBasicFile {
       return path;
     }
     final int index = path.lastIndexOf( "." );
-    if ( index == -1 ) {
+    if ( index <= 0 ) {
       return "";
     }
     return path.substring( index + 1 );
