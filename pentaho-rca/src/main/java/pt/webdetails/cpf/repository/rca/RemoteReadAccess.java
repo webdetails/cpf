@@ -84,11 +84,11 @@ public class RemoteReadAccess implements IReadAccess {
     String fullPath = buildPath( path );
     String requestURL = createRequestURL( fullPath, "properties" );
 
-    RepositoryFileDto response = client.resource( requestURL )
+    ClientResponse clientResponse = client.resource( requestURL )
       .type( MediaType.APPLICATION_XML )
-      .get( RepositoryFileDto.class );
+      .get( ClientResponse.class );
 
-    return response != null;
+    return ( clientResponse != null && clientResponse.getStatus() == ClientResponse.Status.OK.getStatusCode() );
   }
 
   @Override
@@ -138,7 +138,7 @@ public class RemoteReadAccess implements IReadAccess {
       return null;
     }
 
-    return treeFlatten( response, includeDirs, filter, path );
+    return treeFlatten( response, includeDirs, filter, fullPath );
   }
 
   @Override
@@ -163,7 +163,7 @@ public class RemoteReadAccess implements IReadAccess {
     RepositoryFileDto response = client.resource( requestURL )
       .type( MediaType.APPLICATION_XML )
       .get( RepositoryFileDto.class );
-    return new RemoteBasicFile( this, response );
+    return new RemoteBasicFile( basePath, this, response );
   }
 
   static String encodePath( String path ) {
@@ -192,7 +192,7 @@ public class RemoteReadAccess implements IReadAccess {
   }
 
   private void treeFlattenRecursive(RepositoryFileTreeDto node, boolean includeDirs, IBasicFileFilter filter, List<IBasicFile> result, String queryPath ) {
-    IBasicFile file = new RemoteBasicFile( this, node.getFile() );
+    IBasicFile file = new RemoteBasicFile( basePath, this, node.getFile() );
 
     if ( ( includeDirs || !file.isDirectory() ) && !pathEquals( file.getFullPath(), queryPath ) && ( filter == null || filter.accept( file ) ) ) {
       result.add( file );

@@ -40,12 +40,14 @@ public class RemoteRepositoryAccessFactory implements IRepositoryAccessFactory {
 
   @Override
   public IReadAccess getPluginRepositoryReader( String pluginRepositoryDir, String basePath ) {
+    // credentials for this method should always be that of an administrator account!
     basePath = RepositoryHelper.appendPath( pluginRepositoryDir, basePath );
     return new RemoteReadAccess( basePath, URI, USERNAME, PASSWORD );
   }
 
   @Override
   public IRWAccess getPluginRepositoryWriter( String pluginRepositoryDir, String basePath ) {
+    // credentials for this method should always be that of an administrator account!
     basePath = RepositoryHelper.appendPath( pluginRepositoryDir, basePath );
     return new RemoteReadWriteAccess( basePath, URI, USERNAME, PASSWORD );
   }

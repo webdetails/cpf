@@ -22,10 +22,11 @@ import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringV
 import pt.webdetails.cpf.repository.api.IRWAccess;
 
 import javax.ws.rs.core.MediaType;
+import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Class {@code RemoteReadWriteAccess} provides an implementation of {@code IRWAccess} via REST calls to the Pentaho Server.
@@ -34,6 +35,7 @@ import java.util.List;
  */
 public class RemoteReadWriteAccess extends RemoteReadAccess implements IRWAccess {
   private static final Log logger = LogFactory.getLog( RemoteReadWriteAccess.class );
+  protected static final String METADATA_PERM_HIDDEN = "_PERM_HIDDEN";
 
   public RemoteReadWriteAccess( String reposURL, String username, String password ) {
     super( reposURL, username, password );
@@ -74,24 +76,7 @@ public class RemoteReadWriteAccess extends RemoteReadAccess implements IRWAccess
     }
 
     // make file not hidden
-    StringKeyStringValueDto hiddenMeta = new StringKeyStringValueDto();
-    hiddenMeta.setKey( "_PERM_HIDDEN" );
-    hiddenMeta.setValue( "false" );
-
-    List<StringKeyStringValueDto> metadata = new ArrayList<>();
-    metadata.add( hiddenMeta );
-
-    requestURL = createRequestURL( fullPath, "metadata" );
-    response = client.resource( requestURL )
-      .type( MediaType.APPLICATION_XML )
-      .put( ClientResponse.class, metadata );
-
-    // TODO: handle non-OK status codes? log? exceptions?
-    if ( response.getStatus() == ClientResponse.Status.OK.getStatusCode() ) {
-      return true;
-    }
-    logger.error( "Failed to set _PERM_HIDDEN=false for: " + fullPath );
-    return false;
+    return putMetadataProperty( fullPath, METADATA_PERM_HIDDEN, "false" );
   }
 
   @Override
@@ -160,27 +145,31 @@ public class RemoteReadWriteAccess extends RemoteReadAccess implements IRWAccess
         //NOTE: We only set the hidden flag on the last path component, while the "pentaho" implementation will
         //      set the hidden flag on all intermediate folders that were created.
         // TODO: revert directory creation on error???
-        return makeHidden( fullPath );
+        return putMetadataProperty( fullPath, METADATA_PERM_HIDDEN, "true" );
       }
       return true;
     }
     return false;
   }
 
-  protected boolean makeHidden( String path ) {
-    StringKeyStringValueDto hiddenMeta = new StringKeyStringValueDto();
-    hiddenMeta.setKey( "_PERM_HIDDEN" );
-    hiddenMeta.setValue( "true" );
+  protected boolean putMetadataProperty( String fullPath, String key, String value ) {
+    StringKeyStringValueDto metadataProperty = new StringKeyStringValueDto();
+    metadataProperty.setKey( key );
+    metadataProperty.setValue( value );
 
-    List<StringKeyStringValueDto> metadata = new ArrayList<>();
-    metadata.add( hiddenMeta );
+    ArrayList<StringKeyStringValueDto> metadata = new ArrayList<>();
+    metadata.add( metadataProperty );
 
-    String requestURL = createRequestURL( path, "metadata" );
+    String requestURL = createRequestURL( fullPath, "metadata" );
     ClientResponse response = client.resource( requestURL )
       .type( MediaType.APPLICATION_XML )
-      .put( ClientResponse.class,  metadata );
+      .put( ClientResponse.class, new JAXBElement<>( new QName( "stringKeyStringValueDtoes" ), ArrayList.class, metadata ) );
 
     // TODO: handle non-OK status codes? log? exceptions?
-    return response.getStatus() == ClientResponse.Status.OK.getStatusCode();
+    if ( response.getStatus() == ClientResponse.Status.OK.getStatusCode() ) {
+      return true;
+    }
+    logger.error( "Failed to set " + key + "=" + value + " for: " + fullPath );
+    return false;
   }
 }

@@ -15,6 +15,7 @@ package org.pentaho.ctools.cpf.repository.rca;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
 import pt.webdetails.cpf.repository.api.IBasicFile;
 import pt.webdetails.cpf.repository.api.IReadAccess;
+import pt.webdetails.cpf.repository.util.RepositoryHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,15 +28,17 @@ import java.io.InputStream;
 public class RemoteBasicFile implements IBasicFile {
   IReadAccess remote;
   RepositoryFileDto repositoryFile;
+  String relativePath;
 
-  public RemoteBasicFile( IReadAccess remote, RepositoryFileDto dto ) {
+  public RemoteBasicFile( String basePath, IReadAccess remote, RepositoryFileDto dto ) {
     this.remote = remote;
     repositoryFile = dto;
+    relativePath = RepositoryHelper.relativizePath( basePath, repositoryFile.getPath(), true );
   }
 
   @Override
   public InputStream getContents() throws IOException {
-    return remote.getFileInputStream( repositoryFile.getPath() );
+    return remote.getFileInputStream( getPath() );
   }
 
   @Override
@@ -45,12 +48,12 @@ public class RemoteBasicFile implements IBasicFile {
 
   @Override
   public String getFullPath() {
-    return repositoryFile.getPath(); // TODO: validate, do we need to append some basePath from UserContentAccess?
+    return repositoryFile.getPath();
   }
 
   @Override
   public String getPath() {
-    return repositoryFile.getPath();
+    return relativePath;
   }
 
   @Override

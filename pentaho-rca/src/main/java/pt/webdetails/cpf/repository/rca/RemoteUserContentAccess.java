@@ -23,6 +23,8 @@ import pt.webdetails.cpf.api.IUserContentAccessExtended;
 import pt.webdetails.cpf.repository.api.FileAccess;
 
 import javax.ws.rs.core.MediaType;
+import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +47,7 @@ public class RemoteUserContentAccess extends RemoteReadWriteAccess implements IU
         if ( file.isHidden() ) {
           String path = file.getPath();
           String fullPath = buildPath( path );
-          return makeHidden( fullPath ) && updateProperties( file );
+          return putMetadataProperty( fullPath, METADATA_PERM_HIDDEN, "true" ) && updateProperties( file );
         } else {
           return updateProperties( file );
         }
@@ -58,7 +60,7 @@ public class RemoteUserContentAccess extends RemoteReadWriteAccess implements IU
 
   private boolean updateProperties( IFileContent file ) {
     final String defaultLocale = "default"; // use default locale
-    List<StringKeyStringValueDto> properties = new ArrayList<>();
+    ArrayList<StringKeyStringValueDto> properties = new ArrayList<>();
     properties.add( new StringKeyStringValueDto( "file.title", file.getTitle() ) );
     properties.add( new StringKeyStringValueDto( "file.description", file.getDescription() ) );
 
@@ -69,7 +71,7 @@ public class RemoteUserContentAccess extends RemoteReadWriteAccess implements IU
     ClientResponse response = client.resource( requestURL )
       .queryParam( "locale", defaultLocale )
       .type( MediaType.APPLICATION_XML )
-      .put( ClientResponse.class, properties );
+      .put( ClientResponse.class, new JAXBElement<>( new QName( "stringKeyStringValueDtoes" ), ArrayList.class, properties  ) );
 
     //TODO: handle non-OK status codes? log? exception?
     return response.getStatus() == ClientResponse.Status.OK.getStatusCode();
