@@ -86,7 +86,7 @@ public class RemoteUserContentAccess extends RemoteReadWriteAccess implements IU
       response = client
         .resource( requestURL )
         .queryParam( "permissions", Integer.toString( encodeFileAccess( access ) ) )
-        .type( MediaType.APPLICATION_XML )
+        .type( MediaType.TEXT_PLAIN )
         .get( String.class );
     } catch ( Exception ex ) {
       logger.error( ex );
