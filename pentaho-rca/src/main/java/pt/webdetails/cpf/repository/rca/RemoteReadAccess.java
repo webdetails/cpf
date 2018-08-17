@@ -191,7 +191,7 @@ public class RemoteReadAccess implements IReadAccess {
     return path1.equals( path2 );
   }
 
-  private void treeFlattenRecursive(RepositoryFileTreeDto node, boolean includeDirs, IBasicFileFilter filter, List<IBasicFile> result, String queryPath ) {
+  private void treeFlattenRecursive( RepositoryFileTreeDto node, boolean includeDirs, IBasicFileFilter filter, List<IBasicFile> result, String queryPath ) {
     IBasicFile file = new RemoteBasicFile( basePath, this, node.getFile() );
 
     if ( ( includeDirs || !file.isDirectory() ) && !pathEquals( file.getFullPath(), queryPath ) && ( filter == null || filter.accept( file ) ) ) {

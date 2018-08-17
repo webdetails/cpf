@@ -27,7 +27,6 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 public class RemoteUserContentAccess extends RemoteReadWriteAccess implements IUserContentAccessExtended {
   private static final Log logger = LogFactory.getLog( RemoteReadWriteAccess.class );
@@ -41,7 +40,7 @@ public class RemoteUserContentAccess extends RemoteReadWriteAccess implements IU
   }
 
   @Override
-  public boolean saveFile(IFileContent file) {
+  public boolean saveFile( IFileContent file ) {
     try {
       if ( saveFile( file.getPath(), file.getContents() ) ) {
         if ( file.isHidden() ) {
@@ -78,7 +77,7 @@ public class RemoteUserContentAccess extends RemoteReadWriteAccess implements IU
   }
 
   @Override
-  public boolean hasAccess(String filePath, FileAccess access) {
+  public boolean hasAccess( String filePath, FileAccess access ) {
     String requestURL = createRequestURL( filePath, "canAccess" );
 
     String response = null;
