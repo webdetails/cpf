@@ -10,21 +10,22 @@
  * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. Please refer to
  * the license for the specific language governing your rights and limitations.
  */
-package org.pentaho.ctools.cpf.repository.rca;
 
+package pt.webdetails.cpf.repository.rca;
+
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.multipart.FormDataMultiPart;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringValueDto;
 import pt.webdetails.cpf.repository.api.IRWAccess;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 import java.util.ArrayList;
 
 /**
@@ -34,6 +35,7 @@ import java.util.ArrayList;
  */
 public class RemoteReadWriteAccess extends RemoteReadAccess implements IRWAccess {
   private static final Log logger = LogFactory.getLog( RemoteReadWriteAccess.class );
+  protected static final String METADATA_PERM_HIDDEN = "_PERM_HIDDEN";
 
   public RemoteReadWriteAccess( String reposURL, String username, String password ) {
     super( reposURL, username, password );
@@ -49,7 +51,7 @@ public class RemoteReadWriteAccess extends RemoteReadAccess implements IRWAccess
     // split into folder and filename
     int splitIndex = fullPath.lastIndexOf( '/' );
     String folder = splitIndex > 0 ? fullPath.substring( 0, splitIndex ) : "/";
-    String filename = splitIndex > 0 ? fullPath.substring( splitIndex + 1, fullPath.length() ) : null;
+    String filename = splitIndex > 0 ? fullPath.substring( splitIndex + 1 ) : null;
 
     if ( filename == null || filename.isEmpty() ) {
       throw new IllegalArgumentException( "Invalid path: " + fullPath );
@@ -58,37 +60,23 @@ public class RemoteReadWriteAccess extends RemoteReadAccess implements IRWAccess
     // this endpoint requires a different encoding for paths
     String requestURL = createRequestURL( "/api/repo/files/import", "", null );
 
-    Response response = client.target( requestURL )
-        .request()
-        .post( Entity.entity( new ImportMessage( folder, filename, contents, true ), "multipart/form-data" ) );
+    FormDataMultiPart parts = new FormDataMultiPart();
+    parts.field( "importDir", folder );
+    parts.field( "fileUpload", contents, MediaType.MULTIPART_FORM_DATA_TYPE );
+    parts.field( "overwriteFile", "true" );
+    parts.field( "fileNameOverride", filename );
 
-    if ( response.getStatus() != Response.Status.OK.getStatusCode() ) {
+    ClientResponse response = client.resource( requestURL )
+      .type( MediaType.MULTIPART_FORM_DATA )
+      .post( ClientResponse.class, parts );
+
+    if ( response.getStatus() != ClientResponse.Status.OK.getStatusCode() ) {
       //TODO: handle non-OK status codes? log? exception?
       return false;
     }
 
     // make file not hidden
-    StringKeyStringValueDto hiddenMeta = new StringKeyStringValueDto();
-    hiddenMeta.setKey( "_PERM_HIDDEN" );
-    hiddenMeta.setValue( "false" );
-
-    List<StringKeyStringValueDto> metadata = new ArrayList<>();
-    metadata.add( hiddenMeta );
-
-    requestURL = createRequestURL( fullPath, "metadata" );
-    GenericEntity<List<StringKeyStringValueDto>> entity = new GenericEntity<List<StringKeyStringValueDto>>( metadata )
-    {
-    };
-    response = client.target( requestURL )
-        .request( MediaType.APPLICATION_XML )
-        .put( Entity.xml( entity ) );
-
-    // TODO: handle non-OK status codes? log? exceptions?
-    if ( response.getStatus() == Response.Status.OK.getStatusCode() ) {
-      return true;
-    }
-    logger.error( "Failed to set _PERM_HIDDEN=false for: " + fullPath );
-    return false;
+    return putMetadataProperty( fullPath, METADATA_PERM_HIDDEN, "false" );
   }
 
   @Override
@@ -117,24 +105,36 @@ public class RemoteReadWriteAccess extends RemoteReadAccess implements IRWAccess
     }
 
     String requestURL = createRequestURL( "", "delete" ); // TODO: delete or deletepermanent
-    Response response = client.target( requestURL )
-        .request( MediaType.APPLICATION_XML )
-        .put( Entity.text( fileId ) );
+    ClientResponse response = client.resource( requestURL )
+      .type( MediaType.APPLICATION_XML )
+      .put( ClientResponse.class, fileId );
 
     //TODO: handle non-OK status codes? log? exception?
-    return response.getStatus() == Response.Status.OK.getStatusCode();
+    return response.getStatus() == ClientResponse.Status.OK.getStatusCode();
+  }
+
+  private String remoteFileId( String path ) {
+    String requestURL = createRequestURL( path, "properties" );
+    RepositoryFileDto properties = client.resource( requestURL )
+      .type( MediaType.APPLICATION_XML )
+      .get( RepositoryFileDto.class );
+
+    if ( properties == null ) {
+      return null;
+    }
+    return properties.getId();
   }
 
   @Override
   public boolean createFolder( String path ) {
     String fullPath = buildPath( path );
     String requestURL = createRequestURL( "/api/repo/dirs/", fullPath, null );
-    Response response = client.target( requestURL )
-        .request( MediaType.APPLICATION_XML )
-        .put( Entity.text( fullPath ) );
+    ClientResponse response = client.resource( requestURL )
+      .type( MediaType.APPLICATION_XML )
+      .put( ClientResponse.class, fullPath );
 
     //TODO: handle non-OK status codes? log? exception?
-    return response.getStatus() == Response.Status.OK.getStatusCode();
+    return response.getStatus() == ClientResponse.Status.OK.getStatusCode();
   }
 
   @Override
@@ -145,42 +145,31 @@ public class RemoteReadWriteAccess extends RemoteReadAccess implements IRWAccess
         //NOTE: We only set the hidden flag on the last path component, while the "pentaho" implementation will
         //      set the hidden flag on all intermediate folders that were created.
         // TODO: revert directory creation on error???
-        return makeHidden( fullPath );
+        return putMetadataProperty( fullPath, METADATA_PERM_HIDDEN, "true" );
       }
       return true;
     }
     return false;
   }
 
-  protected boolean makeHidden( String path ) {
-    StringKeyStringValueDto hiddenMeta = new StringKeyStringValueDto();
-    hiddenMeta.setKey( "_PERM_HIDDEN" );
-    hiddenMeta.setValue( "true" );
+  protected boolean putMetadataProperty( String fullPath, String key, String value ) {
+    StringKeyStringValueDto metadataProperty = new StringKeyStringValueDto();
+    metadataProperty.setKey( key );
+    metadataProperty.setValue( value );
 
-    List<StringKeyStringValueDto> metadata = new ArrayList<>();
-    metadata.add( hiddenMeta );
+    ArrayList<StringKeyStringValueDto> metadata = new ArrayList<>();
+    metadata.add( metadataProperty );
 
-    String requestURL = createRequestURL( path, "metadata" );
-    GenericEntity<List<StringKeyStringValueDto>> entity = new GenericEntity<List<StringKeyStringValueDto>>( metadata )
-    {
-    };
-    Response response = client.target( requestURL )
-      .request( MediaType.APPLICATION_XML )
-      .put( Entity.xml( entity ) );
+    String requestURL = createRequestURL( fullPath, "metadata" );
+    ClientResponse response = client.resource( requestURL )
+      .type( MediaType.APPLICATION_XML )
+      .put( ClientResponse.class, new JAXBElement<>( new QName( "stringKeyStringValueDtoes" ), ArrayList.class, metadata ) );
 
     // TODO: handle non-OK status codes? log? exceptions?
-    return response.getStatus() == Response.Status.OK.getStatusCode();
-  }
-
-  private String remoteFileId( String path ) {
-    String requestURL = createRequestURL( path, "properties" );
-    RepositoryFileDto properties = client.target( requestURL )
-        .request( MediaType.APPLICATION_XML )
-        .get( RepositoryFileDto.class );
-
-    if ( properties == null ) {
-      return null; //TODO: exception? log?
+    if ( response.getStatus() == ClientResponse.Status.OK.getStatusCode() ) {
+      return true;
     }
-    return properties.getId();
+    logger.error( "Failed to set " + key + "=" + value + " for: " + fullPath );
+    return false;
   }
 }

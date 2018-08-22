@@ -10,7 +10,7 @@
  * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. Please refer to
  * the license for the specific language governing your rights and limitations.
  */
-package org.pentaho.ctools.cpf.repository.rca;
+package pt.webdetails.cpf.repository.rca;
 
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
 import pt.webdetails.cpf.repository.api.IBasicFile;

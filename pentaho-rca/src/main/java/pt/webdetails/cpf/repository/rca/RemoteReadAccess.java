@@ -10,28 +10,31 @@
  * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. Please refer to
  * the license for the specific language governing your rights and limitations.
  */
-package org.pentaho.ctools.cpf.repository.rca;
+package pt.webdetails.cpf.repository.rca;
 
+import com.sun.jersey.api.json.JSONConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileTreeDto;
 import pt.webdetails.cpf.repository.api.IBasicFile;
 import pt.webdetails.cpf.repository.api.IBasicFileFilter;
 import pt.webdetails.cpf.repository.api.IReadAccess;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.ClientRequestFilter;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
+
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.config.ClientConfig;
+import com.sun.jersey.api.client.config.DefaultClientConfig;
+import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
+
+import javax.ws.rs.core.MediaType;
 
 /**
  * Class {@code RemoteReadAccess} provides an implementation of {@code IReadAccess} via REST calls to the Pentaho Server.
@@ -39,37 +42,24 @@ import java.util.List;
  * @see IReadAccess
  */
 public class RemoteReadAccess implements IReadAccess {
-  Client client;
+  public static final String URI_PATH_SEPARATOR = "/";
+  protected Client client;
   private static final Log logger = LogFactory.getLog( RemoteReadAccess.class );
   String reposURL;
-  private static final String DEFAULT_PATH_SEPARATOR = "/";
 
-  protected String basePath = "/";
+  protected String basePath = RepositoryFile.SEPARATOR;
 
   public RemoteReadAccess( String reposURL, String username, String password ) {
     this.reposURL = reposURL;
-    client = ClientBuilder.newClient()
-        // Register Authentication provider
-        .register( (ClientRequestFilter) requestContext -> {
-          byte[] passwordBytes = password.getBytes();
-
-          Charset CHARACTER_SET = Charset.forName( "iso-8859-1" );
-          final byte[] prefix = ( username + ":" ).getBytes( CHARACTER_SET );
-          final byte[] usernamePassword = new byte[ prefix.length + passwordBytes.length ];
-
-          System.arraycopy( prefix, 0, usernamePassword, 0, prefix.length );
-          System.arraycopy( passwordBytes, 0, usernamePassword, prefix.length, passwordBytes.length );
-
-          String authentication = "Basic " + new String( Base64.getEncoder().encode( usernamePassword ), "ASCII" );
-          requestContext.getHeaders().add( HttpHeaders.AUTHORIZATION, authentication );
-        } )
-        // Register ImportMessage MessageBodyWriter
-        .register( org.pentaho.ctools.cpf.repository.rca.ImportMessageBodyWriter.class );
+    ClientConfig clientConfig = new DefaultClientConfig();
+    clientConfig.getFeatures().put( JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE );
+    client = Client.create( clientConfig );
+    client.addFilter( new HTTPBasicAuthFilter( username, password ) );
   }
 
   public RemoteReadAccess( String basePath, String reposURL, String username, String password ) {
     this( reposURL, username, password );
-    this.basePath = ( basePath == null || basePath.isEmpty() ) ? DEFAULT_PATH_SEPARATOR : ( basePath.endsWith( DEFAULT_PATH_SEPARATOR ) ? basePath : basePath + DEFAULT_PATH_SEPARATOR );
+    this.basePath = ( basePath == null || basePath.isEmpty() ) ? RepositoryFile.SEPARATOR : ( basePath.endsWith( RepositoryFile.SEPARATOR ) ? basePath : basePath + RepositoryFile.SEPARATOR );
   }
 
   @Override
@@ -77,31 +67,37 @@ public class RemoteReadAccess implements IReadAccess {
     // download method used because it does the correct conversions for ktr/kjb files (see CDA-93)
     String fullPath = buildPath( path );
     String requestURL = createRequestURL( fullPath, "download" );
-    InputStream responseData = client.target( requestURL )
-        .queryParam( "withManifest", "false" )
-        .request( MediaType.APPLICATION_OCTET_STREAM_TYPE )
-        .get( InputStream.class );
 
-    return responseData;
+    ClientResponse clientResponse = client.resource( requestURL )
+      .queryParam( "withManifest", "false" )
+      .type( MediaType.APPLICATION_OCTET_STREAM_TYPE )
+      .get( ClientResponse.class );
+
+    if ( clientResponse != null && clientResponse.getStatus() == ClientResponse.Status.OK.getStatusCode() ) {
+      return clientResponse.getEntityInputStream();
+    }
+    return null;
   }
 
   @Override
   public boolean fileExists( String path ) {
     String fullPath = buildPath( path );
     String requestURL = createRequestURL( fullPath, "properties" );
-    RepositoryFileDto response = client.target( requestURL )
-        .request( MediaType.APPLICATION_XML )
-        .get( RepositoryFileDto.class );
-    return response != null;
+
+    ClientResponse clientResponse = client.resource( requestURL )
+      .type( MediaType.APPLICATION_XML )
+      .get( ClientResponse.class );
+
+    return ( clientResponse != null && clientResponse.getStatus() == ClientResponse.Status.OK.getStatusCode() );
   }
 
   @Override
   public long getLastModified( String path ) {
     String fullPath = buildPath( path );
     String requestURL = createRequestURL( fullPath, "properties" );
-    RepositoryFileDto response = client.target( requestURL )
-        .request( MediaType.APPLICATION_XML )
-        .get( RepositoryFileDto.class );
+    RepositoryFileDto response = client.resource( requestURL )
+      .type( MediaType.APPLICATION_XML )
+      .get( RepositoryFileDto.class );
 
     if ( response == null ) {
       return 0L;
@@ -114,15 +110,15 @@ public class RemoteReadAccess implements IReadAccess {
     String fullPath = buildPath( path );
     String requestURL = createRequestURL( fullPath, "tree" );
 
-    WebTarget target = client.target( requestURL );
+    WebResource resource = client.resource( requestURL );
 
     // apply query params
-    target = target.queryParam( "showHidden", showHiddenFilesAndFolders );
+    resource = resource.queryParam( "showHidden", Boolean.toString( showHiddenFilesAndFolders ) );
 
     if ( maxDepth >= 0 ) {
-      target = target.queryParam( "depth", maxDepth );
+      resource = resource.queryParam( "depth", Integer.toString( maxDepth ) );
     }
-    // TODO: legacy filters on the "tree" endpoint do not appear to work as expected
+    // NOTE: legacy filters on the "tree" endpoint do not appear to work as expected
     //       for now, we're going to do the filtering locally.
     /*
     if ( !includeDirs ) {
@@ -133,7 +129,7 @@ public class RemoteReadAccess implements IReadAccess {
     // GET
     RepositoryFileTreeDto response = null;
     try {
-      response = target.request( MediaType.APPLICATION_XML ).get( RepositoryFileTreeDto.class );
+      response = resource.type( MediaType.APPLICATION_XML ).get( RepositoryFileTreeDto.class );
     } catch ( Exception ex ) {
       logger.error( ex );
       return null;
@@ -164,14 +160,14 @@ public class RemoteReadAccess implements IReadAccess {
   public IBasicFile fetchFile( String path ) {
     String fullPath = buildPath( path );
     String requestURL = createRequestURL( fullPath, "properties" );
-    RepositoryFileDto response = client.target( requestURL )
-        .request( MediaType.APPLICATION_XML )
-        .get( RepositoryFileDto.class );
+    RepositoryFileDto response = client.resource( requestURL )
+      .type( MediaType.APPLICATION_XML )
+      .get( RepositoryFileDto.class );
     return new RemoteBasicFile( basePath, this, response );
   }
 
   static String encodePath( String path ) {
-    return path.replaceAll( "/", ":" );
+    return path.replaceAll( RepositoryFile.SEPARATOR, ":" );
   }
 
   String createRequestURL( String path, String method ) {
@@ -180,17 +176,17 @@ public class RemoteReadAccess implements IReadAccess {
 
   String createRequestURL( String endpoint, String path, String method ) {
     if ( method != null ) {
-      return reposURL + endpoint + encodePath( path ) + DEFAULT_PATH_SEPARATOR + method;
+      return reposURL + endpoint + encodePath( path ) + URI_PATH_SEPARATOR + method;
     }
     return reposURL + endpoint + encodePath( path );
   }
 
   private boolean pathEquals( String path1, String path2 ) {
-    if ( !path1.endsWith( DEFAULT_PATH_SEPARATOR ) ) {
-      path1 = path1 + DEFAULT_PATH_SEPARATOR;
+    if ( !path1.endsWith( RepositoryFile.SEPARATOR ) ) {
+      path1 = path1 + RepositoryFile.SEPARATOR;
     }
-    if ( !path2.endsWith( DEFAULT_PATH_SEPARATOR ) ) {
-      path2 = path2 + DEFAULT_PATH_SEPARATOR;
+    if ( !path2.endsWith( RepositoryFile.SEPARATOR ) ) {
+      path2 = path2 + RepositoryFile.SEPARATOR;
     }
     return path1.equals( path2 );
   }
@@ -219,7 +215,7 @@ public class RemoteReadAccess implements IReadAccess {
     }
 
     String fullPath = this.basePath;
-    if ( path.startsWith( DEFAULT_PATH_SEPARATOR ) ) {
+    if ( path.startsWith( RepositoryFile.SEPARATOR ) ) {
       fullPath += path.substring( 1 );
     } else {
       fullPath += path;

@@ -17,6 +17,7 @@
     <module>assemblies</module>
     <module>core</module>
     <module>pentaho</module>
+    <module>pentaho-rca</module>
     <module>osgi</module>
     <module>rca</module>
   </modules>

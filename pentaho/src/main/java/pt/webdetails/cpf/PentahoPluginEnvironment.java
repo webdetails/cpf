@@ -15,7 +15,6 @@ package pt.webdetails.cpf;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 
 import pt.webdetails.cpf.api.IContentAccessFactoryExtended;
 import pt.webdetails.cpf.api.IUserContentAccessExtended;
@@ -23,9 +22,8 @@ import pt.webdetails.cpf.context.api.IUrlProvider;
 import pt.webdetails.cpf.plugincall.api.IPluginCall;
 import pt.webdetails.cpf.repository.api.IRWAccess;
 import pt.webdetails.cpf.repository.api.IReadAccess;
-import pt.webdetails.cpf.repository.pentaho.unified.PluginRepositoryResourceAccess;
-import pt.webdetails.cpf.repository.pentaho.unified.UserContentRepositoryAccess;
-import pt.webdetails.cpf.repository.util.RepositoryHelper;
+import pt.webdetails.cpf.repository.api.IRepositoryAccessFactory;
+import pt.webdetails.cpf.repository.pentaho.unified.UnifiedRepositoryAccessFactory;
 
 //TODO: there must be another singleton
 public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment implements IContentAccessFactoryExtended {
@@ -33,6 +31,7 @@ public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment imple
   private static PentahoPluginEnvironment instance = new PentahoPluginEnvironment();
   private IUrlProvider pentahoUrlProvider;
   private static Log logger = LogFactory.getLog( PentahoPluginEnvironment.class );
+  private IRepositoryAccessFactory repositoryAccessFactory = new UnifiedRepositoryAccessFactory();
 
   static {
     PluginEnvironment.init( instance );
@@ -51,19 +50,17 @@ public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment imple
 
   @Override
   public IUserContentAccessExtended getUserContentAccess( String basePath ) {
-    return new UserContentRepositoryAccess( PentahoSessionHolder.getSession(), basePath );
+    return repositoryAccessFactory.getUserContentAccess( basePath );
   }
 
   @Override
   public IReadAccess getPluginRepositoryReader( String basePath ) {
-    basePath = RepositoryHelper.appendPath( getPluginRepositoryDir(), basePath );
-    return new PluginRepositoryResourceAccess( basePath );
+    return repositoryAccessFactory.getPluginRepositoryReader( getPluginRepositoryDir(), basePath );
   }
 
   @Override
   public IRWAccess getPluginRepositoryWriter( String basePath ) {
-    basePath = RepositoryHelper.appendPath( getPluginRepositoryDir(), basePath );
-    return new PluginRepositoryResourceAccess( basePath );
+    return repositoryAccessFactory.getPluginRepositoryWriter( getPluginRepositoryDir(), basePath );
   }
 
   @Override
@@ -77,6 +74,10 @@ public class PentahoPluginEnvironment extends PentahoBasePluginEnvironment imple
   @Override
   public IPluginCall getPluginCall( String pluginId, String servicePath, String method ) {
     return new InterPluginCall( new InterPluginCall.Plugin( pluginId ), servicePath, method );
+  }
+
+  public void setRepositoryAccessFactory( IRepositoryAccessFactory factory ) {
+    this.repositoryAccessFactory = factory;
   }
 
 }
