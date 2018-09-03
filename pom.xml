@@ -42,7 +42,8 @@
     <mondrian.version>${project.version}</mondrian.version>
     <log4j.version>1.2.16</log4j.version>
     <rhino.version>1.7R4</rhino.version>
-    <mockito-core.version>1.9.5</mockito-core.version>
+    <mockito.version>1.10.19</mockito.version>
+    <powermock.version>1.7.3</powermock.version>
     <commons-vfs.version>1.0</commons-vfs.version>
     <commons-httpclient.version>3.1</commons-httpclient.version>
     <commons-logging.version>1.1.1</commons-logging.version>
@@ -50,7 +51,6 @@
     <commons-collections.version>3.2.2</commons-collections.version>
     <commons-lang.version>2.6</commons-lang.version>
     <hsqldb.version>2.3.2</hsqldb.version>
-    <dom4j.version>1.6.1</dom4j.version>
     <servlet-api.version>3.0.1</servlet-api.version>
     <junit.version>4.12</junit.version>
     <osgi.version>4.3.1</osgi.version>
@@ -66,7 +66,6 @@
     <google-collections.version>1.0</google-collections.version>
     <jersey.version>1.19.1</jersey.version>
     <jcr.version>2.0</jcr.version>
-    <jaxen.version>1.1.6</jaxen.version>
     <karaf-maven-plugin.version>3.0.8</karaf-maven-plugin.version>
     <karaf-maven-plugin.aggregateFeatures>false</karaf-maven-plugin.aggregateFeatures>
   </properties>
@@ -92,11 +91,6 @@
         <groupId>commons-vfs</groupId>
         <artifactId>commons-vfs</artifactId>
         <version>${commons-vfs.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>dom4j</groupId>
-        <artifactId>dom4j</artifactId>
-        <version>${dom4j.version}</version>
       </dependency>
       <dependency>
         <groupId>log4j</groupId>
@@ -165,8 +159,32 @@
       </dependency>
       <dependency>
         <groupId>org.mockito</groupId>
+        <artifactId>mockito-all</artifactId>
+        <version>${mockito.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
-        <version>${mockito-core.version}</version>
+        <version>${mockito.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.powermock</groupId>
+        <artifactId>powermock-module-junit4</artifactId>
+        <version>${powermock.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.powermock</groupId>
+        <artifactId>powermock-core</artifactId>
+        <version>${powermock.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.powermock</groupId>
+        <artifactId>powermock-api-mockito</artifactId>
+        <version>${powermock.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -306,12 +324,6 @@
         <groupId>org.olap4j</groupId>
         <artifactId>olap4j</artifactId>
         <version>${olap4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>jaxen</groupId>
-        <artifactId>jaxen</artifactId>
-        <version>${jaxen.version}</version>
-        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>commons-collections</groupId>
