@@ -1,5 +1,5 @@
 /*!
-* Copyright 2002 - 2014 Webdetails, a Pentaho company.  All rights reserved.
+* Copyright 2002 - 2018 Webdetails, a Hitachi Vantara company.  All rights reserved.
 *
 * This software was developed by Webdetails and is provided under the terms
 * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -190,7 +190,7 @@ public class Plugin extends CorePlugin {
       if (hasSettingsXML()) {
         try {
           Node documentNode = XmlDom4JUtils.getDocumentFromFile(pluginDirAccess, SETTINGS_XML_FILENAME);
-          return documentNode.selectNodes("/settings" + xpath);
+          return (List<Element>) (List<?>) documentNode.selectNodes("/settings" + xpath);
         } catch (IOException e) {
           logger.error(e);
         }
