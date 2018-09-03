@@ -185,7 +185,7 @@ public class Plugin extends CorePlugin {
     if ( hasSettingsXML() ) {
       try {
         Node documentNode = XmlDom4JUtils.getDocumentFromFile( pluginDirAccess, SETTINGS_XML_FILENAME );
-        return documentNode.selectNodes( "/settings" + xpath );
+        return (List<Element>) (List<?>) documentNode.selectNodes( "/settings" + xpath );
       } catch ( IOException e ) {
         logger.error( e );
       }
