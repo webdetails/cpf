@@ -1,0 +1,49 @@
+/*!
+ * Copyright 2018 Webdetails, a Hitachi Vantara company.  All rights reserved.
+ *
+ * This software was developed by Webdetails and is provided under the terms
+ * of the Mozilla Public License, Version 2.0, or any later version. You may not use
+ * this file except in compliance with the license. If you need a copy of the license,
+ * please go to  http://mozilla.org/MPL/2.0/. The Initial Developer is Webdetails.
+ *
+ * Software distributed under the Mozilla Public License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or  implied. Please refer to
+ * the license for the specific language governing your rights and limitations.
+ */
+package pt.webdetails.cpf.repository.api;
+
+/**
+ * Extended Basic file info and its contents.
+ */
+public interface IBasicFileExtended extends IBasicFile {
+
+  /**
+   * @return the title of the file
+   */
+  String getTitle();
+
+  /**
+   * @return the create date of the file
+   */
+  String getCreatedDate();
+
+  /**
+   * @return the modified date of the file
+   */
+  String getLastModifiedDate();
+
+  /**
+   * @return the size of the file in bytes
+   */
+  long getFileSize();
+
+  /**
+   * @return the owner of the file
+   */
+  String getOwner();
+
+  /**
+   * @return the description of the file
+   */
+  String getDescription();
+}

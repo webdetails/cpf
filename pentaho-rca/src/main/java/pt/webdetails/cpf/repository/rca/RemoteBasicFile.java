@@ -13,7 +13,7 @@
 package pt.webdetails.cpf.repository.rca;
 
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
-import pt.webdetails.cpf.repository.api.IBasicFile;
+import pt.webdetails.cpf.repository.api.IBasicFileExtended;
 import pt.webdetails.cpf.repository.api.IReadAccess;
 import pt.webdetails.cpf.repository.util.RepositoryHelper;
 
@@ -21,11 +21,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Class {@code RemoteBasicFile} implements the {@code IBasicFile} interface for a remote repository file.
+ * Class {@code RemoteBasicFile} implements the {@code IBasicFileExtended} interface for a remote repository file.
  *
- * @see IBasicFile
+ * @see IBasicFileExtended
  */
-public class RemoteBasicFile implements IBasicFile {
+public class RemoteBasicFile implements IBasicFileExtended {
   IReadAccess remote;
   RepositoryFileDto repositoryFile;
   String relativePath;
@@ -72,5 +72,35 @@ public class RemoteBasicFile implements IBasicFile {
   @Override
   public boolean isDirectory() {
     return repositoryFile.isFolder();
+  }
+
+  @Override
+  public String getTitle() {
+    return repositoryFile.getTitle();
+  }
+
+  @Override
+  public String getCreatedDate() {
+    return repositoryFile.getCreatedDate();
+  }
+
+  @Override
+  public String getLastModifiedDate() {
+    return repositoryFile.getLastModifiedDate();
+  }
+
+  @Override
+  public long getFileSize() {
+    return repositoryFile.getFileSize();
+  }
+
+  @Override
+  public String getOwner() {
+    return repositoryFile.getOwner();
+  }
+
+  @Override
+  public String getDescription() {
+    return repositoryFile.getDescription();
   }
 }
