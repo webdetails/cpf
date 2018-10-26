@@ -1,5 +1,5 @@
 /*!
-* Copyright 2002 - 2017 Webdetails, a Hitachi Vantara company.  All rights reserved.
+* Copyright 2002 - 2018 Webdetails, a Hitachi Vantara company.  All rights reserved.
 * 
 * This software was developed by Webdetails and is provided under the terms
 * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -27,8 +27,9 @@ import pt.webdetails.cpf.utils.XmlParserFactoryProducer;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -135,22 +136,13 @@ public class PluginSettings {
 
   @SuppressWarnings( "unchecked" )
   protected List<Element> getSettingsXmlSection( String section ) {
-    return settings.selectNodes( "/settings/" + section );
+    return (List<Element>) (List<?>) settings.selectNodes( "/settings/" + section );
   }
 
   /**
    * where is this used??
    */
   public List<String> getTagValue( String tag ) {
-    List<Element> pathElements = getSettingsXmlSection( tag );
-    if ( pathElements != null ) {
-      ArrayList<String> solutionPaths = new ArrayList<String>( pathElements.size() );
-      for ( Element pathElement : pathElements ) {
-        solutionPaths.add( pathElement.getText() );
-      }
-      return solutionPaths;
-    }
-    return new ArrayList<String>( 0 );
+    return getSettingsXmlSection( tag ).stream().map( element -> element.getText() ).collect( toList() );
   }
-
 }
