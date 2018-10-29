@@ -11,7 +11,6 @@
   <version>7.1-SNAPSHOT</version>
   <properties>
     <dependency.orientdb.revision>1.5.0</dependency.orientdb.revision>
-    <dependency.jaxen.revision>1.1.1</dependency.jaxen.revision>
     <dependency.bi-platform.revision>7.1-SNAPSHOT</dependency.bi-platform.revision>
     <dependency.olap4j.revision>1.2.0</dependency.olap4j.revision>
     <dependency.mondrian.revision>3.14-SNAPSHOT</dependency.mondrian.revision>
@@ -100,7 +99,7 @@
       <artifactId>commons-lang</artifactId>
     </dependency>
     <dependency>
-      <groupId>dom4j</groupId>
+      <groupId>org.dom4j</groupId>
       <artifactId>dom4j</artifactId>
     </dependency>
     <dependency>
@@ -219,7 +218,6 @@
     <dependency>
       <groupId>jaxen</groupId>
       <artifactId>jaxen</artifactId>
-      <version>${dependency.jaxen.revision}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -279,6 +277,22 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-module-junit4</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-api-mockito</artifactId>
     </dependency>
   </dependencies>
 </project>
