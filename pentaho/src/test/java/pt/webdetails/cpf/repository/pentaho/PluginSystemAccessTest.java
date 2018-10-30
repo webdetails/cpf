@@ -90,7 +90,9 @@ public class PluginSystemAccessTest extends TestCase {
     final String contents = "badum";
     final String newFile = "stuff/bogus.txt";
     assertTrue( rw.saveFile( newFile, IOUtils.toInputStream( contents ) ) );
-    assertEquals( contents, IOUtils.toString( rw.getFileInputStream( newFile ) ) );
+    InputStream rwStream =  rw.getFileInputStream( newFile );
+    assertEquals( contents, IOUtils.toString( rwStream ) );
+    rwStream.close();
     assertTrue( rw.deleteFile( newFile ) );
     assertFalse( rw.fileExists( newFile ) );
   }
