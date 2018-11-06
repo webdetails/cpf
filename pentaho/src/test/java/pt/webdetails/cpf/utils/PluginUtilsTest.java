@@ -1,5 +1,5 @@
 /*!
-* Copyright 2002 - 2017 Webdetails, a Hitachi Vantara company.  All rights reserved.
+* Copyright 2002 - 2018 Webdetails, a Hitachi Vantara company.  All rights reserved.
 *
 * This software was developed by Webdetails and is provided under the terms
 * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -15,29 +15,21 @@ package pt.webdetails.cpf.utils;
 
 import junit.framework.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import pt.webdetails.cpf.AbstractPluginSystemTest;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Collection;
 
-public class PluginUtilsTest {
+public class PluginUtilsTest extends AbstractPluginSystemTest {
 
-  private static PluginUtils pluginUtils;
-  private static final String USER_DIR = System.getProperty( "user.dir" );
-  private static final String PLUGIN_NAME = "bogusPlugin";
-  private static final String PLUGIN_DIR = USER_DIR + "/src/test/resources/repo/system/bogusPlugin";
-
-
-  @BeforeClass
-  public static void setUp() {
-    pluginUtils = new PluginUtilsForTesting( PLUGIN_NAME, PLUGIN_DIR );
-  }
+  private PluginUtils pluginUtils;
 
   @Before
   public void beforeEachTest() {
-
+    /* parent class initializes the content of PLUGIN_DIR and PLUGIN_NAME */
+    pluginUtils = new PluginUtilsForTesting( PLUGIN_NAME, PLUGIN_DIR );
   }
 
   @Test
@@ -49,10 +41,9 @@ public class PluginUtilsTest {
     String pluginRelDirWithEncodedSpaces =
       pluginUtils.getPluginRelativeDirectory( PLUGIN_DIR + "/resources/dir%20with%20spaces/bogus.txt", true );
 
-    Assert.assertTrue( pluginRelDir.equals( "/bogusPlugin/resources/stuff/" ) );
-    Assert.assertTrue( pluginRelDirWithSpaces.equals( "/bogusPlugin/resources/dir with spaces/" ) );
-    Assert.assertTrue( pluginRelDirWithEncodedSpaces.equals( "/bogusPlugin/resources/dir with spaces/" ) );
-
+    assertPathEquals( "/bogusPlugin/resources/stuff/", pluginRelDir );
+    assertPathEquals( "/bogusPlugin/resources/dir with spaces/", pluginRelDirWithSpaces );
+    assertPathEquals( "/bogusPlugin/resources/dir with spaces/", pluginRelDirWithEncodedSpaces );
   }
 
   @Test
