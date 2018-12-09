@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.pentaho</groupId>
     <artifactId>pentaho-ce-bundle-parent-pom</artifactId>
-    <version>9.0.0.0-SNAPSHOT</version>
+    <version>8.3.0.0-SNAPSHOT</version>
   </parent>
 
   <groupId>pentaho</groupId>
@@ -39,9 +39,9 @@
   <properties>
     <springframework.version>4.3.2.RELEASE</springframework.version>
     <springsecurity.version>4.1.3.RELEASE</springsecurity.version>
-    <pentaho-json.version>9.0.0.0-SNAPSHOT</pentaho-json.version>
-    <platform.version>9.0.0.0-SNAPSHOT</platform.version>
-    <mondrian.version>9.0.0.0-SNAPSHOT</mondrian.version>
+    <pentaho-json.version>8.3.0.0-SNAPSHOT</pentaho-json.version>
+    <platform.version>8.3.0.0-SNAPSHOT</platform.version>
+    <mondrian.version>8.3.0.0-SNAPSHOT</mondrian.version>
     <log4j.version>1.2.16</log4j.version>
     <rhino.version>1.7R4</rhino.version>
     <mockito.version>1.10.19</mockito.version>
