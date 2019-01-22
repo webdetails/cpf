@@ -1,5 +1,5 @@
 /*!
- * Copyright 2002 - 2017 Webdetails, a Hitachi Vantara company. All rights reserved.
+ * Copyright 2002 - 2019 Webdetails, a Hitachi Vantara company. All rights reserved.
  *
  * This software was developed by Webdetails and is provided under the terms
  * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -13,37 +13,6 @@
 
 package pt.webdetails.cpf.persistence;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import org.pentaho.platform.api.engine.IParameterProvider;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-
-
-import pt.webdetails.cpf.CpfProperties;
-import pt.webdetails.cpf.InvalidOperationException;
-import pt.webdetails.cpf.Util;
-import pt.webdetails.cpf.session.PentahoSessionUtils;
-import pt.webdetails.cpf.utils.CharsetHelper;
-
-
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentPool;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -54,13 +23,39 @@ import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.OServerMain;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.pentaho.platform.api.engine.IParameterProvider;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import pt.webdetails.cpf.CpfProperties;
+import pt.webdetails.cpf.InvalidOperationException;
+import pt.webdetails.cpf.Util;
+import pt.webdetails.cpf.session.PentahoSessionUtils;
+import pt.webdetails.cpf.utils.CharsetHelper;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
 
 public class PersistenceEngine implements IPersistenceEngine {
 
   private static final Log logger = LogFactory.getLog( PersistenceEngine.class );
   private static final CpfProperties SETTINGS = CpfProperties.getInstance();
   private static final int JSON_INDENT = 2;
-  private static PersistenceEngine _instance;
+  private static final PersistenceEngine _instance = new PersistenceEngine();
   private OServer server;
 
   protected PersistenceEngine() {
@@ -73,10 +68,7 @@ public class PersistenceEngine implements IPersistenceEngine {
 
   }
 
-  public static synchronized PersistenceEngine getInstance() {
-    if ( _instance == null ) {
-      _instance = new PersistenceEngine();
-    }
+  public static PersistenceEngine getInstance() {
     return _instance;
   }
 
