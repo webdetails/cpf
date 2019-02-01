@@ -1,5 +1,5 @@
 /*!
-* Copyright 2002 - 2017 Webdetails, a Hitachi Vantara company.  All rights reserved.
+* Copyright 2002 - 2019 Webdetails, a Hitachi Vantara company.  All rights reserved.
 *
 * This software was developed by Webdetails and is provided under the terms
 * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -13,21 +13,15 @@
 
 package pt.webdetails.cpf.olap;
 
-import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import java.io.IOException;
-
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import javax.ws.rs.core.Response;
 
 import org.json.JSONException;
 
@@ -38,55 +32,53 @@ public class OlapApi {
   @GET
   @Path( "/getCubes" )
   @Produces( "text/javascript" )
-  public void getCubes( @Context HttpServletResponse response ) throws IOException, JSONException {
+  public Response getCubes( ) throws JSONException {
     OlapUtils olapUtils = new OlapUtils();
     JSONObject result = olapUtils.getOlapCubes();
-    buildJsonResult( response.getOutputStream(), result != null, result );
+    return buildJsonResult( result != null, result );
   }
 
   @GET
   @Path( "/getCubeStructure" )
   @Produces( "text/javascript" )
-  public void getCubeStructure( @QueryParam( MethodParams.CATALOG ) String catalog,
+  public Response getCubeStructure( @QueryParam( MethodParams.CATALOG ) String catalog,
       @QueryParam( MethodParams.CUBE ) String cube,
-      @QueryParam( MethodParams.JNDI ) String jndi,
-      @Context HttpServletResponse response ) throws IOException, JSONException {
+      @QueryParam( MethodParams.JNDI ) String jndi )
+      throws JSONException {
     OlapUtils olapUtils = new OlapUtils();
     JSONObject result = olapUtils.getCubeStructure( catalog, cube, jndi );
-    buildJsonResult( response.getOutputStream(), result != null, result );
+    return buildJsonResult( result != null, result );
   }
 
   @GET
   @Path( "/getLevelMembersStructure" )
   @Produces( "text/javascript" )
-  public void getLevelMembersStructure( @QueryParam( MethodParams.CATALOG ) String catalog,
+  public Response getLevelMembersStructure( @QueryParam( MethodParams.CATALOG ) String catalog,
       @QueryParam( MethodParams.CUBE ) String cube,
       @QueryParam( MethodParams.MEMBER ) String member,
-      @QueryParam( MethodParams.DIRECTION ) String direction,
-      @Context HttpServletResponse response )
-      throws IOException, JSONException {
+      @QueryParam( MethodParams.DIRECTION ) String direction )
+      throws JSONException {
     OlapUtils olapUtils = new OlapUtils();
     JSONObject result = olapUtils.getLevelMembersStructure( catalog, cube, member, direction );
-    buildJsonResult( response.getOutputStream(), result != null, result );
+    return buildJsonResult( result != null, result );
   }
 
   @GET
   @Path( "/getPaginatedLevelMembers" )
   @Produces( "text/javascript" )
-  public void getPaginatedLevelMembers( @QueryParam( MethodParams.CATALOG ) String catalog,
+  public Response getPaginatedLevelMembers( @QueryParam( MethodParams.CATALOG ) String catalog,
       @QueryParam( MethodParams.CUBE ) String cube,
       @QueryParam( MethodParams.LEVEL ) String level,
       @QueryParam( MethodParams.START_MEMBER ) String startMember,
       @QueryParam( MethodParams.CONTEXT ) String context,
       @QueryParam( MethodParams.SEARCH_TERM ) String searchTerm,
       @QueryParam( MethodParams.PAGE_SIZE ) long pageSize,
-      @QueryParam( MethodParams.PAGE_START ) long pageStart,
-      @Context HttpServletResponse response ) throws IOException, JSONException {
+      @QueryParam( MethodParams.PAGE_START ) long pageStart )
+      throws JSONException {
     OlapUtils olapUtils = new OlapUtils();
     JSONObject result = olapUtils
         .getPaginatedLevelMembers( catalog, cube, level, startMember, context, searchTerm, pageSize, pageStart );
-    buildJsonResult( response.getOutputStream(), result != null, result );
-
+    return buildJsonResult( result != null, result );
   }
 
   private class MethodParams {
@@ -103,22 +95,14 @@ public class OlapApi {
     public static final String PAGE_START = "pageStart";
   }
 
-  private void buildJsonResult( OutputStream out, Boolean sucess, Object result ) throws JSONException {
+  private Response buildJsonResult( Boolean success, Object result ) throws JSONException {
     JSONObject jsonResult = new JSONObject();
 
-    jsonResult.put( "status", sucess.toString() );
+    jsonResult.put( "status", success.toString() );
     if ( result != null ) {
       jsonResult.put( "result", result );
     }
-    PrintWriter pw = null;
-    try {
-      pw = new PrintWriter( out );
-      pw.print( jsonResult.toString( 2 ) );
-      pw.flush();
-    } finally {
-      IOUtils.closeQuietly( pw );
-    }
 
+    return Response.ok( jsonResult.toString( 2 ), "text/javascript" ).build();
   }
-
 }
