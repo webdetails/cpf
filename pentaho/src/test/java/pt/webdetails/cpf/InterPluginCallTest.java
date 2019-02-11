@@ -63,13 +63,10 @@ public class InterPluginCallTest {
     public Response testMethodReturningResponseToStringNotOverridden() {
       return Response.ok( new AnyObjectWithToStringNotOverridden() ).build();
     }
-    public void testMethodWritingHttpServletResponse( @Context HttpServletResponse response ) {
+    public void testMethodWritingHttpServletResponse( @Context HttpServletResponse response ) throws IOException {
       if ( response != null ) {
-        try {
-          response.getOutputStream().write( TEST_RESULT_STRING.getBytes() );
-          response.getOutputStream().flush();
-        } catch ( IOException ex ) {
-        }
+        response.getOutputStream().write( TEST_RESULT_STRING.getBytes() );
+        response.getOutputStream().flush();
       }
     }
     public String testMethodReturningString() {
