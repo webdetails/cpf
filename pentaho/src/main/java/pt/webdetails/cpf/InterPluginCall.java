@@ -1,5 +1,5 @@
 /*!
-* Copyright 2002 - 2018 Webdetails, a Hitachi Vantara company. All rights reserved.
+* Copyright 2002 - 2019 Webdetails, a Hitachi Vantara company. All rights reserved.
 *
 * This software was developed by Webdetails and is provided under the terms
 * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -15,7 +15,6 @@ package pt.webdetails.cpf;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -61,19 +61,17 @@ public class InterPluginCall implements Runnable, Callable<String>, IPluginCall 
 
   @Override
   public String call( Map<String, String[]> params ) {
-    for ( String key : params.keySet() ) {
-      requestParameters.put( key, params.get( key ) );
+    for ( Map.Entry<String, String[]> entry : params.entrySet() ) {
+      requestParameters.put( entry.getKey(), entry.getValue() );
     }
-
     return call();
   }
 
   @Override
   public void run( Map<String, String[]> params ) {
-    for ( String key : params.keySet() ) {
-      requestParameters.put( key, params.get( key ) );
+    for ( Map.Entry<String, String[]> entry : params.entrySet() ) {
+      requestParameters.put( entry.getKey(), entry.getValue() );
     }
-
     run();
   }
 
@@ -83,10 +81,11 @@ public class InterPluginCall implements Runnable, Callable<String>, IPluginCall 
   }
 
   /**
+   * @deprecated (
    * Deprecated<br /> 
    * This simply calls new method 'exists()';<br />
    * This was the method name used in cpf-pentaho 4.x;<br />
-   * Useful for blocks of code in core or pentaho-base, where method name must remain the same.
+   * Useful for blocks of code in core or pentaho-base, where method name must remain the same.)
    */
   @Deprecated
   public boolean pluginExists() {
@@ -179,6 +178,10 @@ public class InterPluginCall implements Runnable, Callable<String>, IPluginCall 
     return this;
   }
 
+  public String getService() {
+    return this.service;
+  }
+
   private Object getBeanObject() {
     final String pluginName = plugin.getName();
 
@@ -219,7 +222,7 @@ public class InterPluginCall implements Runnable, Callable<String>, IPluginCall 
   // There are some issues to be resolved in InterPluginCall
   //
   // ONE: that is very bug prone is the reflection analysis to get de method to invoke, if there are two methods
-  // with same name but invocation signatures different the first one is chooses
+  // with same name but invocation signatures different the first one is chosen
   //
   // TWO: we are only reading annotated params so if we try to call a method with no annotated params but with params
   // those params are not passed to the invoked method.
@@ -227,183 +230,194 @@ public class InterPluginCall implements Runnable, Callable<String>, IPluginCall 
     Object bean = getBeanObject();
     Method operation = getBeanMethod( bean );
 
-    Annotation[][] params = operation.getParameterAnnotations();
-    Class<?>[] paramTypes = operation.getParameterTypes();
+    if ( operation != null ) {
 
-    List<Object> parameters = new ArrayList<>();
+      Annotation[][] params = operation.getParameterAnnotations();
+      Class<?>[] paramTypes = operation.getParameterTypes();
 
-    for ( int i = 0; i < params.length; i++ ) {
-      String paramName = "";
-      String paramDefaultValue = "";
+      List<Object> parameters = new ArrayList<>();
 
-      for ( Annotation annotation : params[i] ) {
-        String annotationClass = annotation.annotationType().getName();
+      for ( int i = 0; i < params.length; i++ ) {
+        String paramName = "";
+        String paramDefaultValue = "";
 
-        if ( "javax.ws.rs.QueryParam".equals( annotationClass ) ) {
-          QueryParam param = (QueryParam) annotation;
-          paramName = param.value();
-        } else if ( "javax.ws.rs.DefaultValue".equals( annotationClass ) ) {
-          DefaultValue param = (DefaultValue) annotation;
-          paramDefaultValue = param.value();
-        } else if ( "javax.ws.rs.core.Context".equals( annotationClass ) ) {
-          if ( paramTypes[i] == HttpServletRequest.class ) {
+        for ( Annotation annotation : params[i] ) {
+          String annotationClass = annotation.annotationType().getName();
 
-            CpfHttpServletRequest cpfRequest = (CpfHttpServletRequest) getRequest();
-            for ( Map.Entry<String, Object> entry : requestParameters.entrySet() ) {
-              String key = entry.getKey();
+          if ( "javax.ws.rs.QueryParam".equals( annotationClass ) ) {
+            QueryParam param = (QueryParam) annotation;
+            paramName = param.value();
+          } else if ( "javax.ws.rs.DefaultValue".equals( annotationClass ) ) {
+            DefaultValue param = (DefaultValue) annotation;
+            paramDefaultValue = param.value();
+          } else if ( "javax.ws.rs.core.Context".equals( annotationClass ) ) {
+            if ( paramTypes[i] == HttpServletRequest.class ) {
 
-              Object paramValue = entry.getValue();
-              if ( paramValue instanceof String[] ) {
-                String[] lValues = (String[]) paramValue;
-                if ( lValues.length == 1 ) {
-                  cpfRequest.setParameter( key, lValues[0] );
-                } else {
-                  cpfRequest.setParameter( key, lValues );
+              CpfHttpServletRequest cpfRequest = (CpfHttpServletRequest) getRequest();
+              for ( Map.Entry<String, Object> entry : requestParameters.entrySet() ) {
+                String key = entry.getKey();
+
+                Object paramValue = entry.getValue();
+                if ( paramValue instanceof String[] ) {
+                  String[] lValues = (String[]) paramValue;
+                  if ( lValues.length == 1 ) {
+                    cpfRequest.setParameter( key, lValues[0] );
+                  } else {
+                    cpfRequest.setParameter( key, lValues );
+                  }
+
+                } else if ( paramValue != null ) {
+                  cpfRequest.setParameter( key, paramValue.toString() );
                 }
+              }
 
-              } else if ( paramValue != null ) {
-                cpfRequest.setParameter( key, paramValue.toString() );
+              parameters.add( (HttpServletRequest) cpfRequest );
+
+            } else if ( paramTypes[i] == HttpServletResponse.class ) {
+              HttpServletResponse localResponse = (HttpServletResponse) getParameterProviders().get( "path" )
+                .getParameter( "httpresponse" );
+
+              if ( localResponse == null ) {
+                localResponse = getResponse();
+              }
+
+              parameters.add( localResponse );
+            }
+          }
+        }
+
+        if ( requestParameters.containsKey( paramName ) ) {
+          Object paramValue = requestParameters.get( paramName );
+          if ( paramTypes[i] == int.class ) {
+            if ( paramValue instanceof String[] ) {
+              String[] lValues = (String[]) paramValue;
+              if ( lValues.length > 0 ) {
+                paramValue = lValues[0];
+              } else {
+                paramValue = null;
               }
             }
 
-            parameters.add( (HttpServletRequest) cpfRequest );
+            int val = Integer.parseInt( (String) paramValue );
+            parameters.add( val );
 
-          } else if ( paramTypes[i] == HttpServletResponse.class ) {
-            HttpServletResponse response = (HttpServletResponse) getParameterProviders().get( "path" )
-              .getParameter( "httpresponse" );
+          } else if ( paramTypes[i] == java.lang.Boolean.class || paramTypes[i] == boolean.class ) {
 
-            if ( response == null ) {
-              response = getResponse();
+            if ( paramValue instanceof String[] ) {
+              String[] lValues = (String[]) paramValue;
+              if ( lValues.length > 0 ) {
+                paramValue = lValues[0];
+              } else {
+                paramValue = null;
+              }
             }
 
-            parameters.add( response );
+            boolean val = Boolean.parseBoolean( (String) paramValue );
+            parameters.add( val );
+
+          } else if ( paramTypes[i] == java.util.List.class ) {
+            List<String> list = new ArrayList<>();
+
+            String[] splittedValues;
+            if ( paramValue instanceof String[] ) {
+              splittedValues = (String[]) paramValue;
+            } else {
+              splittedValues = ( (String) paramValue ).split( "," );
+            }
+
+
+            for ( String s : splittedValues ) {
+              list.add( s );
+            }
+
+            parameters.add( list );
+
+          } else if ( paramTypes[i] == java.lang.String.class ) {
+            if ( paramValue instanceof String[] ) {
+              String[] lValues = (String[]) paramValue;
+              if ( lValues.length > 0 ) {
+                paramValue = lValues[0];
+              } else {
+                paramValue = null;
+              }
+            }
+
+            parameters.add( paramValue );
+          }
+
+          requestParameters.remove( paramName );
+        } else {
+          if ( paramTypes[i] == int.class ) {
+            int val = Integer.parseInt( paramDefaultValue );
+            parameters.add( val );
+
+          } else if ( paramTypes[i] == Boolean.class || paramTypes[i] == boolean.class ) {
+            boolean val = Boolean.parseBoolean( paramDefaultValue );
+            parameters.add( val );
+
+          } else if ( paramTypes[i] == java.util.List.class ) {
+            List<String> list = new ArrayList<>();
+
+            String values = paramDefaultValue;
+            String[] splittedValues = values.split( "," );
+
+            for ( String s : splittedValues ) {
+              list.add( s );
+            }
+
+            parameters.add( list );
+
+          } else if ( paramTypes[i] == java.lang.String.class ) {
+            parameters.add( paramDefaultValue );
           }
         }
       }
 
-      if ( requestParameters.containsKey( paramName ) ) {
-        Object paramValue = requestParameters.get( paramName );
-        if ( paramTypes[i] == int.class ) {
-          if ( paramValue instanceof String[] ) {
-            String[] lValues = (String[]) paramValue;
-            if ( lValues.length > 0 ) {
-              paramValue = lValues[0];
-            } else {
-              paramValue = null;
-            }
-          }
+      try {
+        objectResponse = operation.invoke( bean, parameters.toArray() );
 
-          int val = Integer.parseInt( (String) paramValue );
-          parameters.add( val );
-
-        } else if ( paramTypes[i] == java.lang.Boolean.class || paramTypes[i] == boolean.class ) {
-
-          if ( paramValue instanceof String[] ) {
-            String[] lValues = (String[]) paramValue;
-            if ( lValues.length > 0 ) {
-              paramValue = lValues[0];
-            } else {
-              paramValue = null;
-            }
-          }
-
-          boolean val = Boolean.parseBoolean( (String) paramValue );
-          parameters.add( val );
-
-        } else if ( paramTypes[i] == java.util.List.class ) {
-          List<String> list = new ArrayList<>();
-
-          String[] splittedValues;
-          if ( paramValue instanceof String[] ) {
-            splittedValues = (String[]) paramValue;
-          } else {
-            splittedValues = ( (String) paramValue ).split( "," );
-          }
-
-
-          for ( String s : splittedValues ) {
-            list.add( s );
-          }
-
-          parameters.add( list );
-
-        } else if ( paramTypes[i] == java.lang.String.class ) {
-          if ( paramValue instanceof String[] ) {
-            String[] lValues = (String[]) paramValue;
-            if ( lValues.length > 0 ) {
-              paramValue = lValues[0];
-            } else {
-              paramValue = null;
-            }
-          }
-
-          parameters.add( paramValue );
-        }
-
-        requestParameters.remove( paramName );
-      } else {
-        if ( paramTypes[i] == int.class ) {
-          int val = Integer.parseInt( paramDefaultValue );
-          parameters.add( val );
-
-        } else if ( paramTypes[i] == Boolean.class || paramTypes[i] == boolean.class ) {
-          boolean val = Boolean.parseBoolean( paramDefaultValue );
-          parameters.add( val );
-
-        } else if ( paramTypes[i] == java.util.List.class ) {
-          List<String> list = new ArrayList<>();
-
-          String values = paramDefaultValue;
-          String[] splittedValues = values.split( "," );
-
-          for ( String s : splittedValues ) {
-            list.add( s );
-          }
-
-          parameters.add( list );
-
-        } else if ( paramTypes[i] == java.lang.String.class ) {
-          parameters.add( paramDefaultValue );
-        }
+      } catch ( Exception ex ) {
+        logger.error( "", ex );
       }
-    }
-
-    try {
-      objectResponse = operation.invoke( bean, parameters.toArray() );
-
-    } catch ( IllegalAccessException ex ) {
-      logger.error( "", ex );
-    } catch ( IllegalArgumentException ex ) {
-      logger.error( "", ex );
-    } catch ( InvocationTargetException ex ) {
-      logger.error( "", ex );
-    } catch ( Exception ex ) {
-      logger.error( "", ex );
     }
   }
 
   public String call() {
     run();
 
-    CpfHttpServletResponse cpfResponse = (CpfHttpServletResponse) response;
-    if ( response != null ) {
-      String content = "";
+    String contentFromResponse = getStringValueFromObject( response );
+    String contentFromObjectResponse = getStringValueFromObject( objectResponse );
 
-      try {
-        content = cpfResponse.getContentAsString();
-      } catch ( UnsupportedEncodingException ex ) {
-        logger.error( "Error getting content from CpfHttpServletResponse", ex );
+    if ( contentFromResponse != null ) {
+      return contentFromResponse
+        + ( contentFromObjectResponse != null ? contentFromObjectResponse : "" );
+    } else {
+      return contentFromObjectResponse;
+    }
+  }
+
+  private String getStringValueFromObject( Object object ) {
+    String value = null;
+    if ( object != null ) {
+      value  = "";
+      if ( object instanceof CpfHttpServletResponse ) {
+        try {
+          CpfHttpServletResponse cpfResponse = (CpfHttpServletResponse) object;
+          value = cpfResponse.getContentAsString();
+        } catch ( UnsupportedEncodingException ex ) {
+          logger.error( "Error getting content from CpfHttpServletResponse", ex );
+        }
+      } else if ( object instanceof Response ) {
+        Response jaxResponse = (Response) object;
+        value = getStringValueFromObject( jaxResponse.getEntity() );
+      } else if ( object instanceof String ) {
+        value = (String) object;
+      } else if ( object.toString() != null && !object.toString().contains( object.getClass().getName() ) ) {
+        //Avoid the Object.toString() implicit result which does not have business value meaning
+        value = object.toString();
       }
-
-      return content;
     }
-
-    if ( objectResponse != null ) {
-      return objectResponse.toString();
-    }
-
-    return null;
-
+    return value;
   }
 
   public void runInPluginClassLoader() {
