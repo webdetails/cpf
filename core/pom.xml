@@ -63,7 +63,7 @@
       <optional>true</optional>
     </dependency>
 
-    <!-- Only needed for runtime testing -->
+    <!-- region - Needed for testing -->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-aop</artifactId>
@@ -74,7 +74,7 @@
       <artifactId>spring-expression</artifactId>
       <scope>test</scope>
     </dependency>
-    <!-- -->
+    <!-- endregion -->
 
     <dependency>
       <groupId>javax.servlet</groupId>
