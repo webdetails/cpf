@@ -64,8 +64,6 @@
     <google-collections.version>1.0</google-collections.version>
     <jersey.version>1.19.1</jersey.version>
     <jcr.version>2.0</jcr.version>
-    <karaf-maven-plugin.version>3.0.8</karaf-maven-plugin.version>
-    <karaf-maven-plugin.aggregateFeatures>false</karaf-maven-plugin.aggregateFeatures>
   </properties>
 
   <dependencyManagement>
@@ -376,24 +374,6 @@
         </plugins>
       </reporting>
     </profile>
-
-    <profile>
-      <!-- This profile generates a feature file to deploy in karaf. -->
-      <id>feature-generation</id>
-      <activation>
-        <file>
-          <exists>${basedir}/src/main/feature</exists>
-        </file>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.karaf.tooling</groupId>
-            <artifactId>karaf-maven-plugin</artifactId>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
   </profiles>
 
   <build>
@@ -409,15 +389,6 @@
               <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
               <Bundle-Version>${project.version}</Bundle-Version>
             </instructions>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.karaf.tooling</groupId>
-          <artifactId>karaf-maven-plugin</artifactId>
-          <version>${karaf-maven-plugin.version}</version>
-          <extensions>true</extensions>
-          <configuration>
-            <aggregateFeatures>${karaf-maven-plugin.aggregateFeatures}</aggregateFeatures>
           </configuration>
         </plugin>
       </plugins>
