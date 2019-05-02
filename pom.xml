@@ -89,12 +89,6 @@
         <version>${commons-vfs.version}</version>
       </dependency>
       <dependency>
-        <groupId>log4j</groupId>
-        <artifactId>log4j</artifactId>
-        <version>${log4j.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
         <groupId>org.mozilla</groupId>
         <artifactId>rhino</artifactId>
         <version>${rhino.version}</version>
