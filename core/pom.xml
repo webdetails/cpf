@@ -5,19 +5,19 @@
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>cpf-plugin</artifactId>
-    <version>7.1-SNAPSHOT</version>
+    <version>7.1.0.24-200</version>
   </parent>
   <artifactId>cpf-core</artifactId>
-  <version>7.1-SNAPSHOT</version>
+  <version>7.1.0.24-200</version>
   <properties>
-    <dependency.log4j.revision>1.2.14</dependency.log4j.revision>
     <dependency.jackson-core-asl.revision>1.8.2</dependency.jackson-core-asl.revision>
+    <dependency.log4j.revision>1.2.14</dependency.log4j.revision>
     <dependency.jackson-mapper-asl.revision>1.8.2</dependency.jackson-mapper-asl.revision>
     <dependency.rhino.revision>1.7R4</dependency.rhino.revision>
-    <dependency.commons-vfs.revision>1.0</dependency.commons-vfs.revision>
     <dependency.mockito-core.revision>1.9.5</dependency.mockito-core.revision>
-    <dependency.commons-httpclient.revision>3.1</dependency.commons-httpclient.revision>
+    <dependency.commons-vfs.revision>1.0</dependency.commons-vfs.revision>
     <dependency.hsqldb.revision>2.3.2</dependency.hsqldb.revision>
+    <dependency.commons-httpclient.revision>3.1</dependency.commons-httpclient.revision>
   </properties>
   <dependencies>
     <dependency>
