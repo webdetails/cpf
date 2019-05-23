@@ -1,5 +1,5 @@
 /*!
- * Copyright 2013-2018 Webdetails, a Hitachi Vantara company. All rights reserved.
+ * Copyright 2013 - 2019 Webdetails, a Hitachi Vantara company. All rights reserved.
  *
  * This software was developed by Webdetails and is provided under the terms
  * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -10,7 +10,6 @@
  * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. Please refer to
  * the license for the specific language governing your rights and limitations.
  */
-
 package pt.webdetails.cpf.packager.dependencies;
 
 import org.apache.commons.io.IOUtils;
@@ -36,12 +35,14 @@ public class FileDependency extends Dependency {
   protected PathOrigin origin;
   protected IUrlProvider urlProvider;
   private String hash;
+
   // TODO: why not just a timestamp?
   // use checksums for versions, otherwise use timestamps
   protected boolean useChecksumVersion = true;
 
   public FileDependency( String version, PathOrigin origin, String path, IUrlProvider urlProvider ) {
     super();
+
     this.filePath = path;
     this.hash = null;
     this.origin = origin;
@@ -60,6 +61,7 @@ public class FileDependency extends Dependency {
         IOUtils.closeQuietly( in );
       }
     }
+
     return hash;
   }
 
@@ -72,12 +74,16 @@ public class FileDependency extends Dependency {
   }
 
   public InputStream getFileInputStream() throws IOException {
-    if ( getContentFactory() != null ) {
-      return origin.getReader( getContentFactory() ).getFileInputStream( filePath );
-    } else {
-      logger.fatal( String.format( "Couldn't getFileInputStream() for filePath = '%s'. Unable to get ContentFactory.", filePath ) );
-      return null;
+    final IContentAccessFactory contentFactory = getContentFactory();
+    if ( contentFactory != null ) {
+      return this.origin.getReader( contentFactory ).getFileInputStream( this.filePath );
     }
+
+    logger.fatal(
+      String.format( "Couldn't getFileInputStream() for filePath = '%s'. Unable to get ContentFactory.", this.filePath )
+    );
+
+    return null;
   }
 
   /**
@@ -87,7 +93,8 @@ public class FileDependency extends Dependency {
     // the ?v=<version> is used to bypass browser cache when needed
     String version = getVersion();
     String urlAppend = ( ( version == null ) ? "" : "?v=" + version );
-    return origin.getUrl( filePath, urlProvider ) + urlAppend;
+
+    return getUrlFilePath() + urlAppend;
   }
 
   @Override
@@ -100,14 +107,15 @@ public class FileDependency extends Dependency {
   }
 
   protected IContentAccessFactory getContentFactory() {
-    if ( PluginEnvironment.env() != null ) {
-      return PluginEnvironment.env().getContentAccessFactory();
-    } else {
-      return null;
+    final PluginEnvironment environment = PluginEnvironment.env();
+    if ( environment != null ) {
+      return environment.getContentAccessFactory();
     }
+
+    return null;
   }
 
   public String toString() {
-    return filePath;
+    return this.filePath;
   }
 }
