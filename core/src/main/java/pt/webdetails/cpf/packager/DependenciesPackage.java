@@ -1,5 +1,9 @@
 /*!
+<<<<<<< HEAD
  * Copyright 2002 - 2015 Webdetails, a Pentaho company.  All rights reserved.
+=======
+ * Copyright 2002 - 2019 Webdetails, a Hitachi Vantara company.  All rights reserved.
+>>>>>>> 0346c4e... cleanups
  *
  * This software was developed by Webdetails and is provided under the terms
  * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -10,7 +14,6 @@
  * basis, WITHOUT WARRANTY OF ANY KIND, either express or  implied. Please refer to
  * the license for the specific language governing your rights and limitations.
  */
-
 package pt.webdetails.cpf.packager;
 
 import pt.webdetails.cpf.context.api.IUrlProvider;
@@ -29,14 +32,11 @@ import pt.webdetails.cpf.repository.api.IRWAccess;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-
 /**
  * A set of css|js files that can be packaged into a single file.<br> Encompasses former functionality of
  * DependenciesEngine/Packager<br> will be made abstract, more specific subclasses
  */
 public class DependenciesPackage {
-
-  //  private static Log logger = LogFactory.getLog(DependenciesPackage.class);
 
   public enum PackagingMode {
     MINIFY, CONCATENATE
@@ -66,8 +66,8 @@ public class DependenciesPackage {
    */
   public DependenciesPackage( String name, PackageType type, IContentAccessFactory factory, IUrlProvider urlProvider ) {
     this.name = name;
-    fileDependencies = new LinkedHashMap<String, FileDependency>();
-    rawDependencies = new LinkedHashMap<String, SnippetDependency>();
+    this.fileDependencies = new LinkedHashMap<>();
+    this.rawDependencies = new LinkedHashMap<>();
     this.type = type;
     this.factory = factory;
     this.urlProvider = urlProvider;
@@ -83,28 +83,34 @@ public class DependenciesPackage {
    * @return
    */
   public boolean registerFileDependency( String name, String version, PathOrigin origin, String path ) {
-    FileDependency newDep = new FileDependency( version, origin, path, urlProvider );
-    synchronized ( packagingLock ) {
-      if ( registerDependency( name, newDep, fileDependencies ) ) {
+    final FileDependency dependency = new FileDependency( version, origin, path, this.urlProvider );
+
+    synchronized ( this.packagingLock ) {
+      if ( registerDependency( name, dependency, this.fileDependencies ) ) {
         //invalidate packaged if there
-        packagedDependency = null;
+        this.packagedDependency = null;
+
         return true;
       }
     }
+
     return false;
   }
 
   public boolean registerRawDependency( String name, String version, String contents ) {
-    SnippetDependency snip = new SnippetDependency( version, contents );
-    return registerDependency( name, snip, rawDependencies );
+    final SnippetDependency snip = new SnippetDependency( version, contents );
+
+    return registerDependency( name, snip, this.rawDependencies );
   }
 
   protected <T extends Dependency> boolean registerDependency( String name, T dependency, Map<String, T> registry ) {
-    Dependency dep = registry.get( name );
+    final Dependency dep = registry.get( name );
     if ( dep == null || dep.isOlderVersionThan( dependency ) ) {
       registry.put( name, dependency );
+
       return true;
     }
+
     return false;
   }
 
@@ -121,10 +127,12 @@ public class DependenciesPackage {
 
   public String getRawDependencies( boolean isPackaged ) {
     StringBuilder sb = new StringBuilder();
+
     for ( SnippetDependency dep : rawDependencies.values() ) {
       sb.append( dep.getContents() );
       sb.append( '\n' );
     }
+
     return sb.toString();
   }
 
@@ -166,8 +174,8 @@ public class DependenciesPackage {
   }
 
   public String getUnpackagedDependencies( StringFilter format, IDependencyInclusionFilter filter ) {
-    StringBuilder sb = new StringBuilder();
-    sb.append( "\n" );
+    StringBuilder sb = new StringBuilder( "\n" );
+
     if ( filter != null ) {
       // return dashboard component dependencies
       for ( FileDependency dep : fileDependencies.values() ) {
@@ -181,6 +189,7 @@ public class DependenciesPackage {
         sb.append( format.filter( dep.getDependencyInclude() ) );
       }
     }
+
     return sb.toString();
   }
 
@@ -188,16 +197,19 @@ public class DependenciesPackage {
     boolean isMap = type.equals( PackageType.MAP );
     if ( filter != null ) {
       // return minified dashboard component dependencies
-      Map<String, FileDependency> customDependencies = new LinkedHashMap<String, FileDependency>();
+      Map<String, FileDependency> customDependencies = new LinkedHashMap<>();
       for ( FileDependency dep : fileDependencies.values() ) {
         if ( filter.include( dep ) ) {
           customDependencies.put( dep.getDependencyInclude(), dep );
         }
       }
+
       String packagedPath = isMap ? name : name + "." + type.toString().toLowerCase();
       String baseDir = type.toString().toLowerCase();
+
       IRWAccess writer = factory.getPluginSystemWriter( baseDir );
       PathOrigin origin = new StaticSystemOrigin( baseDir );
+
       switch ( type ) {
         case CSS:
           return format.filter(
@@ -219,8 +231,10 @@ public class DependenciesPackage {
         if ( packagedDependency == null ) {
           String packagedPath = isMap ? name : name + "." + type.toString().toLowerCase();
           String baseDir = isMap ? "css" : type.toString().toLowerCase();
+
           IRWAccess writer = factory.getPluginSystemWriter( baseDir );
           PathOrigin origin = new StaticSystemOrigin( baseDir );
+
           switch ( type ) {
             case CSS:
               packagedDependency =
@@ -239,6 +253,7 @@ public class DependenciesPackage {
                 getClass().getSimpleName() + " does not have a recognized type: " + type );
           }
         }
+
         return format.filter( packagedDependency.getDependencyInclude() );
       }
     }

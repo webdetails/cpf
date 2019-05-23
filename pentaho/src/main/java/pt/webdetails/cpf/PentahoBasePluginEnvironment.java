@@ -1,5 +1,5 @@
 /*!
-* Copyright 2002 - 2015 Webdetails, a Pentaho company.  All rights reserved.
+* Copyright 2002 - 2019 Webdetails, a Hitachi Vantara company.  All rights reserved.
 *
 * This software was developed by Webdetails and is provided under the terms
 * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -10,7 +10,6 @@
 * basis, WITHOUT WARRANTY OF ANY KIND, either express or  implied. Please refer to
 * the license for the specific language governing your rights and limitations.
 */
-
 package pt.webdetails.cpf;
 
 import java.io.IOException;
@@ -75,20 +74,26 @@ public abstract class PentahoBasePluginEnvironment extends PluginEnvironment imp
     if ( pluginId == null ) {
       try {
         // this depends on cpf being loaded by the plugin classloader
-        IReadAccess reader =
-            new SystemPluginResourceAccess( PentahoBasePluginEnvironment.class.getClassLoader(), null );
-        Node documentNode = XmlDom4JUtils.getDocumentFromFile( reader, "plugin.xml" ).getRootElement();
-        pluginId = documentNode.valueOf( "/plugin/@name" );
-        if ( StringUtils.isEmpty( pluginId ) ) {
-          pluginId = documentNode.valueOf( "/plugin/@title" );
-        }
+        final Node documentNode = getPluginXmlRootElement();
+
+        final String name = documentNode.valueOf( "/plugin/@name" );
+        final String title = documentNode.valueOf( "/plugin/@title" );
+
+        pluginId = StringUtils.isEmpty( name ) ? title : name;
       } catch ( IOException e ) {
         logger.fatal( "Problem reading plugin.xml", e );
+
         return "cpf";
       }
     }
+
     return pluginId;
   }
 
+  private Node getPluginXmlRootElement() throws IOException {
+    final ClassLoader pluginClassloader = PentahoBasePluginEnvironment.class.getClassLoader();
+    final IReadAccess reader = new SystemPluginResourceAccess( pluginClassloader, null );
 
+    return XmlDom4JUtils.getDocumentFromFile( reader, "plugin.xml" ).getRootElement();
+  }
 }
