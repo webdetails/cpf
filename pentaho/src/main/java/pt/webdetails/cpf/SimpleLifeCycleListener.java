@@ -40,7 +40,7 @@ public abstract class SimpleLifeCycleListener implements IPluginLifecycleListene
   }
 
   @Override
-  public void ready() {
+  public void ready() throws PluginLifecycleException {
     final CpfProperties cpfProperties = CpfProperties.getInstance();
 
     final boolean usePersistence = cpfProperties.getBooleanProperty( "USE_PERSISTENCE", false );
