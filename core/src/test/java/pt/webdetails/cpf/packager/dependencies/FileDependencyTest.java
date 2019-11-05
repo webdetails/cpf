@@ -38,7 +38,7 @@ public class FileDependencyTest extends TestCase {
         assertNull("Different path fails to load resource", fdft.getFileInputStream());
 
     }
-}
+
 
  class FileDependencyForTest extends FileDependency {
 
@@ -132,5 +132,6 @@ public class FileDependencyTest extends TestCase {
                 }
             };
     }
+}
 }
 
