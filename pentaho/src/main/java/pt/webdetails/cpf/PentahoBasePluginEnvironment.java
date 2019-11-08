@@ -79,7 +79,7 @@ public abstract class PentahoBasePluginEnvironment extends PluginEnvironment imp
         final String name = documentNode.valueOf( "/plugin/@name" );
         final String title = documentNode.valueOf( "/plugin/@title" );
         synchronized ( PentahoBasePluginEnvironment.class ) {
-          pluginId = StringUtils.isEmpty(name) ? title : name;
+          pluginId = StringUtils.isEmpty( name ) ? title : name;
         }
       } catch ( IOException e ) {
         logger.fatal( "Problem reading plugin.xml", e );
