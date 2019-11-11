@@ -25,11 +25,11 @@ import pt.webdetails.cpf.repository.api.IRWAccess;
 import pt.webdetails.cpf.repository.pentaho.SystemPluginResourceAccess;
 import pt.webdetails.cpf.utils.XmlDom4JUtils;
 
-//TODO: doesn't make much sense right now
+
 public abstract class PentahoBasePluginEnvironment extends PluginEnvironment implements IContentAccessFactory {
 
   private static String pluginId = null;
-  private static Log logger = LogFactory.getLog( PentahoPluginEnvironment.class );
+  private static Log logger = LogFactory.getLog( PentahoBasePluginEnvironment.class );
 
   public IContentAccessFactory getContentAccessFactory() {
     return this;
@@ -45,7 +45,7 @@ public abstract class PentahoBasePluginEnvironment extends PluginEnvironment imp
     return new SystemPluginResourceAccess( this.getClass().getClassLoader(), basePath );
   }
 
-  //TODO: this is temporary
+
   public PluginSettings getPluginSettings() {
     return new PluginSettings( new SystemPluginResourceAccess( this.getClass().getClassLoader(), null ) );
   }
@@ -78,8 +78,9 @@ public abstract class PentahoBasePluginEnvironment extends PluginEnvironment imp
 
         final String name = documentNode.valueOf( "/plugin/@name" );
         final String title = documentNode.valueOf( "/plugin/@title" );
-
-        pluginId = StringUtils.isEmpty( name ) ? title : name;
+        synchronized ( PentahoBasePluginEnvironment.class ) {
+          pluginId = StringUtils.isEmpty( name ) ? title : name;
+        }
       } catch ( IOException e ) {
         logger.fatal( "Problem reading plugin.xml", e );
 
