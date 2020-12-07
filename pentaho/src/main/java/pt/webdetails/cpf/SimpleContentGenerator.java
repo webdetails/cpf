@@ -362,7 +362,12 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
       long start = System.currentTimeMillis(  );
       if ( audited != null ) {
         uuid = CpfAuditHelper.startAudit( getPluginName(  ), audited.action(  ), getObjectName(  ), userSession, this, getRequestParameters(  ) );
+
+        if ( uuid != null ) {
+          setInstanceId( uuid.toString() );
+        }
       }
+
       final OutputStream out = getResponseOutputStream( exposed.outputType(  ) );
       setResponseHeaders( exposed.outputType(  ) );
       try {
