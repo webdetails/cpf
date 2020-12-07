@@ -29,6 +29,7 @@ import java.util.UUID;
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.audit.AuditHelper;
+import org.pentaho.platform.engine.core.audit.MDCUtil;
 import org.pentaho.platform.engine.core.audit.MessageTypes;
 
 public class CpfAuditHelper {
@@ -55,6 +56,8 @@ public class CpfAuditHelper {
           ILogger logger,
           IParameterProvider requestParams ) {
     UUID uuid = UUID.randomUUID();
+
+    MDCUtil.setInstanceId( uuid.toString() );
 
     StringBuilder sb = new StringBuilder();
     if ( requestParams != null ) {
