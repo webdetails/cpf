@@ -1,5 +1,5 @@
 /*!
- * Copyright 2002 - 2017 Webdetails, a Hitachi Vantara company.  All rights reserved.
+ * Copyright 2002 - 2021 Webdetails, a Hitachi Vantara company.  All rights reserved.
  *
  * This software was developed by Webdetails and is provided under the terms
  * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -170,6 +170,23 @@ public class DependenciesPackageTest extends TestCase {
     assertEquals( "<link href=\"CSS-FILTER\" rel=\"stylesheet\" type=\"text/css\" />",
         cssFilter.filter( "CSS-FILTER" ).trim() );
     assertEquals( "", mapFilter.filter( "MAP-FILTER" ) );
+  }
+
+  @Test
+  public void testGetDefaultFilterEscapesUntrustedBaseUrl() {
+    StringFilter jsFilter = jsDepPackage.getDefaultFilter();
+    StringFilter cssFilter = cssDepPackage.getDefaultFilter();
+    StringFilter mapFilter = mapDepPackage.getDefaultFilter();
+
+    String untrustedBaseUrl = "http://foo\"/";
+
+    assertEquals( "<script language=\"javascript\" type=\"text/javascript\" src=\"http://foo&#34;/JS-FILTER\"></script>",
+            jsFilter.filter( "JS-FILTER", untrustedBaseUrl ).trim() );
+
+    assertEquals( "<link href=\"http://foo&#34;/CSS-FILTER\" rel=\"stylesheet\" type=\"text/css\" />",
+            cssFilter.filter( "CSS-FILTER", untrustedBaseUrl ).trim() );
+
+    assertEquals( "", mapFilter.filter( "MAP-FILTER", untrustedBaseUrl ) );
   }
 
   private static void addFileDependencies( String[] filePaths ) {

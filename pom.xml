@@ -62,6 +62,7 @@
     <google-collections.version>1.0</google-collections.version>
     <jersey.version>1.19.1</jersey.version>
     <jcr.version>2.0</jcr.version>
+    <owasp.encoder.version>1.2</owasp.encoder.version>
   </properties>
 
   <dependencyManagement>
@@ -95,6 +96,18 @@
         <groupId>org.pentaho</groupId>
         <artifactId>json</artifactId>
         <version>${pentaho-json.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.owasp.encoder</groupId>
+        <artifactId>encoder</artifactId>
+        <version>${owasp.encoder.version}</version>
+        <scope>compile</scope>
+        <exclusions>
+          <exclusion>
+            <artifactId>*</artifactId>
+            <groupId>*</groupId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>junit</groupId>
