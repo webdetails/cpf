@@ -63,6 +63,11 @@
       <optional>true</optional>
     </dependency>
 
+    <dependency>
+      <groupId>org.owasp.encoder</groupId>
+      <artifactId>encoder</artifactId>
+    </dependency>
+
     <!-- region - Needed for testing -->
     <dependency>
       <groupId>org.springframework</groupId>
