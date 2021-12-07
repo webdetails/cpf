@@ -56,7 +56,7 @@
     <snakeyaml.version>1.7</snakeyaml.version>
     <jaxrpc-api.version>1.1</jaxrpc-api.version>
     <olap4j.version>1.2.0</olap4j.version>
-    <orientdb.version>1.5.0</orientdb.version>
+    <orientdb.version>3.1.0</orientdb.version>
     <javassist.version>3.20.0-GA</javassist.version>
     <jta.version>1.1</jta.version>
     <google-collections.version>1.0</google-collections.version>
@@ -294,12 +294,6 @@
       </dependency>
       <dependency>
         <groupId>com.orientechnologies</groupId>
-        <artifactId>orient-commons</artifactId>
-        <version>${orientdb.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.orientechnologies</groupId>
         <artifactId>orientdb-core</artifactId>
         <version>${orientdb.version}</version>
         <scope>provided</scope>
@@ -313,12 +307,6 @@
       <dependency>
         <groupId>com.orientechnologies</groupId>
         <artifactId>orientdb-client</artifactId>
-        <version>${orientdb.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.orientechnologies</groupId>
-        <artifactId>orientdb-enterprise</artifactId>
         <version>${orientdb.version}</version>
         <scope>provided</scope>
       </dependency>
