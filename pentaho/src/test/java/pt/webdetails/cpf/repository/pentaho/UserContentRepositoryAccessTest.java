@@ -1,5 +1,5 @@
 /*!
-* Copyright 2002 - 2017 Webdetails, a Hitachi Vantara company.  All rights reserved.
+* Copyright 2002 - 2021 Webdetails, a Hitachi Vantara company.  All rights reserved.
 *
 * This software was developed by Webdetails and is provided under the terms
 * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -13,26 +13,24 @@
 
 package pt.webdetails.cpf.repository.pentaho;
 
-import java.io.IOException;
-import java.util.EnumSet;
-import junit.framework.TestCase;
 import org.junit.Test;
-
-import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
-
-import pt.webdetails.cpf.repository.api.*;
+import pt.webdetails.cpf.repository.api.FileAccess;
 import pt.webdetails.cpf.repository.pentaho.unified.UserContentRepositoryAccess;
 
-import static org.mockito.Mockito.*;
+import java.util.EnumSet;
 
-public class UserContentRepositoryAccessTest extends TestCase {
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class UserContentRepositoryAccessTest {
   UserContentRepositoryAccess repositoryAccess;
 
-
   @Test
-  public void testHasAccess() throws IOException {
+  public void testHasAccess() {
     //setup test
     IUnifiedRepository unifiedRepository = mock(IUnifiedRepository.class);
     repositoryAccess = new UserContentRepositoryForTest(unifiedRepository);
@@ -40,7 +38,6 @@ public class UserContentRepositoryAccessTest extends TestCase {
     when(unifiedRepository.hasAccess("/home/admin", EnumSet.of( RepositoryFilePermission.READ))).thenReturn(true);
     when(unifiedRepository.hasAccess("/home/admin", EnumSet.of( RepositoryFilePermission.WRITE))).thenReturn(true);
     when(unifiedRepository.hasAccess("/home/pat", EnumSet.of( RepositoryFilePermission.READ))).thenReturn(true);
-
 
     //unix
     assertTrue("Access allowed to /home/admin on unix", repositoryAccess.hasAccess("/home/admin", FileAccess.READ));
@@ -55,7 +52,7 @@ public class UserContentRepositoryAccessTest extends TestCase {
     assertFalse("Access defined to home/suzy on windows", repositoryAccess.hasAccess("home\\suzy", FileAccess.READ));
   }
 
-  class UserContentRepositoryForTest extends UserContentRepositoryAccess {
+  static class UserContentRepositoryForTest extends UserContentRepositoryAccess {
     IUnifiedRepository unifiedRepository;
 
     public UserContentRepositoryForTest(IUnifiedRepository repository) {
@@ -68,5 +65,4 @@ public class UserContentRepositoryAccessTest extends TestCase {
       return unifiedRepository;
     }
   }
-
 }

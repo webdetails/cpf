@@ -1,5 +1,5 @@
 /*!
-* Copyright 2002 - 2017 Webdetails, a Hitachi Vantara company.  All rights reserved.
+* Copyright 2002 - 2021 Webdetails, a Hitachi Vantara company.  All rights reserved.
 *
 * This software was developed by Webdetails and is provided under the terms
 * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -14,11 +14,9 @@
 package pt.webdetails.cpf.persistence;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import pt.webdetails.cpf.PluginEnvironment;
 import pt.webdetails.cpf.PluginEnvironmentForTests;
@@ -29,26 +27,21 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PersistenceTest extends TestCase {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-  public PersistenceTest() {
-    super();
-  }
+public class PersistenceTest {
 
-  public PersistenceTest( String name ) {
-    super( name );
-  }
-
-  @Override
-  public void setUp() throws Exception {
+  @Before
+  public void setUp() {
     PluginEnvironment.init( new PluginEnvironmentForTests() );
     PersistenceEngineForTests.getInstance();
-    super.setUp();
   }
 
   @Test
-  public void testClassDetection() throws Exception {
-    PersistenceEngine pe = PersistenceEngineForTests.getInstance();
+  public void testClassDetection() {
+    PersistenceEngineForTests pe = PersistenceEngineForTests.getInstance();
 
     pe.dropClass( "testClass" );
     assertFalse( "testClass shouldn't exist yet", pe.classExists( "testClass" ) );
@@ -56,22 +49,20 @@ public class PersistenceTest extends TestCase {
     assertTrue( "testClass doesn't exist", pe.classExists( "testClass" ) );
   }
 
-
   @Test
-  public void testInstanceAdd() throws JSONException {
+  public void testInstanceAdd() throws Exception {
     PersistenceEngineForTests pe = PersistenceEngineForTests.getInstance();
     String json = "{test: 'A'; test2: 'B'}";
     JSONObject response = pe.store( null, "testClass", json );
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
     params.put( "id", response.get( "id" ) );
 
     JSONObject result = pe.query( "select from testClass where @rid = :id", params );
-    Assert.assertEquals( result.getJSONArray( "object" ).length(), 1 );
+    assertEquals( 1, result.getJSONArray( "object" ).length() );
   }
 
-
   @Test
-  public void testInstanceUpdate() throws JSONException {
+  public void testInstanceUpdate() throws Exception {
     PersistenceEngineForTests pe = PersistenceEngineForTests.getInstance();
     String json = "{test: 'A'; test2: 'B'}";
     JSONObject response = pe.store( null, "testClass", json );
@@ -80,16 +71,15 @@ public class PersistenceTest extends TestCase {
     String originalId = response.getString( "id" );
     response = pe.store( originalId, "testClass", json );
 
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
     params.put( "id", originalId );
     JSONObject result = pe.query( "select from testClass where @rid = :id", params );
 
-    Assert.assertEquals( result.getJSONArray( "object" ).getJSONObject( 0 ).getString( "test" ), "B" );
+    assertEquals( "B", result.getJSONArray( "object" ).getJSONObject( 0 ).getString( "test" ) );
   }
 
-
   @Test
-  public void testInstanceDelete() throws JSONException {
+  public void testInstanceDelete() throws Exception {
     PersistenceEngineForTests pe = PersistenceEngineForTests.getInstance();
     String json = "{test: 'A'; test2: 'B'}";
     JSONObject response = pe.store( null, "testClass", json );
@@ -98,15 +88,14 @@ public class PersistenceTest extends TestCase {
 
     response = pe.deleteRecord( originalId );
 
-    Assert.assertTrue( response.getBoolean( "result" ) );
+    assertTrue( response.getBoolean( "result" ) );
 
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
     params.put( "id", originalId );
 
     JSONObject result = pe.query( "select from testClass where @rid = :id", params );
-    Assert.assertEquals( result.getJSONArray( "object" ).length(), 0 );
+    assertEquals( 0, result.getJSONArray( "object" ).length() );
   }
-
 
   @Test
   public void testJSONMarshalling() throws Exception {
@@ -117,7 +106,7 @@ public class PersistenceTest extends TestCase {
     PersistenceEngineForTests pe = PersistenceEngineForTests.getInstance();
     JSONObject response = pe.store( null, "jsonMarshalling", json );
     assertTrue( "Couldn't insert document", (Boolean) response.get( "result" ) );
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
     params.put( "id", response.get( "id" ) );
     JSONObject result = pe.query( "select from jsonMarshalling where @rid = :id", params );
     JSONObject retrieved = result.getJSONArray( "object" ).getJSONObject( 0 );
@@ -128,11 +117,8 @@ public class PersistenceTest extends TestCase {
     pe.dropClass( "jsonMarshalling" );
   }
 
-
   @Test
   public void testEscaping() {
-
-
     ODocument doc = new ODocument();
     String s =
       "{\r\n    \"name\": \"test\",\r\n    \"nested\": {\r\n        \"key\": \"value\"," +
@@ -141,13 +127,10 @@ public class PersistenceTest extends TestCase {
         "\r\n            \"likeJson\": \"[1,2,3]\",\r\n            \"spaces\":  \"value with spaces\"\r\n        " +
         "}\r\n    }\r\n}";
     doc.fromJSON( s );
-    Assert.assertEquals( doc.field( "deep[deeper][quotes]" ), "\"\",\"oops\":\"123\"" );
+    assertEquals( "\"\",\"oops\":\"123\"", doc.field( "deep[deeper][quotes]" ) );
 
     String res = doc.toJSON();
     String expected = "\"quotes\":\"\\\"\\\",\\\"oops\\\":\\\"123\\\"\"";
     assertTrue( res.contains( expected ) );
-
   }
-
-
 }

@@ -1,5 +1,5 @@
 /*!
-* Copyright 2002 - 2018 Webdetails, a Hitachi Vantara company.  All rights reserved.
+* Copyright 2002 - 2021 Webdetails, a Hitachi Vantara company.  All rights reserved.
 *
 * This software was developed by Webdetails and is provided under the terms
 * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -43,15 +43,15 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 @PrepareForTest( XmlDom4JUtils.class )
 public class PluginTest {
 
-  private final String settings = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                                + "<settings>\n"
-                                + "        <cache>false</cache>\n"
-                                + "        <cache-messages>true</cache-messages>\n"
-                                + "        <max-age>2628001</max-age>\n"
-                                + "</settings>\n";
-
   @Before
   public void setup() throws IOException {
+    String settings = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+      + "<settings>\n"
+      + "        <cache>false</cache>\n"
+      + "        <cache-messages>true</cache-messages>\n"
+      + "        <max-age>2628001</max-age>\n"
+      + "</settings>\n";
+
     mockStatic( XmlDom4JUtils.class );
 
     InputStream is = new ByteArrayInputStream( settings.getBytes() );

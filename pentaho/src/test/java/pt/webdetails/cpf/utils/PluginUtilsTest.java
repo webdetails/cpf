@@ -1,5 +1,5 @@
 /*!
-* Copyright 2002 - 2018 Webdetails, a Hitachi Vantara company.  All rights reserved.
+* Copyright 2002 - 2021 Webdetails, a Hitachi Vantara company.  All rights reserved.
 *
 * This software was developed by Webdetails and is provided under the terms
 * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -13,7 +13,6 @@
 
 package pt.webdetails.cpf.utils;
 
-import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import pt.webdetails.cpf.AbstractPluginSystemTest;
@@ -21,6 +20,8 @@ import pt.webdetails.cpf.AbstractPluginSystemTest;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Collection;
+
+import static org.junit.Assert.assertEquals;
 
 public class PluginUtilsTest extends AbstractPluginSystemTest {
 
@@ -61,9 +62,9 @@ public class PluginUtilsTest extends AbstractPluginSystemTest {
     Collection<File> onlyHidden = pluginUtils.getPluginResources( "", true, "\\..*" );
     Collection<File> onlyTxtInResourcesNoRecursive = pluginUtils.getPluginResources( "resources", false, ".*\\.txt" );
 
-    Assert.assertTrue( allResources.size() == 8 );
-    Assert.assertTrue( onlyHidden.size() == 1 );
-    Assert.assertTrue( onlyTxtInResourcesNoRecursive.size() == 1 );
+    assertEquals( 8, allResources.size() );
+    assertEquals( 1, onlyHidden.size() );
+    assertEquals( 1, onlyTxtInResourcesNoRecursive.size() );
   }
 
 }

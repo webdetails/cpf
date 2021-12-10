@@ -1,5 +1,5 @@
 /*!
- * Copyright 2002 - 2017 Webdetails, a Hitachi Vantara company.  All rights reserved.
+ * Copyright 2002 - 2021 Webdetails, a Hitachi Vantara company.  All rights reserved.
  *
  * This software was developed by Webdetails and is provided under the terms
  * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -23,7 +23,7 @@ import java.util.List;
 
 public class PluginWriteAccess implements IRWAccess {
 
-  private List<IBasicFile> storedFiles = new ArrayList<IBasicFile>();
+  private final List<IBasicFile> storedFiles = new ArrayList<>();
 
   public List<IBasicFile> getStoredFiles() {
     return storedFiles;
@@ -38,7 +38,7 @@ public class PluginWriteAccess implements IRWAccess {
   }
 
   @Override public boolean deleteFile( String path ) {
-    return fileExists( path ) ? storedFiles.remove( fetchFile( path ) ) : false;
+    return fileExists( path ) && storedFiles.remove( fetchFile( path ) );
   }
 
   @Override public boolean createFolder( String path ) {
@@ -54,7 +54,7 @@ public class PluginWriteAccess implements IRWAccess {
   }
 
   @Override public boolean fileExists( String path ) {
-    return storedFiles != null && storedFiles.contains( new BasicFile( path ) );
+    return storedFiles.contains( new BasicFile( path ) );
   }
 
   @Override public long getLastModified( String path ) {
@@ -63,14 +63,16 @@ public class PluginWriteAccess implements IRWAccess {
 
   @Override public List<IBasicFile> listFiles( String path, IBasicFileFilter filter, int maxDepth, boolean includeDirs,
                                                boolean showHiddenFilesAndFolders ) {
-    List<IBasicFile> filteredFiles = new ArrayList<IBasicFile>();
+    List<IBasicFile> filteredFiles = new ArrayList<>();
 
-    for ( IBasicFile file : storedFiles ) {
-
-      if ( filter != null && filter.accept( file ) ) {
-        filteredFiles.add( file );
+    if ( filter != null ) {
+      for ( IBasicFile file : storedFiles ) {
+        if ( filter.accept( file ) ) {
+          filteredFiles.add( file );
+        }
       }
     }
+
     return filteredFiles;
   }
 

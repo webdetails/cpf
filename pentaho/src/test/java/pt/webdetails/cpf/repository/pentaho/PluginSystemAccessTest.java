@@ -1,5 +1,5 @@
 /*!
- * Copyright 2002 - 2018 Webdetails, a Hitachi Vantara company. All rights reserved.
+ * Copyright 2002 - 2021 Webdetails, a Hitachi Vantara company. All rights reserved.
  *
  * This software was developed by Webdetails and is provided under the terms
  * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -27,19 +27,19 @@ import pt.webdetails.cpf.repository.util.RepositoryHelper;
 import pt.webdetails.cpf.utils.CharsetHelper;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNull;
 
 public class PluginSystemAccessTest extends AbstractPluginSystemTest {
 
   @Test
-  public void testSimpleRead() throws IOException {
+  public void testSimpleRead() throws Exception {
     IReadAccess bogusReader = createPluginSystemAccess( null );
 
     assertTrue( "basic fileExists", bogusReader.fileExists( "plugin.xml" ) );
@@ -62,7 +62,7 @@ public class PluginSystemAccessTest extends AbstractPluginSystemTest {
   }
 
   @Test
-  public void testPluginBasePathRead() throws IOException {
+  public void testPluginBasePathRead() {
     IReadAccess reader = createPluginSystemAccess( "resources/stuff" );
     assertTrue( "fileExists", reader.fileExists( "stuffedBogus.txt" ) );
 
@@ -84,7 +84,7 @@ public class PluginSystemAccessTest extends AbstractPluginSystemTest {
   }
 
   @Test
-  public void testReadWrite() throws IOException {
+  public void testReadWrite() throws Exception {
     IRWAccess rw = createPluginSystemAccess( "resources" );
     assertTrue( rw.fileExists( "bogus.txt" ) );
     assertFalse( rw.fileExists( "stuff/bogus.txt" ) );
@@ -102,7 +102,7 @@ public class PluginSystemAccessTest extends AbstractPluginSystemTest {
   }
 
   @Test
-  public void testPluginSettings() throws IOException {
+  public void testPluginSettings() {
     IRWAccess rw = createPluginSystemAccess( null );
     BogusSettings settings = new BogusSettings( rw );
     assertEquals( "basic read", "Baah", settings.getBogusString( null ) );
@@ -117,7 +117,7 @@ public class PluginSystemAccessTest extends AbstractPluginSystemTest {
   }
 
   @Test
-  public void testBasicFile() throws IOException {
+  public void testBasicFile() {
     IReadAccess reader = createPluginSystemAccess( "resources" );
     IBasicFile file = reader.fetchFile( "stuff/stuffedBogus.txt" );
     assertEquals( "txt", file.getExtension() );
@@ -134,7 +134,7 @@ public class PluginSystemAccessTest extends AbstractPluginSystemTest {
   public void testExtension() {
     IReadAccess reader = createPluginSystemAccess( "resources" );
     IBasicFile dotFile = reader.fetchFile( ".hidden" );
-    assertFalse( "hidden".equals( dotFile.getExtension() ) );
+    assertNotEquals( "hidden", dotFile.getExtension() );
     assertTrue( StringUtils.isEmpty( dotFile.getExtension() ) );
   }
 
@@ -146,7 +146,7 @@ public class PluginSystemAccessTest extends AbstractPluginSystemTest {
   }
 
   @Test
-  public void testListFiles() throws IOException {
+  public void testListFiles() {
     IReadAccess reader = createPluginSystemAccess( "resources" );
     IBasicFileFilter txtFilter = new IBasicFileFilter() {
       public boolean accept( IBasicFile file ) {
@@ -179,7 +179,7 @@ public class PluginSystemAccessTest extends AbstractPluginSystemTest {
     bogusFound = false;
   }
 
-  class BogusSettings extends PluginSettings {
+  static class BogusSettings extends PluginSettings {
     public BogusSettings( IRWAccess writeAccess ) {
       super( writeAccess );
     }

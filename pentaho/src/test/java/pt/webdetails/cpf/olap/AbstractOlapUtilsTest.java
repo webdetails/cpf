@@ -1,5 +1,5 @@
 /*!
-* Copyright 2002 - 2018 Webdetails, a Hitachi Vantara company.  All rights reserved.
+* Copyright 2002 - 2021 Webdetails, a Hitachi Vantara company.  All rights reserved.
 *
 * This software was developed by Webdetails and is provided under the terms
 * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -13,7 +13,8 @@
 
 package pt.webdetails.cpf.olap;
 
-import junit.framework.Assert;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import mondrian.olap.Axis;
 import mondrian.olap.Connection;
 import mondrian.olap.Cube;
@@ -24,17 +25,19 @@ import mondrian.olap.Query;
 import mondrian.rolap.RolapMember;
 import mondrian.rolap.RolapMemberBase;
 import mondrian.rolap.RolapResult;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class AbstractOlapUtilsTest {
 
@@ -46,28 +49,27 @@ public class AbstractOlapUtilsTest {
     olapUtils = new AbstractOlapUtilsForTesting();
 
     //configure the mocked Cube
-    Cube mockedCube = Mockito.mock( Cube.class );
-    Mockito.when( mockedCube.getDimensions() ).thenReturn( createTestDimensions() );
+    Cube mockedCube = mock( Cube.class );
+    when( mockedCube.getDimensions() ).thenReturn( createTestDimensions() );
 
     //configure the mocked Query
-    Query mockedQuery = Mockito.mock( Query.class );
-    Mockito.when( mockedQuery.getCube() ).thenReturn( mockedCube );
+    Query mockedQuery = mock( Query.class );
+    when( mockedQuery.getCube() ).thenReturn( mockedCube );
 
     //configure the mocked Axis
-    Axis mockedAxis = Mockito.mock( Axis.class );
-    Mockito.when( mockedAxis.getPositions() ).thenReturn( getPositions() );
+    Axis mockedAxis = mock( Axis.class );
+    when( mockedAxis.getPositions() ).thenReturn( getPositions() );
 
     //configure the mocked RolapResult
-    RolapResult mockedRolapResult = Mockito.mock( RolapResult.class );
-    Mockito.when( mockedRolapResult.getAxes() ).thenReturn( new Axis[] { mockedAxis, mockedAxis } );
+    RolapResult mockedRolapResult = mock( RolapResult.class );
+    when( mockedRolapResult.getAxes() ).thenReturn( new Axis[] { mockedAxis, mockedAxis } );
 
     //configure the mocked connection
-    mockedConnection = Mockito.mock( Connection.class );
-    Mockito.when( mockedConnection.parseQuery( Mockito.anyString() ) ).thenReturn( mockedQuery );
-    Mockito.when( mockedConnection.execute( Mockito.any( Query.class ) ) ).thenReturn( mockedRolapResult );
+    mockedConnection = mock( Connection.class );
+    when( mockedConnection.parseQuery( anyString() ) ).thenReturn( mockedQuery );
+    when( mockedConnection.execute( any( Query.class ) ) ).thenReturn( mockedRolapResult );
 
     olapUtils.setConnection( mockedConnection );
-
   }
 
   @Test
@@ -78,12 +80,10 @@ public class AbstractOlapUtilsTest {
         "\"jndi\":\"testJndi\"},{\"schema\":\"catalog2Definition\",\"name\":\"catalog2Name\"," +
         "\"cubes\":[{\"id\":\"identifier0\",\"name\":\"name0\"},{\"id\":\"identifier1\",\"name\":\"name1\"}]," +
         "\"jndi\":\"testJndi\"}]}";
-    try {
-      result = olapUtils.getOlapCubes();
-    } catch ( JSONException e ) {
-      Assert.fail( e.getMessage() );
-    }
-    Assert.assertTrue( jsonEquals( expectedResult, result.toString() ) );
+
+    result = olapUtils.getOlapCubes();
+
+    assertTrue( jsonEquals( expectedResult, result.toString() ) );
   }
 
   @Test
@@ -102,15 +102,10 @@ public class AbstractOlapUtilsTest {
         "\"type\":\"measure\"},{\"qualifiedName\":\"[Unknown]\",\"name\":\"unknown\",\"memberType\":\"UNKNOWN\"," +
         "\"caption\":\"member with type unknown\",\"type\":\"measure\"}]}";
 
-    try {
-      result =
-          olapUtils.getCubeStructure( "", "", "" );
-    } catch ( JSONException e ) {
-      Assert.fail( e.getMessage() );
-    }
-    Assert.assertTrue( jsonEquals( expectedResult, result.toString() ) );
-  }
+    result = olapUtils.getCubeStructure( "", "", "" );
 
+    assertTrue( jsonEquals( expectedResult, result.toString() ) );
+  }
 
   @Test
   public void testGetMeasures() throws Exception {
@@ -125,12 +120,10 @@ public class AbstractOlapUtilsTest {
         "\"caption\":\"member with type regular\",\"type\":\"measure\"},{\"qualifiedName\":\"[Unknown]\"," +
         "\"name\":\"unknown\",\"memberType\":\"UNKNOWN\",\"caption\":\"member with type unknown\"," +
         "\"type\":\"measure\"}]";
-    try {
-      result = olapUtils.getMeasures( mockedConnection, "" );
-    } catch ( JSONException e ) {
-      Assert.fail( e.getMessage() );
-    }
-    Assert.assertTrue( jsonEquals( expectedResult, result.toString() ) );
+
+    result = olapUtils.getMeasures( mockedConnection, "" );
+
+    assertTrue( jsonEquals( expectedResult, result.toString() ) );
   }
 
   @Test
@@ -146,12 +139,10 @@ public class AbstractOlapUtilsTest {
         "\"caption\":\"member with type regular\",\"type\":\"member\"},{\"qualifiedName\":\"[Unknown]\"," +
         "\"name\":\"unknown\",\"memberType\":\"UNKNOWN\",\"caption\":\"member with type unknown\"," +
         "\"type\":\"member\"}]}";
-    try {
-      result = olapUtils.getLevelMembersStructure( "", "", "", "" );
-    } catch ( JSONException e ) {
-      Assert.fail( e.getMessage() );
-    }
-    Assert.assertTrue( jsonEquals( expectedResult, result.toString() ) );
+
+    result = olapUtils.getLevelMembersStructure( "", "", "", "" );
+
+    assertTrue( jsonEquals( expectedResult, result.toString() ) );
   }
 
   @Test
@@ -165,12 +156,10 @@ public class AbstractOlapUtilsTest {
         "\"type\":\"member\"}]}";
     long pageSize = 3;
     long pageStart = 1;
-    try {
-      result = olapUtils.getPaginatedLevelMembers( "", "", "", "", "", "", pageSize, pageStart );
-    } catch ( JSONException e ) {
-      Assert.fail( e.getMessage() );
-    }
-    Assert.assertTrue( jsonEquals( expectedResult, result.toString() ) );
+
+    result = olapUtils.getPaginatedLevelMembers( "", "", "", "", "", "", pageSize, pageStart );
+
+    assertTrue( jsonEquals( expectedResult, result.toString() ) );
   }
 
 
@@ -192,8 +181,8 @@ public class AbstractOlapUtilsTest {
   }
 
   private static List<Position> getPositions() {
-    List<Position> positions = new ArrayList<Position>();
-    for ( RolapMember member : olapUtils.createMeasuresMembers() ) {
+    List<Position> positions = new ArrayList<>();
+    for ( RolapMember member : AbstractOlapUtilsForTesting.createMeasuresMembers() ) {
       positions.add( new PositionMock( (RolapMemberBase) member ) );
     }
     return positions;

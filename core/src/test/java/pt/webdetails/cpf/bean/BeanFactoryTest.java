@@ -1,5 +1,5 @@
 /*!
- * Copyright 2002 - 2017 Webdetails, a Hitachi Vantara company.  All rights reserved.
+ * Copyright 2002 - 2021 Webdetails, a Hitachi Vantara company.  All rights reserved.
  *
  * This software was developed by Webdetails and is provided under the terms
  * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -12,13 +12,15 @@
  */
 package pt.webdetails.cpf.bean;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class BeanFactoryTest extends TestCase {
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+public class BeanFactoryTest {
 
   /*
    * We tend to use BeanFactory class to load spring xml files that are
@@ -56,11 +58,8 @@ public class BeanFactoryTest extends TestCase {
   public void testBeanLoadingOK() {
 
     assertNotNull( factory );
-    try {
-      dummyBean = (IDummyBean) factory.getBean( IDummyBean.class.getSimpleName() );
-    } catch ( Throwable t ) {
-      Assert.fail();
-    }
+
+    dummyBean = (IDummyBean) factory.getBean( IDummyBean.class.getSimpleName() );
 
     assertNotNull( dummyBean );
     assertTrue( dummyBean.isBeanOK() );
