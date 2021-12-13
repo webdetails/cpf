@@ -168,11 +168,6 @@
     </dependency>
     <dependency>
       <groupId>com.orientechnologies</groupId>
-      <artifactId>orient-commons</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.orientechnologies</groupId>
       <artifactId>orientdb-core</artifactId>
       <scope>provided</scope>
     </dependency>
@@ -186,12 +181,6 @@
       <artifactId>orientdb-client</artifactId>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>com.orientechnologies</groupId>
-      <artifactId>orientdb-enterprise</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
     <!-- region Test dependencies -->
     <dependency>
       <groupId>org.osgi</groupId>
