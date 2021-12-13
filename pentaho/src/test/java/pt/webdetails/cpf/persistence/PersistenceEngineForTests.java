@@ -28,7 +28,7 @@ public class PersistenceEngineForTests extends PersistenceEngine {
 
   @Override
   protected String getOrientPath() {
-    return ".";
+    return "./databases/";
   }
 
   @Override
