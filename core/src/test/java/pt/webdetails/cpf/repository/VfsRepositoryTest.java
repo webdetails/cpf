@@ -71,10 +71,12 @@ public class VfsRepositoryTest {
   @Test
   public void testResourceExists() throws Exception {
     repository.createFolder( "testFolderCreation" );
-    boolean exists = repository.resourceExists( "testFolderCreation" );
-    assertTrue( exists );
-    boolean notExists = repository.resourceExists( "IAmNotAFolder!" );
-    assertFalse( notExists );
+
+    // A resource that exists
+    assertTrue( repository.resourceExists( "testFolderCreation" ) );
+
+    // A resource that does not exist
+    assertFalse( repository.resourceExists( "IAmNotAFolder!" ) );
   }
 
   @Test

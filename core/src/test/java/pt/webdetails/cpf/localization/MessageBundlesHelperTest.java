@@ -100,7 +100,7 @@ public class MessageBundlesHelperTest {
     assertNotNull( pluginAccess );
     assertNotNull( pluginAccess.getStoredFiles() );
     assertTrue( pluginAccess.getStoredFiles().size() > 0 );
-    assertEquals( pluginAccess.getStoredFiles().size(), SOME_ACCEPTED_FILES_UNIX_SEPARATOR.length );
+    assertEquals( SOME_ACCEPTED_FILES_UNIX_SEPARATOR.length, pluginAccess.getStoredFiles().size() );
 
     for ( String file : SOME_ACCEPTED_FILES_UNIX_SEPARATOR ) {
       String messageInCacheDir =

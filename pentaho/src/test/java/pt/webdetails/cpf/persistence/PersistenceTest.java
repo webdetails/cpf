@@ -127,10 +127,11 @@ public class PersistenceTest {
         "\r\n            \"likeJson\": \"[1,2,3]\",\r\n            \"spaces\":  \"value with spaces\"\r\n        " +
         "}\r\n    }\r\n}";
     doc.fromJSON( s );
-    assertEquals( "\"\",\"oops\":\"123\"", doc.field( "deep[deeper][quotes]" ) );
+    String expected1 = "\"\",\"oops\":\"123\"";
+    assertEquals( expected1, doc.field( "deep[deeper][quotes]" ) );
 
     String res = doc.toJSON();
-    String expected = "\"quotes\":\"\\\"\\\",\\\"oops\\\":\\\"123\\\"\"";
-    assertTrue( res.contains( expected ) );
+    String expected2 = "\"quotes\":\"\\\"\\\",\\\"oops\\\":\\\"123\\\"\"";
+    assertTrue( res.contains( expected2 ) );
   }
 }
