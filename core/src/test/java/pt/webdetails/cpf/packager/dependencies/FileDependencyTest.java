@@ -1,5 +1,5 @@
 /*!
- * Copyright 2002 - 2019 Webdetails, a Hitachi Vantara company.  All rights reserved.
+ * Copyright 2002 - 2021 Webdetails, a Hitachi Vantara company.  All rights reserved.
  *
  * This software was developed by Webdetails and is provided under the terms
  * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -12,7 +12,7 @@
  */
 package pt.webdetails.cpf.packager.dependencies;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 import pt.webdetails.cpf.context.api.IUrlProvider;
 import pt.webdetails.cpf.packager.origin.PathOrigin;
 import pt.webdetails.cpf.repository.api.IContentAccessFactory;
@@ -23,18 +23,21 @@ import pt.webdetails.cpf.repository.api.IUserContentAccess;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class FileDependencyTest extends TestCase {
+public class FileDependencyTest {
 
+  @Test
   public void testGetFileInputStreamNullContentFactory() throws IOException {
     FileDependencyForTest fdft = new FileDependencyForTest( "1.0", null, "/home/admin/t.js", true );
     assertNull( fdft.getFileInputStream() );
   }
 
-
+ @Test
   public void testGetFileInputStream() throws IOException {
     PathOrigin pathOrigin = mock( PathOrigin.class );
     IReadAccess readAccess = mock( IReadAccess.class );
@@ -47,11 +50,9 @@ public class FileDependencyTest extends TestCase {
 
     fdft = new FileDependencyForTest( "1.0", pathOrigin, "/home/admins/t.js", false );
     assertNull( "Different path fails to load resource", fdft.getFileInputStream() );
-
   }
 
-
-  class FileDependencyForTest extends FileDependency {
+  static class FileDependencyForTest extends FileDependency {
 
     private boolean returnNullContentFactory;
 
@@ -97,8 +98,8 @@ public class FileDependencyTest extends TestCase {
           return null;
         }
       } );
-      this.returnNullContentFactory = returnNullContentFactory;
 
+      this.returnNullContentFactory = returnNullContentFactory;
     }
 
     @Override

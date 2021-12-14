@@ -1,5 +1,5 @@
 /*!
- * Copyright 2018 Webdetails, a Hitachi Vantara company.  All rights reserved.
+ * Copyright 2018-2021 Webdetails, a Hitachi Vantara company.  All rights reserved.
  *
  * This software was developed by Webdetails and is provided under the terms
  * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -12,16 +12,17 @@
  */
 package pt.webdetails.cpf.packager;
 
-import junit.framework.TestCase;
 import org.junit.Test;
 import pt.webdetails.cpf.packager.origin.StaticSystemOrigin;
 
-public class StaticSystemOriginTest extends TestCase {
+import static org.junit.Assert.assertEquals;
+
+public class StaticSystemOriginTest {
 
   @Test
   public void testNullURLProvider() {
     StaticSystemOrigin instance = new StaticSystemOrigin("/home");
     String result = instance.getUrl("/admin", null);
-    assertEquals(result, "/home/admin");
+    assertEquals( "/home/admin", result);
   }
 }

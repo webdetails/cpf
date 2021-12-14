@@ -13,7 +13,6 @@
 
 package pt.webdetails.cpf.packager;
 
-import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -29,9 +28,16 @@ import pt.webdetails.cpf.repository.api.IContentAccessFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-public class DependenciesPackageTest extends TestCase {
+public class DependenciesPackageTest {
 
   private static DependenciesPackage jsDepPackage;
   private static DependenciesPackage cssDepPackage;
@@ -46,7 +52,7 @@ public class DependenciesPackageTest extends TestCase {
   private static PathOrigin mockPathOrigin;
 
   @Before
-  protected void setUp() throws Exception {
+  public void setUp() {
     mockFactory = mock( IContentAccessFactory.class );
     mockUrlProvider = mock( IUrlProvider.class );
     mockPathOrigin = mock( PathOrigin.class );
@@ -65,8 +71,6 @@ public class DependenciesPackageTest extends TestCase {
 
     mapDepPackage =
       new DependenciesPackage( MAP_FILE_NAME, DependenciesPackage.PackageType.MAP, mockFactory, mockUrlProvider );
-
-
   }
 
   @Test
@@ -83,7 +87,6 @@ public class DependenciesPackageTest extends TestCase {
       assertTrue( mapDepPackage.registerFileDependency(
           fileNames[ i ] + ".css.map", fileVersions[ i ], mockPathOrigin, filePaths[ i ] ) );
     }
-
   }
 
   @Test
@@ -100,29 +103,99 @@ public class DependenciesPackageTest extends TestCase {
       assertTrue( mapDepPackage.registerRawDependency(
           fileNames[ i ] + ".css.map", fileVersions[ i ], fileContents[ i ] ) );
     }
-
   }
 
   @Test
   public void testRegisterDependency() {
     String[] fileNames = new String[]{"file1", "file2"};
-    Map<String, Dependency> registry = new HashMap<String, Dependency>();
+    Map<String, Dependency> registry = new HashMap<>();
 
-    for ( int i = 0; i < fileNames.length; i++ ) {
+    JsMinifiedDependency jsMinifiedDependency = mock( JsMinifiedDependency.class );
+    CssMinifiedDependency cssMinifiedDependency = mock( CssMinifiedDependency.class );
+    MapDependency mapDependency = mock( MapDependency.class );
+
+    for ( String fileName : fileNames ) {
       assertTrue( jsDepPackage.registerDependency(
-          fileNames[ i ] + ".js", mock( JsMinifiedDependency.class ), registry ) );
+        fileName + ".js", jsMinifiedDependency, registry ) );
       assertTrue( cssDepPackage.registerDependency(
-          fileNames[ i ] + ".css", mock( CssMinifiedDependency.class ), registry ) );
+        fileName + ".css", cssMinifiedDependency, registry ) );
       assertTrue( mapDepPackage.registerDependency(
-          fileNames[ i ] + ".css.map", mock( MapDependency.class ), registry ) );
+        fileName + ".css.map", mapDependency, registry ) );
     }
     assertEquals( fileNames.length * 3, registry.size() );
   }
 
+  @Test
+  public void testRegisterNewerDependency() {
+    String jsFileName = "file.js";
+    String cssFileName = "file.css";
+    String mapFileName = "file.css.map";
+    Map<String, Dependency> registry = new HashMap<>();
+
+    // Each array contains three (3) dependencies whose versions order like the following:
+    // [0] older than [2] older than [1]
+    // This means that, at the end, the registry should hold [1]
+    int testSize = 3;
+    JsMinifiedDependency[] jsMinifiedDependency = new JsMinifiedDependency[ testSize ];
+    CssMinifiedDependency[] cssMinifiedDependency = new CssMinifiedDependency[ testSize ];
+    MapDependency[] mapDependency = new MapDependency[ testSize ];
+
+    // Mock [0]
+    jsMinifiedDependency[ 0 ] = mock( JsMinifiedDependency.class );
+    doCallRealMethod().when( jsMinifiedDependency[ 0 ] ).isOlderVersionThan( any() );
+    doReturn( "11111" ).when( jsMinifiedDependency[ 0 ] ).getVersion();
+    cssMinifiedDependency[ 0 ] = mock( CssMinifiedDependency.class );
+    doCallRealMethod().when( cssMinifiedDependency[ 0 ] ).isOlderVersionThan( any() );
+    doReturn( "11111" ).when( cssMinifiedDependency[ 0 ] ).getVersion();
+    mapDependency[ 0 ] = mock( MapDependency.class );
+    doCallRealMethod().when( mapDependency[ 0 ] ).isOlderVersionThan( any() );
+    doReturn( "11111" ).when( mapDependency[ 0 ] ).getVersion();
+
+    // Mock [1]
+    jsMinifiedDependency[ 1 ] = mock( JsMinifiedDependency.class );
+    doCallRealMethod().when( jsMinifiedDependency[ 1 ] ).isOlderVersionThan( any() );
+    doReturn( "55555" ).when( jsMinifiedDependency[ 1 ] ).getVersion();
+    cssMinifiedDependency[ 1 ] = mock( CssMinifiedDependency.class );
+    doCallRealMethod().when( cssMinifiedDependency[ 1 ] ).isOlderVersionThan( any() );
+    doReturn( "55555" ).when( cssMinifiedDependency[ 1 ] ).getVersion();
+    mapDependency[ 1 ] = mock( MapDependency.class );
+    doCallRealMethod().when( mapDependency[ 1 ] ).isOlderVersionThan( any() );
+    doReturn( "55555" ).when( mapDependency[ 1 ] ).getVersion();
+
+    // Mock [2]
+    jsMinifiedDependency[ 2 ] = mock( JsMinifiedDependency.class );
+    doCallRealMethod().when( jsMinifiedDependency[ 2 ] ).isOlderVersionThan( any() );
+    doReturn( "33333" ).when( jsMinifiedDependency[ 2 ] ).getVersion();
+    cssMinifiedDependency[ 2 ] = mock( CssMinifiedDependency.class );
+    doCallRealMethod().when( cssMinifiedDependency[ 2 ] ).isOlderVersionThan( any() );
+    doReturn( "33333" ).when( cssMinifiedDependency[ 2 ] ).getVersion();
+    mapDependency[ 2 ] = mock( MapDependency.class );
+    doCallRealMethod().when( mapDependency[ 2 ] ).isOlderVersionThan( any() );
+    doReturn( "33333" ).when( mapDependency[ 2 ] ).getVersion();
+
+    // It is expected to register the first two dependencies ([0] and [1]) and fail the last ([2])
+    Boolean[] registerDependencyExpectedReturn = new Boolean[] { Boolean.TRUE, Boolean.TRUE, Boolean.FALSE };
+
+    // Register
+    for ( int i = 0; i < testSize; ++i ) {
+      assertEquals( registerDependencyExpectedReturn[ i ], jsDepPackage.registerDependency(
+        jsFileName, jsMinifiedDependency[ i ], registry ) );
+      assertEquals( registerDependencyExpectedReturn[ i ], cssDepPackage.registerDependency(
+        cssFileName, cssMinifiedDependency[ i ], registry ) );
+      assertEquals( registerDependencyExpectedReturn[ i ], mapDepPackage.registerDependency(
+        mapFileName, mapDependency[ i ], registry ) );
+    }
+
+    // Only one dependency for each file
+    assertEquals( testSize, registry.size() );
+    // And the dependency should be the newest ([1])
+    assertEquals( jsMinifiedDependency[ 1 ], registry.get( jsFileName ) );
+    assertEquals( cssMinifiedDependency[ 1 ], registry.get( cssFileName ) );
+    assertEquals( mapDependency[ 1 ], registry.get( mapFileName ) );
+  }
 
   @Test
   public void testGetDependencies() {
-
 
     String jsPackagedDeps = jsDepPackage.getDependencies( true ).trim();
     assertEquals( "<script language=\"javascript\" type=\"text/javascript\" src=\"/js/"
@@ -140,23 +213,22 @@ public class DependenciesPackageTest extends TestCase {
 
     String jsUnpackagedDeps = jsDepPackage.getDependencies( false ).replaceAll( "\n", "" ).replaceAll( "\t", "" );
     String jsUnpackedExpected = "";
-    for ( int i = 0; i < filePaths.length; i++ ) {
+    for ( String path : filePaths ) {
       jsUnpackedExpected +=
-        "<script language=\"javascript\" type=\"text/javascript\" src=\"" + filePaths[i] + "\"></script>";
+        "<script language=\"javascript\" type=\"text/javascript\" src=\"" + path + "\"></script>";
     }
     assertEquals( jsUnpackedExpected, jsUnpackagedDeps );
 
     String cssUnpackagedDeps = cssDepPackage.getDependencies( false ).replaceAll( "\n", "" ).replaceAll( "\t", "" );
     String cssUnpackedExpected = "";
-    for ( int i = 0; i < filePaths.length; i++ ) {
+    for ( String filePath : filePaths ) {
       cssUnpackedExpected +=
-        "<link href=\"" + filePaths[i] + "\" rel=\"stylesheet\" type=\"text/css\" />";
+        "<link href=\"" + filePath + "\" rel=\"stylesheet\" type=\"text/css\" />";
     }
     assertEquals( cssUnpackedExpected, cssUnpackagedDeps );
 
     String mapUnpackagedDeps = mapDepPackage.getDependencies( false ).trim();
     assertEquals( "", mapUnpackagedDeps );
-
   }
 
   @Test
@@ -200,8 +272,4 @@ public class DependenciesPackageTest extends TestCase {
           fileNames[ i ] + ".css.map", fileVersions[ i ], mockPathOrigin, filePaths[ i ] );
     }
   }
-
-
-
-
 }

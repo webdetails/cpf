@@ -1,5 +1,5 @@
 /*!
- * Copyright 2018 Webdetails, a Hitachi Vantara company.  All rights reserved.
+ * Copyright 2018-2021 Webdetails, a Hitachi Vantara company.  All rights reserved.
  *
  * This software was developed by Webdetails and is provided under the terms
  * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -12,7 +12,7 @@
  */
 package pt.webdetails.cpf;
 
-import org.junit.Assert;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
@@ -32,7 +32,7 @@ import java.nio.file.Paths;
  * It also provides the assertPathEquals function that overcomes the problem of comparing paths with separators for
  * different operating systems.
  */
-public class AbstractPluginSystemTest {
+public abstract class AbstractPluginSystemTest {
   private static final String USER_DIR = System.getProperty( "user.dir" );
   protected static final String PLUGIN_NAME = "bogusPlugin";
   protected String PLUGIN_DIR = null;
@@ -76,6 +76,6 @@ public class AbstractPluginSystemTest {
   public void assertPathEquals( String expected, String actual ) {
     Path pathExpected = Paths.get( expected );
     Path pathActual = Paths.get( actual );
-    Assert.assertEquals( pathExpected, pathActual );
+    assertEquals( pathExpected, pathActual );
   }
 }

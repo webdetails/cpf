@@ -1,5 +1,5 @@
 /*!
- * Copyright 2002 - 2017 Webdetails, a Hitachi Vantara company. All rights reserved.
+ * Copyright 2002 - 2021 Webdetails, a Hitachi Vantara company. All rights reserved.
  *
  * This software was developed by Webdetails and is provided under the terms
  * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -15,13 +15,19 @@ package pt.webdetails.cpf.utils;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class AbstractCorsUtilTest {
 
@@ -30,7 +36,7 @@ public class AbstractCorsUtilTest {
 
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     AbstractCorsUtil corsUtil = new AbstractCorsUtil() {
       @Override protected boolean isCorsAllowed() {
         return false;
@@ -40,82 +46,81 @@ public class AbstractCorsUtilTest {
         return null;
       }
     };
-    corsUtilSpy = Mockito.spy( corsUtil );
+    corsUtilSpy = spy( corsUtil );
   }
 
   @Test
   public void testCorsDisabled() {
-    HttpServletRequest request = Mockito.mock( HttpServletRequest.class );
-    Mockito.doReturn( fakeLocal.get( 0 ) ).when( request ).getHeader( "ORIGIN" );
-    HttpServletResponse response = Mockito.mock( HttpServletResponse.class );
+    HttpServletRequest request = mock( HttpServletRequest.class );
+    doReturn( fakeLocal.get( 0 ) ).when( request ).getHeader( "ORIGIN" );
+    HttpServletResponse response = mock( HttpServletResponse.class );
 
-    Mockito.doReturn( false ).when( corsUtilSpy ).isCorsAllowed();
+    doReturn( false ).when( corsUtilSpy ).isCorsAllowed();
 
-    Mockito.doReturn( Collections.emptyList() ).when( corsUtilSpy ).getDomainWhitelist();
+    doReturn( Collections.emptyList() ).when( corsUtilSpy ).getDomainWhitelist();
     corsUtilSpy.setCorsHeaders( request, response );
-    Mockito.verify( request, Mockito.never() ).getHeader( "ORIGIN" );
-    Mockito.verify( response, Mockito.never() ).setHeader( "Access-Control-Allow-Origin", fakeLocal.get( 0 ) );
-    Mockito.verify( response, Mockito.never() ).setHeader( "Access-Control-Allow-Credentials", "true" );
+    verify( request, never() ).getHeader( "ORIGIN" );
+    verify( response, never() ).setHeader( "Access-Control-Allow-Origin", fakeLocal.get( 0 ) );
+    verify( response, never() ).setHeader( "Access-Control-Allow-Credentials", "true" );
   }
 
   @Test
   public void testCorsEnabledEmptyWhitelist() {
-    HttpServletRequest request = Mockito.mock( HttpServletRequest.class );
-    Mockito.doReturn( fakeLocal.get( 0 ) ).when( request ).getHeader( "ORIGIN" );
-    HttpServletResponse response = Mockito.mock( HttpServletResponse.class );
+    HttpServletRequest request = mock( HttpServletRequest.class );
+    doReturn( fakeLocal.get( 0 ) ).when( request ).getHeader( "ORIGIN" );
+    HttpServletResponse response = mock( HttpServletResponse.class );
 
-    Mockito.doReturn( true ).when( corsUtilSpy ).isCorsAllowed();
+    doReturn( true ).when( corsUtilSpy ).isCorsAllowed();
 
-    Mockito.doReturn( Collections.emptyList() ).when( corsUtilSpy ).getDomainWhitelist();
+    doReturn( Collections.emptyList() ).when( corsUtilSpy ).getDomainWhitelist();
     corsUtilSpy.setCorsHeaders( request, response );
-    Mockito.verify( request, Mockito.times( 1 ) ).getHeader( "ORIGIN" );
-    Mockito.verify( response, Mockito.never() ).setHeader( "Access-Control-Allow-Origin", fakeLocal.get( 0 ) );
-    Mockito.verify( response, Mockito.never() ).setHeader( "Access-Control-Allow-Credentials", "true" );
+    verify( request, times( 1 ) ).getHeader( "ORIGIN" );
+    verify( response, never() ).setHeader( "Access-Control-Allow-Origin", fakeLocal.get( 0 ) );
+    verify( response, never() ).setHeader( "Access-Control-Allow-Credentials", "true" );
   }
 
   @Test
   public void testCorsEnabledWrongDomain() {
-    HttpServletRequest request = Mockito.mock( HttpServletRequest.class );
-    Mockito.doReturn( fakeLocal.get( 0 ) ).when( request ).getHeader( "ORIGIN" );
-    HttpServletResponse response = Mockito.mock( HttpServletResponse.class );
+    HttpServletRequest request = mock( HttpServletRequest.class );
+    doReturn( fakeLocal.get( 0 ) ).when( request ).getHeader( "ORIGIN" );
+    HttpServletResponse response = mock( HttpServletResponse.class );
 
-    Mockito.doReturn( true ).when( corsUtilSpy ).isCorsAllowed();
+    doReturn( true ).when( corsUtilSpy ).isCorsAllowed();
 
-    Mockito.doReturn( Collections.singletonList( "www.pentaho.com" ) ).when( corsUtilSpy ).getDomainWhitelist();
+    doReturn( Collections.singletonList( "www.pentaho.com" ) ).when( corsUtilSpy ).getDomainWhitelist();
     corsUtilSpy.setCorsHeaders( request, response );
-    Mockito.verify( request, Mockito.times( 1 ) ).getHeader( "ORIGIN" );
-    Mockito.verify( response, Mockito.never() ).setHeader( "Access-Control-Allow-Origin", fakeLocal.get( 0 ) );
-    Mockito.verify( response, Mockito.never() ).setHeader( "Access-Control-Allow-Credentials", "true" );
+    verify( request, times( 1 ) ).getHeader( "ORIGIN" );
+    verify( response, never() ).setHeader( "Access-Control-Allow-Origin", fakeLocal.get( 0 ) );
+    verify( response, never() ).setHeader( "Access-Control-Allow-Credentials", "true" );
   }
 
   @Test
   public void testCorsEnabledSuccess() {
-    HttpServletRequest request = Mockito.mock( HttpServletRequest.class );
-    Mockito.doReturn( fakeLocal.get( 0 ) ).when( request ).getHeader( "ORIGIN" );
-    HttpServletResponse response = Mockito.mock( HttpServletResponse.class );
+    HttpServletRequest request = mock( HttpServletRequest.class );
+    doReturn( fakeLocal.get( 0 ) ).when( request ).getHeader( "ORIGIN" );
+    HttpServletResponse response = mock( HttpServletResponse.class );
 
-    Mockito.doReturn( true ).when( corsUtilSpy ).isCorsAllowed();
+    doReturn( true ).when( corsUtilSpy ).isCorsAllowed();
 
-    Mockito.doReturn( fakeLocal ).when( corsUtilSpy ).getDomainWhitelist();
+    doReturn( fakeLocal ).when( corsUtilSpy ).getDomainWhitelist();
     corsUtilSpy.setCorsHeaders( request, response );
-    Mockito.verify( request, Mockito.times( 1 ) ).getHeader( "ORIGIN" );
-    Mockito.verify( response, Mockito.times( 1 ) ).setHeader( "Access-Control-Allow-Origin", fakeLocal.get( 0 ) );
-    Mockito.verify( response, Mockito.times( 1 ) ).setHeader( "Access-Control-Allow-Credentials", "true" );
+    verify( request, times( 1 ) ).getHeader( "ORIGIN" );
+    verify( response, times( 1 ) ).setHeader( "Access-Control-Allow-Origin", fakeLocal.get( 0 ) );
+    verify( response, times( 1 ) ).setHeader( "Access-Control-Allow-Credentials", "true" );
   }
 
   @Test
   public void testEmptyHeader() {
-    HttpServletRequest request = Mockito.mock( HttpServletRequest.class );
-    Mockito.doReturn( "" ).when( request ).getHeader( "ORIGIN" );
-    HttpServletResponse response = Mockito.mock( HttpServletResponse.class );
+    HttpServletRequest request = mock( HttpServletRequest.class );
+    doReturn( "" ).when( request ).getHeader( "ORIGIN" );
+    HttpServletResponse response = mock( HttpServletResponse.class );
 
-    Mockito.doReturn( true ).when( corsUtilSpy ).isCorsAllowed();
+    doReturn( true ).when( corsUtilSpy ).isCorsAllowed();
 
-    Mockito.doReturn( Collections.emptyList() ).when( corsUtilSpy ).getDomainWhitelist();
+    doReturn( Collections.emptyList() ).when( corsUtilSpy ).getDomainWhitelist();
     corsUtilSpy.setCorsHeaders( request, response );
-    Mockito.verify( request, Mockito.times( 1 ) ).getHeader( "ORIGIN" );
-    Mockito.verify( response, Mockito.never() ).setHeader( "Access-Control-Allow-Origin", fakeLocal.get( 0 ) );
-    Mockito.verify( response, Mockito.never() ).setHeader( "Access-Control-Allow-Credentials", "true" );
+    verify( request, times( 1 ) ).getHeader( "ORIGIN" );
+    verify( response, never() ).setHeader( "Access-Control-Allow-Origin", fakeLocal.get( 0 ) );
+    verify( response, never() ).setHeader( "Access-Control-Allow-Credentials", "true" );
   }
-
 }

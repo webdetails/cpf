@@ -1,5 +1,5 @@
 /*!
- * Copyright 2002 - 2017 Webdetails, a Hitachi Vantara company.  All rights reserved.
+ * Copyright 2002 - 2021 Webdetails, a Hitachi Vantara company.  All rights reserved.
  *
  * This software was developed by Webdetails and is provided under the terms
  * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -12,9 +12,6 @@
  */
 package pt.webdetails.cpf.localization;
 
-
-import junit.framework.Assert;
-import junit.framework.TestCase;
 import org.junit.Test;
 import pt.webdetails.cpf.Util;
 import pt.webdetails.cpf.localization.test.BasicFile;
@@ -26,21 +23,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class MessageBundlesHelperTest extends TestCase {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-  private final Locale LOCALE = new Locale( "en", "US" );
+public class MessageBundlesHelperTest {
 
-  private final String MOCK_TEXT_FOR_PARAM_REPLACEMENT =
+  private static final Locale LOCALE = new Locale( "en", "US" );
+
+  private static final String MOCK_TEXT_FOR_PARAM_REPLACEMENT =
     "#{GLOBAL_MESSAGE_SET_NAME};#{GLOBAL_MESSAGE_SET_PATH};#{LANGUAGE_CODE}";
 
-  private final String[] SOME_ACCEPTED_FILES_UNIX_SEPARATOR = new String[] {
+  private static final String[] SOME_ACCEPTED_FILES_UNIX_SEPARATOR = new String[] {
     "messages.properties",
     "messages_en.properties",
     "messages_en" + MessageBundlesHelper.LANGUAGE_COUNTRY_SEPARATOR_UNIX + "US.properties",
     "messages_es" + MessageBundlesHelper.LANGUAGE_COUNTRY_SEPARATOR_UNIX + "ES.properties"
   };
 
-  private final String[] SOME_ACCEPTED_FILES = new String[] {
+  private static final String[] SOME_ACCEPTED_FILES = new String[] {
     "messages.properties",
     "messages_en.properties",
     "messages_pt.properties",
@@ -61,56 +63,46 @@ public class MessageBundlesHelperTest extends TestCase {
   private final String MOCK_PLUGIN_URL = Util.SEPARATOR + "dummy" + Util.SEPARATOR + "url";
 
   @Test
-  public void testAcceptedMessages() {
+  public void testAcceptedMessages() throws Exception {
 
     List<IBasicFile> basicFiles = toBasicFileList( Util.SEPARATOR, SOME_ACCEPTED_FILES );
 
     SomeFolderReadAccess someFolderAccess = new SomeFolderReadAccess( basicFiles );
     PluginWriteAccess pluginAccess = new PluginWriteAccess();
 
-    MessageBundlesHelper mbh = null;
+    MessageBundlesHelper mbh =
+      new MessageBundlesHelper( SOME_FOLDER_PATH, someFolderAccess, pluginAccess, LOCALE, MOCK_PLUGIN_URL );
 
-    try {
-      mbh = new MessageBundlesHelper( SOME_FOLDER_PATH, someFolderAccess, pluginAccess, LOCALE, MOCK_PLUGIN_URL );
-    } catch ( Exception e ) {
-      Assert.fail();
-    }
-
-    assertTrue( mbh != null );
-    assertTrue( pluginAccess != null && pluginAccess.getStoredFiles() != null );
+    assertNotNull( mbh );
+    assertNotNull( pluginAccess );
+    assertNotNull( pluginAccess.getStoredFiles() );
     assertTrue( pluginAccess.getStoredFiles().size() > 0 );
-    assertTrue( pluginAccess.getStoredFiles().size() == SOME_ACCEPTED_FILES.length );
+    assertEquals( SOME_ACCEPTED_FILES.length, pluginAccess.getStoredFiles().size() );
 
     for ( String file : SOME_ACCEPTED_FILES ) {
-
       String messageInCacheDir = Util.joinPath( Util.SEPARATOR, MessageBundlesHelper.BASE_CACHE_DIR, file );
       assertTrue( pluginAccess.getStoredFiles().contains( new BasicFile( messageInCacheDir ) ) );
     }
   }
 
   @Test
-  public void testAcceptedMessagesUnixSeparator() {
+  public void testAcceptedMessagesUnixSeparator() throws Exception {
 
     List<IBasicFile> basicFiles = toBasicFileList( Util.SEPARATOR, SOME_ACCEPTED_FILES_UNIX_SEPARATOR );
 
     SomeFolderReadAccess someFolderAccess = new SomeFolderReadAccess( basicFiles );
     PluginWriteAccess pluginAccess = new PluginWriteAccess();
 
-    MessageBundlesHelper mbh = null;
+    MessageBundlesHelper mbh =
+      new MessageBundlesHelper( SOME_FOLDER_PATH, someFolderAccess, pluginAccess, LOCALE, MOCK_PLUGIN_URL );
 
-    try {
-      mbh = new MessageBundlesHelper( SOME_FOLDER_PATH, someFolderAccess, pluginAccess, LOCALE, MOCK_PLUGIN_URL );
-    } catch ( Exception e ) {
-      Assert.fail();
-    }
-
-    assertTrue( mbh != null );
-    assertTrue( pluginAccess != null && pluginAccess.getStoredFiles() != null );
+    assertNotNull( mbh );
+    assertNotNull( pluginAccess );
+    assertNotNull( pluginAccess.getStoredFiles() );
     assertTrue( pluginAccess.getStoredFiles().size() > 0 );
-    assertTrue( pluginAccess.getStoredFiles().size() == SOME_ACCEPTED_FILES_UNIX_SEPARATOR.length );
+    assertEquals( SOME_ACCEPTED_FILES_UNIX_SEPARATOR.length, pluginAccess.getStoredFiles().size() );
 
     for ( String file : SOME_ACCEPTED_FILES_UNIX_SEPARATOR ) {
-
       String messageInCacheDir =
         Util.joinPath( Util.SEPARATOR, MessageBundlesHelper.BASE_CACHE_DIR, mbh.sanitize( file ) );
       assertTrue( pluginAccess.getStoredFiles().contains( new BasicFile( messageInCacheDir ) ) );
@@ -118,28 +110,24 @@ public class MessageBundlesHelperTest extends TestCase {
   }
 
   @Test
-  public void testNonAcceptedMessages() {
+  public void testNonAcceptedMessages() throws Exception {
 
     List<IBasicFile> basicFiles = toBasicFileList( Util.SEPARATOR, SOME_NON_ACCEPTED_FILES );
 
     SomeFolderReadAccess someFolderAccess = new SomeFolderReadAccess( basicFiles );
     PluginWriteAccess pluginAccess = new PluginWriteAccess();
 
-    MessageBundlesHelper mbh = null;
+    MessageBundlesHelper mbh =
+      new MessageBundlesHelper( SOME_FOLDER_PATH, someFolderAccess, pluginAccess, LOCALE, MOCK_PLUGIN_URL );
 
-    try {
-      mbh = new MessageBundlesHelper( SOME_FOLDER_PATH, someFolderAccess, pluginAccess, LOCALE, MOCK_PLUGIN_URL );
-    } catch ( Exception e ) {
-      Assert.fail();
-    }
-
-    assertTrue( mbh != null );
-    assertTrue( pluginAccess != null && pluginAccess.getStoredFiles() != null );
+    assertNotNull( mbh );
+    assertNotNull( pluginAccess );
+    assertNotNull( pluginAccess.getStoredFiles() );
     assertTrue( pluginAccess.getStoredFiles().size() > 0 );
 
     // 3 empty files created ( as a fallback ) and regarding the provided LOCALE: 'messages_en.properties'
     // and 'messages_en-US.properties' ( and one other which is 'messages.properties' )
-    assertTrue( pluginAccess.getStoredFiles().size() == 3 );
+    assertEquals( 3, pluginAccess.getStoredFiles().size() );
 
     String fallback_file_en = "messages_" + LOCALE.getLanguage() + ".properties";
     String fallback_file_en_messageInCacheDir = Util.joinPath( Util.SEPARATOR, MessageBundlesHelper.BASE_CACHE_DIR,
@@ -157,61 +145,49 @@ public class MessageBundlesHelperTest extends TestCase {
 
     // check if none of the following files has been stored in cache dir
     for ( String file : SOME_NON_ACCEPTED_FILES ) {
-
       String messageInCacheDir = Util.joinPath( Util.SEPARATOR, MessageBundlesHelper.BASE_CACHE_DIR, file );
       assertFalse( pluginAccess.getStoredFiles().contains( new BasicFile( messageInCacheDir ) ) );
     }
   }
 
   @Test
-  public void testTextReplacement() {
+  public void testTextReplacement() throws Exception {
 
     List<IBasicFile> basicFiles = toBasicFileList( Util.SEPARATOR, SOME_ACCEPTED_FILES );
 
     SomeFolderReadAccess someFolderAccess = new SomeFolderReadAccess( basicFiles );
     PluginWriteAccess pluginAccess = new PluginWriteAccess();
 
-    MessageBundlesHelper mbh = null;
+    MessageBundlesHelper mbh =
+      new MessageBundlesHelper( SOME_FOLDER_PATH, someFolderAccess, pluginAccess, LOCALE, MOCK_PLUGIN_URL );
 
-    try {
-      mbh = new MessageBundlesHelper( SOME_FOLDER_PATH, someFolderAccess, pluginAccess, LOCALE, MOCK_PLUGIN_URL );
-    } catch ( Exception e ) {
-      Assert.fail();
-    }
+    assertNotNull( mbh );
+    assertNotNull( pluginAccess );
+    assertNotNull( pluginAccess.getStoredFiles() );
+    assertEquals( SOME_ACCEPTED_FILES.length, pluginAccess.getStoredFiles().size() );
 
-    assertTrue( mbh != null && pluginAccess != null && pluginAccess.getStoredFiles() != null );
-    assertTrue( pluginAccess.getStoredFiles().size() == SOME_ACCEPTED_FILES.length );
-
-    String i18nReplacedText = null;
-
-    try {
-      i18nReplacedText = mbh.replaceParameters( MOCK_TEXT_FOR_PARAM_REPLACEMENT, null );
-    } catch ( Exception e ) {
-      Assert.fail();
-    }
+    String i18nReplacedText = mbh.replaceParameters( MOCK_TEXT_FOR_PARAM_REPLACEMENT, null );
 
     assertNotNull( i18nReplacedText );
 
     String[] replacedText = i18nReplacedText.split( ";" );
 
-    assertTrue( replacedText.length == 3 );
-    assertTrue( replacedText[ 0 ].equals( MessageBundlesHelper.BASE_MESSAGES_FILENAME ) );
-    assertTrue( replacedText[ 1 ]
-      .equals( Util.joinPath( MOCK_PLUGIN_URL, MessageBundlesHelper.BASE_CACHE_DIR, SOME_FOLDER_PATH ) ) );
-    assertTrue( replacedText[ 2 ]
-      .equals( LOCALE.getLanguage() + MessageBundlesHelper.LANGUAGE_COUNTRY_SEPARATOR + LOCALE.getCountry() ) );
+    assertEquals( 3, replacedText.length );
+
+    assertEquals( MessageBundlesHelper.BASE_MESSAGES_FILENAME, replacedText[ 0 ] );
+    assertEquals( Util.joinPath( MOCK_PLUGIN_URL, MessageBundlesHelper.BASE_CACHE_DIR, SOME_FOLDER_PATH ),
+      replacedText[ 1 ] );
+    assertEquals( LOCALE.getLanguage() + MessageBundlesHelper.LANGUAGE_COUNTRY_SEPARATOR + LOCALE.getCountry(),
+      replacedText[ 2 ] );
   }
 
   private List<IBasicFile> toBasicFileList( String path, String[] filesNames ) {
 
-    List<IBasicFile> basicFiles = new ArrayList<IBasicFile>();
+    List<IBasicFile> basicFiles = new ArrayList<>();
 
-    if ( filesNames != null ) {
-
+    if ( path != null && filesNames != null ) {
       for ( String fileName : filesNames ) {
-
-        if ( path != null && fileName != null ) {
-
+        if ( fileName != null ) {
           IBasicFile file = new BasicFile( path + fileName );
 
           if ( !basicFiles.contains( file ) ) {
