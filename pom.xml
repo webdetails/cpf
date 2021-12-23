@@ -56,7 +56,12 @@
     <jersey.version>1.19.1</jersey.version>
     <jcr.version>2.0</jcr.version>
     <owasp.encoder.version>1.2</owasp.encoder.version>
-
+    <pentaho-json.version>9.3.0.0-SNAPSHOT</pentaho-json.version>
+    <platform.version>9.3.0.0-SNAPSHOT</platform.version>
+    <mondrian.version>9.3.0.0-SNAPSHOT</mondrian.version>
+    <rhino.version>1.7R4</rhino.version>
+    <mockito.version>1.10.19</mockito.version>
+    <powermock.version>1.7.3</powermock.version>
   </properties>
 
   <dependencyManagement>
@@ -79,6 +84,7 @@
       <dependency>
         <groupId>org.mozilla</groupId>
         <artifactId>rhino</artifactId>
+        <version>${rhino.version}</version>
       </dependency>
       <dependency>
         <groupId>javax.servlet</groupId>
@@ -88,6 +94,7 @@
       <dependency>
         <groupId>org.pentaho</groupId>
         <artifactId>json</artifactId>
+        <version>${pentaho-json.version}</version>
       </dependency>
       <dependency>
         <groupId>org.owasp.encoder</groupId>
@@ -122,26 +129,31 @@
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-all</artifactId>
+        <version>${mockito.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
+        <version>${mockito.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.powermock</groupId>
         <artifactId>powermock-module-junit4</artifactId>
+        <version>${powermock.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.powermock</groupId>
         <artifactId>powermock-core</artifactId>
+        <version>${powermock.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.powermock</groupId>
         <artifactId>powermock-api-mockito</artifactId>
+        <version>${powermock.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -158,14 +170,17 @@
       <dependency>
         <groupId>pentaho</groupId>
         <artifactId>pentaho-platform-api</artifactId>
+        <version>${platform.version}</version>
       </dependency>
       <dependency>
         <groupId>pentaho</groupId>
         <artifactId>pentaho-platform-core</artifactId>
+        <version>${platform.version}</version>
       </dependency>
       <dependency>
         <groupId>pentaho</groupId>
         <artifactId>pentaho-platform-repository</artifactId>
+        <version>${platform.version}</version>
         <exclusions>
           <exclusion>
             <artifactId>*</artifactId>
@@ -176,10 +191,12 @@
       <dependency>
         <groupId>pentaho</groupId>
         <artifactId>pentaho-platform-scheduler</artifactId>
+        <version>${platform.version}</version>
       </dependency>
       <dependency>
         <groupId>pentaho</groupId>
         <artifactId>pentaho-platform-extensions</artifactId>
+        <version>${platform.version}</version>
         <exclusions>
           <exclusion>
             <artifactId>*</artifactId>
@@ -190,10 +207,12 @@
       <dependency>
         <groupId>pentaho</groupId>
         <artifactId>mondrian</artifactId>
+        <version>${mondrian.version}</version>
       </dependency>
       <dependency>
         <groupId>pentaho</groupId>
         <artifactId>pentaho-connections</artifactId>
+        <version>${platform.version}</version>
       </dependency>
       <dependency>
         <groupId>javax.jcr</groupId>
