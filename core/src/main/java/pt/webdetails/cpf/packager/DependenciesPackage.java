@@ -1,5 +1,5 @@
 /*!
- * Copyright 2002 - 2019 Webdetails, a Hitachi Vantara company.  All rights reserved.
+ * Copyright 2002 - 2021 Webdetails, a Hitachi Vantara company.  All rights reserved.
  *
  * This software was developed by Webdetails and is provided under the terms
  * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -12,6 +12,7 @@
  */
 package pt.webdetails.cpf.packager;
 
+import org.owasp.encoder.Encode;
 import pt.webdetails.cpf.context.api.IUrlProvider;
 import pt.webdetails.cpf.packager.dependencies.CssMinifiedDependency;
 import pt.webdetails.cpf.packager.dependencies.Dependency;
@@ -276,6 +277,7 @@ public class DependenciesPackage {
           }
 
           public String filter( String input, String baseUrl ) {
+            baseUrl = Encode.forHtmlAttribute( baseUrl );
             return String.format(
               "\t\t<link href=\"%s%s\" rel=\"stylesheet\" type=\"text/css\" />\n",
               baseUrl, baseUrl.endsWith( "/" ) && input.startsWith( "/" ) ? input.replaceFirst( "/", "" ) : input );
@@ -288,6 +290,7 @@ public class DependenciesPackage {
           }
 
           public String filter( String input, String baseUrl ) {
+            baseUrl = Encode.forHtmlAttribute( baseUrl );
             return String.format(
               "\t\t<script language=\"javascript\" type=\"text/javascript\" src=\"%s%s\"></script>\n",
               baseUrl, baseUrl.endsWith( "/" ) && input.startsWith( "/" ) ? input.replaceFirst( "/", "" ) : input );
@@ -312,7 +315,7 @@ public class DependenciesPackage {
           }
 
           public String filter( String input, String baseUrl ) {
-            return baseUrl + input + "\n";
+            return Encode.forHtmlAttribute( baseUrl ) + input + "\n";
           }
         };
     }
