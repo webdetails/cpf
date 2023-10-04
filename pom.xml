@@ -59,7 +59,7 @@
     <pentaho-json.version>9.3.0.0-SNAPSHOT</pentaho-json.version>
     <platform.version>9.3.0.0-SNAPSHOT</platform.version>
     <mondrian.version>9.3.0.0-SNAPSHOT</mondrian.version>
-    <rhino.version>1.7R4</rhino.version>
+    <rhino.version>1.7.13</rhino.version>
     <mockito.version>1.10.19</mockito.version>
     <powermock.version>1.7.3</powermock.version>
   </properties>
