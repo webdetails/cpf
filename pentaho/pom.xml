@@ -33,7 +33,7 @@
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
-      <artifactId>pentaho-platform-scheduler</artifactId>
+      <artifactId>pentaho-scheduler-core</artifactId>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
