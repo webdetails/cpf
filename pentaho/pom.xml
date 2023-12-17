@@ -34,6 +34,7 @@
     <dependency>
       <groupId>pentaho</groupId>
       <artifactId>pentaho-scheduler-core</artifactId>
+      <version>${platform.version}</version>
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
