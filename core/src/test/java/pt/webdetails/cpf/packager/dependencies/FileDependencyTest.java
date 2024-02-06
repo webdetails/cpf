@@ -1,5 +1,5 @@
 /*!
- * Copyright 2002 - 2021 Webdetails, a Hitachi Vantara company.  All rights reserved.
+ * Copyright 2002 - 2024 Webdetails, a Hitachi Vantara company.  All rights reserved.
  *
  * This software was developed by Webdetails and is provided under the terms
  * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -25,7 +25,7 @@ import java.io.InputStream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,7 +42,7 @@ public class FileDependencyTest {
     PathOrigin pathOrigin = mock( PathOrigin.class );
     IReadAccess readAccess = mock( IReadAccess.class );
     InputStream is = mock( InputStream.class );
-    when( pathOrigin.getReader( anyObject() ) ).thenReturn( readAccess );
+    when( pathOrigin.getReader( any() ) ).thenReturn( readAccess );
 
     when( readAccess.getFileInputStream( "/home/admin/t.js" ) ).thenReturn( is );
     FileDependencyForTest fdft = new FileDependencyForTest( "1.0", pathOrigin, "/home/admin/t.js", false );
