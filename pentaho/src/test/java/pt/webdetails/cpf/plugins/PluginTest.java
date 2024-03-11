@@ -1,5 +1,5 @@
 /*!
-* Copyright 2002 - 2021 Webdetails, a Hitachi Vantara company.  All rights reserved.
+* Copyright 2002 - 2024 Webdetails, a Hitachi Vantara company.  All rights reserved.
 *
 * This software was developed by Webdetails and is provided under the terms
 * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -18,10 +18,6 @@ import org.dom4j.Element;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import pt.webdetails.cpf.repository.api.IReadAccess;
 import pt.webdetails.cpf.utils.XmlDom4JUtils;
 
 import java.io.ByteArrayInputStream;
@@ -30,17 +26,16 @@ import java.io.InputStream;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.mockito.Mockito.mockStatic;
+import org.mockito.junit.MockitoJUnitRunner;
 
-@PowerMockIgnore( "jdk.internal.reflect.*" )
-@RunWith( PowerMockRunner.class )
-@PrepareForTest( XmlDom4JUtils.class )
+@RunWith( MockitoJUnitRunner.class )
 public class PluginTest {
 
   @Before
@@ -58,7 +53,7 @@ public class PluginTest {
     when( XmlDom4JUtils.getDocumentFromStream( is ) ).thenCallRealMethod();
 
     Document document = XmlDom4JUtils.getDocumentFromStream( is );
-    when( XmlDom4JUtils.getDocumentFromFile( any( IReadAccess.class ), anyString() ) ).thenReturn( document );
+    when( XmlDom4JUtils.getDocumentFromFile( any(), anyString() ) ).thenReturn( document );
   }
 
   @Test
