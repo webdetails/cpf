@@ -9,6 +9,10 @@
   </parent>
   <artifactId>cpf-pentaho</artifactId>
 
+  <properties>
+    <maven-surefire-plugin.argLine> --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED </maven-surefire-plugin.argLine>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>pentaho</groupId>
@@ -152,6 +156,8 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+        <version>${junit.version}</version>
+        <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>jaxen</groupId>
@@ -190,23 +196,10 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-module-junit4</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-mockito</artifactId>
+      <version>${mockito.version}</version>
+      <scope>test</scope>
     </dependency>
     <!-- endregion -->
   </dependencies>
+
 </project>
