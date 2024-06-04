@@ -86,18 +86,26 @@ public class AbstractOlapUtilsTest {
 
   @Test
   public void testGetCubeStructure() throws Exception {
-    String expectedResult = "{\"dimensions\":[{\"hierarchies\":[],\"name\":\"standardDim\"," +
-      "\"caption\":\"standardCaption\",\"type\":\"StandardDimension\"},{\"hierarchies\":[],\"name\":\"timeDim\"," +
-      "\"caption\":\"timeCaption\",\"type\":\"TimeDimension\"}],\"measures\":[{\"qualifiedName\":\"[All]\"," +
-      "\"name\":\"all\",\"memberType\":\"ALL\",\"caption\":\"member with type all\",\"type\":\"measure\"}," +
-      "{\"qualifiedName\":\"[Formula]\",\"name\":\"formula\",\"memberType\":\"FORMULA\"," +
-      "\"caption\":\"member with type formula\",\"type\":\"measure\"},{\"qualifiedName\":\"[Measure]\"," +
-      "\"name\":\"measure\",\"memberType\":\"MEASURE\",\"caption\":\"member with type measure\"," +
-      "\"type\":\"measure\"},{\"qualifiedName\":\"[Null]\",\"name\":\"null\",\"memberType\":\"NULL\"," +
-      "\"caption\":\"member with type null\",\"type\":\"measure\"},{\"qualifiedName\":\"[Regular]\"," +
-      "\"name\":\"regular\",\"memberType\":\"REGULAR\",\"caption\":\"member with type regular\"," +
-      "\"type\":\"measure\"},{\"qualifiedName\":\"[Unknown]\",\"name\":\"unknown\",\"memberType\":\"UNKNOWN\"," +
-      "\"caption\":\"member with type unknown\",\"type\":\"measure\"}]}";
+    String expectedResult =
+      "{\"measures\":[{\"qualifiedName\":\"[All]\",\"name\":\"all\",\"caption\":\"member with type all\","
+        + "\"memberType\":\"ALL\",\"type\":\"measure\"},{\"qualifiedName\":\"[Formula]\",\"name\":\"formula\","
+        + "\"caption\":\"member with type formula\",\"memberType\":\"FORMULA\",\"type\":\"measure\"},"
+        + "{\"qualifiedName\":\"[Measure]\",\"name\":\"measure\",\"caption\":\"member with type measure\","
+        + "\"memberType\":\"MEASURE\",\"type\":\"measure\"},{\"qualifiedName\":\"[Null]\",\"name\":\"null\","
+        + "\"caption\":\"member with type null\",\"memberType\":\"NULL\",\"type\":\"measure\"},"
+        + "{\"qualifiedName\":\"[Regular]\",\"name\":\"regular\",\"caption\":\"member with type regular\","
+        + "\"memberType\":\"REGULAR\",\"type\":\"measure\"},{\"qualifiedName\":\"[Unknown]\",\"name\":\"unknown\","
+        + "\"caption\":\"member with type unknown\",\"memberType\":\"UNKNOWN\",\"type\":\"measure\"}],"
+        + "\"dimensions\":[{\"hierarchies\":[{\"qualifiedName\":\"[Markets]\",\"name\":\"Markets\","
+        + "\"caption\":\"Markets\",\"defaultMemberQualifiedName\":\"].[All Markets\",\"type\":\"hierarchy\","
+        + "\"defaultMember\":\"All Markets\",\"levels\":[{\"depth\":1,\"qualifiedName\":\"s].[Territory\","
+        + "\"name\":\"Territory\",\"caption\":\"Territory\",\"type\":\"level\"}]}],\"name\":\"standardDim\","
+        + "\"caption\":\"standardCaption\",\"type\":\"StandardDimension\"},"
+        + "{\"hierarchies\":[{\"qualifiedName\":\"[Markets]\",\"name\":\"Markets\",\"caption\":\"Markets\","
+        + "\"defaultMemberQualifiedName\":\"].[All Markets\",\"type\":\"hierarchy\",\"defaultMember\":\"All "
+        + "Markets\",\"levels\":[{\"depth\":1,\"qualifiedName\":\"s].[Territory\",\"name\":\"Territory\","
+        + "\"caption\":\"Territory\",\"type\":\"level\"}]}],\"name\":\"timeDim\",\"caption\":\"timeCaption\","
+        + "\"type\":\"TimeDimension\"}]}";
 
     JSONObject result = olapUtils.getCubeStructure( "catalog1Name", "SteelWheels", "SampleData" );
     assertTrue( jsonEquals( expectedResult, result.toString() ) );
@@ -153,19 +161,27 @@ public class AbstractOlapUtilsTest {
 
   @Test
   public void testGetCubeStructureWithNullJNDI() throws Exception {
-    String expectedResult = "{\"dimensions\":[{\"hierarchies\":[],\"name\":\"standardDim\"," +
-      "\"caption\":\"standardCaption\",\"type\":\"StandardDimension\"},{\"hierarchies\":[],\"name\":\"timeDim\"," +
-      "\"caption\":\"timeCaption\",\"type\":\"TimeDimension\"}],\"measures\":[{\"qualifiedName\":\"[All]\"," +
-      "\"name\":\"all\",\"memberType\":\"ALL\",\"caption\":\"member with type all\",\"type\":\"measure\"}," +
-      "{\"qualifiedName\":\"[Formula]\",\"name\":\"formula\",\"memberType\":\"FORMULA\"," +
-      "\"caption\":\"member with type formula\",\"type\":\"measure\"},{\"qualifiedName\":\"[Measure]\"," +
-      "\"name\":\"measure\",\"memberType\":\"MEASURE\",\"caption\":\"member with type measure\"," +
-      "\"type\":\"measure\"},{\"qualifiedName\":\"[Null]\",\"name\":\"null\",\"memberType\":\"NULL\"," +
-      "\"caption\":\"member with type null\",\"type\":\"measure\"},{\"qualifiedName\":\"[Regular]\"," +
-      "\"name\":\"regular\",\"memberType\":\"REGULAR\",\"caption\":\"member with type regular\"," +
-      "\"type\":\"measure\"},{\"qualifiedName\":\"[Unknown]\",\"name\":\"unknown\",\"memberType\":\"UNKNOWN\"," +
-      "\"caption\":\"member with type unknown\",\"type\":\"measure\"}]}";
-    JSONObject result = olapUtils.getCubeStructure( "catalog1Name", "cc", null );
+    String expectedResult =
+      "{\"measures\":[{\"qualifiedName\":\"[All]\",\"name\":\"all\",\"caption\":\"member with type all\","
+        + "\"memberType\":\"ALL\",\"type\":\"measure\"},{\"qualifiedName\":\"[Formula]\",\"name\":\"formula\","
+        + "\"caption\":\"member with type formula\",\"memberType\":\"FORMULA\",\"type\":\"measure\"},"
+        + "{\"qualifiedName\":\"[Measure]\",\"name\":\"measure\",\"caption\":\"member with type measure\","
+        + "\"memberType\":\"MEASURE\",\"type\":\"measure\"},{\"qualifiedName\":\"[Null]\",\"name\":\"null\","
+        + "\"caption\":\"member with type null\",\"memberType\":\"NULL\",\"type\":\"measure\"},"
+        + "{\"qualifiedName\":\"[Regular]\",\"name\":\"regular\",\"caption\":\"member with type regular\","
+        + "\"memberType\":\"REGULAR\",\"type\":\"measure\"},{\"qualifiedName\":\"[Unknown]\",\"name\":\"unknown\","
+        + "\"caption\":\"member with type unknown\",\"memberType\":\"UNKNOWN\",\"type\":\"measure\"}],"
+        + "\"dimensions\":[{\"hierarchies\":[{\"qualifiedName\":\"[Markets]\",\"name\":\"Markets\","
+        + "\"caption\":\"Markets\",\"defaultMemberQualifiedName\":\"].[All Markets\",\"type\":\"hierarchy\","
+        + "\"defaultMember\":\"All Markets\",\"levels\":[{\"depth\":1,\"qualifiedName\":\"s].[Territory\","
+        + "\"name\":\"Territory\",\"caption\":\"Territory\",\"type\":\"level\"}]}],\"name\":\"standardDim\","
+        + "\"caption\":\"standardCaption\",\"type\":\"StandardDimension\"},"
+        + "{\"hierarchies\":[{\"qualifiedName\":\"[Markets]\",\"name\":\"Markets\",\"caption\":\"Markets\","
+        + "\"defaultMemberQualifiedName\":\"].[All Markets\",\"type\":\"hierarchy\",\"defaultMember\":\"All "
+        + "Markets\",\"levels\":[{\"depth\":1,\"qualifiedName\":\"s].[Territory\",\"name\":\"Territory\","
+        + "\"caption\":\"Territory\",\"type\":\"level\"}]}],\"name\":\"timeDim\",\"caption\":\"timeCaption\","
+        + "\"type\":\"TimeDimension\"}]}";
+    JSONObject result = olapUtils.getCubeStructure( "/catalog1Name", "cc", null );
     assertTrue( jsonEquals( expectedResult, result.toString() ) );
   }
 
