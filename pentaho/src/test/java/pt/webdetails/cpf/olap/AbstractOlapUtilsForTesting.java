@@ -24,7 +24,10 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.Mockito.mock;
+
 public class AbstractOlapUtilsForTesting extends AbstractOlapUtils {
+  private static final List<String> KNOWN_DATA_SOURCES = List.of( "SampleData" );
   private Connection mockedConnection;
 
   public void setConnection( Connection connection ) {
@@ -38,7 +41,7 @@ public class AbstractOlapUtilsForTesting extends AbstractOlapUtils {
 
   @Override
   protected DataSource getDatasourceImpl( String dataSourceName ) {
-    return null;
+    return ( KNOWN_DATA_SOURCES.contains( dataSourceName ) ) ? mock( DataSource.class ) : null;
   }
 
   protected IMondrianCatalogService getMondrianCatalogService() {
@@ -46,10 +49,6 @@ public class AbstractOlapUtilsForTesting extends AbstractOlapUtils {
   }
 
   protected Connection getMdxConnectionFromConnectionString( String connectStr ) {
-    return this.mockedConnection;
-  }
-
-  protected Connection getMdxConnection( String catalog ) {
     return this.mockedConnection;
   }
 

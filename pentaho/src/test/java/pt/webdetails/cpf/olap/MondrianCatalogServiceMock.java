@@ -23,6 +23,7 @@ import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianSchema;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class MondrianCatalogServiceMock implements IMondrianCatalogService {
   @Override
@@ -44,7 +45,9 @@ public class MondrianCatalogServiceMock implements IMondrianCatalogService {
 
   @Override
   public MondrianCatalog getCatalog( String s, IPentahoSession iPentahoSession ) {
-    return null;
+    return listCatalogs( iPentahoSession, true ).stream()
+      .filter( mondrianCatalog -> mondrianCatalog.getName().equals( s ) ).findAny()
+      .orElse( null );
   }
 
   @Override

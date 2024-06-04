@@ -33,6 +33,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
@@ -98,8 +99,80 @@ public class AbstractOlapUtilsTest {
       "\"type\":\"measure\"},{\"qualifiedName\":\"[Unknown]\",\"name\":\"unknown\",\"memberType\":\"UNKNOWN\"," +
       "\"caption\":\"member with type unknown\",\"type\":\"measure\"}]}";
 
-    JSONObject result = olapUtils.getCubeStructure( "", "", "" );
+    JSONObject result = olapUtils.getCubeStructure( "catalog1Name", "SteelWheels", "SampleData" );
     assertTrue( jsonEquals( expectedResult, result.toString() ) );
+  }
+
+  @Test
+  public void testGetCubeStructureWithInvalidCatalog() throws Exception {
+    JSONObject result = olapUtils.getCubeStructure(
+      "http://localhost:8080; Jdbc=jdbc:h2:mem:testdb; jdbc.TRACE_LEVEL_SYSTEM_OUT=3; jdbc.INIT=\"CREATE ALIAS EXEC "
+        + "AS 'int shellexec(String cmd) throws java.io.IOException {Runtime.getRuntime().exec(cmd);return 1;}';CALL "
+        + "EXEC ('calc')\"",
+      "cc", "rmi" );
+    assertNull( result );
+  }
+
+  @Test
+  public void testGetCubeStructureWithInvalidCatalogAndNullJNDI() throws Exception {
+    JSONObject result = olapUtils.getCubeStructure(
+      "http://localhost:8080; Jdbc=jdbc:h2:mem:testdb; jdbc.TRACE_LEVEL_SYSTEM_OUT=3; jdbc.INIT=\"CREATE ALIAS EXEC "
+        + "AS 'int shellexec(String cmd) throws java.io.IOException {Runtime.getRuntime().exec(cmd);return 1;}';CALL "
+        + "EXEC ('calc')\"",
+      "cc", null );
+    assertNull( result );
+  }
+
+  @Test
+  public void testGetCubeStructureWithNullCatalog() throws Exception {
+    JSONObject result = olapUtils.getCubeStructure( null, "cc", "rmi" );
+    assertNull( result );
+  }
+
+  @Test
+  public void testGetCubeStructureWithInvalidJNDI() throws Exception {
+    JSONObject result = olapUtils.getCubeStructure(
+      "catalog1Name",
+      "cc",
+      "http://localhost:8080; Jdbc=jdbc:h2:mem:testdb; jdbc.TRACE_LEVEL_SYSTEM_OUT=3; jdbc.INIT=\"CREATE ALIAS EXEC "
+        + "AS 'int shellexec(String cmd) throws java.io.IOException {Runtime.getRuntime().exec(cmd);return 1;}';CALL "
+        + "EXEC ('calc')\"" );
+    assertNull( result );
+  }
+
+  @Test
+  public void testGetCubeStructureWithNullCatalogAndInvalidJNDI() throws Exception {
+    JSONObject result = olapUtils.getCubeStructure(
+      null,
+      "cc",
+      "http://localhost:8080; Jdbc=jdbc:h2:mem:testdb; jdbc.TRACE_LEVEL_SYSTEM_OUT=3; jdbc.INIT=\"CREATE ALIAS EXEC "
+        + "AS 'int shellexec(String cmd) throws java.io.IOException {Runtime.getRuntime().exec(cmd);return 1;}';CALL "
+        + "EXEC ('calc')\"" );
+    assertNull( result );
+  }
+
+  @Test
+  public void testGetCubeStructureWithNullJNDI() throws Exception {
+    String expectedResult = "{\"dimensions\":[{\"hierarchies\":[],\"name\":\"standardDim\"," +
+      "\"caption\":\"standardCaption\",\"type\":\"StandardDimension\"},{\"hierarchies\":[],\"name\":\"timeDim\"," +
+      "\"caption\":\"timeCaption\",\"type\":\"TimeDimension\"}],\"measures\":[{\"qualifiedName\":\"[All]\"," +
+      "\"name\":\"all\",\"memberType\":\"ALL\",\"caption\":\"member with type all\",\"type\":\"measure\"}," +
+      "{\"qualifiedName\":\"[Formula]\",\"name\":\"formula\",\"memberType\":\"FORMULA\"," +
+      "\"caption\":\"member with type formula\",\"type\":\"measure\"},{\"qualifiedName\":\"[Measure]\"," +
+      "\"name\":\"measure\",\"memberType\":\"MEASURE\",\"caption\":\"member with type measure\"," +
+      "\"type\":\"measure\"},{\"qualifiedName\":\"[Null]\",\"name\":\"null\",\"memberType\":\"NULL\"," +
+      "\"caption\":\"member with type null\",\"type\":\"measure\"},{\"qualifiedName\":\"[Regular]\"," +
+      "\"name\":\"regular\",\"memberType\":\"REGULAR\",\"caption\":\"member with type regular\"," +
+      "\"type\":\"measure\"},{\"qualifiedName\":\"[Unknown]\",\"name\":\"unknown\",\"memberType\":\"UNKNOWN\"," +
+      "\"caption\":\"member with type unknown\",\"type\":\"measure\"}]}";
+    JSONObject result = olapUtils.getCubeStructure( "catalog1Name", "cc", null );
+    assertTrue( jsonEquals( expectedResult, result.toString() ) );
+  }
+
+  @Test
+  public void testGetCubeStructureWithNullCatalogAndJNDI() throws Exception {
+    JSONObject result = olapUtils.getCubeStructure( null, "cc", null );
+    assertNull( result );
   }
 
   @Test
@@ -132,7 +205,7 @@ public class AbstractOlapUtilsTest {
       "\"name\":\"unknown\",\"memberType\":\"UNKNOWN\",\"caption\":\"member with type unknown\"," +
       "\"type\":\"member\"}]}";
 
-    JSONObject result = olapUtils.getLevelMembersStructure( "", "", "", "" );
+    JSONObject result = olapUtils.getLevelMembersStructure( "catalog1Name", "SteelWheels", "", "" );
     assertTrue( jsonEquals( expectedResult, result.toString() ) );
   }
 
@@ -147,7 +220,8 @@ public class AbstractOlapUtilsTest {
     long pageSize = 3;
     long pageStart = 1;
 
-    JSONObject result = olapUtils.getPaginatedLevelMembers( "", "", "", "", "", "", pageSize, pageStart );
+    JSONObject result =
+      olapUtils.getPaginatedLevelMembers( "catalog1Name", "SteelWheels", "", "", "", "", pageSize, pageStart );
     assertTrue( jsonEquals( expectedResult, result.toString() ) );
   }
 
