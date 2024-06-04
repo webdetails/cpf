@@ -196,14 +196,10 @@ public abstract class AbstractOlapUtils {
   }
 
   protected Connection getMdxConnection( String catalog ) {
-    if ( catalog != null && catalog.startsWith( "/" ) ) {
-      catalog = StringUtils.substring( catalog, 1 );
-    }
-
-    MondrianCatalog selectedCatalog = mondrianCatalogService.getCatalog( catalog, userSession );
+    MondrianCatalog selectedCatalog = getMondrianCatalog( catalog );
 
     if ( selectedCatalog == null ) {
-      logger.error( "Received catalog '" + catalog + "' doesn't appear to be valid" );
+      logger.error( "Received catalog '" + cleanLogString( catalog ) + "' doesn't appear to be valid" );
       return null;
     }
 
@@ -216,9 +212,49 @@ public abstract class AbstractOlapUtils {
   }
 
   private Connection getMdxConnection( String catalog, String jndi ) {
+    MondrianCatalog selectedCatalog = getMondrianCatalog( catalog );
+
+    if ( selectedCatalog == null ) {
+      logger.error( "Received catalog '" + cleanLogString( catalog ) + "' doesn't appear to be valid" );
+      return null;
+    }
+
+    if ( !isJNDIValid( jndi ) ) {
+      logger.error( "Received jndi '" + cleanLogString( jndi ) + "' doesn't appear to be valid" );
+      return null;
+    }
+
     String connectStr = "provider=mondrian;dataSource=" + jndi + ";Catalog=" + catalog;
 
     return getMdxConnectionFromConnectionString( connectStr );
+  }
+
+  private MondrianCatalog getMondrianCatalog( String catalog ) {
+    if ( catalog != null && catalog.startsWith( "/" ) ) {
+      catalog = StringUtils.substring( catalog, 1 );
+    }
+
+    return mondrianCatalogService.getCatalog( catalog, userSession );
+  }
+
+  private boolean isJNDIValid( String jndi ) {
+    if ( jndi != null ) {
+      try {
+        DataSource dataSourceImpl = getDatasourceImpl( jndi );
+
+        if ( dataSourceImpl != null ) {
+          return true;
+        }
+      } catch ( Exception ignore ) {
+        // ignore
+      }
+    }
+
+    return false;
+  }
+
+  private String cleanLogString( String toLog ) {
+    return ( toLog != null ) ? toLog.replaceAll( "[\n\r]", "_" ) : null;
   }
 
   protected Connection getMdxConnectionFromConnectionString( String connectStr ) {
@@ -241,10 +277,10 @@ public abstract class AbstractOlapUtils {
       }
 
       if ( nativeConnection == null ) {
-        logger.error( "Invalid connection: " + connectStr );
+        logger.error( "Invalid connection: " + cleanLogString( connectStr ) );
       }
     } catch ( Exception e ) {
-      logger.error( "Invalid connection: " + connectStr + " - " + e );
+      logger.error( "Invalid connection: " + cleanLogString( connectStr ) + " - " + e );
     }
 
     return nativeConnection;
