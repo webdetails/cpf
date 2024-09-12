@@ -1,5 +1,5 @@
 /*!
- * Copyright 2002 - 2017 Webdetails, a Hitachi Vantara company. All rights reserved.
+ * Copyright 2002 - 2024 Webdetails, a Hitachi Vantara company. All rights reserved.
  *
  * This software was developed by Webdetails and is provided under the terms
  * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -24,10 +24,16 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.Mockito.mock;
+
 public class AbstractOlapUtilsForTesting extends AbstractOlapUtils {
+  private static final List<String> KNOWN_DATA_SOURCES = new ArrayList<>();
+
+  static {
+    KNOWN_DATA_SOURCES.add( "SampleData" );
+  }
 
   private Connection mockedConnection;
-
 
   public void setConnection( Connection connection ) {
     this.mockedConnection = connection;
@@ -39,46 +45,37 @@ public class AbstractOlapUtilsForTesting extends AbstractOlapUtils {
   }
 
   @Override
-  protected DataSource getDatasourceImpl( String dataSourceName ) throws Exception {
-    return null;
+  protected DataSource getDatasourceImpl( String dataSourceName ) {
+    return ( KNOWN_DATA_SOURCES.contains( dataSourceName ) ) ? mock( DataSource.class ) : null;
   }
 
   protected IMondrianCatalogService getMondrianCatalogService() {
     return new MondrianCatalogServiceMock();
   }
 
-  @Override
-  public List<MondrianCatalog> getMondrianCatalogs() {
-    return mondrianCatalogService.listCatalogs( userSession, true );
-  }
-
   protected Connection getMdxConnectionFromConnectionString( String connectStr ) {
     return this.mockedConnection;
   }
-
-  protected Connection getMdxConnection( String catalog ) {
-    return this.mockedConnection;
-  }
-
 
   protected List<RolapMember> getMeasuresMembersFromResult( RolapResult result ) {
     return createMeasuresMembers();
   }
 
   public static List<RolapMember> createMeasuresMembers() {
-    List<RolapMember> rolapMembers = new ArrayList<RolapMember>();
+    List<RolapMember> rolapMembers = new ArrayList<>();
+
     rolapMembers.add( new RolapMemberMock( "all", "member '[All]'", "member with type all", Member.MemberType.ALL ) );
     rolapMembers.add(
-        new RolapMemberMock( "formula", "member '[Formula]'", "member with type formula", Member.MemberType.FORMULA ) );
+      new RolapMemberMock( "formula", "member '[Formula]'", "member with type formula", Member.MemberType.FORMULA ) );
     rolapMembers.add(
-        new RolapMemberMock( "measure", "member '[Measure]'", "member with type measure", Member.MemberType.MEASURE ) );
-    rolapMembers
-        .add( new RolapMemberMock( "null", "member '[Null]'", "member with type null", Member.MemberType.NULL ) );
+      new RolapMemberMock( "measure", "member '[Measure]'", "member with type measure", Member.MemberType.MEASURE ) );
     rolapMembers.add(
-        new RolapMemberMock( "regular", "member '[Regular]'", "member with type regular", Member.MemberType.REGULAR ) );
+      new RolapMemberMock( "null", "member '[Null]'", "member with type null", Member.MemberType.NULL ) );
     rolapMembers.add(
-        new RolapMemberMock( "unknown", "member '[Unknown]'", "member with type unknown", Member.MemberType.UNKNOWN ) );
+      new RolapMemberMock( "regular", "member '[Regular]'", "member with type regular", Member.MemberType.REGULAR ) );
+    rolapMembers.add(
+      new RolapMemberMock( "unknown", "member '[Unknown]'", "member with type unknown", Member.MemberType.UNKNOWN ) );
+
     return rolapMembers;
   }
-
 }

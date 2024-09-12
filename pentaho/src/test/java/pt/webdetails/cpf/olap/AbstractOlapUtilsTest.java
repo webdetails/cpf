@@ -1,15 +1,15 @@
 /*!
-* Copyright 2002 - 2021 Webdetails, a Hitachi Vantara company.  All rights reserved.
-*
-* This software was developed by Webdetails and is provided under the terms
-* of the Mozilla Public License, Version 2.0, or any later version. You may not use
-* this file except in compliance with the license. If you need a copy of the license,
-* please go to  http://mozilla.org/MPL/2.0/. The Initial Developer is Webdetails.
-*
-* Software distributed under the Mozilla Public License is distributed on an "AS IS"
-* basis, WITHOUT WARRANTY OF ANY KIND, either express or  implied. Please refer to
-* the license for the specific language governing your rights and limitations.
-*/
+ * Copyright 2002 - 2024 Webdetails, a Hitachi Vantara company.  All rights reserved.
+ *
+ * This software was developed by Webdetails and is provided under the terms
+ * of the Mozilla Public License, Version 2.0, or any later version. You may not use
+ * this file except in compliance with the license. If you need a copy of the license,
+ * please go to  http://mozilla.org/MPL/2.0/. The Initial Developer is Webdetails.
+ *
+ * Software distributed under the Mozilla Public License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or  implied. Please refer to
+ * the license for the specific language governing your rights and limitations.
+ */
 
 package pt.webdetails.cpf.olap;
 
@@ -33,6 +33,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
@@ -40,7 +41,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class AbstractOlapUtilsTest {
-
   private static AbstractOlapUtilsForTesting olapUtils;
   private static Connection mockedConnection;
 
@@ -74,125 +74,208 @@ public class AbstractOlapUtilsTest {
 
   @Test
   public void testGetOlapCubes() throws Exception {
-    JSONObject result = new JSONObject();
     String expectedResult = "{\"catalogs\":[{\"schema\":\"catalog1Definition\",\"name\":\"catalog1Name\"," +
-        "\"cubes\":[{\"id\":\"identifier0\",\"name\":\"name0\"},{\"id\":\"identifier1\",\"name\":\"name1\"}]," +
-        "\"jndi\":\"testJndi\"},{\"schema\":\"catalog2Definition\",\"name\":\"catalog2Name\"," +
-        "\"cubes\":[{\"id\":\"identifier0\",\"name\":\"name0\"},{\"id\":\"identifier1\",\"name\":\"name1\"}]," +
-        "\"jndi\":\"testJndi\"}]}";
+      "\"cubes\":[{\"id\":\"identifier0\",\"name\":\"name0\"},{\"id\":\"identifier1\",\"name\":\"name1\"}]," +
+      "\"jndi\":\"testJndi\"},{\"schema\":\"catalog2Definition\",\"name\":\"catalog2Name\"," +
+      "\"cubes\":[{\"id\":\"identifier0\",\"name\":\"name0\"},{\"id\":\"identifier1\",\"name\":\"name1\"}]," +
+      "\"jndi\":\"testJndi\"}]}";
 
-    result = olapUtils.getOlapCubes();
-
+    JSONObject result = olapUtils.getOlapCubes();
     assertTrue( jsonEquals( expectedResult, result.toString() ) );
   }
 
   @Test
   public void testGetCubeStructure() throws Exception {
-    JSONObject result = new JSONObject();
-    String expectedResult = "{\"dimensions\":[{\"hierarchies\":[],\"name\":\"standardDim\"," +
-        "\"caption\":\"standardCaption\",\"type\":\"StandardDimension\"},{\"hierarchies\":[],\"name\":\"timeDim\"," +
-        "\"caption\":\"timeCaption\",\"type\":\"TimeDimension\"}],\"measures\":[{\"qualifiedName\":\"[All]\"," +
-        "\"name\":\"all\",\"memberType\":\"ALL\",\"caption\":\"member with type all\",\"type\":\"measure\"}," +
-        "{\"qualifiedName\":\"[Formula]\",\"name\":\"formula\",\"memberType\":\"FORMULA\"," +
-        "\"caption\":\"member with type formula\",\"type\":\"measure\"},{\"qualifiedName\":\"[Measure]\"," +
-        "\"name\":\"measure\",\"memberType\":\"MEASURE\",\"caption\":\"member with type measure\"," +
-        "\"type\":\"measure\"},{\"qualifiedName\":\"[Null]\",\"name\":\"null\",\"memberType\":\"NULL\"," +
-        "\"caption\":\"member with type null\",\"type\":\"measure\"},{\"qualifiedName\":\"[Regular]\"," +
-        "\"name\":\"regular\",\"memberType\":\"REGULAR\",\"caption\":\"member with type regular\"," +
-        "\"type\":\"measure\"},{\"qualifiedName\":\"[Unknown]\",\"name\":\"unknown\",\"memberType\":\"UNKNOWN\"," +
-        "\"caption\":\"member with type unknown\",\"type\":\"measure\"}]}";
+    String expectedResult =
+      "{\"measures\":[{\"qualifiedName\":\"[All]\",\"name\":\"all\",\"caption\":\"member with type all\","
+        + "\"memberType\":\"ALL\",\"type\":\"measure\"},{\"qualifiedName\":\"[Formula]\",\"name\":\"formula\","
+        + "\"caption\":\"member with type formula\",\"memberType\":\"FORMULA\",\"type\":\"measure\"},"
+        + "{\"qualifiedName\":\"[Measure]\",\"name\":\"measure\",\"caption\":\"member with type measure\","
+        + "\"memberType\":\"MEASURE\",\"type\":\"measure\"},{\"qualifiedName\":\"[Null]\",\"name\":\"null\","
+        + "\"caption\":\"member with type null\",\"memberType\":\"NULL\",\"type\":\"measure\"},"
+        + "{\"qualifiedName\":\"[Regular]\",\"name\":\"regular\",\"caption\":\"member with type regular\","
+        + "\"memberType\":\"REGULAR\",\"type\":\"measure\"},{\"qualifiedName\":\"[Unknown]\",\"name\":\"unknown\","
+        + "\"caption\":\"member with type unknown\",\"memberType\":\"UNKNOWN\",\"type\":\"measure\"}],"
+        + "\"dimensions\":[{\"hierarchies\":[{\"qualifiedName\":\"[Markets]\",\"name\":\"Markets\","
+        + "\"caption\":\"Markets\",\"defaultMemberQualifiedName\":\"].[All Markets\",\"type\":\"hierarchy\","
+        + "\"defaultMember\":\"All Markets\",\"levels\":[{\"depth\":1,\"qualifiedName\":\"s].[Territory\","
+        + "\"name\":\"Territory\",\"caption\":\"Territory\",\"type\":\"level\"}]}],\"name\":\"standardDim\","
+        + "\"caption\":\"standardCaption\",\"type\":\"StandardDimension\"},"
+        + "{\"hierarchies\":[{\"qualifiedName\":\"[Markets]\",\"name\":\"Markets\",\"caption\":\"Markets\","
+        + "\"defaultMemberQualifiedName\":\"].[All Markets\",\"type\":\"hierarchy\",\"defaultMember\":\"All "
+        + "Markets\",\"levels\":[{\"depth\":1,\"qualifiedName\":\"s].[Territory\",\"name\":\"Territory\","
+        + "\"caption\":\"Territory\",\"type\":\"level\"}]}],\"name\":\"timeDim\",\"caption\":\"timeCaption\","
+        + "\"type\":\"TimeDimension\"}]}";
 
-    result = olapUtils.getCubeStructure( "", "", "" );
-
+    JSONObject result = olapUtils.getCubeStructure( "catalog1Name", "SteelWheels", "SampleData" );
     assertTrue( jsonEquals( expectedResult, result.toString() ) );
   }
 
   @Test
+  public void testGetCubeStructureWithInvalidCatalog() throws Exception {
+    JSONObject result = olapUtils.getCubeStructure(
+      "http://localhost:8080; Jdbc=jdbc:h2:mem:testdb; jdbc.TRACE_LEVEL_SYSTEM_OUT=3; jdbc.INIT=\"CREATE ALIAS EXEC "
+        + "AS 'int shellexec(String cmd) throws java.io.IOException {Runtime.getRuntime().exec(cmd);return 1;}';CALL "
+        + "EXEC ('calc')\"",
+      "cc", "rmi" );
+    assertNull( result );
+  }
+
+  @Test
+  public void testGetCubeStructureWithInvalidCatalogAndNullJNDI() throws Exception {
+    JSONObject result = olapUtils.getCubeStructure(
+      "http://localhost:8080; Jdbc=jdbc:h2:mem:testdb; jdbc.TRACE_LEVEL_SYSTEM_OUT=3; jdbc.INIT=\"CREATE ALIAS EXEC "
+        + "AS 'int shellexec(String cmd) throws java.io.IOException {Runtime.getRuntime().exec(cmd);return 1;}';CALL "
+        + "EXEC ('calc')\"",
+      "cc", null );
+    assertNull( result );
+  }
+
+  @Test
+  public void testGetCubeStructureWithNullCatalog() throws Exception {
+    JSONObject result = olapUtils.getCubeStructure( null, "cc", "rmi" );
+    assertNull( result );
+  }
+
+  @Test
+  public void testGetCubeStructureWithInvalidJNDI() throws Exception {
+    JSONObject result = olapUtils.getCubeStructure(
+      "catalog1Name",
+      "cc",
+      "http://localhost:8080; Jdbc=jdbc:h2:mem:testdb; jdbc.TRACE_LEVEL_SYSTEM_OUT=3; jdbc.INIT=\"CREATE ALIAS EXEC "
+        + "AS 'int shellexec(String cmd) throws java.io.IOException {Runtime.getRuntime().exec(cmd);return 1;}';CALL "
+        + "EXEC ('calc')\"" );
+    assertNull( result );
+  }
+
+  @Test
+  public void testGetCubeStructureWithNullCatalogAndInvalidJNDI() throws Exception {
+    JSONObject result = olapUtils.getCubeStructure(
+      null,
+      "cc",
+      "http://localhost:8080; Jdbc=jdbc:h2:mem:testdb; jdbc.TRACE_LEVEL_SYSTEM_OUT=3; jdbc.INIT=\"CREATE ALIAS EXEC "
+        + "AS 'int shellexec(String cmd) throws java.io.IOException {Runtime.getRuntime().exec(cmd);return 1;}';CALL "
+        + "EXEC ('calc')\"" );
+    assertNull( result );
+  }
+
+  @Test
+  public void testGetCubeStructureWithNullJNDI() throws Exception {
+    String expectedResult =
+      "{\"measures\":[{\"qualifiedName\":\"[All]\",\"name\":\"all\",\"caption\":\"member with type all\","
+        + "\"memberType\":\"ALL\",\"type\":\"measure\"},{\"qualifiedName\":\"[Formula]\",\"name\":\"formula\","
+        + "\"caption\":\"member with type formula\",\"memberType\":\"FORMULA\",\"type\":\"measure\"},"
+        + "{\"qualifiedName\":\"[Measure]\",\"name\":\"measure\",\"caption\":\"member with type measure\","
+        + "\"memberType\":\"MEASURE\",\"type\":\"measure\"},{\"qualifiedName\":\"[Null]\",\"name\":\"null\","
+        + "\"caption\":\"member with type null\",\"memberType\":\"NULL\",\"type\":\"measure\"},"
+        + "{\"qualifiedName\":\"[Regular]\",\"name\":\"regular\",\"caption\":\"member with type regular\","
+        + "\"memberType\":\"REGULAR\",\"type\":\"measure\"},{\"qualifiedName\":\"[Unknown]\",\"name\":\"unknown\","
+        + "\"caption\":\"member with type unknown\",\"memberType\":\"UNKNOWN\",\"type\":\"measure\"}],"
+        + "\"dimensions\":[{\"hierarchies\":[{\"qualifiedName\":\"[Markets]\",\"name\":\"Markets\","
+        + "\"caption\":\"Markets\",\"defaultMemberQualifiedName\":\"].[All Markets\",\"type\":\"hierarchy\","
+        + "\"defaultMember\":\"All Markets\",\"levels\":[{\"depth\":1,\"qualifiedName\":\"s].[Territory\","
+        + "\"name\":\"Territory\",\"caption\":\"Territory\",\"type\":\"level\"}]}],\"name\":\"standardDim\","
+        + "\"caption\":\"standardCaption\",\"type\":\"StandardDimension\"},"
+        + "{\"hierarchies\":[{\"qualifiedName\":\"[Markets]\",\"name\":\"Markets\",\"caption\":\"Markets\","
+        + "\"defaultMemberQualifiedName\":\"].[All Markets\",\"type\":\"hierarchy\",\"defaultMember\":\"All "
+        + "Markets\",\"levels\":[{\"depth\":1,\"qualifiedName\":\"s].[Territory\",\"name\":\"Territory\","
+        + "\"caption\":\"Territory\",\"type\":\"level\"}]}],\"name\":\"timeDim\",\"caption\":\"timeCaption\","
+        + "\"type\":\"TimeDimension\"}]}";
+    JSONObject result = olapUtils.getCubeStructure( "/catalog1Name", "cc", null );
+    assertTrue( jsonEquals( expectedResult, result.toString() ) );
+  }
+
+  @Test
+  public void testGetCubeStructureWithNullCatalogAndJNDI() throws Exception {
+    JSONObject result = olapUtils.getCubeStructure( null, "cc", null );
+    assertNull( result );
+  }
+
+  @Test
   public void testGetMeasures() throws Exception {
-    JSONArray result = new JSONArray();
     String expectedResult = "[{\"qualifiedName\":\"[All]\",\"name\":\"all\",\"memberType\":\"ALL\"," +
-        "\"caption\":\"member with type all\",\"type\":\"measure\"},{\"qualifiedName\":\"[Formula]\"," +
-        "\"name\":\"formula\",\"memberType\":\"FORMULA\",\"caption\":\"member with type formula\"," +
-        "\"type\":\"measure\"},{\"qualifiedName\":\"[Measure]\",\"name\":\"measure\",\"memberType\":\"MEASURE\"," +
-        "\"caption\":\"member with type measure\",\"type\":\"measure\"},{\"qualifiedName\":\"[Null]\"," +
-        "\"name\":\"null\",\"memberType\":\"NULL\",\"caption\":\"member with type null\",\"type\":\"measure\"}," +
-        "{\"qualifiedName\":\"[Regular]\",\"name\":\"regular\",\"memberType\":\"REGULAR\"," +
-        "\"caption\":\"member with type regular\",\"type\":\"measure\"},{\"qualifiedName\":\"[Unknown]\"," +
-        "\"name\":\"unknown\",\"memberType\":\"UNKNOWN\",\"caption\":\"member with type unknown\"," +
-        "\"type\":\"measure\"}]";
+      "\"caption\":\"member with type all\",\"type\":\"measure\"},{\"qualifiedName\":\"[Formula]\"," +
+      "\"name\":\"formula\",\"memberType\":\"FORMULA\",\"caption\":\"member with type formula\"," +
+      "\"type\":\"measure\"},{\"qualifiedName\":\"[Measure]\",\"name\":\"measure\",\"memberType\":\"MEASURE\"," +
+      "\"caption\":\"member with type measure\",\"type\":\"measure\"},{\"qualifiedName\":\"[Null]\"," +
+      "\"name\":\"null\",\"memberType\":\"NULL\",\"caption\":\"member with type null\",\"type\":\"measure\"}," +
+      "{\"qualifiedName\":\"[Regular]\",\"name\":\"regular\",\"memberType\":\"REGULAR\"," +
+      "\"caption\":\"member with type regular\",\"type\":\"measure\"},{\"qualifiedName\":\"[Unknown]\"," +
+      "\"name\":\"unknown\",\"memberType\":\"UNKNOWN\",\"caption\":\"member with type unknown\"," +
+      "\"type\":\"measure\"}]";
 
-    result = olapUtils.getMeasures( mockedConnection, "" );
-
+    JSONArray result = olapUtils.getMeasures( mockedConnection, "" );
     assertTrue( jsonEquals( expectedResult, result.toString() ) );
   }
 
   @Test
   public void testGetLevelMembersStructure() throws Exception {
-    JSONObject result = new JSONObject();
     String expectedResult = "{\"members\":[{\"qualifiedName\":\"[All]\",\"name\":\"all\",\"memberType\":\"ALL\"," +
-        "\"caption\":\"member with type all\",\"type\":\"member\"},{\"qualifiedName\":\"[Formula]\"," +
-        "\"name\":\"formula\",\"memberType\":\"FORMULA\",\"caption\":\"member with type formula\"," +
-        "\"type\":\"member\"},{\"qualifiedName\":\"[Measure]\",\"name\":\"measure\",\"memberType\":\"MEASURE\"," +
-        "\"caption\":\"member with type measure\",\"type\":\"member\"},{\"qualifiedName\":\"[Null]\"," +
-        "\"name\":\"null\",\"memberType\":\"NULL\",\"caption\":\"member with type null\",\"type\":\"member\"}," +
-        "{\"qualifiedName\":\"[Regular]\",\"name\":\"regular\",\"memberType\":\"REGULAR\"," +
-        "\"caption\":\"member with type regular\",\"type\":\"member\"},{\"qualifiedName\":\"[Unknown]\"," +
-        "\"name\":\"unknown\",\"memberType\":\"UNKNOWN\",\"caption\":\"member with type unknown\"," +
-        "\"type\":\"member\"}]}";
+      "\"caption\":\"member with type all\",\"type\":\"member\"},{\"qualifiedName\":\"[Formula]\"," +
+      "\"name\":\"formula\",\"memberType\":\"FORMULA\",\"caption\":\"member with type formula\"," +
+      "\"type\":\"member\"},{\"qualifiedName\":\"[Measure]\",\"name\":\"measure\",\"memberType\":\"MEASURE\"," +
+      "\"caption\":\"member with type measure\",\"type\":\"member\"},{\"qualifiedName\":\"[Null]\"," +
+      "\"name\":\"null\",\"memberType\":\"NULL\",\"caption\":\"member with type null\",\"type\":\"member\"}," +
+      "{\"qualifiedName\":\"[Regular]\",\"name\":\"regular\",\"memberType\":\"REGULAR\"," +
+      "\"caption\":\"member with type regular\",\"type\":\"member\"},{\"qualifiedName\":\"[Unknown]\"," +
+      "\"name\":\"unknown\",\"memberType\":\"UNKNOWN\",\"caption\":\"member with type unknown\"," +
+      "\"type\":\"member\"}]}";
 
-    result = olapUtils.getLevelMembersStructure( "", "", "", "" );
-
+    JSONObject result = olapUtils.getLevelMembersStructure( "catalog1Name", "SteelWheels", "", "" );
     assertTrue( jsonEquals( expectedResult, result.toString() ) );
   }
 
   @Test
   public void getPaginatedLevelMembersTest() throws Exception {
-    JSONObject result = new JSONObject();
     String expectedResult = "{\"more\":false,\"members\":[{\"qualifiedName\":\"[All]\",\"name\":\"all\"," +
-        "\"memberType\":\"ALL\",\"caption\":\"member with type all\",\"type\":\"member\"}," +
-        "{\"qualifiedName\":\"[Formula]\",\"name\":\"formula\",\"memberType\":\"FORMULA\"," +
-        "\"caption\":\"member with type formula\",\"type\":\"member\"},{\"qualifiedName\":\"[Measure]\"," +
-        "\"name\":\"measure\",\"memberType\":\"MEASURE\",\"caption\":\"member with type measure\"," +
-        "\"type\":\"member\"}]}";
+      "\"memberType\":\"ALL\",\"caption\":\"member with type all\",\"type\":\"member\"}," +
+      "{\"qualifiedName\":\"[Formula]\",\"name\":\"formula\",\"memberType\":\"FORMULA\"," +
+      "\"caption\":\"member with type formula\",\"type\":\"member\"},{\"qualifiedName\":\"[Measure]\"," +
+      "\"name\":\"measure\",\"memberType\":\"MEASURE\",\"caption\":\"member with type measure\"," +
+      "\"type\":\"member\"}]}";
     long pageSize = 3;
     long pageStart = 1;
 
-    result = olapUtils.getPaginatedLevelMembers( "", "", "", "", "", "", pageSize, pageStart );
-
+    JSONObject result =
+      olapUtils.getPaginatedLevelMembers( "catalog1Name", "SteelWheels", "", "", "", "", pageSize, pageStart );
     assertTrue( jsonEquals( expectedResult, result.toString() ) );
   }
 
 
   private static Dimension[] createTestDimensions() {
-    Dimension[] dimensions = new Dimension[3];
-    dimensions[0] = createBaseDimension( "measuresDim", "measuresCaption", true, "measuresDescription",
-        DimensionType.MeasuresDimension );
-    dimensions[1] = createBaseDimension( "standardDim", "standardCaption", true, "standardDescription",
-        DimensionType.StandardDimension );
-    dimensions[2] = createBaseDimension( "timeDim", "timeCaption", true, "timeDescription",
-        DimensionType.TimeDimension );
+    Dimension[] dimensions = new Dimension[ 3 ];
+
+    dimensions[ 0 ] = createBaseDimension( "measuresDim", "measuresCaption", true, "measuresDescription",
+      DimensionType.MeasuresDimension );
+    dimensions[ 1 ] = createBaseDimension( "standardDim", "standardCaption", true, "standardDescription",
+      DimensionType.StandardDimension );
+    dimensions[ 2 ] = createBaseDimension( "timeDim", "timeCaption", true, "timeDescription",
+      DimensionType.TimeDimension );
 
     return dimensions;
   }
 
   private static Dimension createBaseDimension( String name, String caption, boolean visible, String description,
-      DimensionType dimType ) {
+                                                DimensionType dimType ) {
     return new DimensionMock( name, caption, visible, description, dimType );
   }
 
   private static List<Position> getPositions() {
     List<Position> positions = new ArrayList<>();
+
     for ( RolapMember member : AbstractOlapUtilsForTesting.createMeasuresMembers() ) {
       positions.add( new PositionMock( (RolapMemberBase) member ) );
     }
+
     return positions;
   }
 
   protected boolean jsonEquals( String json1, String json2 ) throws Exception {
     ObjectMapper om = new ObjectMapper();
+
     JsonNode parsedJson1 = om.readTree( json1 );
     JsonNode parsedJson2 = om.readTree( json2 );
+
     return parsedJson1.equals( parsedJson2 );
   }
-
 }
