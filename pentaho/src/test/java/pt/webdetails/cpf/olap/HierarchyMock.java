@@ -81,13 +81,8 @@ public class HierarchyMock extends OlapElementBase implements Hierarchy {
   }
 
   @Override
-  public String getDisplayFolder() {
-    return "";
-  }
-
-  @Override
   public Map<String, Annotation> getAnnotationMap() {
-    return Map.of();
+    return new java.util.HashMap<>();
   }
 
   @Override

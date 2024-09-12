@@ -23,7 +23,6 @@ import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianSchema;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class MondrianCatalogServiceMock implements IMondrianCatalogService {
   @Override

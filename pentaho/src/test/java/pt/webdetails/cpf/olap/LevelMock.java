@@ -93,7 +93,7 @@ public class LevelMock extends OlapElementBase implements Level {
 
   @Override
   public Map<String, Annotation> getAnnotationMap() {
-    return Map.of();
+    return new java.util.HashMap<>();
   }
 
   @Override

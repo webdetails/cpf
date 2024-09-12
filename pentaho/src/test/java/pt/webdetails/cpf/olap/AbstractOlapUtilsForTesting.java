@@ -27,7 +27,12 @@ import java.util.List;
 import static org.mockito.Mockito.mock;
 
 public class AbstractOlapUtilsForTesting extends AbstractOlapUtils {
-  private static final List<String> KNOWN_DATA_SOURCES = List.of( "SampleData" );
+  private static final List<String> KNOWN_DATA_SOURCES = new ArrayList<>();
+
+  static {
+    KNOWN_DATA_SOURCES.add( "SampleData" );
+  }
+
   private Connection mockedConnection;
 
   public void setConnection( Connection connection ) {
