@@ -15,6 +15,10 @@
   <packaging>feature</packaging>
   <description>Pentaho Community Plugin Framework plugin for PDI</description>
 
+  <properties>
+    <karaf-maven-plugin.markTransitiveAsDependency>false</karaf-maven-plugin.markTransitiveAsDependency>
+  </properties>
+
   <dependencyManagement>
     <dependencies>
       <!-- All of these dependencies are being provided in PDI via karaf/etc/custom.properties.
