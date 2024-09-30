@@ -13,7 +13,6 @@
 
 package pt.webdetails.cpf.repository.rca;
 
-import com.sun.jersey.api.client.ClientResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
@@ -22,7 +21,9 @@ import pt.webdetails.cpf.api.IFileContent;
 import pt.webdetails.cpf.api.IUserContentAccessExtended;
 import pt.webdetails.cpf.repository.api.FileAccess;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import java.io.IOException;
@@ -67,13 +68,13 @@ public class RemoteUserContentAccess extends RemoteReadWriteAccess implements IU
     String fullPath = buildPath( path );
     String requestURL = createRequestURL( "/api/repo/files/", fullPath, "localeProperties" );
 
-    ClientResponse response = client.resource( requestURL )
+    Response response = client.target( requestURL )
       .queryParam( "locale", defaultLocale )
-      .type( MediaType.APPLICATION_XML )
-      .put( ClientResponse.class, new JAXBElement<>( new QName( "stringKeyStringValueDtoes" ), ArrayList.class, properties  ) );
+      .request( MediaType.APPLICATION_XML )
+      .put( Entity.xml( new JAXBElement<>( new QName( "properties" ), ArrayList.class, properties ) ) );
 
     //TODO: handle non-OK status codes? log? exception?
-    return response.getStatus() == ClientResponse.Status.OK.getStatusCode();
+    return response.getStatus() == Response.Status.OK.getStatusCode();
   }
 
   @Override
@@ -83,9 +84,9 @@ public class RemoteUserContentAccess extends RemoteReadWriteAccess implements IU
     String response = null;
     try {
       response = client
-        .resource( requestURL )
+        .target( requestURL )
         .queryParam( "permissions", Integer.toString( encodeFileAccess( access ) ) )
-        .type( MediaType.TEXT_PLAIN )
+        .request( MediaType.TEXT_PLAIN )
         .get( String.class );
     } catch ( Exception ex ) {
       logger.error( ex );

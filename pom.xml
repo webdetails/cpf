@@ -51,7 +51,6 @@
     <javassist.version>3.20.0-GA</javassist.version>
     <jta.version>1.1</jta.version>
     <google-collections.version>1.0</google-collections.version>
-    <jersey.version>1.19.1</jersey.version>
     <jcr.version>2.0</jcr.version>
     <owasp.encoder.version>1.2</owasp.encoder.version>
     <pentaho-json.version>11.0.0.0-SNAPSHOT</pentaho-json.version>
@@ -203,38 +202,63 @@
       </dependency>
       <dependency>
         <groupId>javax.ws.rs</groupId>
-        <artifactId>jsr311-api</artifactId>
-        <version>${jsr311-api.version}</version>
+        <artifactId>javax.ws.rs-api</artifactId>
+        <version>${javax.ws.rs-api.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.sun.jersey.contribs</groupId>
-        <artifactId>jersey-spring</artifactId>
+        <groupId>org.glassfish.jersey.ext</groupId>
+        <artifactId>jersey-spring5</artifactId>
         <version>${jersey.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
-        <groupId>com.sun.jersey</groupId>
-        <artifactId>jersey-core</artifactId>
-        <version>${jersey.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.sun.jersey</groupId>
-        <artifactId>jersey-json</artifactId>
-        <version>${jersey.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.sun.jersey</groupId>
+        <groupId>org.glassfish.jersey.core</groupId>
         <artifactId>jersey-client</artifactId>
         <version>${jersey.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>*</groupId>
+            <artifactId>*</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
-        <groupId>com.sun.jersey</groupId>
+        <groupId>org.glassfish.jersey.media</groupId>
+        <artifactId>jersey-media-json-processing</artifactId>
+        <version>${jersey.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>*</groupId>
+            <artifactId>*</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.jersey.core</groupId>
         <artifactId>jersey-server</artifactId>
         <version>${jersey.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>*</groupId>
+            <artifactId>*</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
-        <groupId>com.sun.jersey</groupId>
-        <artifactId>jersey-servlet</artifactId>
+        <groupId>org.glassfish.jersey.containers</groupId>
+        <artifactId>jersey-container-servlet</artifactId>
         <version>${jersey.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>*</groupId>
+            <artifactId>*</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.yaml</groupId>
