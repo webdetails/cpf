@@ -12,9 +12,12 @@
 
 package pt.webdetails.cpf.repository.rca;
 
-import com.sun.jersey.api.json.JSONConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.glassfish.jersey.client.ClientConfig;
+import javax.ws.rs.core.Response;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileTreeDto;
@@ -27,13 +30,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
-import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
-
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -51,10 +50,10 @@ public class RemoteReadAccess implements IReadAccess {
 
   public RemoteReadAccess( String reposURL, String username, String password ) {
     this.reposURL = reposURL;
-    ClientConfig clientConfig = new DefaultClientConfig();
-    clientConfig.getFeatures().put( JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE );
-    client = Client.create( clientConfig );
-    client.addFilter( new HTTPBasicAuthFilter( username, password ) );
+    ClientConfig clientConfig = new ClientConfig();
+    clientConfig.register( MultiPartFeature.class );
+    client = ClientBuilder.newClient( clientConfig );
+    client.register( HttpAuthenticationFeature.basic( username, password ) );
   }
 
   public RemoteReadAccess( String basePath, String reposURL, String username, String password ) {
@@ -68,13 +67,14 @@ public class RemoteReadAccess implements IReadAccess {
     String fullPath = buildPath( path );
     String requestURL = createRequestURL( fullPath, "download" );
 
-    ClientResponse clientResponse = client.resource( requestURL )
+    Response clientResponse = client.target( requestURL )
       .queryParam( "withManifest", "false" )
-      .type( MediaType.APPLICATION_OCTET_STREAM_TYPE )
-      .get( ClientResponse.class );
+      .request( MediaType.APPLICATION_OCTET_STREAM_TYPE )
+      .get( Response.class );
 
-    if ( clientResponse != null && clientResponse.getStatus() == ClientResponse.Status.OK.getStatusCode() ) {
-      return clientResponse.getEntityInputStream();
+    if ( clientResponse != null && clientResponse.getStatus() == Response.Status.OK.getStatusCode() ) {
+      InputStream inputStream = clientResponse.readEntity( InputStream.class );
+      return inputStream;
     }
     return null;
   }
@@ -84,19 +84,19 @@ public class RemoteReadAccess implements IReadAccess {
     String fullPath = buildPath( path );
     String requestURL = createRequestURL( fullPath, "properties" );
 
-    ClientResponse clientResponse = client.resource( requestURL )
-      .type( MediaType.APPLICATION_XML )
-      .get( ClientResponse.class );
+    Response clientResponse = client.target( requestURL )
+      .request( MediaType.APPLICATION_XML )
+      .get( Response.class );
 
-    return ( clientResponse != null && clientResponse.getStatus() == ClientResponse.Status.OK.getStatusCode() );
+    return ( clientResponse != null && clientResponse.getStatus() == Response.Status.OK.getStatusCode() );
   }
 
   @Override
   public long getLastModified( String path ) {
     String fullPath = buildPath( path );
     String requestURL = createRequestURL( fullPath, "properties" );
-    RepositoryFileDto response = client.resource( requestURL )
-      .type( MediaType.APPLICATION_XML )
+    RepositoryFileDto response = client.target( requestURL )
+      .request( MediaType.APPLICATION_XML )
       .get( RepositoryFileDto.class );
 
     if ( response == null ) {
@@ -110,7 +110,7 @@ public class RemoteReadAccess implements IReadAccess {
     String fullPath = buildPath( path );
     String requestURL = createRequestURL( fullPath, "tree" );
 
-    WebResource resource = client.resource( requestURL );
+    WebTarget resource = client.target( requestURL );
 
     // apply query params
     resource = resource.queryParam( "showHidden", Boolean.toString( showHiddenFilesAndFolders ) );
@@ -129,7 +129,7 @@ public class RemoteReadAccess implements IReadAccess {
     // GET
     RepositoryFileTreeDto response = null;
     try {
-      response = resource.type( MediaType.APPLICATION_XML ).get( RepositoryFileTreeDto.class );
+      response = resource.request( MediaType.APPLICATION_XML ).get( RepositoryFileTreeDto.class );
     } catch ( Exception ex ) {
       logger.error( ex );
       return null;
@@ -160,8 +160,8 @@ public class RemoteReadAccess implements IReadAccess {
   public IBasicFile fetchFile( String path ) {
     String fullPath = buildPath( path );
     String requestURL = createRequestURL( fullPath, "properties" );
-    RepositoryFileDto response = client.resource( requestURL )
-      .type( MediaType.APPLICATION_XML )
+    RepositoryFileDto response = client.target( requestURL )
+      .request( MediaType.APPLICATION_XML )
       .get( RepositoryFileDto.class );
     return new RemoteBasicFile( basePath, this, response );
   }
