@@ -14,12 +14,20 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.*;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletInputStream;
-import javax.servlet.ServletContext;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.AsyncContext;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.http.HttpUpgradeHandler;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Cookie;
 
 import pt.webdetails.cpf.utils.CharsetHelper;
 
@@ -190,9 +198,17 @@ public class CpfHttpServletRequest implements HttpServletRequest {
     }
 
     @Override
-    public Enumeration<Object> getHeaders(String name) {
+    public Enumeration<String> getHeaders(String name) {
         HeaderValueHolder header = HeaderValueHolder.getByName(this.headers, name);
-        return header != null ? header.getValues() : Collections.enumeration( Collections.emptyList() );
+        if ( header != null ) {
+            List<String> values = new ArrayList<>();
+            Enumeration<Object> enumeration = header.getValues();
+            while ( enumeration.hasMoreElements() ) {
+                values.add( enumeration.nextElement().toString() );
+            }
+            return Collections.enumeration( values );
+        }
+        return Collections.enumeration( Collections.emptyList() );
     }
 
     @Override
@@ -344,7 +360,12 @@ public class CpfHttpServletRequest implements HttpServletRequest {
     public HttpSession getSession() {
         return getSession(true);
     }
-    
+
+    @Override
+    public String changeSessionId() {
+        return "";
+    }
+
     public void setSession(HttpSession session) {
         this.session = session;
         if (session instanceof CpfHttpSession) {
@@ -380,7 +401,37 @@ public class CpfHttpServletRequest implements HttpServletRequest {
         return isRequestedSessionIdFromURL();
     }
 
-    
+    @Override
+    public boolean authenticate( HttpServletResponse httpServletResponse ) throws IOException, ServletException {
+        return false;
+    }
+
+    @Override
+    public void login( String s, String s1 ) throws ServletException {
+
+    }
+
+    @Override
+    public void logout() throws ServletException {
+
+
+    }
+
+    @Override
+    public Collection<Part> getParts() throws IOException, ServletException {
+        return List.of();
+    }
+
+    @Override
+    public Part getPart( String s ) throws IOException, ServletException {
+        return null;
+    }
+
+    @Override
+    public <T extends HttpUpgradeHandler> T upgrade( Class<T> aClass ) throws IOException, ServletException {
+        return null;
+    }
+
     public void setRequestedSessionIdFromURL(boolean requestedSessionIdFromURL) {
         this.requestedSessionIdFromURL = requestedSessionIdFromURL;
     }
@@ -414,6 +465,11 @@ public class CpfHttpServletRequest implements HttpServletRequest {
     @Override
     public int getContentLength() {
         return (this.content != null ? this.content.length : -1);
+    }
+
+    @Override
+    public long getContentLengthLong() {
+        return 0;
     }
 
     @Override
@@ -640,7 +696,42 @@ public class CpfHttpServletRequest implements HttpServletRequest {
     public int getLocalPort() {
         return this.localPort;
     }
-    
+
+    @Override
+    public ServletContext getServletContext() {
+        return null;
+    }
+
+    @Override
+    public AsyncContext startAsync() throws IllegalStateException {
+        return null;
+    }
+
+    @Override
+    public AsyncContext startAsync( ServletRequest servletRequest, ServletResponse servletResponse ) throws IllegalStateException {
+        return null;
+    }
+
+    @Override
+    public boolean isAsyncStarted() {
+        return false;
+    }
+
+    @Override
+    public boolean isAsyncSupported() {
+        return false;
+    }
+
+    @Override
+    public AsyncContext getAsyncContext() {
+        return null;
+    }
+
+    @Override
+    public DispatcherType getDispatcherType() {
+        return null;
+    }
+
     public void setLocalPort(int localPort) {
         this.localPort = localPort;
     }

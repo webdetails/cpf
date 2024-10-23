@@ -2,7 +2,7 @@ package pt.webdetails.cpf.messaging;
 
 import java.io.OutputStream;
 
-import javax.servlet.ServletOutputStream;
+import jakarta.servlet.ServletOutputStream;
 
 import pt.webdetails.cpf.web.CpfHttpServletResponse;
 import pt.webdetails.cpf.web.DelegatingServletOutputStream;
