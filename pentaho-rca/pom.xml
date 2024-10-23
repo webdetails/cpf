@@ -21,9 +21,9 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>javax.ws.rs</groupId>
-      <artifactId>javax.ws.rs-api</artifactId>
-      <version>${javax.ws.rs-api.version}</version>
+      <groupId>jakarta.ws.rs</groupId>
+      <artifactId>jakarta.ws.rs-api</artifactId>
+      <version>${jakarta.ws.rs-api.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>

@@ -20,10 +20,10 @@ import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDt
 import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringValueDto;
 import pt.webdetails.cpf.repository.api.IRWAccess;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBElement;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.io.InputStream;
