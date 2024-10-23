@@ -17,7 +17,8 @@ package pt.webdetails.cpf.web;
 
 import java.io.IOException;
 import java.io.InputStream;
-import javax.servlet.ServletInputStream;
+import jakarta.servlet.ReadListener;
+import jakarta.servlet.ServletInputStream;
 
 
 public class DelegatingServletInputStream extends ServletInputStream  {
@@ -45,6 +46,21 @@ public class DelegatingServletInputStream extends ServletInputStream  {
     public void close() throws IOException {
         super.close();
         this.sourceStream.close();
+    }
+
+    @Override
+    public boolean isFinished() {
+        return false;
+    }
+
+    @Override
+    public boolean isReady() {
+        return false;
+    }
+
+    @Override
+    public void setReadListener( ReadListener readListener ) {
+
     }
 }
 
