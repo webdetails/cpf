@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;

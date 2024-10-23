@@ -13,7 +13,7 @@
 
 package pt.webdetails.cpf;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * @author pdpi

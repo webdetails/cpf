@@ -1,5 +1,5 @@
 /*!
- * Copyright 2019-2021 Webdetails, a Hitachi Vantara company. All rights reserved.
+ * Copyright 2019-2024 Webdetails, a Hitachi Vantara company. All rights reserved.
  *
  * This software was developed by Webdetails and is provided under the terms
  * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -18,9 +18,9 @@ import org.junit.Test;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.springframework.beans.factory.ListableBeanFactory;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;

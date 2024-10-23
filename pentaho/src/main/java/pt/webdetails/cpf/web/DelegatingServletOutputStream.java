@@ -7,7 +7,8 @@ package pt.webdetails.cpf.web;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import javax.servlet.ServletOutputStream;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.WriteListener;
 
 /**
  *
@@ -42,6 +43,16 @@ public class DelegatingServletOutputStream extends ServletOutputStream {
     public void close() throws IOException {
         super.close();
         this.targetStream.close();
+    }
+
+    @Override
+    public boolean isReady() {
+        return false;
+    }
+
+    @Override
+    public void setWriteListener( WriteListener writeListener ) {
+
     }
 }
 

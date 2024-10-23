@@ -1,5 +1,5 @@
 /*!
-* Copyright 2002 - 2019 Webdetails, a Hitachi Vantara company. All rights reserved.
+* Copyright 2002 - 2024 Webdetails, a Hitachi Vantara company. All rights reserved.
 *
 * This software was developed by Webdetails and is provided under the terms
 * of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -23,11 +23,11 @@ import java.util.concurrent.Callable;
 
 import java.lang.reflect.Method;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Response;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -244,13 +244,13 @@ public class InterPluginCall implements Runnable, Callable<String>, IPluginCall 
         for ( Annotation annotation : params[i] ) {
           String annotationClass = annotation.annotationType().getName();
 
-          if ( "javax.ws.rs.QueryParam".equals( annotationClass ) ) {
+          if ( "jakarta.ws.rs.QueryParam".equals( annotationClass ) ) {
             QueryParam param = (QueryParam) annotation;
             paramName = param.value();
-          } else if ( "javax.ws.rs.DefaultValue".equals( annotationClass ) ) {
+          } else if ( "jakarta.ws.rs.DefaultValue".equals( annotationClass ) ) {
             DefaultValue param = (DefaultValue) annotation;
             paramDefaultValue = param.value();
-          } else if ( "javax.ws.rs.core.Context".equals( annotationClass ) ) {
+          } else if ( "jakarta.ws.rs.core.Context".equals( annotationClass ) ) {
             if ( paramTypes[i] == HttpServletRequest.class ) {
 
               CpfHttpServletRequest cpfRequest = (CpfHttpServletRequest) getRequest();
