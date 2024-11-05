@@ -30,7 +30,6 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpSessionBindingEvent;
 import jakarta.servlet.http.HttpSessionBindingListener;
-import jakarta.servlet.http.HttpSessionContext;
 
 import org.springframework.util.Assert;
 
@@ -85,10 +84,6 @@ public class CpfHttpSession implements HttpSession {
 
     public int getMaxInactiveInterval() {
        return this.maxInactiveInterval;
-    }
-
-    public HttpSessionContext getSessionContext() {
-       throw new UnsupportedOperationException("getSessionContext");
     }
 
     public Object getAttribute(String name) {
