@@ -14,6 +14,7 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.*;
+import jakarta.servlet.ServletConnection;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -658,7 +659,6 @@ public class CpfHttpServletRequest implements HttpServletRequest {
         return new CpfRequestDispatcher(path);
     }
 
-    @Override
     public String getRealPath(String path) {
         return this.servletContext.getRealPath(path);
     }
@@ -729,6 +729,21 @@ public class CpfHttpServletRequest implements HttpServletRequest {
 
     @Override
     public DispatcherType getDispatcherType() {
+        return null;
+    }
+
+    @Override
+    public String getRequestId() {
+        return null;
+    }
+
+    @Override
+    public String getProtocolRequestId() {
+        return null;
+    }
+
+    @Override
+    public ServletConnection getServletConnection() {
         return null;
     }
 
