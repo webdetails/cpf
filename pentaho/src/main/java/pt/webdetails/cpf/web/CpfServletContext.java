@@ -195,28 +195,8 @@ class CpfServletContext implements ServletContext {
   }
 
   @Override
-  public Servlet getServlet( String string ) throws ServletException {
-    throw new UnsupportedOperationException( "Not supported yet." );
-  }
-
-  @Override
-  public Enumeration getServlets(  ) {
-    throw new UnsupportedOperationException( "Not supported yet." );
-  }
-
-  @Override
-  public Enumeration getServletNames(  ) {
-    throw new UnsupportedOperationException( "Not supported yet." );
-  }
-
-  @Override
   public void log( String message ) {
     logger.info( message );
-  }
-
-  @Override
-  public void log( Exception ex, String message ) {
-    logger.info( message, ex );
   }
 
   @Override
