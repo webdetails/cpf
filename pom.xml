@@ -38,7 +38,6 @@
 
   <properties>
     <commons-vfs.version>1.0</commons-vfs.version>
-    <commons-io.version>2.1</commons-io.version>
     <commons-collections.version>3.2.2</commons-collections.version>
     <commons-lang.version>2.6</commons-lang.version>
     <hsqldb.version>2.3.2</hsqldb.version>
@@ -58,7 +57,6 @@
     <pentaho-json.version>10.3.0.0-SNAPSHOT</pentaho-json.version>
     <platform.version>10.3.0.0-SNAPSHOT</platform.version>
     <mondrian.version>10.3.0.0-SNAPSHOT</mondrian.version>
-    <rhino.version>1.7.13</rhino.version>
     <mockito.version>5.10.0</mockito.version>
   </properties>
 
