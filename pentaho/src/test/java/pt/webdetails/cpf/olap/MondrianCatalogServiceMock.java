@@ -20,10 +20,10 @@ import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServic
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCube;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianSchema;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class MondrianCatalogServiceMock implements IMondrianCatalogService {
   @Override
@@ -49,6 +49,17 @@ public class MondrianCatalogServiceMock implements IMondrianCatalogService {
       .filter( mondrianCatalog -> mondrianCatalog.getName().equals( s ) ).findAny()
       .orElse( null );
   }
+
+  @Override public InputStream getCatalogSchemaAsStream( String s, boolean b ) {
+    var schema =
+      String.format( "<schema name=\"%s\"><cube name=\"name1\"/><cube name=\"name2\"/></schema>", s );
+    return new ByteArrayInputStream( schema.getBytes() );
+  }
+
+  @Override public InputStream getCatalogAnnotationsAsStream( String s ) {
+    return null;
+  }
+
 
   @Override
   public MondrianSchema loadMondrianSchema( String s, IPentahoSession iPentahoSession ) {
