@@ -19,7 +19,9 @@ import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCube;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianSchema;
+import org.pentaho.platform.util.FileHelper;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +51,17 @@ public class MondrianCatalogServiceMock implements IMondrianCatalogService {
       .filter( mondrianCatalog -> mondrianCatalog.getName().equals( s ) ).findAny()
       .orElse( null );
   }
+
+  @Override public InputStream getCatalogSchemaAsStream( String s, boolean b ) {
+    var schema =
+      String.format( "<schema name=\"%s\"><cube name=\"name1\"/><cube name=\"name2\"/></schema>", s );
+    return new ByteArrayInputStream( schema.getBytes() );
+  }
+
+  @Override public InputStream getCatalogAnnotationsAsStream( String s ) {
+    return null;
+  }
+
 
   @Override
   public MondrianSchema loadMondrianSchema( String s, IPentahoSession iPentahoSession ) {
