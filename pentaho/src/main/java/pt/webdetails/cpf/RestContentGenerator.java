@@ -14,7 +14,7 @@
 package pt.webdetails.cpf;
 
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import pt.webdetails.cpf.RestRequestHandler.HttpMethod;
 import pt.webdetails.cpf.http.ICommonParameterProvider;
 import pt.webdetails.cpf.utils.IPluginUtils;

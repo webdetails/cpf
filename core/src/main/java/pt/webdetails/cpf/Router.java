@@ -23,7 +23,7 @@ import pt.webdetails.cpf.scripting.IGlobalScope;
 import pt.webdetails.cpf.utils.CharsetHelper;
 import pt.webdetails.cpf.utils.MimeTypes;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;

@@ -13,16 +13,17 @@
 
 package pt.webdetails.cpf.repository.rca;
 
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.api.repository2.unified.webservices.StringKeyStringValueDto;
 import pt.webdetails.cpf.repository.api.IRWAccess;
 
-import javax.ws.rs.core.MediaType;
-import javax.xml.bind.JAXBElement;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.io.InputStream;
@@ -66,11 +67,11 @@ public class RemoteReadWriteAccess extends RemoteReadAccess implements IRWAccess
     parts.field( "overwriteFile", "true" );
     parts.field( "fileNameOverride", filename );
 
-    ClientResponse response = client.resource( requestURL )
-      .type( MediaType.MULTIPART_FORM_DATA )
-      .post( ClientResponse.class, parts );
+    Response response = client.target( requestURL )
+      .request( MediaType.MULTIPART_FORM_DATA )
+      .post( Entity.entity( parts, MediaType.MULTIPART_FORM_DATA_TYPE ), Response.class );
 
-    if ( response.getStatus() != ClientResponse.Status.OK.getStatusCode() ) {
+    if ( response.getStatus() != Response.Status.OK.getStatusCode() ) {
       //TODO: handle non-OK status codes? log? exception?
       return false;
     }
@@ -105,18 +106,18 @@ public class RemoteReadWriteAccess extends RemoteReadAccess implements IRWAccess
     }
 
     String requestURL = createRequestURL( "", "delete" ); // TODO: delete or deletepermanent
-    ClientResponse response = client.resource( requestURL )
-      .type( MediaType.APPLICATION_XML )
-      .put( ClientResponse.class, fileId );
+    Response response = client.target( requestURL )
+      .request( MediaType.APPLICATION_XML )
+      .put(Entity.entity(fileId, MediaType.APPLICATION_XML ), Response.class );
 
     //TODO: handle non-OK status codes? log? exception?
-    return response.getStatus() == ClientResponse.Status.OK.getStatusCode();
+    return response.getStatus() == Response.Status.OK.getStatusCode();
   }
 
   private String remoteFileId( String path ) {
     String requestURL = createRequestURL( path, "properties" );
-    RepositoryFileDto properties = client.resource( requestURL )
-      .type( MediaType.APPLICATION_XML )
+    RepositoryFileDto properties = client.target( requestURL )
+      .request( MediaType.APPLICATION_XML )
       .get( RepositoryFileDto.class );
 
     if ( properties == null ) {
@@ -129,12 +130,12 @@ public class RemoteReadWriteAccess extends RemoteReadAccess implements IRWAccess
   public boolean createFolder( String path ) {
     String fullPath = buildPath( path );
     String requestURL = createRequestURL( "/api/repo/dirs/", fullPath, null );
-    ClientResponse response = client.resource( requestURL )
-      .type( MediaType.APPLICATION_XML )
-      .put( ClientResponse.class, fullPath );
+    Response response = client.target( requestURL )
+      .request( MediaType.APPLICATION_XML )
+      .put( Entity.entity( fullPath , MediaType.APPLICATION_XML ) ,Response.class );
 
     //TODO: handle non-OK status codes? log? exception?
-    return response.getStatus() == ClientResponse.Status.OK.getStatusCode();
+    return response.getStatus() == Response.Status.OK.getStatusCode();
   }
 
   @Override
@@ -161,12 +162,12 @@ public class RemoteReadWriteAccess extends RemoteReadAccess implements IRWAccess
     metadata.add( metadataProperty );
 
     String requestURL = createRequestURL( fullPath, "metadata" );
-    ClientResponse response = client.resource( requestURL )
-      .type( MediaType.APPLICATION_XML )
-      .put( ClientResponse.class, new JAXBElement<>( new QName( "stringKeyStringValueDtoes" ), ArrayList.class, metadata ) );
+    Response response = client.target( requestURL )
+      .request( MediaType.APPLICATION_XML )
+      .put( Entity.entity( new JAXBElement<>( new QName( "stringKeyStringValueDtoes" ), ArrayList.class, metadata ), MediaType.APPLICATION_XML ), Response.class );
 
     // TODO: handle non-OK status codes? log? exceptions?
-    if ( response.getStatus() == ClientResponse.Status.OK.getStatusCode() ) {
+    if ( response.getStatus() == Response.Status.OK.getStatusCode() ) {
       return true;
     }
     logger.error( "Failed to set " + key + "=" + value + " for: " + fullPath );

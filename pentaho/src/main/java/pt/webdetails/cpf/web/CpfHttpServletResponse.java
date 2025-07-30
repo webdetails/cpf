@@ -18,7 +18,6 @@ package pt.webdetails.cpf.web;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -26,14 +25,15 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 
 import pt.webdetails.cpf.utils.CharsetHelper;
 
@@ -164,7 +164,12 @@ public class CpfHttpServletResponse implements HttpServletResponse {
     public void setContentLength(int contentLength) {
         this.contentLength = contentLength;
     }
-    
+
+    @Override
+    public void setContentLengthLong( long l ) {
+        this.contentLength= ( int ) l;
+    }
+
     public int getContentLength() {
         return this.contentLength;
     }
@@ -269,15 +274,15 @@ public class CpfHttpServletResponse implements HttpServletResponse {
     public Set<String> getHeaderNames() {
         return this.headers.keySet();
     }
-    
-    public Object getHeader(String name) {
+
+    public String getHeader(String name) {
         HeaderValueHolder header = HeaderValueHolder.getByName(this.headers, name);
-        return (header != null ? header.getValue() : null);
+        return (header != null ? header.getValue().toString() : null);
     }
 
-    public Enumeration<Object> getHeaders(String name) {
+    public Collection<String> getHeaders(String name) {
         HeaderValueHolder header = HeaderValueHolder.getByName(this.headers, name);
-        return header != null ? header.getValues() : Collections.enumeration( Collections.emptyList() );
+        return header != null ? ( Collection<String> ) header.getValues() : ( Collection<String> ) Collections.enumeration(  Collections.emptyList() );
     }
 
     public String encodeURL(String url) {
