@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.pentaho</groupId>
     <artifactId>pentaho-ce-bundle-parent-pom</artifactId>
-    <version>11.0.0.0-SNAPSHOT</version>
+    <version>11.0.0.0-67</version>
   </parent>
 
   <groupId>pentaho</groupId>
@@ -53,9 +53,9 @@
     <google-collections.version>1.0</google-collections.version>
     <jcr.version>2.0</jcr.version>
     <owasp.encoder.version>1.2</owasp.encoder.version>
-    <pentaho-json.version>11.0.0.0-SNAPSHOT</pentaho-json.version>
-    <platform.version>11.0.0.0-SNAPSHOT</platform.version>
-    <mondrian.version>11.0.0.0-SNAPSHOT</mondrian.version>
+    <pentaho-json.version>11.0.0.0-67</pentaho-json.version>
+    <platform.version>11.0.0.0-67</platform.version>
+    <mondrian.version>11.0.0.0-67</mondrian.version>
     <mockito.version>5.10.0</mockito.version>
   </properties>
 
