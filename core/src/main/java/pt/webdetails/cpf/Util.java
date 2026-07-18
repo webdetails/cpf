@@ -2,13 +2,14 @@
  *
  * Pentaho
  *
- * Copyright (C) 2024 by Hitachi Vantara, LLC : http://www.pentaho.com
+ * Copyright (C) 2024 - 2026 by Pentaho Canada Inc. : http://www.pentaho.com
  *
  * Use of this software is governed by the Business Source License included
  * in the LICENSE.TXT file.
  *
- * Change Date: 2029-07-20
+ * Change Date: 2030-06-15
  ******************************************************************************/
+
 
 
 package pt.webdetails.cpf;
@@ -47,7 +48,7 @@ public abstract class Util {
   private static Log logger = LogFactory.getLog( Util.class );
 
     /* Detecting whether we were loaded with the PluginClassLoader is a decent
-     * proxy for determining whether we are inside Hitachi Vantara. If so, we can go
+     * proxy for determining whether we are inside Pentaho. If so, we can go
      * look for the global CPF settings in the solution
      */
   //    private static boolean isPlugin = Util.class.getClassLoader() instanceof PluginClassLoader;
