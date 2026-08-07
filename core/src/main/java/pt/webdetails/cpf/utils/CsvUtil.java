@@ -14,7 +14,7 @@
 
 package pt.webdetails.cpf.utils;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.Collection;

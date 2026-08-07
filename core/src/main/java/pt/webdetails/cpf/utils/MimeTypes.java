@@ -13,7 +13,7 @@
 
 package pt.webdetails.cpf.utils;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import pt.webdetails.cpf.repository.util.RepositoryHelper;
 
 import java.util.EnumMap;

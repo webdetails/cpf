@@ -13,7 +13,7 @@
 
 package pt.webdetails.cpf;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.pentaho.platform.util.web.MimeHelper;
 import pt.webdetails.cpf.utils.MimeTypes;
 
