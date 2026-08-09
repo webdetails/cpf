@@ -16,7 +16,7 @@
   <parent>
     <groupId>pentaho</groupId>
     <artifactId>cpf-plugin</artifactId>
-    <version>11.1.0.0-SNAPSHOT</version>
+    <version>11.1.0.0-368</version>
   </parent>
   <artifactId>cpf-pentaho-rca</artifactId>
 
