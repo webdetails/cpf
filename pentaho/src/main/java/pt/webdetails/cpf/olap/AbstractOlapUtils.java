@@ -26,7 +26,7 @@ import mondrian.olap.Util;
 import mondrian.rolap.RolapConnectionProperties;
 import mondrian.rolap.RolapMember;
 import mondrian.rolap.RolapResult;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;

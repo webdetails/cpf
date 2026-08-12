@@ -33,7 +33,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import mondrian.olap.QueryTimeoutException;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

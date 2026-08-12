@@ -14,7 +14,7 @@
 
 package pt.webdetails.cpf.repository;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 
 import java.io.FileNotFoundException;
